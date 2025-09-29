@@ -1,5 +1,6 @@
 
 "use client";
+
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,9 +17,9 @@ export default function EarningsCalculator() {
 
   return (
     <section className="container py-16">
-      <h2 className="text-2xl md:text-3xl font-semibold">Calculadora de ingresos</h2>
+      <h1 className="text-2xl md:text-3xl font-semibold">Calculadora de ingresos</h1>
       <p className="text-sm text-muted-foreground mt-2">
-        Precio por consulta: ${PRECIO.toLocaleString("es-AR")} — Comisión DocYa: {COMISION * 100}% — 
+        Precio por consulta: ${PRECIO.toLocaleString("es-AR")} — Comisión DocYa: {COMISION * 100}% —{" "}
         Neto por consulta: <strong>${NETO.toLocaleString("es-AR")}</strong>
       </p>
 
