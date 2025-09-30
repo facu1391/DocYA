@@ -73,7 +73,7 @@ export default function Navbar() {
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
           {/* Solo páginas reales */}
-          <Link href="/ingresos" className={linkCls("/calculadora")}>
+          <Link href="/ingresos" className={linkCls("/ingresos")}>
             Ingresos
           </Link>
           <Link href="/faqs" className={linkCls("/faqs")}>
@@ -132,8 +132,8 @@ export default function Navbar() {
         ].join(" ")}
       >
         <div className="container py-3 flex flex-col gap-2 text-sm font-medium">
-          <Link href="/calculadora" className={linkCls("/calculadora")}>
-            Calculadora
+          <Link href="/ingresos" className={linkCls("/ingresos")}>
+            Ingresos
           </Link>
           <Link href="/faqs" className={linkCls("/faqs")}>
             FAQs

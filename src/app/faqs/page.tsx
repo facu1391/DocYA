@@ -8,8 +8,6 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <main className="bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
       <FAQs />
-    </main>
   );
 }
