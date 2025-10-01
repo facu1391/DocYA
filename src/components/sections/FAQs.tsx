@@ -1,5 +1,3 @@
-
-// src/components/sections/FAQs.tsx
 "use client";
 
 import {
@@ -31,15 +29,15 @@ const faqs: FAQ[] = [
 
 export default function FAQs() {
   return (
-    <section className="relative">
+    <section className="relative overflow-hidden">
       {/* fondo suave y glow de marca */}
       <div className="absolute inset-0 pointer-events-none brand-glow" />
-      <div className="container relative py-16 md:py-20">
+
+      <div className="container relative z-10 py-16 md:py-20">
         {/* Título centrado */}
         <header className="text-center max-w-3xl mx-auto">
           <h1 className="text-3xl md:text-5xl font-semibold leading-tight">
-            Preguntas{" "}
-            <span className="text-[var(--brand)]">frecuentes</span>
+            Preguntas <span className="text-[var(--brand)]">frecuentes</span>
           </h1>
           <p className="mt-3 text-sm md:text-base text-muted-foreground">
             Respuestas rápidas sobre pagos, disponibilidad y requisitos para usar
