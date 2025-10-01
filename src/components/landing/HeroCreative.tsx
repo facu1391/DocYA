@@ -1,34 +1,17 @@
-
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { Check, ArrowRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, Navigation, A11y } from "swiper/modules";
+import { Autoplay, Pagination, A11y } from "swiper/modules";
 import "swiper/css";
-import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 type Slide =
-  | {
-      src: string;
-      kind: "headline";
-      title: string;
-      subtitle: string;
-    }
-  | {
-      src: string;
-      kind: "paragraph";
-      title: string;
-      paragraph: string;
-    }
-  | {
-      src: string;
-      kind: "bullets";
-      title: string;
-      bullets: string[];
-    };
+  | { src: string; kind: "headline"; title: string; subtitle: string }
+  | { src: string; kind: "paragraph"; title: string; paragraph: string }
+  | { src: string; kind: "bullets"; title: string; bullets: string[] };
 
 const SLIDES: Slide[] = [
   {
@@ -43,7 +26,7 @@ const SLIDES: Slide[] = [
     kind: "paragraph",
     title: "Conectá con pacientes a domicilio",
     paragraph:
-      "Conectá con pacientes a domicilio en minutos. Elegí horarios y zonas. Ingreso por consulta: $30.000 (20% comisión DocYa).",
+      "Conectá con pacientes a domicilio en minutos. Elegí horarios y zonas. Ingreso por consulta: $30.000",
   },
   {
     src: "/hero/hero3.jpg",
@@ -60,18 +43,15 @@ const SLIDES: Slide[] = [
 export default function HeroFullBleed() {
   return (
     <section className="relative w-full bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
-      {/* Carrusel full-bleed */}
       <div className="relative w-full">
         <Swiper
-          modules={[Autoplay, Pagination, Navigation, A11y]}
+          modules={[Autoplay, Pagination, A11y]}
           loop
           speed={650}
           slidesPerView={1}
-          centeredSlides={false}
           autoplay={{ delay: 3800, disableOnInteraction: false, pauseOnMouseEnter: true }}
           pagination={{ clickable: true }}
-          navigation
-          className="w-full"
+          className="w-full hero-swiper"
         >
           {SLIDES.map((s, i) => (
             <SwiperSlide key={i}>
@@ -85,11 +65,9 @@ export default function HeroFullBleed() {
                   className="object-cover"
                 />
 
-                {/* Overlays para legibilidad */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/10" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-black/15" />
 
-                {/* Contenido por slide */}
                 <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
                   <div className="max-w-4xl">
                     {s.kind === "headline" && (
@@ -130,13 +108,9 @@ export default function HeroFullBleed() {
                       </>
                     )}
 
-                    {/* CTAs (en la imagen) */}
                     <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                       <Link href="/registro" className="btn-primary">
                         Registrate como profesional <ArrowRight className="h-4 w-4" />
-                      </Link>
-                      <Link href="#como-funciona" className="btn-outline-primary">
-                        Cómo funciona
                       </Link>
                     </div>
                   </div>
@@ -147,12 +121,40 @@ export default function HeroFullBleed() {
         </Swiper>
       </div>
 
-      {/* Solo el subtexto debajo */}
       <div className="container mx-auto px-6">
         <p className="text-center text-sm text-muted-foreground py-6">
           Atención inicial en CABA (Palermo y Belgrano) — expansión nacional.
         </p>
       </div>
+
+      {/* Estilos del paginador scopeados al componente */}
+      <style jsx>{`
+        /* Variables de Swiper aplicadas SOLO a este carrusel */
+        .hero-swiper {
+          --swiper-theme-color: var(--brand);
+          --swiper-pagination-bullet-inactive-color: color-mix(in srgb, var(--brand) 35%, transparent);
+          --swiper-pagination-bullet-inactive-opacity: 0.75;
+          --swiper-pagination-bullet-size: 8px;
+          --swiper-pagination-bullet-horizontal-gap: 5px;
+        }
+        .hero-swiper :global(.swiper-pagination) {
+          bottom: 14px;
+        }
+        .hero-swiper :global(.swiper-pagination-bullet) {
+          background: var(--swiper-pagination-bullet-inactive-color);
+          opacity: var(--swiper-pagination-bullet-inactive-opacity);
+        }
+        .hero-swiper :global(.swiper-pagination-bullet-active) {
+          background: var(--swiper-theme-color);
+          opacity: 1;
+          transform: scale(1.15);
+        }
+        /* Por si alguna hoja agrega flechas, las forzamos a ocultarse */
+        .hero-swiper :global(.swiper-button-prev),
+        .hero-swiper :global(.swiper-button-next) {
+          display: none !important;
+        }
+      `}</style>
     </section>
   );
 }

@@ -1,20 +1,26 @@
 
+// src/app/layout.tsx
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/ThemeProvider"; // 👈 importás el provider
+import { ThemeProvider } from "@/components/ThemeProvider";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
+import FloatingCTA from "@/components/fab/FloatingCTA";
 import { Toaster } from "react-hot-toast";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-poppins",
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
   subsets: ["latin"],
+  variable: "--font-geist-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -23,30 +29,23 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DocYa Pro — Sumate como profesional",
     description: "Conectá con pacientes a domicilio. Elegí horarios y zonas.",
-    images: ["/og.png"], // poné un og en /public/og.png
+    images: ["/logo-pro-light.png"],
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-           <Navbar />
-          {children}
-           <Footer />
-        <Toaster position="top-right" />
+    <html lang="es" suppressHydrationWarning>
+      {/* 👇 activamos la variable de Poppins y Geist Mono + font-sans */}
+      <body className={`${poppins.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col font-sans`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <Navbar />
+          <main className="flex-1 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)] overflow-x-hidden">
+            {children}
+          </main>
+          <Footer />
+          <FloatingCTA />
+          <Toaster position="top-right" />
         </ThemeProvider>
       </body>
     </html>
