@@ -1,4 +1,3 @@
-// src/app/gracias/page.tsx
 import Link from "next/link";
 import { PartyPopper, MailCheck, Clock, ArrowRight } from "lucide-react";
 

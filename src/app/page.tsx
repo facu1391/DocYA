@@ -1,5 +1,3 @@
-
-// src/app/page.tsx
 import HeroCreative from "@/components/landing/HeroCreative";
 import Benefits from "@/components/landing/Benefits";
 import HowItWorks from "@/components/landing/HowItWorks";

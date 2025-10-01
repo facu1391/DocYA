@@ -1,4 +1,3 @@
-
 import FAQs from "@/components/sections/FAQs";
 
 export const metadata = {

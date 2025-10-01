@@ -1,4 +1,3 @@
-// src/components/sections/EarningsCalculator.tsx
 "use client";
 
 import { useMemo, useState } from "react";

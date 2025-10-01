@@ -1,5 +1,3 @@
-
-// src/components/sections/FAQs.tsx
 "use client";
 
 import {

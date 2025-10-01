@@ -1,5 +1,3 @@
-
-// src/components/registro/RegistroHero.tsx
 export default function RegistroHero() {
   return (
     <section className="border-b border-[var(--nav-border)] relative">

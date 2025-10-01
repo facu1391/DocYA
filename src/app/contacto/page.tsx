@@ -1,5 +1,3 @@
-
-// src/app/contacto/page.tsx
 import ContactHero from "@/components/contact/ContactHero";
 import ContactSidebar from "@/components/contact/ContactSidebar";
 import ContactForm from "@/components/contact/ContactForm";

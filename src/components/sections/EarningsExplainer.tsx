@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Calculator, XOctagon, TrendingUp, Check } from "lucide-react";

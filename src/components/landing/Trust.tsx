@@ -1,4 +1,3 @@
-
 import { ShieldCheck, Scale, Lock, BadgeCheck } from "lucide-react";
 
 const items = [

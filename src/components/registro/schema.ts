@@ -1,5 +1,3 @@
-
-// src/components/registro/schema.ts
 import { z } from "zod";
 
 export const registroSchema = z.object({
