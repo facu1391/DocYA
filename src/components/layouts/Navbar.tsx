@@ -1,5 +1,4 @@
 
-// src/components/layout/Navbar.tsx
 "use client";
 
 import Link from "next/link";
@@ -31,15 +30,15 @@ export default function Navbar() {
   }, [pathname]);
 
   const linkCls = (href: string) =>
-    `transition-colors hover:text-[var(--brand)]
-     ${pathname === href ? "text-[var(--brand)]" : "text-white"}`;
+    `transition-colors hover:text-[var(--brand)] ${
+      pathname === href ? "text-[var(--brand)]" : "text-white"
+    }`;
 
   return (
     <header
       className={[
         "sticky top-0 z-50 w-full border-b",
         "border-[var(--nav-border)]",
-        // fondo sólido en top, con blur + ligera transparencia al scrollear
         scrolled
           ? "bg-[color-mix(in_srgb,var(--nav-bg) 92%,transparent)] backdrop-blur"
           : "bg-[var(--nav-bg)]",
@@ -48,36 +47,24 @@ export default function Navbar() {
       <nav className="container h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0" aria-label="Ir a la Home">
-          {/* logo para modo claro */}
           <div className="relative h-10 w-[150px] dark:hidden">
-            <Image
-              src="/logo-pro-dark.png"
-              alt="DocYa Pro"
-              fill
-              className="object-contain"
-              priority
-            />
+            <Image src="/logo-pro-dark.png" alt="DocYa Pro" fill className="object-contain" priority />
           </div>
-          {/* logo para modo oscuro */}
           <div className="relative h-10 w-[150px] hidden dark:block">
-            <Image
-              src="/logo-pro-light.png"
-              alt="DocYa Pro"
-              fill
-              className="object-contain"
-              priority
-            />
+            <Image src="/logo-pro-light.png" alt="DocYa Pro" fill className="object-contain" priority />
           </div>
         </Link>
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-          {/* Solo páginas reales */}
           <Link href="/ingresos" className={linkCls("/ingresos")}>
             Ingresos
           </Link>
           <Link href="/faqs" className={linkCls("/faqs")}>
             FAQs
+          </Link>
+          <Link href="/contacto" className={linkCls("/contacto")}>
+            Contacto
           </Link>
 
           {/* CTA Registro */}
@@ -137,6 +124,9 @@ export default function Navbar() {
           </Link>
           <Link href="/faqs" className={linkCls("/faqs")}>
             FAQs
+          </Link>
+          <Link href="/contacto" className={linkCls("/contacto")}>
+            Contacto
           </Link>
           <Link href="/registro" className="btn-primary h-9 w-full justify-center mt-1">
             Registrate
