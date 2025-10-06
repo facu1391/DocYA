@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -9,15 +8,16 @@ import { Send, Stethoscope } from "lucide-react";
 import ConfirmModal from "@/components/common/ConfirmModal";
 
 export default function FloatingCTA() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const router = useRouter();
   const [openConfirm, setOpenConfirm] = useState(false);
 
   // Ocultar en /registro y /gracias
   const HIDDEN_ROUTES = ["/registro", "/gracias"];
-  if (HIDDEN_ROUTES.some((p) => pathname?.startsWith(p))) return null;
+  if (HIDDEN_ROUTES.some((p) => pathname.startsWith(p))) return null;
 
-  const isPublicLanding = pathname === "/";
+  // 👇 Público: home + legales de pacientes
+  const isPublicAudience = pathname === "/" || pathname.startsWith("/legal/pacientes");
 
   return (
     <>
@@ -51,7 +51,7 @@ export default function FloatingCTA() {
             animate={{ y: [0, -3, 0] }}
             transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
           >
-            {isPublicLanding ? (
+            {isPublicAudience ? (
               // Variante pública: abre modal de confirmación
               <button
                 type="button"
@@ -68,7 +68,7 @@ export default function FloatingCTA() {
                 <Stethoscope className="ml-2 h-4 w-4" />
               </button>
             ) : (
-              // Variante PRO: lleva a registro
+              // Variante PRO: lleva directo a registro
               <Link
                 href="/registro"
                 aria-label="Registrarme como profesional"

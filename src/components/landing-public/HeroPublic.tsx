@@ -44,7 +44,7 @@ export default function HeroPublic() {
                   <p className="mt-4 text-white/90 text-base sm:text-lg md:text-xl drop-shadow">Conectá con profesionales en minutos, sin salir de casa.</p>
                   <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                     <button type="button" onClick={() => setOpen(true)} className="btn-primary">Sumate como profesional</button>
-                    <Link href="#descargar" className="btn-outline-primary" aria-label="Descargar la app">Descargar app</Link>
+                    <Link href="" className="btn-outline-primary" aria-label="Descargar la app">Descargar app</Link>
                   </div>
                 </div>
               </div>
@@ -54,17 +54,18 @@ export default function HeroPublic() {
       </Swiper>
 
       <ConfirmModal
-        open={open}
-        title="Vas a ingresar a la sección para profesionales"
-        description="Esta sección es para médicos y enfermeros. ¿Querés continuar?"
-        confirmText="Sí, ir a Profesionales"
-        cancelText="No, quedarme aquí"
-        onConfirm={() => {
-          setOpen(false);
-          router.push("/profesionales");
-        }}
-        onCancel={() => setOpen(false)}
-      />
+          open={open}
+          onOpenChange={setOpen}   // 👈 faltaba esto
+          title="Vas a ingresar a la sección para profesionales"
+          description="Esta sección es para médicos y enfermeros. ¿Querés continuar?"
+          confirmText="Sí, ir a Profesionales"
+          cancelText="No, quedarme aquí"
+          onConfirm={() => {
+            setOpen(false);
+            router.push("/profesionales");
+          }}
+          onCancel={() => setOpen(false)}
+        />
 
       <style jsx>{`
         .hero-swiper {

@@ -5,6 +5,7 @@ import Requirements from "@/components/landing/Requirements";
 import Steps from "@/components/landing/Steps";
 import Trust from "@/components/landing/Trust";
 import DemandInsights from "@/components/landing/DemandInsights";
+import DownloadAppPublic from "@/components/landing-public/DownloadAppPublic";
 
 
 export const metadata = {
@@ -23,6 +24,7 @@ export default function Page() {
         <Trust />
         <Requirements />
         <DemandInsights />
+         <DownloadAppPublic />
     </main>
   );
 }

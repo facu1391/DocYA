@@ -1,7 +1,15 @@
 
 "use client";
+
 import { motion, type Variants, cubicBezier } from "framer-motion";
-import { ShieldCheck, Stethoscope, FileCheck2, Wallet, Clock8, RadioTower } from "lucide-react";
+import {
+  ShieldCheck,
+  Stethoscope,
+  FileCheck2,
+  Wallet,
+  Clock8,
+  RadioTower,
+} from "lucide-react";
 
 type Benefit = {
   icon: React.ReactNode;
@@ -10,12 +18,36 @@ type Benefit = {
 };
 
 const benefits: Benefit[] = [
-  { icon: <Stethoscope className="h-6 w-6" />, title: "Atención médica y de enfermería 24/7", desc: "Pedí una consulta cuando la necesites. Estamos disponibles todo el día." },
-  { icon: <ShieldCheck className="h-6 w-6" />, title: "Profesionales verificados", desc: "Validamos matrícula y credenciales para tu tranquilidad." },
-  { icon: <FileCheck2 className="h-6 w-6" />, title: "Recetas y certificados digitales", desc: "Documentación válida y segura, lista para descargar y compartir." },
-  { icon: <RadioTower className="h-6 w-6" />, title: "Cobertura por zonas", desc: "Asignación inteligente según cercanía para reducir tiempos de espera." },
-  { icon: <Clock8 className="h-6 w-6" />, title: "Respuesta rápida", desc: "Tiempo objetivo promedio menor a 35 minutos en zonas activas." },
-  { icon: <Wallet className="h-6 w-6" />, title: "Pagos seguros", desc: "Operaciones protegidas y soporte disponible cuando lo necesites." },
+  {
+    icon: <Stethoscope className="h-6 w-6" />,
+    title: "Atención médica y de enfermería 24/7",
+    desc: "Pedí una consulta cuando la necesites. Estamos disponibles todo el día.",
+  },
+  {
+    icon: <ShieldCheck className="h-6 w-6" />,
+    title: "Profesionales verificados",
+    desc: "Validamos matrícula y credenciales para tu tranquilidad.",
+  },
+  {
+    icon: <FileCheck2 className="h-6 w-6" />,
+    title: "Recetas y certificados digitales",
+    desc: "Documentación válida y segura, lista para descargar y compartir.",
+  },
+  {
+    icon: <RadioTower className="h-6 w-6" />,
+    title: "Cobertura por zonas",
+    desc: "Asignación inteligente según cercanía para reducir tiempos de espera.",
+  },
+  {
+    icon: <Clock8 className="h-6 w-6" />,
+    title: "Respuesta rápida",
+    desc: "Tiempo objetivo promedio menor a 35 minutos en zonas activas.",
+  },
+  {
+    icon: <Wallet className="h-6 w-6" />,
+    title: "Pagos seguros",
+    desc: "Operaciones protegidas y soporte disponible cuando lo necesites.",
+  },
 ];
 
 const container: Variants = {
@@ -34,7 +66,7 @@ const item: Variants = {
     scale: 1,
     transition: {
       duration: 0.45,
-      ease: cubicBezier(0.22, 1, 0.36, 1), // ✅ tip-safe
+      ease: cubicBezier(0.22, 1, 0.36, 1),
     },
   },
 };
@@ -55,7 +87,17 @@ export default function BenefitsPublic() {
         </motion.h2>
 
         <motion.div
-          className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="
+            mt-10 px-2 grid gap-6 md:gap-8
+            /* 1 columna en mobile */
+            /* en md: 2 columnas de ancho fijo y centradas */
+            md:[grid-template-columns:repeat(2,minmax(0,360px))]
+            md:justify-center
+            /* en lg: 3 columnas centradas */
+            lg:[grid-template-columns:repeat(3,minmax(0,360px))]
+            /* limitar ancho total y centrar bloque */
+            max-w-[1120px] mx-auto
+          "
           variants={container}
           initial="hidden"
           whileInView="show"
@@ -69,17 +111,21 @@ export default function BenefitsPublic() {
             >
               <div className="flex items-start gap-4">
                 <span
-                  className="inline-flex items-center justify-center rounded-xl h-12 w-12 shrink-0
-                             text-[var(--brand)]
-                             bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
-                             border border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
-                             shadow-sm group-hover:scale-105 transition-transform"
+                  className="
+                    inline-flex items-center justify-center rounded-xl h-12 w-12 shrink-0
+                    text-[var(--brand)]
+                    bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
+                    border border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
+                    shadow-sm group-hover:scale-105 transition-transform
+                  "
                 >
                   {b.icon}
                 </span>
                 <div>
                   <h3 className="text-lg md:text-xl font-semibold">{b.title}</h3>
-                  <p className="mt-1.5 text-sm md:text-base text-muted-foreground">{b.desc}</p>
+                  <p className="mt-1.5 text-sm md:text-base text-muted-foreground">
+                    {b.desc}
+                  </p>
                 </div>
               </div>
             </motion.article>

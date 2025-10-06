@@ -112,6 +112,7 @@ export default function HeroFullBleed() {
                       <Link href="/registro" className="btn-primary">
                         Registrate como profesional <ArrowRight className="h-4 w-4" />
                       </Link>
+                      <Link href="" className="btn-outline-primary" aria-label="Descargar la app">Descargar app</Link>
                     </div>
                   </div>
                 </div>
