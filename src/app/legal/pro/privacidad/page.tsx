@@ -186,7 +186,7 @@ export default function Privacidad() {
 
             {/* Footer interno con CTAs */}
             <div className="not-prose flex flex-wrap items-center gap-3">
-              <Link href="/legal/terminos" className="btn-outline-primary">
+              <Link href="/legal/pro/terminos" className="btn-outline-primary">
                 Ver Términos y Condiciones
               </Link>
               <Link href="/registro" className="btn-primary">
