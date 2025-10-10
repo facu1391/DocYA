@@ -8,13 +8,22 @@ import { registroSchema, type RegistroFormValues } from "./schema";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import {
-  User2, Mail, Phone, Stethoscope, IdCard, MapPin,
-  MessageSquareText, Send, Loader2, Image as ImageIcon, IdCard as IdIcon, Camera,
+  User2,
+  Mail,
+  Phone,
+  Stethoscope,
+  IdCard,
+  MapPin,
+  Send,
+  Loader2,
+  Image as ImageIcon,
+  IdCard as IdIcon,
+  Camera,
+  Lock,
 } from "lucide-react";
 import { useRef } from "react";
 
@@ -31,13 +40,13 @@ export default function RegistroForm() {
     resolver: zodResolver(registroSchema),
   });
 
-  // Para mostrar el nombre del archivo elegido
+  // Mostrar nombre de archivo elegido
   const foto = watch("foto");
   const dniFrente = watch("dniFrente");
   const dniDorso = watch("dniDorso");
   const selfieDni = watch("selfieDni");
 
-  // helper para setear un File (RHForm en <input type="file"> entrega FileList)
+  // Helper: setear File (RHForm en <input type="file"> entrega FileList)
   const onPickFile =
     (field: keyof RegistroFormValues) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,40 +56,84 @@ export default function RegistroForm() {
 
   async function onSubmit(data: RegistroFormValues) {
     try {
-      // Enviamos MULTIPART (con archivos)
+      // === Mapear zona -> provincia/localidad (heurística simple) ===
+      const rawZona = (data.zona || "").trim();
+      const [p1 = "", p2 = ""] = rawZona.split("/").map((s) => s.trim());
+      let provincia = "";
+      let localidad = "";
+      if (p1 && p2) {
+        const isProv = (s: string) =>
+          /caba|bs\.?as|buenos\s*aires|provincia/i.test(s);
+        if (isProv(p1)) {
+          provincia = p1;
+          localidad = p2;
+        } else if (isProv(p2)) {
+          provincia = p2;
+          localidad = p1;
+        } else {
+          localidad = p1;
+          provincia = p2;
+        }
+      } else {
+        localidad = rawZona;
+        provincia = "";
+      }
+
+      // === Enviamos MULTIPART a /api/register (proxy local, sin CORS) ===
       const fd = new FormData();
-      // Campos de texto
-      fd.append("nombre", data.nombre);
-      fd.append("apellido", data.apellido);
-      fd.append("email", data.email);
-      fd.append("telefono", data.telefono);
-      fd.append("rol", data.rol);
-      fd.append("matricula", data.matricula);
-      fd.append("zona", data.zona);
-      if (data.comentario) fd.append("comentario", data.comentario);
 
-      // Archivos
-      fd.append("foto", data.foto);
-      fd.append("dniFrente", data.dniFrente);
-      fd.append("dniDorso", data.dniDorso);
-      fd.append("selfieDni", data.selfieDni);
+      // Texto -> nombres EXACTOS que espera el backend real
+      fd.append("full_name", data.nombreCompleto.trim());
+      fd.append("email", data.email.toLowerCase().trim());
+      fd.append("password", data.password);
+      fd.append("matricula", data.matricula.trim());
+      fd.append("especialidad", data.especialidad.trim());
+      fd.append("tipo", data.rol); // backend: "tipo" (medico|enfermero)
+      fd.append("telefono", data.telefono.trim());
+      fd.append("provincia", provincia);
+      fd.append("localidad", localidad);
+      fd.append("dni", data.dni.trim());
 
-      const res = await fetch("/api/registro", {
+      // Archivos -> nombres EXACTOS que espera el backend real
+      fd.append("foto_perfil", data.foto);
+      fd.append("foto_dni_frente", data.dniFrente);
+      fd.append("foto_dni_dorso", data.dniDorso);
+      fd.append("selfie_dni", data.selfieDni);
+
+      // ⬇️ Proxy local
+      const res = await fetch("/api/register", {
         method: "POST",
-        body: fd, // ¡no pongas Content-Type a mano!
+        body: fd, // no setear Content-Type
       });
-      if (!res.ok) throw new Error("Error al enviar");
-      toast.success("Registro enviado ✅");
-      router.push("/gracias");
+
+      if (!res.ok) {
+        let detail = "No se pudo enviar. Probá de nuevo.";
+        try {
+          const js = await res.json();
+          if (js?.detail) detail = js.detail; // FastAPI: { detail: "..." }
+        } catch {}
+        if (res.status === 409) toast.error(detail || "Email o matrícula ya registrados.");
+        else toast.error(detail);
+        return;
+      }
+
+      const payload = await res.json().catch(() => null);
+      toast.success(
+        payload?.mensaje ??
+          "Registro exitoso ✅. Revisá tu correo para activar tu cuenta."
+      );
+
+      // Redirige a /gracias con confetti
+      router.push("/gracias?celebra=1");
     } catch {
-      toast.error("No se pudo enviar. Probá de nuevo.");
+      toast.error("Error de red. Probá de nuevo.");
     }
   }
 
   const Err = ({ msg }: { msg?: string }) =>
     msg ? <p className="text-xs text-red-500 mt-1">{msg}</p> : null;
 
-  // Componente para la fila de archivo (estilo del mock)
+  // Fila de archivo
   function FileRow({
     id,
     label,
@@ -105,15 +158,8 @@ export default function RegistroForm() {
           {label}
         </Label>
 
-        <div
-          className="
-            flex items-center gap-2 rounded-md border bg-background px-3 py-2
-            focus-within:ring-2 focus-within:ring-[var(--brand)] focus-within:border-[var(--brand)]
-          "
-        >
-          <span className="inline-flex items-center justify-center rounded-md h-8 w-8 border
-                           text-[var(--brand)] border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
-                           bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]">
+        <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-[var(--brand)] focus-within:border-[var(--brand)]">
+          <span className="inline-flex items-center justify-center rounded-md h-8 w-8 border text-[var(--brand)] border-[color-mix(in_srgb,var(--brand)_45%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]">
             {icon}
           </span>
 
@@ -150,28 +196,22 @@ export default function RegistroForm() {
       noValidate
       className="mt-6 sm:mt-8 grid gap-4 sm:gap-5 md:gap-6 motion-safe:animate-in motion-safe:fade-in-50"
     >
-      {/* fila 1 */}
-      <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
-        <div>
-          <Label>Nombre</Label>
-          <div className="relative mt-1">
-            <User2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input className="pl-9 h-11 md:h-12" {...register("nombre")} autoComplete="given-name" />
-          </div>
-          <Err msg={errors.nombre?.message} />
+      {/* Nombre completo */}
+      <div>
+        <Label>Nombre y apellido</Label>
+        <div className="relative mt-1">
+          <User2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+          <Input
+            className="pl-9 h-11 md:h-12"
+            placeholder="Ej: Ana Pérez"
+            {...register("nombreCompleto")}
+            autoComplete="name"
+          />
         </div>
-
-        <div>
-          <Label>Apellido</Label>
-          <div className="relative mt-1">
-            <User2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input className="pl-9 h-11 md:h-12" {...register("apellido")} autoComplete="family-name" />
-          </div>
-          <Err msg={errors.apellido?.message} />
-        </div>
+        <Err msg={errors.nombreCompleto?.message} />
       </div>
 
-      {/* fila 2 */}
+      {/* Email / Teléfono */}
       <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
         <div>
           <Label>Email</Label>
@@ -186,21 +226,26 @@ export default function RegistroForm() {
           <Label>Teléfono</Label>
           <div className="relative mt-1">
             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input className="pl-9 h-11 md:h-12" {...register("telefono")} inputMode="tel" autoComplete="tel" />
+            <Input
+              className="pl-9 h-11 md:h-12"
+              {...register("telefono")}
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="+54 9 …"
+            />
           </div>
           <Err msg={errors.telefono?.message} />
         </div>
       </div>
 
-      {/* fila 3 */}
+      {/* Rol / Especialidad */}
       <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
         <div>
           <Label>Rol</Label>
           <div className="relative mt-1">
             <Stethoscope className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
             <select
-              className="w-full h-11 md:h-12 rounded-md border pl-9 pr-8 bg-background
-                         focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
+              className="w-full h-11 md:h-12 rounded-md border pl-9 pr-8 bg-background focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
               defaultValue=""
               {...register("rol")}
               aria-invalid={!!errors.rol}
@@ -214,6 +259,23 @@ export default function RegistroForm() {
         </div>
 
         <div>
+          <Label>Especialidad</Label>
+          <div className="relative mt-1">
+            <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+            <Input
+              className="pl-9 h-11 md:h-12"
+              placeholder="Ej: Clínica, Pediatría, UTI…"
+              {...register("especialidad")}
+              autoComplete="off"
+            />
+          </div>
+          <Err msg={errors.especialidad?.message} />
+        </div>
+      </div>
+
+      {/* Matrícula / DNI */}
+      <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+        <div>
           <Label>Matrícula</Label>
           <div className="relative mt-1">
             <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
@@ -221,28 +283,56 @@ export default function RegistroForm() {
           </div>
           <Err msg={errors.matricula?.message} />
         </div>
+
+        <div>
+          <Label>DNI</Label>
+          <div className="relative mt-1">
+            <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+            <Input
+              className="pl-9 h-11 md:h-12"
+              {...register("dni")}
+              inputMode="numeric"
+              pattern="\d*"
+              placeholder="Solo números"
+              autoComplete="off"
+            />
+          </div>
+          <Err msg={errors.dni?.message} />
+        </div>
       </div>
 
-      {/* fila 4 */}
+      {/* Zona */}
       <div>
-        <Label>Zona preferida</Label>
+        <Label>Zona donde vivís / cobertura</Label>
         <div className="relative mt-1">
           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-          <Input placeholder="Ej: Palermo / Belgrano" className="pl-9 h-11 md:h-12" {...register("zona")} />
+          <Input placeholder="Ej: CABA / Palermo" className="pl-9 h-11 md:h-12" {...register("zona")} />
         </div>
         <Err msg={errors.zona?.message} />
       </div>
 
-      {/* fila 5 (comentario) */}
-      <div>
-        <Label>Comentario (opcional)</Label>
-        <div className="relative mt-1">
-          <MessageSquareText className="absolute left-3 top-3 h-4 w-4 text-[var(--brand)]" />
-          <Textarea rows={4} className="pl-9" {...register("comentario")} />
+      {/* Contraseñas */}
+      <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+        <div>
+          <Label>Contraseña</Label>
+          <div className="relative mt-1">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+            <Input type="password" className="pl-9 h-11 md:h-12" {...register("password")} autoComplete="new-password" />
+          </div>
+          <Err msg={errors.password?.message} />
+        </div>
+
+        <div>
+          <Label>Confirmar contraseña</Label>
+          <div className="relative mt-1">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+            <Input type="password" className="pl-9 h-11 md:h-12" {...register("passwordConfirm")} autoComplete="new-password" />
+          </div>
+          <Err msg={errors.passwordConfirm?.message} />
         </div>
       </div>
 
-      {/* ======= ARCHIVOS ======= */}
+      {/* Archivos */}
       <div className="grid gap-4 sm:gap-5">
         <FileRow
           id="foto"
@@ -252,7 +342,6 @@ export default function RegistroForm() {
           fileName={foto?.name}
           error={errors.foto?.message}
         />
-
         <FileRow
           id="dniFrente"
           label="DNI Frente"
@@ -261,7 +350,6 @@ export default function RegistroForm() {
           fileName={dniFrente?.name}
           error={errors.dniFrente?.message}
         />
-
         <FileRow
           id="dniDorso"
           label="DNI Dorso"
@@ -270,7 +358,6 @@ export default function RegistroForm() {
           fileName={dniDorso?.name}
           error={errors.dniDorso?.message}
         />
-
         <FileRow
           id="selfieDni"
           label="Selfie con DNI"
@@ -281,21 +368,21 @@ export default function RegistroForm() {
         />
       </div>
 
-      {/* Disclaimer legal */}
-      <p className="text-xs sm:text-[13px] text-muted-foreground">
-        Al enviar aceptás los{" "}
-        <Link href="/legal/terminos" className="link-primary">Términos</Link>{" "}
-        y la{" "}
-        <Link href="/legal/privacidad" className="link-primary">Política de Privacidad</Link>{" "}
-        de DocYa Pro.
-      </p>
+      {/* Aceptación de términos */}
+      <div className="flex items-start gap-3">
+        <input id="aceptaTerminos" type="checkbox" className="mt-1 h-4 w-4" {...register("aceptaTerminos")} />
+        <Label htmlFor="aceptaTerminos" className="text-sm text-muted-foreground">
+          Acepto los{" "}
+          <Link href="/legal/pro/terminos" className="link-primary">Términos y Condiciones</Link>{" "}
+          y la{" "}
+          <Link href="/legal/pro/privacidad" className="link-primary">Política de Privacidad</Link>{" "}
+          de DocYa Pro.
+        </Label>
+      </div>
+      <Err msg={errors.aceptaTerminos?.message as string | undefined} />
 
       <div className="pt-1 sm:pt-2">
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full sm:w-auto bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--brand-foreground)]"
-        >
+        <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--brand-foreground)]">
           {isSubmitting ? (
             <>
               Enviando
