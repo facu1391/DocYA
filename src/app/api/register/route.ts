@@ -1,13 +1,14 @@
-
-// src/app/api/register/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
-export const runtime = "nodejs";          // ← importante para uploads
-export const dynamic = "force-dynamic";   // ← evita caché en dev
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const form = await req.formData();
+    const body = await req.json().catch(() => null);
+    if (!body) {
+      return NextResponse.json({ detail: "Cuerpo JSON inválido" }, { status: 400 });
+    }
 
     const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
     if (!API_BASE) {
@@ -17,13 +18,13 @@ export async function POST(req: NextRequest) {
 
     const upstream = await fetch(`${API_BASE}/auth/register_medico`, {
       method: "POST",
-      body: form, // NO seteés Content-Type
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
 
-    const text = await upstream.text(); // leemos SIEMPRE el cuerpo para log
+    const text = await upstream.text();
     if (!upstream.ok) {
       console.error("Upstream error:", upstream.status, text);
-      // Intentar reenviar como JSON si lo es
       try {
         const json = JSON.parse(text);
         return NextResponse.json(json, { status: upstream.status });
@@ -32,7 +33,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // OK → devolver tal cual (JSON o texto)
     try {
       const json = JSON.parse(text);
       return NextResponse.json(json, { status: upstream.status });

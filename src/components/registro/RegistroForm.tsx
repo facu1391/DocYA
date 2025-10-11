@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -40,13 +39,12 @@ export default function RegistroForm() {
     resolver: zodResolver(registroSchema),
   });
 
-  // Mostrar nombre de archivo elegido
+  // (Seguimos mostrando nombres de archivo aunque no se envíen)
   const foto = watch("foto");
   const dniFrente = watch("dniFrente");
   const dniDorso = watch("dniDorso");
   const selfieDni = watch("selfieDni");
 
-  // Helper: setear File (RHForm en <input type="file"> entrega FileList)
   const onPickFile =
     (field: keyof RegistroFormValues) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,7 +54,7 @@ export default function RegistroForm() {
 
   async function onSubmit(data: RegistroFormValues) {
     try {
-      // === Mapear zona -> provincia/localidad (heurística simple) ===
+      // Mapear zona -> provincia/localidad (heurística simple)
       const rawZona = (data.zona || "").trim();
       const [p1 = "", p2 = ""] = rawZona.split("/").map((s) => s.trim());
       let provincia = "";
@@ -79,51 +77,42 @@ export default function RegistroForm() {
         provincia = "";
       }
 
-      // === Enviamos MULTIPART a /api/register (proxy local, sin CORS) ===
-      const fd = new FormData();
+      // Payload en JSON EXACTO como probaste en Postman
+      const payload = {
+        full_name: data.nombreCompleto.trim(),
+        email: data.email.toLowerCase().trim(),
+        password: data.password,
+        matricula: data.matricula.trim(),
+        especialidad: data.especialidad.trim(),
+        tipo: data.rol,
+        telefono: data.telefono.trim(),
+        provincia,
+        localidad,
+        dni: data.dni.trim(),
+      };
 
-      // Texto -> nombres EXACTOS que espera el backend real
-      fd.append("full_name", data.nombreCompleto.trim());
-      fd.append("email", data.email.toLowerCase().trim());
-      fd.append("password", data.password);
-      fd.append("matricula", data.matricula.trim());
-      fd.append("especialidad", data.especialidad.trim());
-      fd.append("tipo", data.rol); // backend: "tipo" (medico|enfermero)
-      fd.append("telefono", data.telefono.trim());
-      fd.append("provincia", provincia);
-      fd.append("localidad", localidad);
-      fd.append("dni", data.dni.trim());
-
-      // Archivos -> nombres EXACTOS que espera el backend real
-      fd.append("foto_perfil", data.foto);
-      fd.append("foto_dni_frente", data.dniFrente);
-      fd.append("foto_dni_dorso", data.dniDorso);
-      fd.append("selfie_dni", data.selfieDni);
-
-      // ⬇️ Proxy local
       const res = await fetch("/api/register", {
         method: "POST",
-        body: fd, // no setear Content-Type
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
         let detail = "No se pudo enviar. Probá de nuevo.";
         try {
           const js = await res.json();
-          if (js?.detail) detail = js.detail; // FastAPI: { detail: "..." }
+          if (js?.detail) detail = js.detail;
         } catch {}
         if (res.status === 409) toast.error(detail || "Email o matrícula ya registrados.");
         else toast.error(detail);
         return;
       }
 
-      const payload = await res.json().catch(() => null);
+      const payloadResp = await res.json().catch(() => null);
       toast.success(
-        payload?.mensaje ??
-          "Registro exitoso ✅. Revisá tu correo para activar tu cuenta."
+        payloadResp?.mensaje ?? "Registro exitoso ✅. Revisá tu correo para activar tu cuenta."
       );
 
-      // Redirige a /gracias con confetti
       router.push("/gracias?celebra=1");
     } catch {
       toast.error("Error de red. Probá de nuevo.");
@@ -133,7 +122,6 @@ export default function RegistroForm() {
   const Err = ({ msg }: { msg?: string }) =>
     msg ? <p className="text-xs text-red-500 mt-1">{msg}</p> : null;
 
-  // Fila de archivo
   function FileRow({
     id,
     label,
@@ -191,22 +179,13 @@ export default function RegistroForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      noValidate
-      className="mt-6 sm:mt-8 grid gap-4 sm:gap-5 md:gap-6 motion-safe:animate-in motion-safe:fade-in-50"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-6 sm:mt-8 grid gap-4 sm:gap-5 md:gap-6">
       {/* Nombre completo */}
       <div>
         <Label>Nombre y apellido</Label>
         <div className="relative mt-1">
           <User2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-          <Input
-            className="pl-9 h-11 md:h-12"
-            placeholder="Ej: Ana Pérez"
-            {...register("nombreCompleto")}
-            autoComplete="name"
-          />
+          <Input className="pl-9 h-11 md:h-12" placeholder="Ej: Ana Pérez" {...register("nombreCompleto")} autoComplete="name" />
         </div>
         <Err msg={errors.nombreCompleto?.message} />
       </div>
@@ -226,13 +205,7 @@ export default function RegistroForm() {
           <Label>Teléfono</Label>
           <div className="relative mt-1">
             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input
-              className="pl-9 h-11 md:h-12"
-              {...register("telefono")}
-              inputMode="tel"
-              autoComplete="tel"
-              placeholder="+54 9 …"
-            />
+            <Input className="pl-9 h-11 md:h-12" {...register("telefono")} inputMode="tel" autoComplete="tel" placeholder="+54 9 …" />
           </div>
           <Err msg={errors.telefono?.message} />
         </div>
@@ -244,12 +217,7 @@ export default function RegistroForm() {
           <Label>Rol</Label>
           <div className="relative mt-1">
             <Stethoscope className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <select
-              className="w-full h-11 md:h-12 rounded-md border pl-9 pr-8 bg-background focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
-              defaultValue=""
-              {...register("rol")}
-              aria-invalid={!!errors.rol}
-            >
+            <select className="w-full h-11 md:h-12 rounded-md border pl-9 pr-8 bg-background focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]" defaultValue="" {...register("rol")} aria-invalid={!!errors.rol}>
               <option value="">Elegí una opción</option>
               <option value="medico">Médico/a</option>
               <option value="enfermero">Enfermero/a</option>
@@ -262,12 +230,7 @@ export default function RegistroForm() {
           <Label>Especialidad</Label>
           <div className="relative mt-1">
             <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input
-              className="pl-9 h-11 md:h-12"
-              placeholder="Ej: Clínica, Pediatría, UTI…"
-              {...register("especialidad")}
-              autoComplete="off"
-            />
+            <Input className="pl-9 h-11 md:h-12" placeholder="Ej: Clínica, Pediatría, UTI…" {...register("especialidad")} autoComplete="off" />
           </div>
           <Err msg={errors.especialidad?.message} />
         </div>
@@ -288,14 +251,7 @@ export default function RegistroForm() {
           <Label>DNI</Label>
           <div className="relative mt-1">
             <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input
-              className="pl-9 h-11 md:h-12"
-              {...register("dni")}
-              inputMode="numeric"
-              pattern="\d*"
-              placeholder="Solo números"
-              autoComplete="off"
-            />
+            <Input className="pl-9 h-11 md:h-12" {...register("dni")} inputMode="numeric" pattern="\d*" placeholder="Solo números" autoComplete="off" />
           </div>
           <Err msg={errors.dni?.message} />
         </div>
@@ -332,40 +288,12 @@ export default function RegistroForm() {
         </div>
       </div>
 
-      {/* Archivos */}
+      {/* Archivos (UI visible pero NO se envían aún) */}
       <div className="grid gap-4 sm:gap-5">
-        <FileRow
-          id="foto"
-          label="Foto de perfil"
-          icon={<ImageIcon className="h-4 w-4" />}
-          onChange={onPickFile("foto")}
-          fileName={foto?.name}
-          error={errors.foto?.message}
-        />
-        <FileRow
-          id="dniFrente"
-          label="DNI Frente"
-          icon={<IdIcon className="h-4 w-4" />}
-          onChange={onPickFile("dniFrente")}
-          fileName={dniFrente?.name}
-          error={errors.dniFrente?.message}
-        />
-        <FileRow
-          id="dniDorso"
-          label="DNI Dorso"
-          icon={<IdIcon className="h-4 w-4" />}
-          onChange={onPickFile("dniDorso")}
-          fileName={dniDorso?.name}
-          error={errors.dniDorso?.message}
-        />
-        <FileRow
-          id="selfieDni"
-          label="Selfie con DNI"
-          icon={<Camera className="h-4 w-4" />}
-          onChange={onPickFile("selfieDni")}
-          fileName={selfieDni?.name}
-          error={errors.selfieDni?.message}
-        />
+        <FileRow id="foto" label="Foto de perfil" icon={<ImageIcon className="h-4 w-4" />} onChange={onPickFile("foto")} fileName={foto?.name} error={errors.foto?.message} />
+        <FileRow id="dniFrente" label="DNI Frente" icon={<IdIcon className="h-4 w-4" />} onChange={onPickFile("dniFrente")} fileName={dniFrente?.name} error={errors.dniFrente?.message} />
+        <FileRow id="dniDorso" label="DNI Dorso" icon={<IdIcon className="h-4 w-4" />} onChange={onPickFile("dniDorso")} fileName={dniDorso?.name} error={errors.dniDorso?.message} />
+        <FileRow id="selfieDni" label="Selfie con DNI" icon={<Camera className="h-4 w-4" />} onChange={onPickFile("selfieDni")} fileName={selfieDni?.name} error={errors.selfieDni?.message} />
       </div>
 
       {/* Aceptación de términos */}
