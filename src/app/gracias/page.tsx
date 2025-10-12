@@ -9,17 +9,24 @@ export const metadata = {
     "Registro enviado. Revisá tu correo para activar tu cuenta. Te avisaremos del lanzamiento.",
 };
 
-export default function Gracias({
+// En Next 15, searchParams es un Promise<Record<string, string | string[] | undefined>>
+type SP = Record<string, string | string[] | undefined>;
+
+export default async function Gracias({
   searchParams,
 }: {
-  searchParams: { celebra?: string };
+  searchParams: Promise<SP>;
 }) {
-  const fire = searchParams?.celebra === "1";
+  const sp = await searchParams;
+  const celebra = sp?.celebra;
+  const fire =
+    (typeof celebra === "string" && celebra === "1") ||
+    (Array.isArray(celebra) && celebra.includes("1"));
 
   return (
     <main className="bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
       {/* Dispara confetti si venís de registro exitoso */}
-      <ConfettiCelebration fire={fire} />
+      <ConfettiCelebration fire={!!fire} />
 
       {/* Hero */}
       <section className="border-b border-[var(--nav-border)] relative">
@@ -42,7 +49,7 @@ export default function Gracias({
         </div>
       </section>
 
-      {/* Próximos pasos + CTAs (tu contenido actual) */}
+      {/* Próximos pasos + CTAs */}
       <section className="container py-10 md:py-14">
         <div className="max-w-5xl mx-auto grid gap-6 md:grid-cols-3">
           <article className="surface rounded-2xl p-6 border">
