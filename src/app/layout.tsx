@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
 import FloatingCTA from "@/components/fab/FloatingCTA";
+import ScrollToTopButton from "@/components/fab/ScrollToTopButton";
 import { Toaster } from "react-hot-toast";
 
 const poppins = Poppins({
@@ -24,12 +25,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DocYa Pro — Sumate como profesional",
-  description: "Conectá con pacientes a domicilio. Elegí horarios y zonas. Ingresos semanales.",
+  title: "DocYa — Atención médica y de enfermería a domicilio",
+  description:
+    "Profesionales verificados en minutos. Atención a domicilio 24/7 en zonas habilitadas. Pagos seguros y soporte.",
   openGraph: {
-    title: "DocYa Pro — Sumate como profesional",
-    description: "Conectá con pacientes a domicilio. Elegí horarios y zonas.",
-    images: ["/logo-pro-light.png"],
+    title: "DocYa — Atención médica a domicilio",
+    description:
+      "Pedí un médico o enfermero/a a tu hogar, sin esperas. Profesionales verificados y pagos seguros.",
+    images: ["/logo_puclic-light.png"], // 👈 logo público
   },
 };
 
@@ -45,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </main>
           <Footer />
           <FloatingCTA />
+          <ScrollToTopButton />
           <Toaster position="top-right" />
         </ThemeProvider>
       </body>

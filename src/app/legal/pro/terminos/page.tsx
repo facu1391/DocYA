@@ -149,7 +149,7 @@ export default function Terminos() {
 
             {/* CTAs finales */}
             <div className="not-prose flex flex-wrap items-center gap-3">
-              <Link href="/legal/privacidad" className="btn-outline-primary">
+              <Link href="/legal/pro/privacidad" className="btn-outline-primary">
                 Ver Política de Privacidad
               </Link>
               <Link href="/registro" className="btn-primary">
