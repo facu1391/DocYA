@@ -24,7 +24,7 @@ export default function Page() {
         <Trust />
         <Requirements />
         <DemandInsights />
-         <DownloadAppPublic />
+        <DownloadAppPublic />
     </main>
   );
 }
