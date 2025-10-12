@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -6,17 +7,20 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Stethoscope } from "lucide-react";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import { proGateCopy } from "@/components/common/confirmCopy";
+import LoadingSplash from "@/components/common/LoadingSplash";
 
 export default function FloatingCTA() {
   const pathname = usePathname() ?? "";
   const router = useRouter();
   const [openConfirm, setOpenConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Ocultar en /registro y /gracias
   const HIDDEN_ROUTES = ["/registro", "/gracias"];
   if (HIDDEN_ROUTES.some((p) => pathname.startsWith(p))) return null;
 
-  // 👇 Público: home + legales de pacientes
+  // Público: home + legales de pacientes
   const isPublicAudience = pathname === "/" || pathname.startsWith("/legal/pacientes");
 
   return (
@@ -46,38 +50,23 @@ export default function FloatingCTA() {
             transition={{ duration: 2.2, repeat: Infinity, ease: "easeOut" }}
           />
 
-          {/* Botón flotante */}
-          <motion.div
-            animate={{ y: [0, -3, 0] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-          >
+          {/* Botón */}
+          <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}>
             {isPublicAudience ? (
-              // Variante pública: abre modal de confirmación
               <button
                 type="button"
                 onClick={() => setOpenConfirm(true)}
                 aria-label="Ver sección para profesionales"
-                className="
-                  inline-flex items-center rounded-full h-11 px-5 shadow-lg
-                  bg-[var(--brand)] text-[var(--brand-foreground)]
-                  hover:brightness-105 focus-visible:outline-none
-                  focus-visible:ring-4 focus-visible:ring-[color:rgb(0_179_166_/_0.3)]
-                "
+                className="inline-flex items-center rounded-full h-11 px-5 shadow-lg bg-[var(--brand)] text-[var(--brand-foreground)] hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgb(0_179_166_/_0.3)]"
               >
                 Sumate como profesional
                 <Stethoscope className="ml-2 h-4 w-4" />
               </button>
             ) : (
-              // Variante PRO: lleva directo a registro
               <Link
                 href="/registro"
                 aria-label="Registrarme como profesional"
-                className="
-                  inline-flex items-center rounded-full h-11 px-5 shadow-lg
-                  bg-[var(--brand)] text-[var(--brand-foreground)]
-                  hover:brightness-105 focus-visible:outline-none
-                  focus-visible:ring-4 focus-visible:ring-[color:rgb(0_179_166_/_0.3)]
-                "
+                className="inline-flex items-center rounded-full h-11 px-5 shadow-lg bg-[var(--brand)] text-[var(--brand-foreground)] hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgb(0_179_166_/_0.3)]"
               >
                 Súmate
                 <Send className="ml-2 h-4 w-4" />
@@ -87,17 +76,21 @@ export default function FloatingCTA() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Modal de confirmación (reutilizable) */}
+      {/* Splash */}
+      <LoadingSplash show={loading} message="Abriendo Profesionales…" />
+
+      {/* Modal unificado */}
       <ConfirmModal
         open={openConfirm}
         onOpenChange={setOpenConfirm}
-        title="Vas a la sección para profesionales"
-        description="Si sos médico/a o enfermero/a, continuá para ver beneficios, requisitos e inscribirte."
-        confirmText="Ir a Profesionales"
-        cancelText="Quedarme aquí"
+        title={proGateCopy.title}
+        description={proGateCopy.description}
+        confirmText={proGateCopy.confirmText}
+        cancelText={proGateCopy.cancelText}
         onConfirm={() => {
           setOpenConfirm(false);
-          router.push("/profesionales");
+          setLoading(true);
+          setTimeout(() => router.push("/profesionales"), 2000);
         }}
         onCancel={() => setOpenConfirm(false)}
       />

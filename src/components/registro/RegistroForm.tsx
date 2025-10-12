@@ -1,5 +1,7 @@
+// src/components/registro/RegistroForm.tsx
 "use client";
 
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registroSchema, type RegistroFormValues } from "./schema";
@@ -24,10 +26,11 @@ import {
   Camera,
   Lock,
 } from "lucide-react";
-import { useRef } from "react";
+import LoadingSplash from "@/components/common/LoadingSplash";
 
 export default function RegistroForm() {
   const router = useRouter();
+  const [loadingSplash, setLoadingSplash] = useState(false);
 
   const {
     register,
@@ -110,12 +113,16 @@ export default function RegistroForm() {
 
       const payloadResp = await res.json().catch(() => null);
       toast.success(
-        payloadResp?.mensaje ?? "Registro exitoso ✅. Revisá tu correo para activar tu cuenta."
+        payloadResp?.mensaje ??
+          "Registro exitoso ✅. Revisá tu correo para activar tu cuenta."
       );
 
-      router.push("/gracias?celebra=1");
+      // Splash de marca y luego /gracias con confetti
+      setLoadingSplash(true);
+      setTimeout(() => router.push("/gracias?celebra=1"), 2000);
     } catch {
       toast.error("Error de red. Probá de nuevo.");
+      setLoadingSplash(false);
     }
   }
 
@@ -179,151 +186,252 @@ export default function RegistroForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-6 sm:mt-8 grid gap-4 sm:gap-5 md:gap-6">
-      {/* Nombre completo */}
-      <div>
-        <Label>Nombre y apellido</Label>
-        <div className="relative mt-1">
-          <User2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-          <Input className="pl-9 h-11 md:h-12" placeholder="Ej: Ana Pérez" {...register("nombreCompleto")} autoComplete="name" />
-        </div>
-        <Err msg={errors.nombreCompleto?.message} />
-      </div>
-
-      {/* Email / Teléfono */}
-      <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+    <>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        className="mt-6 sm:mt-8 grid gap-4 sm:gap-5 md:gap-6"
+      >
+        {/* Nombre completo */}
         <div>
-          <Label>Email</Label>
+          <Label>Nombre y apellido</Label>
           <div className="relative mt-1">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input type="email" className="pl-9 h-11 md:h-12" {...register("email")} autoComplete="email" />
+            <User2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+            <Input
+              className="pl-9 h-11 md:h-12"
+              placeholder="Ej: Ana Pérez"
+              {...register("nombreCompleto")}
+              autoComplete="name"
+            />
           </div>
-          <Err msg={errors.email?.message} />
+          <Err msg={errors.nombreCompleto?.message} />
         </div>
 
+        {/* Email / Teléfono */}
+        <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+          <div>
+            <Label>Email</Label>
+            <div className="relative mt-1">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+              <Input
+                type="email"
+                className="pl-9 h-11 md:h-12"
+                {...register("email")}
+                autoComplete="email"
+              />
+            </div>
+            <Err msg={errors.email?.message} />
+          </div>
+
+          <div>
+            <Label>Teléfono</Label>
+            <div className="relative mt-1">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+              <Input
+                className="pl-9 h-11 md:h-12"
+                {...register("telefono")}
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="+54 9 …"
+              />
+            </div>
+            <Err msg={errors.telefono?.message} />
+          </div>
+        </div>
+
+        {/* Rol / Especialidad */}
+        <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+          <div>
+            <Label>Rol</Label>
+            <div className="relative mt-1">
+              <Stethoscope className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+              <select
+                className="w-full h-11 md:h-12 rounded-md border pl-9 pr-8 bg-background focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
+                defaultValue=""
+                {...register("rol")}
+                aria-invalid={!!errors.rol}
+              >
+                <option value="">Elegí una opción</option>
+                <option value="medico">Médico/a</option>
+                <option value="enfermero">Enfermero/a</option>
+              </select>
+            </div>
+            <Err msg={errors.rol?.message} />
+          </div>
+
+          <div>
+            <Label>Especialidad</Label>
+            <div className="relative mt-1">
+              <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+              <Input
+                className="pl-9 h-11 md:h-12"
+                placeholder="Ej: Clínica, Pediatría, UTI…"
+                {...register("especialidad")}
+                autoComplete="off"
+              />
+            </div>
+            <Err msg={errors.especialidad?.message} />
+          </div>
+        </div>
+
+        {/* Matrícula / DNI */}
+        <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+          <div>
+            <Label>Matrícula</Label>
+            <div className="relative mt-1">
+              <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+              <Input
+                className="pl-9 h-11 md:h-12"
+                {...register("matricula")}
+                autoComplete="off"
+              />
+            </div>
+            <Err msg={errors.matricula?.message} />
+          </div>
+
+          <div>
+            <Label>DNI</Label>
+            <div className="relative mt-1">
+              <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+              <Input
+                className="pl-9 h-11 md:h-12"
+                {...register("dni")}
+                inputMode="numeric"
+                pattern="\d*"
+                placeholder="Solo números"
+                autoComplete="off"
+              />
+            </div>
+            <Err msg={errors.dni?.message} />
+          </div>
+        </div>
+
+        {/* Zona */}
         <div>
-          <Label>Teléfono</Label>
+          <Label>Zona donde vivís / cobertura</Label>
           <div className="relative mt-1">
-            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input className="pl-9 h-11 md:h-12" {...register("telefono")} inputMode="tel" autoComplete="tel" placeholder="+54 9 …" />
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+            <Input
+              placeholder="Ej: CABA / Palermo"
+              className="pl-9 h-11 md:h-12"
+              {...register("zona")}
+            />
           </div>
-          <Err msg={errors.telefono?.message} />
+          <Err msg={errors.zona?.message} />
         </div>
-      </div>
 
-      {/* Rol / Especialidad */}
-      <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
-        <div>
-          <Label>Rol</Label>
-          <div className="relative mt-1">
-            <Stethoscope className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <select className="w-full h-11 md:h-12 rounded-md border pl-9 pr-8 bg-background focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]" defaultValue="" {...register("rol")} aria-invalid={!!errors.rol}>
-              <option value="">Elegí una opción</option>
-              <option value="medico">Médico/a</option>
-              <option value="enfermero">Enfermero/a</option>
-            </select>
+        {/* Contraseñas */}
+        <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+          <div>
+            <Label>Contraseña</Label>
+            <div className="relative mt-1">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+              <Input
+                type="password"
+                className="pl-9 h-11 md:h-12"
+                {...register("password")}
+                autoComplete="new-password"
+              />
+            </div>
+            <Err msg={errors.password?.message} />
           </div>
-          <Err msg={errors.rol?.message} />
-        </div>
 
-        <div>
-          <Label>Especialidad</Label>
-          <div className="relative mt-1">
-            <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input className="pl-9 h-11 md:h-12" placeholder="Ej: Clínica, Pediatría, UTI…" {...register("especialidad")} autoComplete="off" />
+          <div>
+            <Label>Confirmar contraseña</Label>
+            <div className="relative mt-1">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+              <Input
+                type="password"
+                className="pl-9 h-11 md:h-12"
+                {...register("passwordConfirm")}
+                autoComplete="new-password"
+              />
+            </div>
+            <Err msg={errors.passwordConfirm?.message} />
           </div>
-          <Err msg={errors.especialidad?.message} />
-        </div>
-      </div>
-
-      {/* Matrícula / DNI */}
-      <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
-        <div>
-          <Label>Matrícula</Label>
-          <div className="relative mt-1">
-            <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input className="pl-9 h-11 md:h-12" {...register("matricula")} autoComplete="off" />
-          </div>
-          <Err msg={errors.matricula?.message} />
         </div>
 
-        <div>
-          <Label>DNI</Label>
-          <div className="relative mt-1">
-            <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input className="pl-9 h-11 md:h-12" {...register("dni")} inputMode="numeric" pattern="\d*" placeholder="Solo números" autoComplete="off" />
-          </div>
-          <Err msg={errors.dni?.message} />
+        {/* Archivos (UI visible pero NO se envían aún) */}
+        <div className="grid gap-4 sm:gap-5">
+          <FileRow
+            id="foto"
+            label="Foto de perfil"
+            icon={<ImageIcon className="h-4 w-4" />}
+            onChange={onPickFile("foto")}
+            fileName={foto?.name}
+            error={errors.foto?.message}
+          />
+          <FileRow
+            id="dniFrente"
+            label="DNI Frente"
+            icon={<IdIcon className="h-4 w-4" />}
+            onChange={onPickFile("dniFrente")}
+            fileName={dniFrente?.name}
+            error={errors.dniFrente?.message}
+          />
+          <FileRow
+            id="dniDorso"
+            label="DNI Dorso"
+            icon={<IdIcon className="h-4 w-4" />}
+            onChange={onPickFile("dniDorso")}
+            fileName={dniDorso?.name}
+            error={errors.dniDorso?.message}
+          />
+          <FileRow
+            id="selfieDni"
+            label="Selfie con DNI"
+            icon={<Camera className="h-4 w-4" />}
+            onChange={onPickFile("selfieDni")}
+            fileName={selfieDni?.name}
+            error={errors.selfieDni?.message}
+          />
         </div>
-      </div>
 
-      {/* Zona */}
-      <div>
-        <Label>Zona donde vivís / cobertura</Label>
-        <div className="relative mt-1">
-          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-          <Input placeholder="Ej: CABA / Palermo" className="pl-9 h-11 md:h-12" {...register("zona")} />
+        {/* Aceptación de términos */}
+        <div className="flex items-start gap-3">
+          <input
+            id="aceptaTerminos"
+            type="checkbox"
+            className="mt-1 h-4 w-4"
+            {...register("aceptaTerminos")}
+          />
+          <Label htmlFor="aceptaTerminos" className="text-sm text-muted-foreground">
+            Acepto los{" "}
+            <Link href="/legal/pro/terminos" className="link-primary">
+              Términos y Condiciones
+            </Link>{" "}
+            y la{" "}
+            <Link href="/legal/pro/privacidad" className="link-primary">
+              Política de Privacidad
+            </Link>{" "}
+            de DocYa Pro.
+          </Label>
         </div>
-        <Err msg={errors.zona?.message} />
-      </div>
+        <Err msg={errors.aceptaTerminos?.message as string | undefined} />
 
-      {/* Contraseñas */}
-      <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
-        <div>
-          <Label>Contraseña</Label>
-          <div className="relative mt-1">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input type="password" className="pl-9 h-11 md:h-12" {...register("password")} autoComplete="new-password" />
-          </div>
-          <Err msg={errors.password?.message} />
+        <div className="pt-1 sm:pt-2">
+          <Button
+            type="submit"
+            disabled={isSubmitting || loadingSplash}
+            className="w-full sm:w-auto bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--brand-foreground)]"
+          >
+            {isSubmitting ? (
+              <>
+                Enviando
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              </>
+            ) : (
+              <>
+                Registrarme
+                <Send className="ml-2 h-4 w-4" />
+              </>
+            )}
+          </Button>
         </div>
+      </form>
 
-        <div>
-          <Label>Confirmar contraseña</Label>
-          <div className="relative mt-1">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input type="password" className="pl-9 h-11 md:h-12" {...register("passwordConfirm")} autoComplete="new-password" />
-          </div>
-          <Err msg={errors.passwordConfirm?.message} />
-        </div>
-      </div>
-
-      {/* Archivos (UI visible pero NO se envían aún) */}
-      <div className="grid gap-4 sm:gap-5">
-        <FileRow id="foto" label="Foto de perfil" icon={<ImageIcon className="h-4 w-4" />} onChange={onPickFile("foto")} fileName={foto?.name} error={errors.foto?.message} />
-        <FileRow id="dniFrente" label="DNI Frente" icon={<IdIcon className="h-4 w-4" />} onChange={onPickFile("dniFrente")} fileName={dniFrente?.name} error={errors.dniFrente?.message} />
-        <FileRow id="dniDorso" label="DNI Dorso" icon={<IdIcon className="h-4 w-4" />} onChange={onPickFile("dniDorso")} fileName={dniDorso?.name} error={errors.dniDorso?.message} />
-        <FileRow id="selfieDni" label="Selfie con DNI" icon={<Camera className="h-4 w-4" />} onChange={onPickFile("selfieDni")} fileName={selfieDni?.name} error={errors.selfieDni?.message} />
-      </div>
-
-      {/* Aceptación de términos */}
-      <div className="flex items-start gap-3">
-        <input id="aceptaTerminos" type="checkbox" className="mt-1 h-4 w-4" {...register("aceptaTerminos")} />
-        <Label htmlFor="aceptaTerminos" className="text-sm text-muted-foreground">
-          Acepto los{" "}
-          <Link href="/legal/pro/terminos" className="link-primary">Términos y Condiciones</Link>{" "}
-          y la{" "}
-          <Link href="/legal/pro/privacidad" className="link-primary">Política de Privacidad</Link>{" "}
-          de DocYa Pro.
-        </Label>
-      </div>
-      <Err msg={errors.aceptaTerminos?.message as string | undefined} />
-
-      <div className="pt-1 sm:pt-2">
-        <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--brand-foreground)]">
-          {isSubmitting ? (
-            <>
-              Enviando
-              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-            </>
-          ) : (
-            <>
-              Registrarme
-              <Send className="ml-2 h-4 w-4" />
-            </>
-          )}
-        </Button>
-      </div>
-    </form>
+      {/* Splash con logo DocYa */}
+      <LoadingSplash show={loadingSplash} message="Guardando tu registro…" />
+    </>
   );
 }

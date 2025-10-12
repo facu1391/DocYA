@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import { proGateCopy } from "@/components/common/confirmCopy";
+import LoadingSplash from "@/components/common/LoadingSplash";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, A11y } from "swiper/modules";
 import "swiper/css";
@@ -19,6 +21,7 @@ const slides = [
 
 export default function HeroPublic() {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   return (
@@ -41,10 +44,16 @@ export default function HeroPublic() {
               <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
                 <div className="max-w-4xl">
                   <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-extrabold leading-tight drop-shadow">{slide.text}</h1>
-                  <p className="mt-4 text-white/90 text-base sm:text-lg md:text-xl drop-shadow">Conectá con profesionales en minutos, sin salir de casa.</p>
+                  <p className="mt-4 text-white/90 text-base sm:text-lg md:text-xl drop-shadow">
+                    Conectá con profesionales en minutos, sin salir de casa.
+                  </p>
                   <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                    <button type="button" onClick={() => setOpen(true)} className="btn-primary">Sumate como profesional</button>
-                    <Link href="" className="btn-outline-primary" aria-label="Descargar la app">Descargar app</Link>
+                    <button type="button" onClick={() => setOpen(true)} className="btn-primary">
+                      Sumate como profesional
+                    </button>
+                    <Link href="#" className="btn-outline-primary" aria-label="Descargar la app">
+                      Descargar app
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -53,19 +62,24 @@ export default function HeroPublic() {
         ))}
       </Swiper>
 
+      {/* Splash */}
+      <LoadingSplash show={loading} message="Abriendo Profesionales…" />
+
+      {/* Modal unificado */}
       <ConfirmModal
-          open={open}
-          onOpenChange={setOpen}   // 👈 faltaba esto
-          title="Vas a ingresar a la sección para profesionales"
-          description="Esta sección es para médicos y enfermeros. ¿Querés continuar?"
-          confirmText="Sí, ir a Profesionales"
-          cancelText="No, quedarme aquí"
-          onConfirm={() => {
-            setOpen(false);
-            router.push("/profesionales");
-          }}
-          onCancel={() => setOpen(false)}
-        />
+        open={open}
+        onOpenChange={setOpen}
+        title={proGateCopy.title}
+        description={proGateCopy.description}
+        confirmText={proGateCopy.confirmText}
+        cancelText={proGateCopy.cancelText}
+        onConfirm={() => {
+          setOpen(false);
+          setLoading(true);
+          setTimeout(() => router.push("/profesionales"), 2000); // 2s
+        }}
+        onCancel={() => setOpen(false)}
+      />
 
       <style jsx>{`
         .hero-swiper {
