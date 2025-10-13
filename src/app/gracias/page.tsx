@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import { PartyPopper, MailCheck, Clock, ArrowRight } from "lucide-react";
 import ConfettiCelebration from "@/components/utils/ConfettiCelebration";
