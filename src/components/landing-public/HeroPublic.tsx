@@ -1,4 +1,3 @@
-
 "use client";
 import { useState } from "react";
 import Image from "next/image";
@@ -38,17 +37,31 @@ export default function HeroPublic() {
         {slides.map((slide, i) => (
           <SwiperSlide key={i}>
             <div className="relative w-full h-[68vh] md:h-[78vh]">
-              <Image src={slide.src} alt="Atención médica a domicilio" fill priority={i === 0} sizes="100vw" className="object-cover" />
+              <Image
+                src={slide.src}
+                alt="Atención médica a domicilio"
+                fill
+                priority={i === 0}
+                sizes="100vw"
+                className="object-cover"
+              />
               <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/10" />
               <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-black/15" />
               <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
                 <div className="max-w-4xl">
-                  <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-extrabold leading-tight drop-shadow">{slide.text}</h1>
+                  <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-extrabold leading-tight drop-shadow">
+                    {slide.text}
+                  </h1>
                   <p className="mt-4 text-white/90 text-base sm:text-lg md:text-xl drop-shadow">
                     Conectá con profesionales en minutos, sin salir de casa.
                   </p>
                   <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                    <button type="button" onClick={() => setOpen(true)} className="btn-primary">
+                    <button
+                      type="button"
+                      onClick={() => setOpen(true)}
+                      className="btn-primary"
+                      disabled={loading}
+                    >
                       Sumate como profesional
                     </button>
                     <Link href="#" className="btn-outline-primary" aria-label="Descargar la app">
@@ -62,10 +75,15 @@ export default function HeroPublic() {
         ))}
       </Swiper>
 
-      {/* Splash */}
-      <LoadingSplash show={loading} message="Abriendo Profesionales…" />
+      {/* Splash DocYa */}
+      <LoadingSplash
+        show={loading}
+        message="Abriendo Profesionales…"
+        autoHideMs={2500}
+        onHide={() => setLoading(false)}
+      />
 
-      {/* Modal unificado */}
+      {/* Modal confirmación unificado */}
       <ConfirmModal
         open={open}
         onOpenChange={setOpen}
@@ -76,7 +94,7 @@ export default function HeroPublic() {
         onConfirm={() => {
           setOpen(false);
           setLoading(true);
-          setTimeout(() => router.push("/profesionales"), 2000); // 2s
+          setTimeout(() => router.push("/profesionales"), 2000);
         }}
         onCancel={() => setOpen(false)}
       />

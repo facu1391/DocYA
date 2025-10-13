@@ -6,3 +6,12 @@ export const proGateCopy = {
   confirmText: "Ir a Profesionales",
   cancelText: "Quedarme aquí",
 };
+
+// NUEVO: salir de Pro hacia Pacientes
+export const proExitCopy = {
+  title: "Vas a salir de la zona de profesionales",
+  description:
+    "Estás por ir a la sección para pacientes. ¿Querés continuar?",
+  confirmText: "Sí, ir a Pacientes",
+  cancelText: "Cancelar",
+};

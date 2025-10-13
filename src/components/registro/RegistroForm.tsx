@@ -1,4 +1,3 @@
-// src/components/registro/RegistroForm.tsx
 "use client";
 
 import { useRef, useState } from "react";
@@ -105,9 +104,14 @@ export default function RegistroForm() {
         try {
           const js = await res.json();
           if (js?.detail) detail = js.detail;
-        } catch {}
-        if (res.status === 409) toast.error(detail || "Email o matrícula ya registrados.");
-        else toast.error(detail);
+        } catch {
+          // ignore
+        }
+        if (res.status === 409) {
+          toast.error(detail || "Email o matrícula ya registrados.");
+        } else {
+          toast.error(detail);
+        }
         return;
       }
 
@@ -119,7 +123,10 @@ export default function RegistroForm() {
 
       // Splash de marca y luego /gracias con confetti
       setLoadingSplash(true);
-      setTimeout(() => router.push("/gracias?celebra=1"), 2000);
+      // usamos onHide del Splash para navegar, pero ponemos un fallback por si el usuario cambia de pestaña
+      const timer = setTimeout(() => router.push("/gracias?celebra=1"), 2000);
+      // limpiador simple (no crítico en este flujo)
+      return () => clearTimeout(timer);
     } catch {
       toast.error("Error de red. Probá de nuevo.");
       setLoadingSplash(false);
@@ -431,7 +438,12 @@ export default function RegistroForm() {
       </form>
 
       {/* Splash con logo DocYa */}
-      <LoadingSplash show={loadingSplash} message="Guardando tu registro…" />
+      <LoadingSplash
+        show={loadingSplash}
+        message="Guardando tu registro…"
+        autoHideMs={2000}
+        onHide={() => router.push("/gracias?celebra=1")}
+      />
     </>
   );
 }
