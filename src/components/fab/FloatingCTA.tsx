@@ -58,6 +58,7 @@ export default function FloatingCTA() {
                 onClick={() => setOpenConfirm(true)}
                 aria-label="Ver sección para profesionales"
                 className="inline-flex items-center rounded-full h-11 px-5 shadow-lg bg-[var(--brand)] text-[var(--brand-foreground)] hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgb(0_179_166_/_0.3)]"
+                disabled={loading}
               >
                 Sumate como profesional
                 <Stethoscope className="ml-2 h-4 w-4" />
@@ -76,8 +77,13 @@ export default function FloatingCTA() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Splash */}
-      <LoadingSplash show={loading} message="Abriendo Profesionales…" />
+      {/* Splash DocYa */}
+      <LoadingSplash
+        show={loading}
+        message="Abriendo Profesionales…"
+        autoHideMs={2500}
+        onHide={() => setLoading(false)}
+      />
 
       {/* Modal unificado */}
       <ConfirmModal
