@@ -3,7 +3,7 @@ import { ShieldCheck, Clock, Star, Users } from "lucide-react";
 
 export default function TrustPublic() {
   const stats = [
-    { icon: <Users className="h-9 w-9" />, text: "+500 profesionales activos" },
+     { icon: <Users className="h-9 w-9" />, text: "Profesionales verificados" },
     { icon: <Clock className="h-9 w-9" />, text: "Atención promedio en 35 min" },
     { icon: <Star className="h-9 w-9" />, text: "4.9 / 5 satisfacción de usuarios" },
     { icon: <ShieldCheck className="h-9 w-9" />, text: "Datos y privacidad protegidos" },

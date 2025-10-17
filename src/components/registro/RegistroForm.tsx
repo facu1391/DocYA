@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useRef, useState } from "react";
@@ -17,7 +18,6 @@ import {
   Phone,
   Stethoscope,
   IdCard,
-  MapPin,
   Send,
   Loader2,
   Image as ImageIcon,
@@ -26,6 +26,7 @@ import {
   Lock,
 } from "lucide-react";
 import LoadingSplash from "@/components/common/LoadingSplash";
+import ZonaCobertura from "@/components/registro/ZonaCobertura";
 
 export default function RegistroForm() {
   const router = useRouter();
@@ -56,7 +57,7 @@ export default function RegistroForm() {
 
   async function onSubmit(data: RegistroFormValues) {
     try {
-      // Mapear zona -> provincia/localidad (heurística simple)
+      // Mapear zona -> provincia/localidad (heurística simple para payload)
       const rawZona = (data.zona || "").trim();
       const [p1 = "", p2 = ""] = rawZona.split("/").map((s) => s.trim());
       let provincia = "";
@@ -123,9 +124,8 @@ export default function RegistroForm() {
 
       // Splash de marca y luego /gracias con confetti
       setLoadingSplash(true);
-      // usamos onHide del Splash para navegar, pero ponemos un fallback por si el usuario cambia de pestaña
+      // fallback por si el usuario cambia de pestaña
       const timer = setTimeout(() => router.push("/gracias?celebra=1"), 2000);
-      // limpiador simple (no crítico en este flujo)
       return () => clearTimeout(timer);
     } catch {
       toast.error("Error de red. Probá de nuevo.");
@@ -313,19 +313,14 @@ export default function RegistroForm() {
           </div>
         </div>
 
-        {/* Zona */}
-        <div>
-          <Label>Zona donde vivís / cobertura</Label>
-          <div className="relative mt-1">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-            <Input
-              placeholder="Ej: CABA / Palermo"
-              className="pl-9 h-11 md:h-12"
-              {...register("zona")}
-            />
-          </div>
-          <Err msg={errors.zona?.message} />
-        </div>
+        {/* Zona (con selector inteligente → setea `zona` internamente) */}
+        <ZonaCobertura
+          value={watch("zona")}
+          onChangeZona={(zonaStr) => {
+            setValue("zona", zonaStr, { shouldValidate: true, shouldDirty: true });
+          }}
+          error={errors.zona?.message}
+        />
 
         {/* Contraseñas */}
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
