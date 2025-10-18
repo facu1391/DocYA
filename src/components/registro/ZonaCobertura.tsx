@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -14,23 +13,32 @@ import {
 } from "@/components/ui/select";
 
 type Provincia = { id: string; nombre: string };
-type Opcion = { id: string; nombre: string };
+type Opcion = { id: string; nombre: string; display?: string };
 
 type Props = {
+  /** texto del label (opcional) */
   label?: string;
+  /** valor actual “zona” para RHF (solo lectura) */
   value?: string;
+  /** callback para setear el “zona” en RHF con el formato “Provincia / (Comuna|Localidad)” */
   onChangeZona: (zona: string) => void;
+  /** mensaje de error para mostrar debajo (opcional) */
   error?: string;
 };
 
+/** Respuestas tipadas de la API de georef */
 type GeorefProvinciasResp = {
   provincias?: Array<{ id?: string | number; nombre?: string }>;
 };
-type GeorefComunasResp = {
-  comunas?: Array<{ id?: string | number; nombre?: string }>;
+type GeorefDeptosResp = {
+  departamentos?: Array<{ id?: string | number; nombre?: string }>;
 };
 type GeorefLocalidadesResp = {
-  localidades?: Array<{ id?: string | number; nombre?: string }>;
+  localidades?: Array<{
+    id?: string | number;
+    nombre?: string;
+    departamento?: { nombre?: string };
+  }>;
 };
 
 export default function ZonaCobertura({
@@ -43,15 +51,18 @@ export default function ZonaCobertura({
   const [provSelId, setProvSelId] = useState<string>("");
   const [provSelNombre, setProvSelNombre] = useState<string>("");
 
+  // Para CABA cargamos comunas (desde departamentos); para el resto, localidades
   const [opciones, setOpciones] = useState<Opcion[]>([]);
-  const [opcionSel, setOpcionSel] = useState<string>("");
+  const [opcionSel, setOpcionSel] = useState<string>(""); // valor “puro” que guardamos (solo localidad/comuna)
 
   const [loadingProv, setLoadingProv] = useState(false);
   const [loadingOpciones, setLoadingOpciones] = useState(false);
 
+  // Modo manual
   const [manual, setManual] = useState(false);
   const [manualTexto, setManualTexto] = useState<string>("");
 
+  // Es CABA si id=02 o nombre matchea
   const esCABA = useMemo(
     () =>
       provSelId === "02" ||
@@ -91,20 +102,9 @@ export default function ZonaCobertura({
     };
   }, []);
 
-  // 2) Comunas/Localidades (incluye estrategia robusta para CABA)
+  // 2) Opciones de nivel 2 (CABA: comunas desde departamentos; resto: localidades con departamento)
   useEffect(() => {
     let cancel = false;
-
-    const mapList = (
-      arr: Array<{ id?: string | number; nombre?: string }> | undefined
-    ): Opcion[] =>
-      (arr ?? [])
-        .map((x) => ({
-          id: String(x.id ?? ""),
-          nombre: String(x.nombre ?? ""),
-        }))
-        .filter((o) => o.id && o.nombre)
-        .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 
     const fetchJSON = async <T,>(url: string): Promise<T | null> => {
       try {
@@ -117,49 +117,64 @@ export default function ZonaCobertura({
     };
 
     const loadCABAComunas = async (): Promise<Opcion[]> => {
-      const provId = provSelId || "02";
-      const provName = provSelNombre || "Ciudad Autónoma de Buenos Aires";
-      const candidates: string[] = [
-        `https://apis.datos.gob.ar/georef/api/comunas?provincia=${encodeURIComponent(
-          provId
-        )}&max=100&aplanar=true&campos=id,nombre`,
-        `https://apis.datos.gob.ar/georef/api/comunas?provincia=${encodeURIComponent(
-          provName
-        )}&max=100&aplanar=true&campos=id,nombre`,
-        `https://apis.datos.gob.ar/georef/api/comunas?provincia=${encodeURIComponent(
-          "CABA"
-        )}&max=100&aplanar=true&campos=id,nombre`,
-        `https://apis.datos.gob.ar/georef/api/comunas?provincia=${encodeURIComponent(
-          "Capital Federal"
-        )}&max=100&aplanar=true&campos=id,nombre`,
-        // por las dudas sin aplanar
-        `https://apis.datos.gob.ar/georef/api/comunas?provincia=${encodeURIComponent(
-          provId
-        )}&max=100&campos=id,nombre`,
-      ];
+      // Comunas de CABA expuestas como “departamentos” con provincia=02
+      const url =
+        "https://apis.datos.gob.ar/georef/api/departamentos?provincia=02&max=100&aplanar=true&campos=id,nombre";
+      const data = await fetchJSON<GeorefDeptosResp>(url);
+      if (cancel) return [];
 
-      for (const url of candidates) {
-        const data = await fetchJSON<GeorefComunasResp>(url);
-        if (cancel) return [];
-        const list = mapList(data?.comunas);
-        if (list.length > 0) return list;
-      }
-      return [];
+      const list: Opcion[] =
+        (data?.departamentos ?? [])
+          .map((d) => {
+            const nombre = String(d.nombre ?? ""); // ej: "Comuna 1"
+            return {
+              id: `${String(d.id ?? "")}-${nombre}`, // key única
+              nombre, // guardamos “Comuna X”
+              display: nombre, // mostramos igual
+            };
+          })
+          .filter((o) => o.id && o.nombre)
+          .sort((a, b) => a.nombre!.localeCompare(b.nombre!, "es")) ?? [];
+
+      return list;
     };
 
     const loadLocalidades = async (): Promise<Opcion[]> => {
+      // Pedimos también el departamento para desambiguar homónimos
       const provParam = provSelId
         ? provSelId
         : encodeURIComponent(provSelNombre || "");
       const url =
         `https://apis.datos.gob.ar/georef/api/localidades` +
-        `?provincia=${provParam}&max=500&aplanar=true&campos=id,nombre`;
+        `?provincia=${provParam}&max=500&aplanar=true&campos=id,nombre,departamento.nombre`;
       const data = await fetchJSON<GeorefLocalidadesResp>(url);
       if (cancel) return [];
-      return mapList(data?.localidades);
+
+      const seen = new Set<string>(); // para evitar mostrar duplicados exactos
+      const list: Opcion[] =
+        (data?.localidades ?? [])
+          .map((x) => {
+            const nombre = String(x.nombre ?? ""); // valor que guardamos
+            const dep = String(x.departamento?.nombre ?? "");
+            const display = dep ? `${nombre} (${dep})` : nombre; // lo que mostramos
+            const key = `${String(x.id ?? "")}-${display}`;
+            return { id: key, nombre, display };
+          })
+          .filter((o) => {
+            if (!o.id || !o.nombre) return false;
+            if (seen.has(o.display ?? o.nombre)) return false;
+            seen.add(o.display ?? o.nombre);
+            return true;
+          })
+          .sort((a, b) =>
+            (a.display ?? a.nombre).localeCompare(b.display ?? b.nombre, "es")
+          ) ?? [];
+
+      return list;
     };
 
     (async () => {
+      // reset
       setOpciones([]);
       setOpcionSel("");
       setManual(false);
@@ -181,18 +196,16 @@ export default function ZonaCobertura({
     };
   }, [provSelId, provSelNombre, esCABA]);
 
-  // 3) Notificar a RHF solo cuando CAMBIA la zona (evita bucles)
+  // 3) Notificar a RHF evitando loops
   const lastZonaRef = useRef<string>("");
   useEffect(() => {
     const prov = provSelNombre?.trim() || "";
     const loc = (manual ? manualTexto : opcionSel)?.trim() || "";
     const zona = [prov, loc].filter(Boolean).join(" / ");
-
     if (zona !== lastZonaRef.current) {
       lastZonaRef.current = zona;
       onChangeZona(zona);
     }
-    // ⚠️ Intencional: NO dependemos de onChangeZona para evitar loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [provSelNombre, opcionSel, manual, manualTexto]);
 
@@ -272,7 +285,8 @@ export default function ZonaCobertura({
                   ) : null}
                   {opciones.map((o) => (
                     <SelectItem key={o.id} value={o.nombre}>
-                      {o.nombre}
+                      {/* mostramos display si existe; guardamos solo `o.nombre` */}
+                      {o.display ?? o.nombre}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -290,6 +304,7 @@ export default function ZonaCobertura({
             )}
           </div>
 
+          {/* Toggle a modo manual */}
           <button
             type="button"
             onClick={() => setManual((m) => !m)}
@@ -302,8 +317,10 @@ export default function ZonaCobertura({
         </div>
       ) : null}
 
+      {/* Error */}
       {error ? <p className="text-xs text-red-500 mt-1">{error}</p> : null}
 
+      {/* Vista previa */}
       {value ? (
         <p className="text-xs text-muted-foreground mt-2">
           Selección: <span className="font-medium">{value}</span>
@@ -312,3 +329,4 @@ export default function ZonaCobertura({
     </div>
   );
 }
+
