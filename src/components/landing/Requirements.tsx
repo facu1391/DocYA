@@ -9,7 +9,11 @@ const buscados = [
   "Vocación por atención domiciliaria y trato cercano.",
 ];
 
-const zonas = ["Palermo", "Belgrano", "Próximamente: más barrios"];
+const zonas = [
+  "Cobertura nacional",
+  "Operativo en expansión continua",
+  "Atención en todas las provincias",
+];
 
 export default function Requirements() {
   return (
@@ -21,7 +25,7 @@ export default function Requirements() {
     >
       <div className="container">
         <h2 className="text-center text-2xl md:text-3xl font-semibold">
-          Requisitos y zonas
+          Requisitos y cobertura
         </h2>
 
         <div
@@ -77,7 +81,7 @@ export default function Requirements() {
             </div>
           </article>
 
-          {/* Zonas */}
+          {/* Cobertura nacional */}
           <article
             className="
               group relative overflow-hidden rounded-2xl border p-6 md:p-7
@@ -105,11 +109,11 @@ export default function Requirements() {
               >
                 <MapPin className="h-5 w-5" />
               </span>
-              <h3 className="font-semibold text-lg">Zonas de inicio</h3>
+              <h3 className="font-semibold text-lg">Cobertura nacional</h3>
             </header>
 
             <p className="relative mt-3 text-sm text-muted-foreground">
-              CABA (Palermo y Belgrano). Próxima expansión a más barrios y provincias.
+              Operamos en todo el territorio argentino, con expansión continua y cobertura en cada provincia.
             </p>
 
             <ul className="relative mt-4 flex flex-wrap items-center gap-2.5">
