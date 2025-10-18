@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -30,7 +31,7 @@ export default function PromoVideoPublic() {
           preload="metadata"
           muted
           playsInline
-          autoPlay   
+          autoPlay
           loop
         />
 
@@ -47,11 +48,6 @@ export default function PromoVideoPublic() {
             <p className="mt-3 text-white/90 text-base md:text-lg drop-shadow">
               Tu consulta médica sin guardias ni turnos. De la app a tu hogar, en minutos.
             </p>
-            <div className="mt-5 flex flex-wrap gap-3 justify-center md:justify-start">
-              <a href="#download" className="btn-primary">
-                Descargar app
-              </a>
-            </div>
           </div>
         </div>
       </div>

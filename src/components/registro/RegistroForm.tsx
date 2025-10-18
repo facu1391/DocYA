@@ -414,7 +414,7 @@ export default function RegistroForm() {
           <Button
             type="submit"
             disabled={isSubmitting || loadingSplash}
-            className="w-full sm:w-auto bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--brand-foreground)]"
+            className="w-full sm:w-auto bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--brand-foreground)] cursor-pointer"
           >
             {isSubmitting ? (
               <>

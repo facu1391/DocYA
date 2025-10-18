@@ -57,7 +57,7 @@ export default function FloatingCTA() {
                 type="button"
                 onClick={() => setOpenConfirm(true)}
                 aria-label="Ver sección para profesionales"
-                className="inline-flex items-center rounded-full h-11 px-5 shadow-lg bg-[var(--brand)] text-[var(--brand-foreground)] hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgb(0_179_166_/_0.3)]"
+                className="inline-flex items-center rounded-full h-11 px-5 shadow-lg cursor-pointer bg-[var(--brand)] text-[var(--brand-foreground)] hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgb(0_179_166_/_0.3)]"
                 disabled={loading}
               >
                 Sumate como profesional
