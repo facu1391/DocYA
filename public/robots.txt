@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://www.docya.com.ar
+
+# Sitemaps
+Sitemap: https://www.docya.com.ar/sitemap.xml

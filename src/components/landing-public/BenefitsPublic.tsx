@@ -1,4 +1,3 @@
-
 "use client";
 
 import { motion, type Variants, cubicBezier } from "framer-motion";
