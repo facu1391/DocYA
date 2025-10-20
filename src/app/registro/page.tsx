@@ -2,8 +2,14 @@ import RegistroHero from "@/components/registro/RegistroHero";
 import RegistroForm from "@/components/registro/RegistroForm";
 
 export const metadata = {
-  title: "Registro de profesionales | DocYa Pro",
+  title: "Registro de profesionales",
   description: "Postulate como médico/a o enfermero/a y empezá a recibir consultas a domicilio.",
+  alternates: { canonical: "/registro" },
+  openGraph: {
+    title: "Registro de profesionales",
+    description: "Médicos/as y enfermeros/as: empezá a atender con DocYa.",
+    url: "/registro",
+  },
 };
 
 export default function Page() {
