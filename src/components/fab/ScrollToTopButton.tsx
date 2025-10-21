@@ -28,7 +28,7 @@ export default function ScrollToTopButton() {
       aria-label="Subir arriba"
       title="Subir arriba"
       className={[
-        "fixed z-50 right-4 md:right-5",
+        "fixed z-50 right-4 md:right-5 cursor-pointer",
         // lo ubicamos por encima del FloatingCTA para que no se pisen
         "h-11 w-11 rounded-full shadow-lg",
         "bg-[var(--brand)] text-[var(--brand-foreground)]",

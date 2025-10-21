@@ -3,9 +3,11 @@ import { PartyPopper, MailCheck, Clock, ArrowRight } from "lucide-react";
 import ConfettiCelebration from "@/components/utils/ConfettiCelebration";
 
 export const metadata = {
-  title: "¡Gracias! | DocYa Pro",
-  description:
-    "Registro enviado. Revisá tu correo para activar tu cuenta. Te avisaremos del lanzamiento.",
+  title: "¡Gracias!",
+  description: "Registro enviado. Revisá tu correo para activar tu cuenta.",
+  alternates: { canonical: "/gracias" },
+  robots: { index: false, follow: false, nocache: true },
+  openGraph: { title: "¡Gracias!", description: "Registro enviado.", url: "/gracias" },
 };
 
 // En Next 15, searchParams es un Promise<Record<string, string | string[] | undefined>>

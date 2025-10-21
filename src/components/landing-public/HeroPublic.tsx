@@ -59,7 +59,7 @@ export default function HeroPublic() {
                     <button
                       type="button"
                       onClick={() => setOpen(true)}
-                      className="btn-primary"
+                      className="btn-primary cursor-pointer"
                       disabled={loading}
                     >
                       Sumate como profesional

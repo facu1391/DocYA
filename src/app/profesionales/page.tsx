@@ -9,9 +9,14 @@ import DownloadAppPublic from "@/components/landing-public/DownloadAppPublic";
 
 
 export const metadata = {
-  title: "Profesionales | DocYa Pro",
-  description:
-    "Sumate como médico o enfermero. Elegí horarios y zonas. Ingresos semanales.",
+  title: "Profesionales",
+  description: "Sumate como médico o enfermero. Elegí horarios y zonas. Ingresos semanales.",
+  alternates: { canonical: "/profesionales" },
+  openGraph: {
+    title: "Profesionales",
+    description: "Elegí horarios y zonas. Ingresos semanales.",
+    url: "/profesionales",
+  },
 };
 
 export default function Page() {

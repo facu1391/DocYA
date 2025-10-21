@@ -3,8 +3,14 @@ import ContactSidebar from "@/components/contact/ContactSidebar";
 import ContactForm from "@/components/contact/ContactForm";
 
 export const metadata = {
-  title: "Contacto | DocYa Pro",
+  title: "Contacto",
   description: "Escribinos para soporte, alianzas o prensa. Respondemos rápido.",
+  alternates: { canonical: "/contacto" },
+  openGraph: {
+    title: "Contacto",
+    description: "Soporte, alianzas o prensa. Respondemos rápido.",
+    url: "/contacto",
+  },
 };
 
 export default function Page() {

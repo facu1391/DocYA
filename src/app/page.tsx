@@ -1,4 +1,5 @@
 import HeroPublic from "@/components/landing-public/HeroPublic";
+import PromoVideoPublic from "@/components/landing-public/PromoVideoPublic"; // 👈
 import StepsPublic from "@/components/landing-public/StepsPublic";
 import BenefitsPublic from "@/components/landing-public/BenefitsPublic";
 import ImpactSection from "@/components/landing-public/ImpactSection";
@@ -9,7 +10,8 @@ import DownloadApp from "@/components/landing-public/DownloadAppPublic";
 export default function Home() {
   return (
     <main>
-       <HeroPublic />
+      <HeroPublic />
+      <PromoVideoPublic />   
       <StepsPublic />
       <BenefitsPublic />
       <ImpactSection /> 

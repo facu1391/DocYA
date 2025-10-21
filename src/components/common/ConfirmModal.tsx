@@ -74,7 +74,7 @@ export default function ConfirmModal({
           >
             <button
               aria-label="Cerrar"
-              className="absolute right-3 top-3 rounded-md p-1 hover:bg-white/10"
+              className="absolute right-3 top-3 rounded-md p-1 hover:bg-white/10 cursor-pointer"
               onClick={() => {
                 onOpenChange(false);
                 onCancel?.();
@@ -93,7 +93,7 @@ export default function ConfirmModal({
             <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
-                className="btn-outline-primary"
+                className="btn-outline-primary cursor-pointer"
                 onClick={() => {
                   onOpenChange(false);
                   onCancel?.();
@@ -103,7 +103,7 @@ export default function ConfirmModal({
               </button>
               <button
                 type="button"
-                className="btn-primary"
+                className="btn-primary cursor-pointer"
                 onClick={() => {
                   onOpenChange(false);
                   onConfirm();
