@@ -94,7 +94,7 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
 
   // 👇 Reemplaza por tu token completo de Search Console
-  verification: { google: "IA9D3VR5YU5gY..." },
+  verification: { google: "IA9D3VR5YU5gYbxeUKHA1nBf7LOCp95uArWq6LBb9Sw" },
 
   category: "healthcare",
 };
