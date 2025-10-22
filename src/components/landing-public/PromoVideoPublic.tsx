@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -10,6 +9,8 @@ export default function PromoVideoPublic() {
     const v = vidRef.current;
     if (!v) return;
     v.currentTime = 0;
+    v.muted = true;
+    v.playsInline = true;
     const play = async () => {
       try {
         await v.play();
@@ -27,12 +28,12 @@ export default function PromoVideoPublic() {
           ref={vidRef}
           className="absolute inset-0 h-full w-full object-cover"
           src="/videos/video1.mp4"
-          poster="/hero-docya-1.jpg"
-          preload="metadata"
+          preload="auto"
           muted
           playsInline
           autoPlay
           loop
+          controls={false}
         />
 
         {/* Overlays para contraste */}

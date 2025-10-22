@@ -1,11 +1,9 @@
-
 "use client";
 
 import Link from "next/link";
 import { motion, cubicBezier } from "framer-motion";
-import type { ReactNode } from "react";
+import type { ReactNode, MouseEvent } from "react";
 
-/* ====== Íconos de stores ====== */
 function GooglePlayIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 512 512" aria-hidden>
@@ -24,10 +22,11 @@ function AppleIcon() {
   );
 }
 
-/* ====== Tipado de acciones ====== */
-type StoreAction =
-  | { kind: "store-google"; href: string }
-  | { kind: "store-apple"; href: string };
+type StoreAction = {
+  kind: "store-google" | "store-apple";
+  href: string;
+  onClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
+};
 
 type LinkAction = {
   kind: "link";
@@ -39,27 +38,24 @@ type LinkAction = {
 
 type Action = StoreAction | LinkAction;
 
-function StoreBadge({ type, href }: { type: "google" | "apple"; href: string }) {
+function StoreBadge({
+  type,
+  href,
+  onClick,
+}: {
+  type: "google" | "apple";
+  href: string;
+  onClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
+}) {
   const isGoogle = type === "google";
   return (
     <Link
       href={href}
-      className="
-        group inline-flex items-center gap-3 rounded-full px-5 py-3
-        bg-white text-[var(--brand)] font-semibold border
-        border-[color-mix(in_srgb,var(--brand)_25%,transparent)]
-        shadow-sm hover:shadow-md transition
-      "
+      onClick={onClick}
+      className="group inline-flex items-center gap-3 rounded-full px-5 py-3 bg-white text-[var(--brand)] font-semibold border border-[color-mix(in_srgb,var(--brand)_25%,transparent)] shadow-sm hover:shadow-md transition"
       aria-label={isGoogle ? "Descargar en Google Play" : "Descargar en App Store"}
     >
-      <span
-        className="
-          inline-flex items-center justify-center rounded-full h-9 w-9
-          bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
-          border border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
-          text-[var(--brand)]
-        "
-      >
+      <span className="inline-flex items-center justify-center rounded-full h-9 w-9 bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] border border-[color-mix(in_srgb,var(--brand)_45%,transparent)] text-[var(--brand)]">
         {isGoogle ? <GooglePlayIcon /> : <AppleIcon />}
       </span>
       <div className="flex flex-col leading-tight text-left">
@@ -70,7 +66,6 @@ function StoreBadge({ type, href }: { type: "google" | "apple"; href: string }) 
   );
 }
 
-/* ====== Componente genérico ====== */
 export default function CtaBand({
   id = "cta",
   title,
@@ -86,11 +81,9 @@ export default function CtaBand({
 }) {
   return (
     <section id={id} className="relative overflow-hidden bg-[var(--brand)]">
-      {/* Fondo (z-0) */}
       <div className="absolute inset-0 z-0 bg-[radial-gradient(1200px_400px_at_50%_-20%,color-mix(in_srgb,var(--brand)_25%,transparent),transparent)]" />
       <div className="absolute inset-0 z-0 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--brand)_85%,#043d3d)_0%,#062b2d_100%)] dark:bg-[linear-gradient(180deg,color-mix(in_srgb,var(--brand)_75%,#052425)_0%,#041a1c_100%)]" />
 
-      {/* Contenido (z-10) */}
       <div className="relative z-10 container px-6 py-20 md:py-24 text-center text-white">
         <motion.h2
           className="text-3xl md:text-4xl font-extrabold"
@@ -114,7 +107,6 @@ export default function CtaBand({
           </motion.p>
         )}
 
-        {/* Acciones */}
         <motion.div
           className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
           initial={{ opacity: 0, y: 8 }}
@@ -123,24 +115,32 @@ export default function CtaBand({
           transition={{ duration: 0.45, ease: cubicBezier(0.22, 1, 0.36, 1) }}
         >
           {actions.map((a, i) => {
-            if (a.kind === "store-google") return <StoreBadge key={i} type="google" href={a.href} />;
-            if (a.kind === "store-apple") return <StoreBadge key={i} type="apple" href={a.href} />;
-            // link
-            const variant = a.variant ?? "primary";
-            return (
-              <Link
-                key={i}
-                href={a.href}
-                className={variant === "primary" ? "btn-primary h-11 px-5" : "btn-outline-primary h-11 px-5 bg-white/10 text-white border-white/20 hover:bg-white/15"}
-              >
-                {a.icon}
-                {a.icon ? <span className="ml-1.5">{a.label}</span> : a.label}
-              </Link>
-            );
+            switch (a.kind) {
+              case "store-google":
+                return <StoreBadge key={i} type="google" href={a.href} onClick={a.onClick} />;
+              case "store-apple":
+                return <StoreBadge key={i} type="apple" href={a.href} onClick={a.onClick} />;
+              case "link": {
+                const variant = a.variant ?? "primary";
+                return (
+                  <Link
+                    key={i}
+                    href={a.href}
+                    className={
+                      variant === "primary"
+                        ? "btn-primary h-11 px-5"
+                        : "btn-outline-primary h-11 px-5 bg-white/10 text-white border-white/20 hover:bg-white/15"
+                    }
+                  >
+                    {a.icon}
+                    {a.icon ? <span className="ml-1.5">{a.label}</span> : a.label}
+                  </Link>
+                );
+              }
+            }
           })}
         </motion.div>
 
-        {/* Badges */}
         {badges.length > 0 && (
           <motion.div
             className="mt-6 flex flex-wrap items-center justify-center gap-3"
@@ -150,10 +150,7 @@ export default function CtaBand({
             transition={{ duration: 0.45, ease: cubicBezier(0.22, 1, 0.36, 1) }}
           >
             {badges.map((b, i) => (
-              <span
-                key={i}
-                className="badge bg-white/10 text-white border-white/20"
-              >
+              <span key={i} className="badge bg-white/10 text-white border-white/20">
                 {b}
               </span>
             ))}
@@ -161,7 +158,6 @@ export default function CtaBand({
         )}
       </div>
 
-      {/* Ornamentos (z-0) */}
       <div
         className="pointer-events-none absolute -bottom-24 -right-20 h-72 w-72 rounded-full opacity-20 blur-2xl z-0"
         style={{ background: "radial-gradient(closest-side, white, transparent)" }}

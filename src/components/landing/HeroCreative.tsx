@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check, ArrowRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, A11y } from "swiper/modules";
+import InfoModal from "@/components/common/InfoModal";
+import { appDownloadCopy } from "@/components/common/confirmCopy";
 import "swiper/css";
 import "swiper/css/pagination";
 
@@ -41,6 +44,8 @@ const SLIDES: Slide[] = [
 ];
 
 export default function HeroFullBleed() {
+  const [openApp, setOpenApp] = useState(false);
+
   return (
     <section className="relative w-full bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
       <div className="relative w-full">
@@ -112,7 +117,17 @@ export default function HeroFullBleed() {
                       <Link href="/registro" className="btn-primary">
                         Registrate como profesional <ArrowRight className="h-4 w-4" />
                       </Link>
-                      <Link href="" className="btn-outline-primary" aria-label="Descargar la app">Descargar app</Link>
+                      <Link
+                        href="#"
+                        className="btn-outline-primary"
+                        aria-label="Descargar la app"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setOpenApp(true);
+                        }}
+                      >
+                        Descargar app
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -128,9 +143,15 @@ export default function HeroFullBleed() {
         </p>
       </div>
 
-      {/* Estilos del paginador scopeados al componente */}
+      <InfoModal
+        open={openApp}
+        onOpenChange={setOpenApp}
+        title={appDownloadCopy.title}
+        description={appDownloadCopy.description}
+        actionText={appDownloadCopy.confirmText}
+      />
+
       <style jsx>{`
-        /* Variables de Swiper aplicadas SOLO a este carrusel */
         .hero-swiper {
           --swiper-theme-color: var(--brand);
           --swiper-pagination-bullet-inactive-color: color-mix(in srgb, var(--brand) 35%, transparent);
@@ -150,7 +171,6 @@ export default function HeroFullBleed() {
           opacity: 1;
           transform: scale(1.15);
         }
-        /* Por si alguna hoja agrega flechas, las forzamos a ocultarse */
         .hero-swiper :global(.swiper-button-prev),
         .hero-swiper :global(.swiper-button-next) {
           display: none !important;
