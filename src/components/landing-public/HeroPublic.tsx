@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ConfirmModal from "@/components/common/ConfirmModal";
-import { proGateCopy } from "@/components/common/confirmCopy";
+import InfoModal from "@/components/common/InfoModal";
+import { proGateCopy, appDownloadCopy } from "@/components/common/confirmCopy";
 import LoadingSplash from "@/components/common/LoadingSplash";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, A11y } from "swiper/modules";
@@ -20,6 +21,7 @@ const slides = [
 
 export default function HeroPublic() {
   const [open, setOpen] = useState(false);
+  const [openApp, setOpenApp] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -37,36 +39,20 @@ export default function HeroPublic() {
         {slides.map((slide, i) => (
           <SwiperSlide key={i}>
             <div className="relative w-full h-[68vh] md:h-[78vh]">
-              <Image
-                src={slide.src}
-                alt="Atención médica a domicilio"
-                fill
-                priority={i === 0}
-                sizes="100vw"
-                className="object-cover"
-              />
+              <Image src={slide.src} alt="Atención médica a domicilio" fill priority={i === 0} sizes="100vw" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/10" />
               <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-black/15" />
               <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
                 <div className="max-w-4xl">
-                  <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-extrabold leading-tight drop-shadow">
-                    {slide.text}
-                  </h1>
-                  <p className="mt-4 text-white/90 text-base sm:text-lg md:text-xl drop-shadow">
-                    Conectá con profesionales en minutos, sin salir de casa.
-                  </p>
+                  <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-extrabold leading-tight drop-shadow">{slide.text}</h1>
+                  <p className="mt-4 text-white/90 text-base sm:text-lg md:text-xl drop-shadow">Conectá con profesionales en minutos, sin salir de casa.</p>
                   <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setOpen(true)}
-                      className="btn-primary cursor-pointer"
-                      disabled={loading}
-                    >
+                    <button type="button" onClick={() => setOpen(true)} className="btn-primary cursor-pointer" disabled={loading}>
                       Sumate como profesional
                     </button>
-                    <Link href="#" className="btn-outline-primary" aria-label="Descargar la app">
+                    <button type="button" onClick={() => setOpenApp(true)} className="btn-outline-primary" aria-label="Descargar la app">
                       Descargar app
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -75,15 +61,8 @@ export default function HeroPublic() {
         ))}
       </Swiper>
 
-      {/* Splash DocYa */}
-      <LoadingSplash
-        show={loading}
-        message="Abriendo Profesionales…"
-        autoHideMs={2500}
-        onHide={() => setLoading(false)}
-      />
+      <LoadingSplash show={loading} message="Abriendo Profesionales…" autoHideMs={2500} onHide={() => setLoading(false)} />
 
-      {/* Modal confirmación unificado */}
       <ConfirmModal
         open={open}
         onOpenChange={setOpen}
@@ -97,6 +76,14 @@ export default function HeroPublic() {
           setTimeout(() => router.push("/profesionales"), 2000);
         }}
         onCancel={() => setOpen(false)}
+      />
+
+      <InfoModal
+        open={openApp}
+        onOpenChange={setOpenApp}
+        title={appDownloadCopy.title}
+        description={appDownloadCopy.description}
+        actionText={appDownloadCopy.confirmText}
       />
 
       <style jsx>{`
