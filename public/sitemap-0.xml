@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-<url><loc>https://www.docya.com.ar/legal/pro/privacidad</loc><lastmod>2025-10-20T19:09:21.756Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://www.docya.com.ar/legal/pro/terminos</loc><lastmod>2025-10-20T19:09:21.758Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://www.docya.com.ar/faqs</loc><lastmod>2025-10-20T19:09:21.758Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://www.docya.com.ar/registro</loc><lastmod>2025-10-20T19:09:21.758Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://www.docya.com.ar/profesionales</loc><lastmod>2025-10-20T19:09:21.758Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://www.docya.com.ar/legal/pacientes/privacidad</loc><lastmod>2025-10-20T19:09:21.758Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://www.docya.com.ar/legal/pacientes/terminos</loc><lastmod>2025-10-20T19:09:21.758Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://www.docya.com.ar</loc><lastmod>2025-10-20T19:09:21.758Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://www.docya.com.ar/contacto</loc><lastmod>2025-10-20T19:09:21.758Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://www.docya.com.ar/ingresos</loc><lastmod>2025-10-20T19:09:21.758Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.docya.com.ar/legal/pacientes/terminos</loc><lastmod>2025-10-22T01:42:13.104Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.docya.com.ar/faqs</loc><lastmod>2025-10-22T01:42:13.105Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.docya.com.ar/legal/pro/privacidad</loc><lastmod>2025-10-22T01:42:13.105Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.docya.com.ar/legal/pro/terminos</loc><lastmod>2025-10-22T01:42:13.105Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.docya.com.ar/ingresos</loc><lastmod>2025-10-22T01:42:13.105Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.docya.com.ar/contacto</loc><lastmod>2025-10-22T01:42:13.105Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.docya.com.ar</loc><lastmod>2025-10-22T01:42:13.105Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.docya.com.ar/registro</loc><lastmod>2025-10-22T01:42:13.105Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.docya.com.ar/legal/pacientes/privacidad</loc><lastmod>2025-10-22T01:42:13.105Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.docya.com.ar/profesionales</loc><lastmod>2025-10-22T01:42:13.105Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>
