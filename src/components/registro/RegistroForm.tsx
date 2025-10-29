@@ -41,7 +41,6 @@ export default function RegistroForm() {
     resolver: zodResolver(registroSchema),
   });
 
-  // (Seguimos mostrando nombres de archivo aunque no se envíen)
   const foto = watch("foto");
   const dniFrente = watch("dniFrente");
   const dniDorso = watch("dniDorso");
@@ -54,16 +53,28 @@ export default function RegistroForm() {
       if (f) setValue(field, f, { shouldValidate: true });
     };
 
+  async function fileToDataURL(file?: File): Promise<string | undefined> {
+    if (!file) return undefined;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("El archivo no puede superar 5 MB");
+      return undefined;
+    }
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(new Error("No se pudo leer el archivo"));
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function onSubmit(data: RegistroFormValues) {
     try {
-      // Mapear zona -> provincia/localidad (heurística simple para payload)
       const rawZona = (data.zona || "").trim();
       const [p1 = "", p2 = ""] = rawZona.split("/").map((s) => s.trim());
       let provincia = "";
       let localidad = "";
       if (p1 && p2) {
-        const isProv = (s: string) =>
-          /caba|bs\.?as|buenos\s*aires|provincia/i.test(s);
+        const isProv = (s: string) => /caba|bs\.?as|buenos\s*aires|provincia/i.test(s);
         if (isProv(p1)) {
           provincia = p1;
           localidad = p2;
@@ -79,7 +90,13 @@ export default function RegistroForm() {
         provincia = "";
       }
 
-      // Payload en JSON EXACTO como probaste en Postman
+      const [fotoPerfil64, dniFrente64, dniDorso64, selfieDni64] = await Promise.all([
+        fileToDataURL(foto),
+        fileToDataURL(dniFrente),
+        fileToDataURL(dniDorso),
+        fileToDataURL(selfieDni),
+      ]);
+
       const payload = {
         full_name: data.nombreCompleto.trim(),
         email: data.email.toLowerCase().trim(),
@@ -91,6 +108,10 @@ export default function RegistroForm() {
         provincia,
         localidad,
         dni: data.dni.trim(),
+        foto_perfil: fotoPerfil64,
+        foto_dni_frente: dniFrente64,
+        foto_dni_dorso: dniDorso64,
+        selfie_dni: selfieDni64,
       };
 
       const res = await fetch("/api/register", {
@@ -104,9 +125,7 @@ export default function RegistroForm() {
         try {
           const js = await res.json();
           if (js?.detail) detail = js.detail;
-        } catch {
-          // ignore
-        }
+        } catch {}
         if (res.status === 409) {
           toast.error(detail || "Email o matrícula ya registrados.");
         } else {
@@ -117,13 +136,10 @@ export default function RegistroForm() {
 
       const payloadResp = await res.json().catch(() => null);
       toast.success(
-        payloadResp?.mensaje ??
-          "Registro exitoso ✅. Revisá tu correo para activar tu cuenta."
+        payloadResp?.mensaje ?? "Registro exitoso ✅. Revisá tu correo para activar tu cuenta."
       );
 
-      // Splash de marca y luego /gracias con confetti
       setLoadingSplash(true);
-      // fallback por si el usuario cambia de pestaña
       const timer = setTimeout(() => router.push("/gracias?celebra=1"), 2000);
       return () => clearTimeout(timer);
     } catch {
@@ -164,7 +180,7 @@ export default function RegistroForm() {
             {icon}
           </span>
 
-          <span className="flex-1 truncate text-sm text-muted-foreground">
+        <span className="flex-1 truncate text-sm text-muted-foreground">
             {fileName || "Ningún archivo seleccionado"}
           </span>
 
@@ -198,7 +214,6 @@ export default function RegistroForm() {
         noValidate
         className="mt-6 sm:mt-8 grid gap-4 sm:gap-5 md:gap-6"
       >
-        {/* Nombre completo */}
         <div>
           <Label>Nombre y apellido</Label>
           <div className="relative mt-1">
@@ -213,7 +228,6 @@ export default function RegistroForm() {
           <Err msg={errors.nombreCompleto?.message} />
         </div>
 
-        {/* Email / Teléfono */}
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
           <div>
             <Label>Email</Label>
@@ -245,7 +259,6 @@ export default function RegistroForm() {
           </div>
         </div>
 
-        {/* Rol / Especialidad */}
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
           <div>
             <Label>Rol</Label>
@@ -280,7 +293,6 @@ export default function RegistroForm() {
           </div>
         </div>
 
-        {/* Matrícula / DNI */}
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
           <div>
             <Label>Matrícula</Label>
@@ -312,7 +324,6 @@ export default function RegistroForm() {
           </div>
         </div>
 
-        {/* Zona (con selector inteligente → setea `zona` internamente) */}
         <ZonaCobertura
           value={watch("zona")}
           onChangeZona={(zonaStr) => {
@@ -321,7 +332,6 @@ export default function RegistroForm() {
           error={errors.zona?.message}
         />
 
-        {/* Contraseñas */}
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
           <div>
             <Label>Contraseña</Label>
@@ -352,7 +362,6 @@ export default function RegistroForm() {
           </div>
         </div>
 
-        {/* Archivos (UI visible pero NO se envían aún) */}
         <div className="grid gap-4 sm:gap-5">
           <FileRow
             id="foto"
@@ -388,7 +397,6 @@ export default function RegistroForm() {
           />
         </div>
 
-        {/* Aceptación de términos */}
         <div className="flex items-start gap-3">
           <input
             id="aceptaTerminos"
@@ -431,7 +439,6 @@ export default function RegistroForm() {
         </div>
       </form>
 
-      {/* Splash con logo DocYa */}
       <LoadingSplash
         show={loadingSplash}
         message="Guardando tu registro…"
@@ -441,3 +448,4 @@ export default function RegistroForm() {
     </>
   );
 }
+
