@@ -1,5 +1,5 @@
 
-// src/app/api/register/route.ts
+// src/app/api/register_medico/route.ts  (o donde tengas este proxy)
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -7,24 +7,40 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    // Intentamos parsear JSON sin usar "any"
-    let bodyUnknown: unknown;
+    // 1) Parseo seguro
+    let bodyUnknown: unknown = null;
     try {
       bodyUnknown = await req.json();
     } catch {
-      bodyUnknown = null;
+      /* ignore */
     }
-
     if (bodyUnknown === null || typeof bodyUnknown !== "object") {
       return NextResponse.json({ detail: "Cuerpo JSON inválido" }, { status: 400 });
     }
 
-    // Usamos un tipo seguro para serializar
-    const body = bodyUnknown as Record<string, unknown>;
+    // 2) Normalización de campos (rol -> tipo, y forzamos "medico" | "enfermero")
+    const body = { ...(bodyUnknown as Record<string, unknown>) };
 
+    // Si viene "rol" y no viene "tipo", lo copiamos
+    if (body["rol"] != null && body["tipo"] == null) {
+      body["tipo"] = body["rol"];
+    }
+
+    // Normalizamos a string y lowercase
+    if (body["tipo"] != null) {
+      const t = String(body["tipo"]).toLowerCase().trim();
+      const norm = t.includes("enfermer") ? "enfermero" : "medico"; // cubre "enfermero/a", "enfermera"
+      body["tipo"] = norm === "enfermero" ? "enfermero" : "medico";
+    }
+
+    // (Opcional) si no vino nada válido, rechazamos
+    if (body["tipo"] !== "medico" && body["tipo"] !== "enfermero") {
+      return NextResponse.json({ detail: "Campo 'tipo' inválido" }, { status: 400 });
+    }
+
+    // 3) Enviamos al backend
     const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
     if (!API_BASE) {
-      console.error("Falta NEXT_PUBLIC_API_BASE");
       return NextResponse.json({ detail: "Falta config del backend" }, { status: 500 });
     }
 
@@ -37,18 +53,14 @@ export async function POST(req: NextRequest) {
     const text = await upstream.text();
 
     if (!upstream.ok) {
-      console.error("Upstream error:", upstream.status, text);
-      // Si el backend devuelve JSON, reenviamos como JSON
       try {
         const json = JSON.parse(text) as unknown;
         return NextResponse.json(json, { status: upstream.status });
       } catch {
-        // Si no es JSON, devolvemos texto plano
         return new NextResponse(text, { status: upstream.status });
       }
     }
 
-    // OK → devolver tal cual (JSON o texto)
     try {
       const json = JSON.parse(text) as unknown;
       return NextResponse.json(json, { status: upstream.status });
@@ -57,7 +69,6 @@ export async function POST(req: NextRequest) {
     }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Proxy error";
-    console.error("Proxy failure:", message);
     return NextResponse.json({ detail: message }, { status: 500 });
   }
 }

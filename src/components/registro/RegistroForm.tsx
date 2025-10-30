@@ -41,6 +41,7 @@ export default function RegistroForm() {
     resolver: zodResolver(registroSchema),
   });
 
+  // files (para mostrar nombre)
   const foto = watch("foto");
   const dniFrente = watch("dniFrente");
   const dniDorso = watch("dniDorso");
@@ -69,12 +70,14 @@ export default function RegistroForm() {
 
   async function onSubmit(data: RegistroFormValues) {
     try {
+      // --- zona -> provincia / localidad
       const rawZona = (data.zona || "").trim();
       const [p1 = "", p2 = ""] = rawZona.split("/").map((s) => s.trim());
       let provincia = "";
       let localidad = "";
       if (p1 && p2) {
-        const isProv = (s: string) => /caba|bs\.?as|buenos\s*aires|provincia/i.test(s);
+        const isProv = (s: string) =>
+          /caba|bs\.?as|buenos\s*aires|provincia/i.test(s);
         if (isProv(p1)) {
           provincia = p1;
           localidad = p2;
@@ -90,12 +93,23 @@ export default function RegistroForm() {
         provincia = "";
       }
 
-      const [fotoPerfil64, dniFrente64, dniDorso64, selfieDni64] = await Promise.all([
-        fileToDataURL(foto),
-        fileToDataURL(dniFrente),
-        fileToDataURL(dniDorso),
-        fileToDataURL(selfieDni),
-      ]);
+      // --- convertir imágenes a dataURL
+      const [fotoPerfil64, dniFrente64, dniDorso64, selfieDni64] =
+        await Promise.all([
+          fileToDataURL(foto),
+          fileToDataURL(dniFrente),
+          fileToDataURL(dniDorso),
+          fileToDataURL(selfieDni),
+        ]);
+
+      // --- ⚠️ TIPO: tomar SIEMPRE data.tipo (no rol)
+      const tipoResuelto =
+        data.tipo ?? (undefined as never); // si no existe, schema ya marcará error
+
+      if (!tipoResuelto) {
+        toast.error("Debe seleccionarse el tipo (Médico/a o Enfermero/a).");
+        return;
+      }
 
       const payload = {
         full_name: data.nombreCompleto.trim(),
@@ -103,7 +117,7 @@ export default function RegistroForm() {
         password: data.password,
         matricula: data.matricula.trim(),
         especialidad: data.especialidad.trim(),
-        tipo: data.rol,
+        tipo: tipoResuelto, // 👈 se envía exactamente "medico" | "enfermero"
         telefono: data.telefono.trim(),
         provincia,
         localidad,
@@ -113,6 +127,9 @@ export default function RegistroForm() {
         foto_dni_dorso: dniDorso64,
         selfie_dni: selfieDni64,
       };
+
+      // log defensivo: verificá en red que salga "enfermero" cuando corresponde
+      console.log("[REGISTRO] payload a /api/register:", payload);
 
       const res = await fetch("/api/register", {
         method: "POST",
@@ -135,8 +152,13 @@ export default function RegistroForm() {
       }
 
       const payloadResp = await res.json().catch(() => null);
+
+      // El backend ya devuelve el tipo que insertó.
+      console.log("[REGISTRO] respuesta backend:", payloadResp);
+
       toast.success(
-        payloadResp?.mensaje ?? "Registro exitoso ✅. Revisá tu correo para activar tu cuenta."
+        payloadResp?.mensaje ??
+          "Registro exitoso ✅. Revisá tu correo para activar tu cuenta."
       );
 
       setLoadingSplash(true);
@@ -180,7 +202,7 @@ export default function RegistroForm() {
             {icon}
           </span>
 
-        <span className="flex-1 truncate text-sm text-muted-foreground">
+          <span className="flex-1 truncate text-sm text-muted-foreground">
             {fileName || "Ningún archivo seleccionado"}
           </span>
 
@@ -214,6 +236,7 @@ export default function RegistroForm() {
         noValidate
         className="mt-6 sm:mt-8 grid gap-4 sm:gap-5 md:gap-6"
       >
+        {/* Nombre completo */}
         <div>
           <Label>Nombre y apellido</Label>
           <div className="relative mt-1">
@@ -228,6 +251,7 @@ export default function RegistroForm() {
           <Err msg={errors.nombreCompleto?.message} />
         </div>
 
+        {/* Email / Teléfono */}
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
           <div>
             <Label>Email</Label>
@@ -259,23 +283,25 @@ export default function RegistroForm() {
           </div>
         </div>
 
+        {/* Tipo / Especialidad */}
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
           <div>
-            <Label>Rol</Label>
+            <Label>Tipo de profesional</Label>
             <div className="relative mt-1">
               <Stethoscope className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
               <select
                 className="w-full h-11 md:h-12 rounded-md border pl-9 pr-8 bg-background focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
                 defaultValue=""
-                {...register("rol")}
-                aria-invalid={!!errors.rol}
+                {...register("tipo")}
+                aria-invalid={!!errors.tipo}
+                name="tipo" // 👈 explícito
               >
                 <option value="">Elegí una opción</option>
                 <option value="medico">Médico/a</option>
                 <option value="enfermero">Enfermero/a</option>
               </select>
             </div>
-            <Err msg={errors.rol?.message} />
+            <Err msg={errors.tipo?.message} />
           </div>
 
           <div>
@@ -293,16 +319,13 @@ export default function RegistroForm() {
           </div>
         </div>
 
+        {/* Matrícula / DNI */}
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
           <div>
             <Label>Matrícula</Label>
             <div className="relative mt-1">
               <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-              <Input
-                className="pl-9 h-11 md:h-12"
-                {...register("matricula")}
-                autoComplete="off"
-              />
+              <Input className="pl-9 h-11 md:h-12" {...register("matricula")} autoComplete="off" />
             </div>
             <Err msg={errors.matricula?.message} />
           </div>
@@ -324,6 +347,7 @@ export default function RegistroForm() {
           </div>
         </div>
 
+        {/* Zona */}
         <ZonaCobertura
           value={watch("zona")}
           onChangeZona={(zonaStr) => {
@@ -332,17 +356,13 @@ export default function RegistroForm() {
           error={errors.zona?.message}
         />
 
+        {/* Passwords */}
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
           <div>
             <Label>Contraseña</Label>
             <div className="relative mt-1">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-              <Input
-                type="password"
-                className="pl-9 h-11 md:h-12"
-                {...register("password")}
-                autoComplete="new-password"
-              />
+              <Input type="password" className="pl-9 h-11 md:h-12" {...register("password")} autoComplete="new-password" />
             </div>
             <Err msg={errors.password?.message} />
           </div>
@@ -351,17 +371,13 @@ export default function RegistroForm() {
             <Label>Confirmar contraseña</Label>
             <div className="relative mt-1">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
-              <Input
-                type="password"
-                className="pl-9 h-11 md:h-12"
-                {...register("passwordConfirm")}
-                autoComplete="new-password"
-              />
+              <Input type="password" className="pl-9 h-11 md:h-12" {...register("passwordConfirm")} autoComplete="new-password" />
             </div>
             <Err msg={errors.passwordConfirm?.message} />
           </div>
         </div>
 
+        {/* Archivos */}
         <div className="grid gap-4 sm:gap-5">
           <FileRow
             id="foto"
@@ -397,13 +413,9 @@ export default function RegistroForm() {
           />
         </div>
 
+        {/* Términos */}
         <div className="flex items-start gap-3">
-          <input
-            id="aceptaTerminos"
-            type="checkbox"
-            className="mt-1 h-4 w-4"
-            {...register("aceptaTerminos")}
-          />
+          <input id="aceptaTerminos" type="checkbox" className="mt-1 h-4 w-4" {...register("aceptaTerminos")} />
           <Label htmlFor="aceptaTerminos" className="text-sm text-muted-foreground">
             Acepto los{" "}
             <Link href="/legal/pro/terminos" className="link-primary">
@@ -448,4 +460,3 @@ export default function RegistroForm() {
     </>
   );
 }
-
