@@ -79,14 +79,14 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="https://instagram.com/docya"
+                  href="https://instagram.com/docya.argentina"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Instagram"
+                  aria-label="Instagram oficial DocYa"
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full border
-                             border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
-                             bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
-                             text-[var(--brand)] hover:brightness-110 transition"
+                            border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
+                            bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
+                            text-[var(--brand)] hover:brightness-110 transition"
                 >
                   <Instagram className="h-4.5 w-4.5" />
                 </a>
@@ -163,8 +163,13 @@ export default function Footer() {
               </li>
               <li className="flex md:justify-start justify-center items-start gap-2">
                 <Phone className="h-4 w-4 mt-0.5 text-[var(--brand)]" />
-                <a href="tel:+5491112345678" className="hover:text-[var(--brand)] transition">
-                  +54 9 11 1234-5678
+                <a
+                  href="https://wa.me/5491168700607"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[var(--brand)] transition"
+                >
+                  +54 9 11 6870-0607
                 </a>
               </li>
               <li className="flex md:justify-start justify-center items-start gap-2">
