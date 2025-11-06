@@ -16,13 +16,9 @@ type Provincia = { id: string; nombre: string };
 type Opcion = { id: string; nombre: string; display?: string };
 
 type Props = {
-  /** texto del label (opcional) */
   label?: string;
-  /** valor actual “zona” para RHF (solo lectura) */
   value?: string;
-  /** callback para setear el “zona” en RHF con el formato “Provincia / (Comuna|Localidad)” */
   onChangeZona: (zona: string) => void;
-  /** mensaje de error para mostrar debajo (opcional) */
   error?: string;
 };
 
@@ -34,7 +30,7 @@ type GeorefDeptosResp = {
   departamentos?: Array<{ id?: string | number; nombre?: string }>;
 };
 
-/** Respuesta de TU backend: /localidades/{provincia} */
+/** Respuesta del backend /localidades/{provincia} */
 type LocalidadesBackendResp = {
   provincia: string;
   localidades: string[];
@@ -52,18 +48,15 @@ export default function ZonaCobertura({
   const [provSelId, setProvSelId] = useState<string>("");
   const [provSelNombre, setProvSelNombre] = useState<string>("");
 
-  // Para CABA cargamos comunas (desde departamentos); para el resto, localidades (TU backend)
   const [opciones, setOpciones] = useState<Opcion[]>([]);
-  const [opcionSel, setOpcionSel] = useState<string>(""); // valor “puro” que guardamos (solo localidad/comuna)
+  const [opcionSel, setOpcionSel] = useState<string>("");
 
   const [loadingProv, setLoadingProv] = useState(false);
   const [loadingOpciones, setLoadingOpciones] = useState(false);
 
-  // Modo manual
   const [manual, setManual] = useState(false);
   const [manualTexto, setManualTexto] = useState<string>("");
 
-  // Es CABA si id=02 o nombre matchea
   const esCABA = useMemo(
     () =>
       provSelId === "02" ||
@@ -71,7 +64,6 @@ export default function ZonaCobertura({
     [provSelId, provSelNombre]
   );
 
-  // helper fetch JSON
   const fetchJSON = async <T,>(url: string): Promise<T | null> => {
     try {
       const r = await fetch(url);
@@ -114,12 +106,11 @@ export default function ZonaCobertura({
     };
   }, []);
 
-  // 2) Opciones de nivel 2 (CABA: comunas desde departamentos; resto: localidades DESDE TU BACKEND)
+  // 2) Opciones (CABA: comunas / Resto: localidades del backend)
   useEffect(() => {
     let cancel = false;
 
     const loadCABAComunas = async (): Promise<Opcion[]> => {
-      // Comunas de CABA expuestas como “departamentos” con provincia=02
       const url =
         "https://apis.datos.gob.ar/georef/api/departamentos?provincia=02&max=100&aplanar=true&campos=id,nombre";
       const data = await fetchJSON<GeorefDeptosResp>(url);
@@ -128,11 +119,11 @@ export default function ZonaCobertura({
       const list: Opcion[] =
         (data?.departamentos ?? [])
           .map((d) => {
-            const nombre = String(d.nombre ?? ""); // ej: "Comuna 1"
+            const nombre = String(d.nombre ?? "");
             return {
-              id: `${String(d.id ?? "")}-${nombre}`, // key única
-              nombre, // guardamos “Comuna X”
-              display: nombre, // mostramos igual
+              id: `${String(d.id ?? "")}-${nombre}`,
+              nombre,
+              display: nombre,
             };
           })
           .filter((o) => o.id && o.nombre)
@@ -142,7 +133,6 @@ export default function ZonaCobertura({
     };
 
     const loadLocalidades = async (): Promise<Opcion[]> => {
-      // ⚠️ Tu backend espera NOMBRE de provincia (no ID)
       const provNombre = (provSelNombre || "").trim();
       if (!provNombre || !API_BASE) return [];
 
@@ -172,7 +162,6 @@ export default function ZonaCobertura({
     };
 
     (async () => {
-      // reset
       setOpciones([]);
       setOpcionSel("");
       setManual(false);
@@ -192,9 +181,9 @@ export default function ZonaCobertura({
     return () => {
       cancel = true;
     };
-  }, [provSelId, provSelNombre, esCABA, API_BASE]);
+  }, [provSelId, provSelNombre, esCABA]); // ✅ API_BASE eliminado de deps
 
-  // 3) Notificar a RHF evitando loops
+  // 3) Notificar a RHF
   const lastZonaRef = useRef<string>("");
   useEffect(() => {
     const prov = provSelNombre?.trim() || "";
@@ -204,8 +193,7 @@ export default function ZonaCobertura({
       lastZonaRef.current = zona;
       onChangeZona(zona);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [provSelNombre, opcionSel, manual, manualTexto]);
+  }, [provSelNombre, opcionSel, manual, manualTexto, onChangeZona]);
 
   return (
     <div>
@@ -215,7 +203,7 @@ export default function ZonaCobertura({
       <div className="relative mt-1">
         <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
         <Select
-          value={provSelId || undefined}
+          value={provSelId || ""}
           onValueChange={(id) => {
             setProvSelId(id);
             const p = provincias.find((x) => x.id === id);
@@ -252,7 +240,7 @@ export default function ZonaCobertura({
 
             {!manual ? (
               <Select
-                value={opcionSel || undefined}
+                value={opcionSel || ""}
                 onValueChange={(v) => setOpcionSel(v)}
                 disabled={loadingOpciones}
               >
@@ -283,7 +271,6 @@ export default function ZonaCobertura({
                   ) : null}
                   {opciones.map((o) => (
                     <SelectItem key={o.id} value={o.nombre}>
-                      {/* mostramos display si existe; guardamos solo `o.nombre` */}
                       {o.display ?? o.nombre}
                     </SelectItem>
                   ))}
@@ -302,7 +289,7 @@ export default function ZonaCobertura({
             )}
           </div>
 
-          {/* Toggle a modo manual */}
+          {/* Toggle manual */}
           <button
             type="button"
             onClick={() => setManual((m) => !m)}
