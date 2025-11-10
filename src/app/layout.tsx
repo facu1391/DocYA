@@ -1,4 +1,3 @@
-
 import type { Metadata, Viewport } from "next";
 import { Poppins, Geist_Mono } from "next/font/google";
 import Script from "next/script";
@@ -7,6 +6,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
 import FloatingCTA from "@/components/fab/FloatingCTA";
+import FloatingPacienteCTA from "@/components/fab/FloatingPacienteCTA";
 import ScrollToTopButton from "@/components/fab/ScrollToTopButton";
 import { Toaster } from "react-hot-toast";
 
@@ -132,6 +132,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </main>
           <Footer />
           <FloatingCTA />
+          <FloatingPacienteCTA />
           <ScrollToTopButton />
           <Toaster position="top-right" />
         </ThemeProvider>

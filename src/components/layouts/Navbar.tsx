@@ -1,15 +1,14 @@
-// src/components/layouts/Navbar.tsx
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Sun, Moon, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// ⬇️ Agregados
+// Reutilizados
 import ConfirmModal from "@/components/common/ConfirmModal";
 import LoadingSplash from "@/components/common/LoadingSplash";
 import { proExitCopy } from "@/components/common/confirmCopy";
@@ -17,17 +16,27 @@ import { proExitCopy } from "@/components/common/confirmCopy";
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
   const router = useRouter();
 
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
-  // ⬇️ estados para modal + splash
+  // Modal + splash
   const [openExitModal, setOpenExitModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Páginas que usan navbar público
+  const PUBLIC_PREFIXES = ["/", "/registro/paciente", "/legal/pacientes"];
+
+  // 👇 Si estoy en /gracias y aud=paciente => navbar público
+  const aud = (searchParams?.get("aud") || "").toLowerCase();
+  const isGraciasPaciente = pathname === "/gracias" && aud === "paciente";
+
   const isPublicAudience =
-    pathname === "/" || pathname.startsWith("/legal/pacientes");
+    isGraciasPaciente ||
+    PUBLIC_PREFIXES.some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)));
+
   // zona Pro = no pública
   const inProArea = !isPublicAudience;
 
@@ -63,7 +72,7 @@ export default function Navbar() {
         : "",
     ].join(" ");
 
-  // ⬇️ acción confirmada: muestra splash y navega a /
+  // Acción confirmada: splash y navega a /
   const goPatients = () => {
     setLoading(true);
     setTimeout(() => router.push("/"), 2000);
@@ -94,14 +103,24 @@ export default function Navbar() {
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6 text-sm font-medium">
             {isPublicAudience ? (
-              <Button
-                variant="ghost" size="icon"
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="text-white hover:bg-white/10 cursor-pointer" aria-label="Cambiar tema"
-              >
-                <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              </Button>
+              <>
+                <Link
+                  href="/registro/paciente"
+                  className="btn-primary h-9 px-3"
+                >
+                  Registrate como paciente
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="text-white hover:bg-white/10 cursor-pointer"
+                  aria-label="Cambiar tema"
+                >
+                  <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                </Button>
+              </>
             ) : (
               <>
                 <Link href="/ingresos" className={linkCls("/ingresos")}>Ingresos</Link>
@@ -109,7 +128,7 @@ export default function Navbar() {
                 <Link href="/contacto" className={linkCls("/contacto")}>Contacto</Link>
                 <Link href="/registro" className="btn-primary h-9 px-3">Registrate</Link>
 
-                {/* ⬇️ “Para pacientes” con modal + splash si estás en zona Pro */}
+                {/* “Para pacientes” con modal si estás en zona Pro */}
                 <Link
                   href="/"
                   aria-label="Ir a DocYa (público)"
@@ -125,9 +144,11 @@ export default function Navbar() {
                 </Link>
 
                 <Button
-                  variant="ghost" size="icon"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  className="text-white hover:bg-white/10 cursor-pointer" aria-label="Cambiar tema"
+                  className="text-white hover:bg-white/10 cursor-pointer"
+                  aria-label="Cambiar tema"
                 >
                   <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                   <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -139,9 +160,11 @@ export default function Navbar() {
           {/* Mobile toggles */}
           <div className="md:hidden flex items-center gap-2">
             <Button
-              variant="ghost" size="icon"
+              variant="ghost"
+              size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="text-white hover:bg-white/10" aria-label="Cambiar tema"
+              className="text-white hover:bg-white/10"
+              aria-label="Cambiar tema"
             >
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -149,9 +172,11 @@ export default function Navbar() {
 
             {!isPublicAudience && (
               <Button
-                variant="ghost" size="icon"
+                variant="ghost"
+                size="icon"
                 className="text-white hover:bg-white/10"
-                aria-label="Abrir menú" aria-expanded={open}
+                aria-label="Abrir menú"
+                aria-expanded={open}
                 onClick={() => setOpen((v) => !v)}
               >
                 {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -177,7 +202,6 @@ export default function Navbar() {
                 Registrate
               </Link>
 
-              {/* ⬇️ Mobile: “Para pacientes” con modal + splash si estás en zona Pro */}
               <Link
                 href="/"
                 className="btn-outline-primary h-10 w-full max-w-xs justify-center"
@@ -194,18 +218,37 @@ export default function Navbar() {
             </div>
           </div>
         )}
+
+        {/* Mobile menu (público) */}
+        {isPublicAudience && (
+          <div
+            className={[
+              "md:hidden overflow-hidden transition-[max-height] duration-300",
+              open ? "max-h-96" : "max-h-0",
+            ].join(" ")}
+          >
+            <div className="container py-4 flex flex-col items-center text-center gap-3 text-sm font-medium">
+              <Link
+                href="/registro/paciente"
+                className="btn-primary h-10 w-full max-w-xs justify-center"
+              >
+                Registrate como paciente
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* ⬇️ Splash reutilizado (no toca tu layout) */}
+      {/* Splash reutilizado */}
       <LoadingSplash
         show={loading}
         message="Abriendo Pacientes…"
         autoHideMs={2200}
         onHide={() => setLoading(false)}
-        logoSrc="/logo_puclic-light.png" // usá el que corresponda a color
+        logoSrc="/logo_puclic-light.png"
       />
 
-      {/* ⬇️ Modal reutilizado con copy específico */}
+      {/* Modal reutilizado */}
       <ConfirmModal
         open={openExitModal}
         onOpenChange={setOpenExitModal}
@@ -222,4 +265,3 @@ export default function Navbar() {
     </>
   );
 }
-
