@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,6 +14,7 @@ export default function FloatingCTA() {
   const router = useRouter();
   const [openConfirm, setOpenConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Ocultar en /registro y /gracias
   const HIDDEN_ROUTES = ["/registro", "/gracias"];
@@ -23,12 +23,24 @@ export default function FloatingCTA() {
   // Público: home + legales de pacientes
   const isPublicAudience = pathname === "/" || pathname.startsWith("/legal/pacientes");
 
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 640);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   return (
     <>
       <AnimatePresence>
         <motion.div
-          className="fixed z-50 right-4 bottom-4 md:right-5 md:bottom-5"
-          style={{ bottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
+          className="fixed z-[50] right-4 md:right-5"
+          style={{
+            // respeta safe-area y deja espacio para ScrollToTop (que va más arriba en mobile)
+            bottom: isMobile
+              ? "max(1.25rem, env(safe-area-inset-bottom))"
+              : "max(1.25rem, env(safe-area-inset-bottom))",
+          }}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
@@ -51,7 +63,10 @@ export default function FloatingCTA() {
           />
 
           {/* Botón */}
-          <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}>
+          <motion.div
+            animate={{ y: [0, -3, 0] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+          >
             {isPublicAudience ? (
               <button
                 type="button"

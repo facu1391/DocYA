@@ -1,23 +1,32 @@
-
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { UserPlus } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function FloatingPacienteCTA() {
   const pathname = usePathname();
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Oculto el CTA cuando ya estás en el registro de pacientes
+  useEffect(() => {
+    // Detecta ancho para ajustar el offset inferior
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   if (pathname?.startsWith("/registro/paciente")) return null;
 
   return (
     <motion.div
-      className="fixed z-40"
+      className="fixed z-[38]" // ligeramente debajo de otros FABs
       style={{
-        // respeta safe area (iOS) y lo ubica firmemente abajo-izq.
-        left: "max(1.5rem, env(safe-area-inset-left))",
-        bottom: "max(1.5rem, env(safe-area-inset-bottom))",
+        left: "max(1.25rem, env(safe-area-inset-left))",
+        bottom: isMobile
+          ? "max(6.5rem, env(safe-area-inset-bottom))" // + espacio para FABs
+          : "max(2rem, env(safe-area-inset-bottom))",
       }}
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
@@ -37,7 +46,6 @@ export default function FloatingPacienteCTA() {
         </span>
       </Link>
 
-      {/* halo sutil */}
       <span className="pointer-events-none absolute inset-0 -z-10 animate-ping rounded-full bg-emerald-500/20" />
     </motion.div>
   );
