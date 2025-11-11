@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,28 +12,42 @@ import LoadingSplash from "@/components/common/LoadingSplash";
 export default function FloatingCTA() {
   const pathname = usePathname() ?? "";
   const router = useRouter();
+
   const [openConfirm, setOpenConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Ocultar en /registro y /gracias
+  // ✅ Hooks SIEMPRE en el tope (sin returns antes)
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 640);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // Reglas de visibilidad
   const HIDDEN_ROUTES = ["/registro", "/gracias"];
-  if (HIDDEN_ROUTES.some((p) => pathname.startsWith(p))) return null;
-
-  // Público: home + legales de pacientes
+  const shouldHide = HIDDEN_ROUTES.some((p) => pathname.startsWith(p));
   const isPublicAudience = pathname === "/" || pathname.startsWith("/legal/pacientes");
+
+  // Si debe ocultarse, no se renderiza NADA (pero los hooks ya corrieron)
+  if (shouldHide) return null;
 
   return (
     <>
       <AnimatePresence>
         <motion.div
-          className="fixed z-50 right-4 bottom-4 md:right-5 md:bottom-5"
-          style={{ bottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
+          className="fixed z-[50] right-4 md:right-5"
+          style={{
+            bottom: isMobile
+              ? "max(1.25rem, env(safe-area-inset-bottom))"
+              : "max(1.25rem, env(safe-area-inset-bottom))",
+          }}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
           transition={{ duration: 0.25 }}
         >
-          {/* Halo/pulso */}
           <motion.span
             className="absolute inset-0 -z-10 rounded-full"
             initial={{ scale: 0.9, opacity: 0.6, boxShadow: "0 0 0 0 rgba(0,179,166,0.35)" }}
@@ -50,7 +63,6 @@ export default function FloatingCTA() {
             transition={{ duration: 2.2, repeat: Infinity, ease: "easeOut" }}
           />
 
-          {/* Botón */}
           <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}>
             {isPublicAudience ? (
               <button
@@ -77,7 +89,6 @@ export default function FloatingCTA() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Splash DocYa */}
       <LoadingSplash
         show={loading}
         message="Abriendo Profesionales…"
@@ -85,7 +96,6 @@ export default function FloatingCTA() {
         onHide={() => setLoading(false)}
       />
 
-      {/* Modal unificado */}
       <ConfirmModal
         open={openConfirm}
         onOpenChange={setOpenConfirm}
