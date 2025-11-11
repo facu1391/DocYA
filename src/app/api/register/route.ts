@@ -1,4 +1,3 @@
-
 // src/app/api/register_medico/route.ts  (o donde tengas este proxy)
 import { NextRequest, NextResponse } from "next/server";
 

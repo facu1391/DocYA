@@ -42,6 +42,26 @@ export const registroSchema = z
 
 export type RegistroFormValues = z.infer<typeof registroSchema>;
 
+/* ====== PACIENTES (nuevo, sin imágenes/ni campos pro) ====== */
+export const registroPacienteSchema = z
+  .object({
+    nombreCompleto: z.string().min(3, "Ingresá tu nombre y apellido"),
+    email: z.string().email("Email inválido"),
+    telefono: z.string().min(6, "Teléfono inválido"),
+    dni: z.string().regex(/^\d{7,9}$/, "DNI inválido (7 a 9 dígitos)"),
+    fechaNacimiento: z.string().min(1, "Ingresá tu fecha de nacimiento"),
+    zona: z.string().min(2, "Ingresá una zona"),
+    password: z.string().min(8, "Mínimo 8 caracteres"),
+    passwordConfirm: z.string().min(8, "Confirmá tu contraseña"),
+    aceptaTerminos: z.boolean().refine((v) => v === true, { message: "Debés aceptar Términos y Privacidad" }),
+  })
+  .refine((d) => d.password === d.passwordConfirm, {
+    path: ["passwordConfirm"],
+    message: "Las contraseñas no coinciden",
+  });
+
+export type RegistroPacienteValues = z.infer<typeof registroPacienteSchema>;
+
 
 
 
