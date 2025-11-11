@@ -1,3 +1,4 @@
+// src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { Poppins, Geist_Mono } from "next/font/google";
 import Script from "next/script";
@@ -9,6 +10,7 @@ import FloatingCTA from "@/components/fab/FloatingCTA";
 import FloatingPacienteCTA from "@/components/fab/FloatingPacienteCTA";
 import ScrollToTopButton from "@/components/fab/ScrollToTopButton";
 import { Toaster } from "react-hot-toast";
+import { Suspense } from "react";
 
 const SITE_URL = "https://www.docya.com.ar";
 const OG_IMAGE = `${SITE_URL}/og/og-docya.jpg`;
@@ -126,10 +128,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es-AR" suppressHydrationWarning>
       <body className={`${poppins.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Navbar />
+          {/* Suspense requerido porque Navbar usa useSearchParams() */}
+          <Suspense fallback={null}>
+            <Navbar />
+          </Suspense>
+
           <main className="flex-1 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)] overflow-x-hidden">
             {children}
           </main>
+
           <Footer />
           <FloatingCTA />
           <FloatingPacienteCTA />
