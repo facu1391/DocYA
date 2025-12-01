@@ -139,7 +139,7 @@ export default function HeroFullBleed() {
 
       <div className="container mx-auto px-6">
         <p className="text-center text-sm text-muted-foreground py-6">
-          Atención inicial en CABA (Palermo y Belgrano) — expansión nacional.
+          Atención médica y de enfermería a domicilio en todo el país.
         </p>
       </div>
 
