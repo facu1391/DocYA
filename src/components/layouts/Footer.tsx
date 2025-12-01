@@ -174,7 +174,7 @@ export default function Footer() {
               </li>
               <li className="flex md:justify-start justify-center items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 text-[var(--brand)]" />
-                <span className="text-gray-400">CABA — Palermo / Belgrano</span>
+                <span className="text-gray-400">CABA</span>
               </li>
             </ul>
           </div>
