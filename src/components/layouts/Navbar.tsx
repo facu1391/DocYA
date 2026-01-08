@@ -104,10 +104,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-6 text-sm font-medium">
             {isPublicAudience ? (
               <>
-                <Link
-                  href="/registro/paciente"
-                  className="btn-primary h-9 px-3"
-                >
+                <Link href="/registro/paciente" className="btn-primary h-9 px-3">
                   Registrate como paciente
                 </Link>
                 <Button
@@ -123,10 +120,24 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link href="/ingresos" className={linkCls("/ingresos")}>Ingresos</Link>
-                <Link href="/faqs" className={linkCls("/faqs")}>FAQs</Link>
-                <Link href="/contacto" className={linkCls("/contacto")}>Contacto</Link>
-                <Link href="/registro" className="btn-primary h-9 px-3">Registrate</Link>
+                <Link href="/ingresos" className={linkCls("/ingresos")}>
+                  Ingresos
+                </Link>
+                <Link href="/faqs" className={linkCls("/faqs")}>
+                  FAQs
+                </Link>
+
+                {/* ✅ Nuevo: Manual (solo Pro) */}
+                <Link href="/manual" className={linkCls("/manual")}>
+                  Manual
+                </Link>
+
+                <Link href="/contacto" className={linkCls("/contacto")}>
+                  Contacto
+                </Link>
+                <Link href="/registro" className="btn-primary h-9 px-3">
+                  Registrate
+                </Link>
 
                 {/* “Para pacientes” con modal si estás en zona Pro */}
                 <Link
@@ -194,9 +205,21 @@ export default function Navbar() {
             ].join(" ")}
           >
             <div className="container py-4 flex flex-col items-center text-center gap-3 text-sm font-medium">
-              <Link href="/ingresos" className={mobileLinkCls("/ingresos")}>Ingresos</Link>
-              <Link href="/faqs" className={mobileLinkCls("/faqs")}>FAQs</Link>
-              <Link href="/contacto" className={mobileLinkCls("/contacto")}>Contacto</Link>
+              <Link href="/ingresos" className={mobileLinkCls("/ingresos")}>
+                Ingresos
+              </Link>
+              <Link href="/faqs" className={mobileLinkCls("/faqs")}>
+                FAQs
+              </Link>
+
+              {/* ✅ Nuevo: Manual (solo Pro) */}
+              <Link href="/manual" className={mobileLinkCls("/manual")}>
+                Manual
+              </Link>
+
+              <Link href="/contacto" className={mobileLinkCls("/contacto")}>
+                Contacto
+              </Link>
 
               <Link href="/registro" className="btn-primary h-10 w-full max-w-xs justify-center">
                 Registrate
@@ -265,3 +288,4 @@ export default function Navbar() {
     </>
   );
 }
+
