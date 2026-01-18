@@ -1,4 +1,3 @@
-
 "use client";
 
 import CtaBand from "@/components/marketing/CtaBand";
@@ -19,12 +18,10 @@ export default function DownloadAppPublic() {
         {
           kind: "store-google",
           href: PLAY_STORE_URL,
-          target: "_blank",
         },
         {
           kind: "store-apple",
           href: APP_STORE_URL,
-          target: "_blank",
         },
       ]}
       badges={[
