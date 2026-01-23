@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -54,7 +53,11 @@ function Stars({ value }: { value: number }) {
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
-          className={i < value ? "h-4 w-4 fill-[var(--brand)] text-[var(--brand)]" : "h-4 w-4 text-muted-foreground"}
+          className={
+            i < value
+              ? "h-4 w-4 fill-[var(--brand)] text-[var(--brand)]"
+              : "h-4 w-4 text-muted-foreground"
+          }
         />
       ))}
     </div>
@@ -63,10 +66,14 @@ function Stars({ value }: { value: number }) {
 
 export default function Testimonials() {
   return (
-    <section className="relative py-20 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]" aria-labelledby="testi-title">
+    <section
+      className="relative py-20 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]"
+      aria-labelledby="testi-title"
+    >
       <div className="absolute inset-0 pointer-events-none brand-glow" />
 
-      <div className="container relative">
+      {/* ✅ CAMBIO: wrapper centrado y consistente */}
+      <div className="relative mx-auto w-full max-w-6xl px-4">
         <motion.header
           className="text-center max-w-3xl mx-auto"
           initial={{ opacity: 0, y: 10 }}
@@ -96,7 +103,11 @@ export default function Testimonials() {
                 initial={{ opacity: 0, y: 14, scale: 0.98 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.45, ease: cubicBezier(0.22, 1, 0.36, 1), delay: i * 0.02 }}
+                transition={{
+                  duration: 0.45,
+                  ease: cubicBezier(0.22, 1, 0.36, 1),
+                  delay: i * 0.02,
+                }}
               >
                 <Quote
                   aria-hidden
@@ -118,7 +129,10 @@ export default function Testimonials() {
                       <div className="text-left">
                         <div className="flex items-center gap-1.5">
                           <span className="font-semibold">{t.name}</span>
-                          <CheckCircle2 className="h-4 w-4 text-[var(--brand)]" aria-label="Perfil verificado" />
+                          <CheckCircle2
+                            className="h-4 w-4 text-[var(--brand)]"
+                            aria-label="Perfil verificado"
+                          />
                         </div>
                         <span className="text-xs text-muted-foreground">
                           {t.role} · {t.location}

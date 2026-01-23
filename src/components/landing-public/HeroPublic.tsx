@@ -1,10 +1,9 @@
-
 "use client";
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import ConfirmModal from "@/components/common/ConfirmModal";
-import InfoModal from "@/components/common/InfoModal";
 import { proGateCopy, appDownloadCopy } from "@/components/common/confirmCopy";
 import LoadingSplash from "@/components/common/LoadingSplash";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -19,11 +18,50 @@ const slides = [
   { src: "/hero-public4.jpg", text: "Cuidamos de vos donde estés. Sin esperas." },
 ];
 
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.docya.paciente";
+
+const APP_STORE_URL =
+  "https://apps.apple.com/ar/app/docyapro/id6753040185";
+
+type Platform = "android" | "ios" | "unknown";
+
+function detectPlatform(): Platform {
+  if (typeof navigator === "undefined") return "unknown";
+
+  const ua = navigator.userAgent || "";
+  const isAndroid = /Android/i.test(ua);
+
+  const isIOS =
+    /iPhone|iPad|iPod/i.test(ua) ||
+    (navigator.platform === "MacIntel" && (navigator.maxTouchPoints ?? 0) > 1);
+
+  if (isAndroid) return "android";
+  if (isIOS) return "ios";
+  return "unknown";
+}
+
 export default function HeroPublic() {
   const [open, setOpen] = useState(false);
   const [openApp, setOpenApp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [platform, setPlatform] = useState<Platform>("unknown");
   const router = useRouter();
+
+  useEffect(() => {
+    setPlatform(detectPlatform());
+  }, []);
+
+  const handleDownloadApp = () => {
+    const url =
+      platform === "ios"
+        ? APP_STORE_URL
+        : platform === "android"
+        ? PLAY_STORE_URL
+        : PLAY_STORE_URL;
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <section className="relative w-full bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
@@ -57,8 +95,8 @@ export default function HeroPublic() {
                   <p className="mt-4 text-white/90 text-base sm:text-lg md:text-xl drop-shadow">
                     Conectá con profesionales en minutos, sin salir de casa.
                   </p>
+
                   <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                    {/* CTA Pro (igual que antes) */}
                     <button
                       type="button"
                       onClick={() => setOpen(true)}
@@ -68,7 +106,6 @@ export default function HeroPublic() {
                       Sumate como profesional
                     </button>
 
-                    {/* NUEVO: CTA Paciente */}
                     <button
                       type="button"
                       onClick={() => router.push("/registro/paciente")}
@@ -78,7 +115,6 @@ export default function HeroPublic() {
                       Registrate como paciente
                     </button>
 
-                    {/* Descargar app */}
                     <button
                       type="button"
                       onClick={() => setOpenApp(true)}
@@ -117,12 +153,18 @@ export default function HeroPublic() {
         onCancel={() => setOpen(false)}
       />
 
-      <InfoModal
+      <ConfirmModal
         open={openApp}
         onOpenChange={setOpenApp}
         title={appDownloadCopy.title}
         description={appDownloadCopy.description}
-        actionText={appDownloadCopy.confirmText}
+        confirmText={appDownloadCopy.confirmText}
+        cancelText={appDownloadCopy.cancelText}
+        onConfirm={() => {
+          setOpenApp(false);
+          handleDownloadApp();
+        }}
+        onCancel={() => setOpenApp(false)}
       />
 
       <style jsx>{`

@@ -15,10 +15,11 @@ const schema = z.object({
   nombre: z.string().min(2, "Ingresá tu nombre"),
   email: z.string().email("Email inválido"),
   telefono: z.string().optional(),
-  // ⬇️ acá el fix
-  motivo: z.enum(["soporte", "alianzas", "prensa", "otro"], { message: "Elegí un motivo" }),
+  motivo: z.enum(["soporte", "alianzas", "prensa", "otro"], {
+    message: "Elegí un motivo",
+  }),
   mensaje: z.string().min(10, "Contanos en al menos 10 caracteres"),
-  website: z.string().max(0).optional(), // honeypot
+  website: z.string().max(0).optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -53,7 +54,6 @@ export default function ContactForm() {
     <article className="lg:col-span-8">
       <div className="surface rounded-2xl p-6 md:p-8">
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="grid gap-4">
-          {/* honeypot */}
           <input type="text" className="hidden" tabIndex={-1} autoComplete="off" {...register("website")} />
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -74,19 +74,22 @@ export default function ContactForm() {
               <Label>Teléfono (opcional)</Label>
               <Input {...register("telefono")} />
             </div>
+
             <div>
               <Label>Motivo</Label>
               <select
                 {...register("motivo")}
+                defaultValue=""
                 className="
                   w-full h-10 rounded-md border px-3
                   bg-background
                   focus:outline-none focus:ring-2 focus:ring-[var(--brand)]
                   focus:border-[var(--brand)]
                 "
-                defaultValue="" // asegura que arranque vacío
               >
-                <option value="">Elegí una opción</option>
+                <option value="" disabled>
+                  Elegí una opción
+                </option>
                 <option value="soporte">Soporte</option>
                 <option value="alianzas">Alianzas</option>
                 <option value="prensa">Prensa</option>
@@ -124,16 +127,21 @@ export default function ContactForm() {
 
           <p className="text-xs text-muted-foreground">
             Al enviar aceptás la{" "}
-            <Link href="/legal/privacidad" className="link-primary">Política de Privacidad</Link>.
+            <Link href="/legal/privacidad" className="link-primary">
+              Política de Privacidad
+            </Link>
+            .
           </p>
         </form>
       </div>
 
-      {/* Bloque inferior: acceso rápido a FAQs */}
       <div className="text-center mt-6">
         <p className="text-sm text-muted-foreground">
           ¿Dudas comunes? Visitá las{" "}
-          <Link href="/faqs" className="link-primary">Preguntas frecuentes</Link>.
+          <Link href="/faqs" className="link-primary">
+            Preguntas frecuentes
+          </Link>
+          .
         </p>
       </div>
     </article>

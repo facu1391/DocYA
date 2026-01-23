@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { motion, type Variants, cubicBezier } from "framer-motion";
 import {
   ShieldCheck,
@@ -74,7 +75,9 @@ export default function BenefitsPublic() {
   return (
     <section className="relative py-20 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
       <div className="absolute inset-0 pointer-events-none brand-glow" />
-      <div className="container relative">
+
+      {/* ✅ CAMBIO: wrapper centrado y consistente */}
+      <div className="relative mx-auto w-full max-w-6xl px-4">
         <motion.h2
           className="text-center text-3xl md:text-4xl font-bold"
           initial={{ opacity: 0, y: 12 }}
@@ -88,13 +91,9 @@ export default function BenefitsPublic() {
         <motion.div
           className="
             mt-10 px-2 grid gap-6 md:gap-8
-            /* 1 columna en mobile */
-            /* en md: 2 columnas de ancho fijo y centradas */
             md:[grid-template-columns:repeat(2,minmax(0,360px))]
             md:justify-center
-            /* en lg: 3 columnas centradas */
             lg:[grid-template-columns:repeat(3,minmax(0,360px))]
-            /* limitar ancho total y centrar bloque */
             max-w-[1120px] mx-auto
           "
           variants={container}

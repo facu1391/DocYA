@@ -5,8 +5,7 @@ import { Card } from "@/components/ui/card";
 const ARS = (n: number) =>
   n.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
 
-// Supuestos de ejemplo (precio 30.000, comisión 20%, sin costos // solo ilustrativo)
-const NETO_POR_CONSULTA = 30000 * 0.8; // $24.000
+const NETO_POR_CONSULTA = 30000 * 0.8;
 
 const ESCENARIOS = [
   { label: "8 consultas / semana", semanal: 8 * NETO_POR_CONSULTA },
@@ -17,7 +16,8 @@ const ESCENARIOS = [
 export default function EarningsExamples() {
   return (
     <section className="bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
-      <div className="container py-12 md:py-16">
+      {/* ✅ reemplaza container por wrapper centrado */}
+      <div className="mx-auto w-full max-w-6xl px-4 py-12 md:py-16">
         <div className="text-center max-w-3xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-semibold">Ejemplos ilustrativos</h2>
           <p className="mt-2 text-sm md:text-base text-muted-foreground">
