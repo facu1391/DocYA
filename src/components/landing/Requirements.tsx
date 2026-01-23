@@ -23,7 +23,7 @@ export default function Requirements() {
         bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]
       "
     >
-      <div className="container">
+      <div className="mx-auto w-full max-w-6xl px-4">
         <h2 className="text-center text-2xl md:text-3xl font-semibold">
           Requisitos y cobertura
         </h2>
@@ -34,7 +34,6 @@ export default function Requirements() {
             motion-safe:animate-in motion-safe:fade-in-50
           "
         >
-          {/* ¿A quién buscamos? */}
           <article
             className="
               group relative overflow-hidden rounded-2xl border p-6 md:p-7
@@ -81,7 +80,6 @@ export default function Requirements() {
             </div>
           </article>
 
-          {/* Cobertura nacional */}
           <article
             className="
               group relative overflow-hidden rounded-2xl border p-6 md:p-7
@@ -113,7 +111,8 @@ export default function Requirements() {
             </header>
 
             <p className="relative mt-3 text-sm text-muted-foreground">
-              Operamos en todo el territorio argentino, con expansión continua y cobertura en cada provincia.
+              Operamos en todo el territorio argentino, con expansión continua y
+              cobertura en cada provincia.
             </p>
 
             <ul className="relative mt-4 flex flex-wrap items-center gap-2.5">

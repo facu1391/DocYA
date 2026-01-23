@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check, ArrowRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, A11y } from "swiper/modules";
-import InfoModal from "@/components/common/InfoModal";
+import ConfirmModal from "@/components/common/ConfirmModal";
 import { appDownloadCopy } from "@/components/common/confirmCopy";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -43,8 +43,47 @@ const SLIDES: Slide[] = [
   },
 ];
 
-export default function HeroFullBleed() {
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.docya.paciente";
+
+const APP_STORE_URL =
+  "https://apps.apple.com/ar/app/docyapro/id6753040185";
+
+type Platform = "android" | "ios" | "unknown";
+
+function detectPlatform(): Platform {
+  if (typeof navigator === "undefined") return "unknown";
+
+  const ua = navigator.userAgent || "";
+  const isAndroid = /Android/i.test(ua);
+
+  const isIOS =
+    /iPhone|iPad|iPod/i.test(ua) ||
+    (navigator.platform === "MacIntel" && (navigator.maxTouchPoints ?? 0) > 1);
+
+  if (isAndroid) return "android";
+  if (isIOS) return "ios";
+  return "unknown";
+}
+
+export default function HeroCreative() {
   const [openApp, setOpenApp] = useState(false);
+  const [platform, setPlatform] = useState<Platform>("unknown");
+
+  useEffect(() => {
+    setPlatform(detectPlatform());
+  }, []);
+
+  const handleDownloadApp = () => {
+    const url =
+      platform === "ios"
+        ? APP_STORE_URL
+        : platform === "android"
+        ? PLAY_STORE_URL
+        : PLAY_STORE_URL;
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <section className="relative w-full bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
@@ -117,6 +156,7 @@ export default function HeroFullBleed() {
                       <Link href="/registro" className="btn-primary">
                         Registrate como profesional <ArrowRight className="h-4 w-4" />
                       </Link>
+
                       <Link
                         href="#"
                         className="btn-outline-primary"
@@ -143,12 +183,18 @@ export default function HeroFullBleed() {
         </p>
       </div>
 
-      <InfoModal
+      <ConfirmModal
         open={openApp}
         onOpenChange={setOpenApp}
         title={appDownloadCopy.title}
         description={appDownloadCopy.description}
-        actionText={appDownloadCopy.confirmText}
+        confirmText={appDownloadCopy.confirmText}
+        cancelText={appDownloadCopy.cancelText}
+        onConfirm={() => {
+          setOpenApp(false);
+          handleDownloadApp();
+        }}
+        onCancel={() => setOpenApp(false)}
       />
 
       <style jsx>{`

@@ -16,8 +16,9 @@ export default function Page() {
   return (
     <main className="bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
       <RegistroHero mode="pro" />
-      <section className="container relative flex justify-center px-3 sm:px-4 md:px-6 py-10 md:py-14">
-        <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
+
+      <section className="container relative px-3 sm:px-4 md:px-6 py-10 md:py-14">
+        <div className="mx-auto w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
           <RegistroForm mode="pro" />
         </div>
       </section>
