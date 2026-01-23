@@ -1,4 +1,3 @@
-
 import { ShieldCheck, Clock, Star, Users } from "lucide-react";
 
 export default function TrustPublic() {

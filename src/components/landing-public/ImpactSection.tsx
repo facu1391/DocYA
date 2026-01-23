@@ -17,9 +17,21 @@ type Point = { mes: string; solicitudes: number };
 
 export default function ImpactSection({
   kpis = [
-    { label: "Ahorro estimado de tiempo", value: "~45 min", sub: "vs. traslado a guardia (ejemplo)" },
-    { label: "Satisfacción media", value: "4,7/5", sub: "calificaciones de usuarios (ejemplo)" },
-    { label: "Repetición de uso", value: "72%", sub: "usuarios que vuelven (ejemplo)" },
+    {
+      label: "Ahorro estimado de tiempo",
+      value: "~45 min",
+      sub: "vs. traslado a guardia (ejemplo)",
+    },
+    {
+      label: "Satisfacción media",
+      value: "4,7/5",
+      sub: "calificaciones de usuarios (ejemplo)",
+    },
+    {
+      label: "Repetición de uso",
+      value: "72%",
+      sub: "usuarios que vuelven (ejemplo)",
+    },
   ],
   demand = [
     { mes: "Ene", solicitudes: 180 },
@@ -45,7 +57,8 @@ export default function ImpactSection({
     <section className="relative py-16 md:py-20 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
       <div className="absolute inset-0 pointer-events-none brand-glow" />
 
-      <div className="container relative">
+      {/* ✅ CAMBIO: wrapper centrado y consistente */}
+      <div className="relative mx-auto w-full max-w-6xl px-4">
         {/* título */}
         <motion.div
           className="text-center max-w-3xl mx-auto"
@@ -101,9 +114,7 @@ export default function ImpactSection({
                 <div>
                   <div className="text-2xl font-bold leading-none">{kpi.value}</div>
                   <div className="mt-1 font-medium">{kpi.label}</div>
-                  {kpi.sub && (
-                    <p className="text-sm text-muted-foreground mt-1">{kpi.sub}</p>
-                  )}
+                  {kpi.sub && <p className="text-sm text-muted-foreground mt-1">{kpi.sub}</p>}
                 </div>
               </div>
             </div>
@@ -140,7 +151,10 @@ export default function ImpactSection({
                       <stop offset="100%" stopColor="var(--brand)" stopOpacity={0.65} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="color-mix(in srgb, var(--foreground) 12%, transparent)" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="color-mix(in srgb, var(--foreground) 12%, transparent)"
+                  />
                   <XAxis dataKey="mes" tickMargin={8} />
                   <YAxis />
                   <Tooltip
@@ -152,7 +166,11 @@ export default function ImpactSection({
                       color: "var(--card-foreground)",
                     }}
                   />
-                  <Bar dataKey="solicitudes" fill="url(#barFill)" radius={[8, 8, 4, 4]} />
+                  <Bar
+                    dataKey="solicitudes"
+                    fill="url(#barFill)"
+                    radius={[8, 8, 4, 4]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
