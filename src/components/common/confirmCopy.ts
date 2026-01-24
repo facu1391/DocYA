@@ -16,10 +16,10 @@ export const proExitCopy = {
   cancelText: "Cancelar",
 };
 
-
 export const appDownloadCopy = {
-  title: "Descarga de la app",
+  title: "¿Querés descargar DocYa?",
   description:
-    "Aún no está disponible la app para descargar. Pronto tendremos novedades por acá para que puedas bajarla y empezar a usar DocYa.",
-  confirmText: "Entendido",
+    "Te vamos a llevar a la tienda correspondiente (Google Play o App Store) según tu dispositivo.",
+  confirmText: "Sí, descargar",
+  cancelText: "Cancelar",
 };

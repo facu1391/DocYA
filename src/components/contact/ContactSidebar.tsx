@@ -8,9 +8,11 @@ export default function ContactSidebar() {
         <h3 className="font-semibold text-lg">Canales directos</h3>
 
         <div className="flex items-start gap-3">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border
-                            text-[var(--brand)] border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
-                            bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]">
+          <span
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border
+              text-[var(--brand)] border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
+              bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]"
+          >
             <Mail className="h-5 w-5" />
           </span>
           <div className="text-sm">
@@ -22,9 +24,11 @@ export default function ContactSidebar() {
         </div>
 
         <div className="flex items-start gap-3">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border
-                            text-[var(--brand)] border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
-                            bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]">
+          <span
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border
+              text-[var(--brand)] border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
+              bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]"
+          >
             <Phone className="h-5 w-5" />
           </span>
           <div className="text-sm">
@@ -41,9 +45,11 @@ export default function ContactSidebar() {
         </div>
 
         <div className="flex items-start gap-3">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border
-                            text-[var(--brand)] border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
-                            bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]">
+          <span
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border
+              text-[var(--brand)] border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
+              bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]"
+          >
             <MapPin className="h-5 w-5" />
           </span>
           <div className="text-sm">

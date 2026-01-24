@@ -1,4 +1,3 @@
-
 import { Smartphone, Stethoscope, Home } from "lucide-react";
 
 export default function StepsPublic() {

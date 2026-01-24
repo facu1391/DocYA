@@ -10,7 +10,6 @@ const ARS = (n: number) =>
   n.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
 
 export default function EarningsCalculator() {
-  // Valores base
   const [precio, setPrecio] = useState(30000);
   const [comision, setComision] = useState(20);
   const [consultas, setConsultas] = useState(12);
@@ -18,7 +17,6 @@ export default function EarningsCalculator() {
   const [costoFijo, setCostoFijo] = useState(0);
   const [retencion, setRetencion] = useState(0);
 
-  // Cálculos
   const netoPorConsultaBruto = useMemo(() => precio * (1 - comision / 100), [precio, comision]);
   const netoPorConsulta = useMemo(
     () => Math.max(netoPorConsultaBruto - costoVar, 0),
@@ -41,8 +39,9 @@ export default function EarningsCalculator() {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none brand-glow" />
-      <div className="container relative py-16 md:py-20">
-        {/* Hero */}
+
+      {/* ✅ reemplaza container por wrapper centrado */}
+      <div className="mx-auto w-full max-w-6xl px-4 relative py-16 md:py-20">
         <header className="text-center max-w-3xl mx-auto">
           <div className="flex justify-center">
             <span className="badge">Herramienta</span>
@@ -53,10 +52,8 @@ export default function EarningsCalculator() {
           </p>
         </header>
 
-        {/* 👇 Wrapper de ancho fijo + centrado para el grid */}
-        <div className="mt-10 md:mt-12 mx-auto max-w-6xl px-2 md:px-0">
+        <div className="mt-10 md:mt-12 mx-auto max-w-6xl">
           <div className="grid lg:grid-cols-12 gap-6">
-            {/* Panel de entrada */}
             <div className="lg:col-span-7 space-y-4">
               <Card className="p-5">
                 <div className="grid md:grid-cols-2 gap-4">
@@ -159,13 +156,12 @@ export default function EarningsCalculator() {
 
               <div className="glass border rounded-2xl p-4">
                 <p className="text-sm text-muted-foreground">
-                  Estos valores son estimaciones y pueden variar por zona, demanda y condiciones impositivas
-                  personales. Para facturación se requiere monotributo.
+                  Estos valores son estimaciones y pueden variar por zona, demanda y condiciones impositivas personales.
+                  Para facturación se requiere monotributo.
                 </p>
               </div>
             </div>
 
-            {/* Resultados */}
             <div className="lg:col-span-5 space-y-4">
               <Card className="p-5">
                 <h3 className="font-semibold">Resumen por consulta</h3>
@@ -220,7 +216,6 @@ export default function EarningsCalculator() {
             </div>
           </div>
         </div>
-        {/* /wrapper centrado */}
       </div>
     </section>
   );
