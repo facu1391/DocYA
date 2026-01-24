@@ -22,7 +22,7 @@ const PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.docya.paciente";
 
 const APP_STORE_URL =
-  "https://apps.apple.com/ar/app/docyapro/id6753040185";
+  "https://apps.apple.com/ar/app/docya/id6753604975";
 
 type Platform = "android" | "ios" | "unknown";
 

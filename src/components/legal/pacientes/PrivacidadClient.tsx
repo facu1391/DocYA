@@ -5,8 +5,8 @@ import Link from "next/link";
 import { ShieldCheck, Lock, MapPin, Database, Cookie, X, Smartphone, Sparkles } from "lucide-react";
 import LegalLayout from "@/components/legal/LegalLayout";
 
-const PLAY_URL = "https://play.google.com";
-const APPSTORE_URL = "https://www.apple.com/app-store/";
+const PLAY_URL = "https://play.google.com/store/apps/details?id=com.docya.paciente";
+const APPSTORE_URL = "https://apps.apple.com/ar/app/docya/id6753604975";
 
 type Platform = "android" | "ios" | "unknown";
 
