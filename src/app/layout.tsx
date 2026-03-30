@@ -4,13 +4,9 @@ import { Poppins, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import Navbar from "@/components/layouts/Navbar";
-import Footer from "@/components/layouts/Footer";
-import FloatingCTA from "@/components/fab/FloatingCTA";
-import FloatingPacienteCTA from "@/components/fab/FloatingPacienteCTA";
-import ScrollToTopButton from "@/components/fab/ScrollToTopButton";
+import HeaderChrome from "@/components/layouts/HeaderChrome";
+import FooterChrome from "@/components/layouts/FooterChrome";
 import { Toaster } from "react-hot-toast";
-import { Suspense } from "react";
 
 const SITE_URL = "https://www.docya.com.ar";
 const OG_IMAGE = `${SITE_URL}/og/og-docya.jpg`;
@@ -28,6 +24,7 @@ const poppins = Poppins({
   variable: "--font-poppins",
   display: "swap",
 });
+
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
@@ -96,10 +93,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/icons/apple-icon-180.png", sizes: "180x180" }],
   },
   manifest: "/site.webmanifest",
-
-  // 👇 Reemplaza por tu token completo de Search Console
   verification: { google: "IA9D3VR5YU5gYbxeUKHA1nBf7LOCp95uArWq6LBb9Sw" },
-
   category: "healthcare",
 };
 
@@ -128,24 +122,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es-AR" suppressHydrationWarning>
       <body className={`${poppins.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {/* Suspense requerido porque Navbar usa useSearchParams() */}
-          <Suspense fallback={null}>
-            <Navbar />
-          </Suspense>
+          <HeaderChrome />
 
           <main className="flex-1 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)] overflow-x-hidden">
             {children}
           </main>
 
-          <Footer />
-          <FloatingCTA />
-          <FloatingPacienteCTA />
-          <ScrollToTopButton />
+          <FooterChrome />
           <Toaster position="top-right" />
         </ThemeProvider>
 
-        <Script id="ld-org" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
-        <Script id="ld-website" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
+        <Script
+          id="ld-org"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+        <Script
+          id="ld-website"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </body>
