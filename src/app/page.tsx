@@ -1,28 +1,30 @@
 // src/app/page.tsx
-import HeroPublic from "@/components/landing-public/HeroPublic";
-import PromoVideoPublic from "@/components/landing-public/PromoVideoPublic"; // 👈
-import JoinAsPatient from "@/components/landing-public/JoinAsPatient";
-import StepsPublic from "@/components/landing-public/StepsPublic";
-import BenefitsPublic from "@/components/landing-public/BenefitsPublic";
-import ImpactSection from "@/components/landing-public/ImpactSection";
-import ReferidosPromoSection from "@/components/landing-public/ReferidosPromoSection";
-import TrustPublic from "@/components/landing-public/TrustPublic";
-import Testimonials from "@/components/landing-public/Testimonials";
-import DownloadApp from "@/components/landing-public/DownloadAppPublic";
+import Hero from "@/components/landing-public/nueva-landing/Hero";
+import IASection from "@/components/landing-public/nueva-landing/IASection";
+import GeoSection from "@/components/landing-public/nueva-landing/GeoSection";
+import DomicilioSection from "@/components/landing-public/nueva-landing/DomicilioSection";
+import ResolucionSection from "@/components/landing-public/nueva-landing/ResolucionSection";
+import BeneficiosSection from "@/components/landing-public/nueva-landing/BeneficiosSection";
+import ComoFunciona from "@/components/landing-public/nueva-landing/ComoFunciona";
+import CoberturaSection from "@/components/landing-public/nueva-landing/CoberturaSection";
+import PreciosSection from "@/components/landing-public/nueva-landing/PreciosSection";
+import DocYaProCTA from "@/components/landing-public/nueva-landing/DocYaProCTA";
+import FinalCTA from "@/components/landing-public/nueva-landing/FinalCTA";
 
 export default function Home() {
   return (
-    <main>
-      <HeroPublic />
-      <PromoVideoPublic />
-      <JoinAsPatient />
-      <StepsPublic />
-      <BenefitsPublic />
-      <ImpactSection />
-       <ReferidosPromoSection />
-      <TrustPublic />
-      <Testimonials />
-      <DownloadApp />
-    </main>
+    <>
+      <Hero />
+      <IASection />
+      <GeoSection />
+      <DomicilioSection />
+      <ResolucionSection />
+      <BeneficiosSection />
+      <ComoFunciona />
+      <CoberturaSection />
+      <PreciosSection />
+      <DocYaProCTA />
+      <FinalCTA />
+    </>
   );
 }
