@@ -1,8 +1,9 @@
 // src/components/landing-public/nueva-landing/ComoFunciona.tsx
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
 const steps = [
   "Consultás GRATIS con IA",
@@ -17,10 +18,10 @@ export default function ComoFunciona() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section className="py-32">
-      <div className="mx-auto w-full max-w-[1200px] px-6 text-center">
+    <section id="como-funciona" className="py-32">
+      <div className="w-full max-w-[1200px] mx-auto px-6 text-center">
         <motion.h2
-          className="section-title mb-20 text-center"
+          className="section-title text-center mb-20"
           ref={ref}
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -29,17 +30,17 @@ export default function ComoFunciona() {
           ¿Cómo funciona?
         </motion.h2>
 
-        <div className="mx-auto hidden max-w-5xl items-start justify-between md:flex">
+        <div className="hidden md:flex justify-between items-start max-w-5xl mx-auto">
           {steps.map((step, i) => (
             <React.Fragment key={step}>
               <motion.div
-                className="flex w-36 flex-col items-center gap-5"
+                className="flex flex-col items-center gap-5 w-36"
                 initial={{ opacity: 0, y: 30 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: i * 0.12 }}
               >
                 <div
-                  className="flex h-14 w-14 cursor-default items-center justify-center rounded-full border-2 text-2xl font-bold transition-all duration-300 hover:scale-110"
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold border-2 transition-all duration-300 hover:scale-110 cursor-default"
                   style={{
                     background: "#0a1622",
                     borderColor: "#0AE6C7",
@@ -51,23 +52,22 @@ export default function ComoFunciona() {
                 </div>
                 <p className="text-base font-semibold leading-snug">{step}</p>
               </motion.div>
-
               {i < steps.length - 1 && <div className="step-line" />}
             </React.Fragment>
           ))}
         </div>
 
-        <div className="flex flex-col items-center gap-0 md:hidden">
+        <div className="flex md:hidden flex-col items-center gap-0">
           {steps.map((step, i) => (
             <div key={step} className="flex flex-col items-center">
               <motion.div
-                className="flex w-64 flex-col items-center gap-3"
+                className="flex flex-col items-center gap-3 w-64"
                 initial={{ opacity: 0, y: 20 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
               >
                 <div
-                  className="flex h-14 w-14 items-center justify-center rounded-full border-2 text-2xl font-bold"
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold border-2"
                   style={{
                     background: "#0a1622",
                     borderColor: "#0AE6C7",
@@ -78,14 +78,10 @@ export default function ComoFunciona() {
                 </div>
                 <p className="text-base font-semibold">{step}</p>
               </motion.div>
-
               {i < steps.length - 1 && (
                 <div
-                  className="my-1 h-8 w-0.5"
-                  style={{
-                    background: "linear-gradient(180deg, #0AE6C7, #00A6CE)",
-                    opacity: 0.4,
-                  }}
+                  className="w-0.5 h-8 my-1"
+                  style={{ background: "linear-gradient(180deg, #0AE6C7, #00A6CE)", opacity: 0.4 }}
                 />
               )}
             </div>

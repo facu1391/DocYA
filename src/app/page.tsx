@@ -8,6 +8,7 @@ import BeneficiosSection from "@/components/landing-public/nueva-landing/Benefic
 import ComoFunciona from "@/components/landing-public/nueva-landing/ComoFunciona";
 import CoberturaSection from "@/components/landing-public/nueva-landing/CoberturaSection";
 import PreciosSection from "@/components/landing-public/nueva-landing/PreciosSection";
+import ReferidosPromoSection from "@/components/landing-public/ReferidosPromoSection";
 import DocYaProCTA from "@/components/landing-public/nueva-landing/DocYaProCTA";
 import FinalCTA from "@/components/landing-public/nueva-landing/FinalCTA";
 
@@ -23,8 +24,9 @@ export default function Home() {
       <ComoFunciona />
       <CoberturaSection />
       <PreciosSection />
+      <ReferidosPromoSection />
       <DocYaProCTA />
-      <FinalCTA />
+      <FinalCTA mode="paciente" />
     </>
   );
 }

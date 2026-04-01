@@ -9,26 +9,55 @@ const trust = [
   { icon: Zap, label: "Tecnología que agiliza la atención" },
 ];
 
-async function getTarifaMedico(): Promise<{ monto: number; tipo: string } | null> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+type TarifaMedicoResponse = {
+  monto: number;
+  tipo: string;
+};
+
+async function getTarifaMedico(): Promise<TarifaMedicoResponse | null> {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_BASE ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "";
 
   if (!baseUrl) {
+    console.error("No está definida NEXT_PUBLIC_API_BASE ni NEXT_PUBLIC_API_URL");
     return null;
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 4000);
+  const timeout = setTimeout(() => controller.abort(), 5000);
 
   try {
-    const res = await fetch(`${baseUrl}/tarifas/consulta-medico`, {
+    const res = await fetch(`${baseUrl.replace(/\/$/, "")}/tarifas/consulta-medico`, {
       next: { revalidate: 300 },
       signal: controller.signal,
     });
 
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error("Error al obtener tarifa:", res.status, res.statusText);
+      return null;
+    }
 
-    return await res.json();
-  } catch {
+    const data = (await res.json()) as TarifaMedicoResponse;
+
+    if (
+      typeof data !== "object" ||
+      data === null ||
+      typeof data.monto !== "number" ||
+      typeof data.tipo !== "string"
+    ) {
+      console.error("Respuesta inválida en tarifa de médico:", data);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Error en getTarifaMedico:", error.message);
+    } else {
+      console.error("Error desconocido en getTarifaMedico");
+    }
     return null;
   } finally {
     clearTimeout(timeout);
@@ -45,9 +74,9 @@ export default async function PreciosSection() {
   const esNocturno = tarifa?.tipo === "nocturna";
 
   return (
-    <section className="dark-section py-32">
-      <div className="mx-auto w-full max-w-[1200px] px-6">
-        <div className="mx-auto grid max-w-4xl grid-cols-1 items-center gap-16 md:grid-cols-2">
+    <section id="precios" className="py-32 dark-section">
+      <div className="w-full max-w-[1200px] mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center max-w-4xl mx-auto">
           <ScrollReveal>
             <div
               className="glass-card text-center"
@@ -59,10 +88,13 @@ export default async function PreciosSection() {
               }}
             >
               <span className="badge mb-4 inline-flex">Transparente</span>
-              <h3 className="mb-2 text-2xl font-bold">Consulta médica a domicilio</h3>
+
+              <h3 className="text-2xl font-bold mb-2">
+                Consulta médica a domicilio
+              </h3>
 
               <div
-                className="my-6 text-5xl font-black"
+                className="text-5xl font-black my-6"
                 style={{
                   background: "linear-gradient(135deg, #0AE6C7, #00A6CE)",
                   WebkitBackgroundClip: "text",
@@ -84,8 +116,15 @@ export default async function PreciosSection() {
           <ScrollReveal delay={0.15}>
             <div className="flex flex-col gap-8">
               {trust.map(({ icon: Icon, label }) => (
-                <div key={label} className="flex items-center gap-5 text-xl font-semibold">
-                  <Icon size={40} style={{ color: "var(--accent)" }} className="shrink-0" />
+                <div
+                  key={label}
+                  className="flex items-center gap-5 text-xl font-semibold"
+                >
+                  <Icon
+                    size={40}
+                    style={{ color: "#0DF5E3" }}
+                    className="flex-shrink-0"
+                  />
                   {label}
                 </div>
               ))}

@@ -2,15 +2,39 @@
 import Image from "next/image";
 import ScrollReveal from "./ScrollReveal";
 
-const APP_STORE_URL =
+type FinalCTAMode = "paciente" | "pro";
+
+type Props = {
+  mode?: FinalCTAMode;
+};
+
+const PACIENTE_APP_STORE_URL =
   "https://apps.apple.com/ar/app/docya/id6753604975";
 
-const PLAY_STORE_URL =
+const PACIENTE_PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.docya.paciente";
 
-export default function FinalCTA() {
+/* 👇 reemplazá estas URLs por las reales de la app profesional */
+const PRO_APP_STORE_URL =
+  "https://apps.apple.com/ar/app/docya/id6753604975";
+
+const PRO_PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.docya.medico";
+
+export default function FinalCTA({ mode = "paciente" }: Props) {
+  const isPro = mode === "pro";
+
+  const appStoreUrl = isPro ? PRO_APP_STORE_URL : PACIENTE_APP_STORE_URL;
+  const playStoreUrl = isPro ? PRO_PLAY_STORE_URL : PACIENTE_PLAY_STORE_URL;
+
+  const title = isPro ? "Sumate a DocYa Pro hoy" : "Probá DocYa gratis ahora";
+
+  const subtitle = isPro
+    ? "Descargá la app profesional, activá tu disponibilidad y empezá a recibir consultas."
+    : "Consultá con IA sin costo y, si lo necesitás, recibí al médico más cercano en tu domicilio.";
+
   return (
-    <section id="descargar" className="relative overflow-hidden py-40">
+    <section id="descargar" className="relative overflow-hidden py-32 md:py-40">
       <div
         className="pointer-events-none absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
@@ -21,18 +45,21 @@ export default function FinalCTA() {
 
       <div className="relative z-10 mx-auto w-full max-w-[1200px] px-6 text-center">
         <ScrollReveal>
-          <h2 className="section-title mb-4 text-center">
-            Probá DocYa gratis ahora
-          </h2>
+          <div className="mx-auto max-w-3xl">
+            <span className="badge">{isPro ? "DocYa Pro" : "Descargá la app"}</span>
 
-          <p className="text-text-muted mx-auto mb-12 max-w-xl text-xl leading-relaxed">
-            Consultá con IA sin costo y, si lo necesitás, recibí al médico más cercano
-            en tu domicilio.
-          </p>
+            <h2 className="section-title mt-4 mb-4 text-center">
+              {title}
+            </h2>
+
+            <p className="text-text-muted mx-auto mb-12 max-w-2xl text-lg md:text-xl leading-relaxed">
+              {subtitle}
+            </p>
+          </div>
 
           <div className="flex flex-wrap justify-center gap-6">
             <a
-              href={APP_STORE_URL}
+              href={appStoreUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block transition-transform hover:-translate-y-1"
@@ -47,7 +74,7 @@ export default function FinalCTA() {
             </a>
 
             <a
-              href={PLAY_STORE_URL}
+              href={playStoreUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block transition-transform hover:-translate-y-1"

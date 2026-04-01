@@ -1,3 +1,4 @@
+// src/components/landing/Requirements.tsx
 "use client";
 
 import Link from "next/link";
@@ -17,26 +18,29 @@ const zonas = [
 
 export default function Requirements() {
   return (
-    <section
-      className="
-        relative py-16 md:py-20
-        bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]
-      "
-    >
+    <section className="relative bg-[var(--hero-bg)] py-16 md:py-20 dark:bg-[var(--hero-bg-dark)]">
+      <div className="pointer-events-none absolute inset-0 brand-glow" />
+
       <div className="mx-auto w-full max-w-6xl px-4">
-        <h2 className="text-center text-2xl md:text-3xl font-semibold">
-          Requisitos y cobertura
-        </h2>
+        <div className="mx-auto max-w-3xl text-center">
+          <span className="badge">Requisitos y alcance</span>
+          <h2 className="mt-4 text-2xl font-semibold md:text-3xl">
+            Requisitos y cobertura
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground md:text-base">
+            Una propuesta abierta para profesionales con vocación, criterio clínico y ganas de trabajar con libertad.
+          </p>
+        </div>
 
         <div
           className="
-            mt-8 grid gap-6 md:grid-cols-2 max-w-5xl mx-auto
+            mx-auto mt-8 grid max-w-5xl gap-6 md:grid-cols-2
             motion-safe:animate-in motion-safe:fade-in-50
           "
         >
           <article
             className="
-              group relative overflow-hidden rounded-2xl border p-6 md:p-7
+              group relative overflow-hidden rounded-3xl border p-6 md:p-7
               bg-[var(--card)] shadow-[0_10px_30px_rgba(0,0,0,0.12)]
               transition-all duration-300 hover:-translate-y-1
               motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-700
@@ -53,28 +57,28 @@ export default function Requirements() {
             <header className="relative flex items-center gap-3">
               <span
                 className="
-                  inline-flex h-10 w-10 items-center justify-center rounded-xl border
-                  text-[var(--brand)]
+                  inline-flex h-11 w-11 items-center justify-center rounded-2xl border
                   border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
                   bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
+                  text-[var(--brand)]
                 "
               >
                 <UserCheck className="h-5 w-5" />
               </span>
-              <h3 className="font-semibold text-lg">¿A quién buscamos?</h3>
+              <h3 className="text-lg font-semibold">¿A quién buscamos?</h3>
             </header>
 
-            <ul className="relative mt-4 space-y-2.5 text-sm text-muted-foreground">
+            <ul className="relative mt-5 space-y-3 text-sm text-muted-foreground">
               {buscados.map((t) => (
-                <li key={t} className="flex items-start gap-2">
+                <li key={t} className="flex items-start gap-2.5">
                   <Check className="mt-0.5 h-4 w-4 text-[var(--brand)]" />
                   <span>{t}</span>
                 </li>
               ))}
             </ul>
 
-            <div className="relative mt-5">
-              <Link href="/registro" className="btn-primary">
+            <div className="relative mt-6">
+              <Link href="/registro" className="btn-primary h-10 px-4">
                 Postularme ahora <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -82,7 +86,7 @@ export default function Requirements() {
 
           <article
             className="
-              group relative overflow-hidden rounded-2xl border p-6 md:p-7
+              group relative overflow-hidden rounded-3xl border p-6 md:p-7
               bg-[var(--card)] shadow-[0_10px_30px_rgba(0,0,0,0.12)]
               transition-all duration-300 hover:-translate-y-1
               motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-700 motion-safe:delay-150
@@ -99,31 +103,31 @@ export default function Requirements() {
             <header className="relative flex items-center gap-3">
               <span
                 className="
-                  inline-flex h-10 w-10 items-center justify-center rounded-xl border
-                  text-[var(--brand)]
+                  inline-flex h-11 w-11 items-center justify-center rounded-2xl border
                   border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
                   bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
+                  text-[var(--brand)]
                 "
               >
                 <MapPin className="h-5 w-5" />
               </span>
-              <h3 className="font-semibold text-lg">Cobertura nacional</h3>
+              <h3 className="text-lg font-semibold">Cobertura nacional</h3>
             </header>
 
-            <p className="relative mt-3 text-sm text-muted-foreground">
+            <p className="relative mt-4 text-sm leading-relaxed text-muted-foreground">
               Operamos en todo el territorio argentino, con expansión continua y
               cobertura en cada provincia.
             </p>
 
-            <ul className="relative mt-4 flex flex-wrap items-center gap-2.5">
+            <ul className="relative mt-5 flex flex-wrap items-center gap-2.5">
               {zonas.map((z) => (
                 <li
                   key={z}
                   className="
                     inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium
-                    text-[var(--brand)]
                     border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
                     bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
+                    text-[var(--brand)]
                   "
                 >
                   <MapPin className="h-3.5 w-3.5" />

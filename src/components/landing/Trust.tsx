@@ -1,3 +1,4 @@
+// src/components/landing/Trust.tsx
 "use client";
 
 import { ShieldCheck, Scale, Lock, BadgeCheck } from "lucide-react";
@@ -27,23 +28,26 @@ const items = [
 
 export default function Trust() {
   return (
-    <section className="py-14 md:py-16 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
+    <section className="bg-[var(--hero-bg)] py-14 md:py-16 dark:bg-[var(--hero-bg-dark)]">
       <div className="mx-auto w-full max-w-6xl px-4">
-        <div className="surface rounded-3xl p-6 md:p-8 border">
-          <h2 className="text-center text-2xl md:text-3xl font-semibold">
-            Confianza & respaldo
-          </h2>
+        <div className="surface rounded-3xl border p-6 md:p-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="badge">Respaldo profesional</span>
+            <h2 className="mt-4 text-2xl font-semibold md:text-3xl">
+              Confianza & respaldo
+            </h2>
+          </div>
 
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {items.map((it) => (
               <article key={it.title} className="flex gap-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border text-[var(--brand)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] border-[color-mix(in_srgb,var(--brand)_45%,transparent)] shrink-0">
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color-mix(in_srgb,var(--brand)_45%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] text-[var(--brand)]">
                   {it.icon}
                 </span>
 
                 <div>
                   <h3 className="font-medium">{it.title}</h3>
-                  <p className="text-sm text-muted-foreground">{it.desc}</p>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{it.desc}</p>
                 </div>
               </article>
             ))}

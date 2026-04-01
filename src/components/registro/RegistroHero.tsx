@@ -2,15 +2,10 @@
 type Mode = "pro" | "paciente";
 
 type Props = {
-  /** Modo semántico: ajusta textos por defecto */
-  mode?: Mode; // default: "pro"
-  /** Título a mostrar (si no lo pasás, se resuelve por mode) */
+  mode?: Mode;
   title?: string;
-  /** Subtítulo a mostrar (si no lo pasás, se resuelve por mode) */
   subtitle?: string;
-  /** Clases extra para ajustar paddings/márgenes si hace falta */
   className?: string;
-  /** Slot opcional para renderizar CTA u otros elementos debajo del subtítulo */
   children?: React.ReactNode;
 };
 
@@ -21,7 +16,6 @@ export default function RegistroHero({
   className = "",
   children,
 }: Props) {
-  // Defaults por modo (sin romper lo existente)
   const resolvedTitle =
     title ??
     (mode === "paciente"
@@ -35,21 +29,32 @@ export default function RegistroHero({
       : "Completá tus datos y te contactamos a la brevedad.");
 
   return (
-    <section className={`border-b border-[var(--nav-border)] relative ${className}`}>
+    <section
+      className={`relative border-b border-[var(--nav-border)] bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)] ${className}`}
+    >
       <div className="absolute inset-0 pointer-events-none brand-glow" />
-      <div className="container py-10 md:py-12">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold">
-            {resolvedTitle}
-          </h1>
-          <p className="text-xs sm:text-sm md:text-base text-muted-foreground mt-2">
-            {resolvedSubtitle}
-          </p>
 
-          {children ? <div className="mt-4">{children}</div> : null}
+      <div className="relative py-12 md:py-16">
+        <div className="mx-auto w-full max-w-6xl px-4">
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="flex justify-center">
+              <span className="badge">
+                {mode === "paciente" ? "Pacientes" : "DocYa Pro"}
+              </span>
+            </div>
+
+            <h1 className="mt-4 text-3xl font-semibold sm:text-4xl md:text-5xl">
+              {resolvedTitle}
+            </h1>
+
+            <p className="mt-3 text-sm text-muted-foreground sm:text-base md:text-lg">
+              {resolvedSubtitle}
+            </p>
+
+            {children ? <div className="mt-5">{children}</div> : null}
+          </div>
         </div>
       </div>
     </section>
   );
 }
-
