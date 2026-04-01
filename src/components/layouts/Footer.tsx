@@ -44,7 +44,7 @@ export default function Footer() {
             className={[
               "grid gap-8 md:gap-10",
               isPublicAudience
-                ? "md:grid-cols-[1.2fr_1fr_1fr]"
+                ? "md:grid-cols-[1.2fr_1fr_1fr_0.9fr]"
                 : "md:grid-cols-2 lg:grid-cols-4",
             ].join(" ")}
           >
@@ -162,6 +162,19 @@ export default function Footer() {
                 </li>
               </ul>
             </div>
+
+            {isPublicAudience && (
+              <div className="border-white/10 flex items-center justify-center pt-6 text-center border-t md:border-0 md:pt-0">
+                <div className="relative h-20 w-full max-w-[180px]">
+                  <Image
+                    src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1775043651/logosisa_dxtx66.png"
+                    alt="Logo SISA"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="mt-10 border-t border-white/10 pt-6">

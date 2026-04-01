@@ -37,7 +37,7 @@ export default function Navbar() {
   const inProArea = !isPublicAudience;
 
   const LOGOS = isPublicAudience
-    ? { light: "/logo_puclic-dark.png", dark: "/logo_puclic-light.png", alt: "DocYa" }
+    ? { light: "/logo_puclic-light.png", dark: "/logo_puclic-light.png", alt: "DocYa" }
     : { light: "/logo-pro-dark.png", dark: "/logo-pro-light.png", alt: "DocYa Pro" };
 
   const logoHref = isPublicAudience ? "/" : "/profesionales";
