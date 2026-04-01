@@ -42,7 +42,7 @@ export default function ReferidosPromoSection() {
           transition={{ duration: 0.55, ease: cubicBezier(0.22, 1, 0.36, 1) }}
           className="mx-auto w-full max-w-5xl"
         >
-          <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(10,230,199,0.08),rgba(255,255,255,0.02),rgba(0,166,206,0.08))] shadow-[0_14px_60px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+          <div className="relative overflow-hidden rounded-[32px] border border-slate-200/80 bg-[linear-gradient(135deg,rgba(10,230,199,0.10),rgba(255,255,255,0.92),rgba(0,166,206,0.10))] shadow-[0_14px_60px_rgba(15,23,42,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(10,230,199,0.08),rgba(255,255,255,0.02),rgba(0,166,206,0.08))] dark:shadow-[0_14px_60px_rgba(0,0,0,0.22)]">
             <div className="pointer-events-none absolute inset-0 opacity-[0.05]">
               <div
                 className="h-full w-full"
@@ -65,13 +65,13 @@ export default function ReferidosPromoSection() {
                   Programa de referidos
                 </div>
 
-                <h2 className="mt-5 text-3xl font-extrabold leading-tight text-white md:text-4xl lg:text-5xl">
+                <h2 className="mt-5 text-3xl font-extrabold leading-tight text-slate-900 md:text-4xl lg:text-5xl dark:text-white">
                   Ganá dinero
                   <br className="hidden sm:block" /> recomendando{" "}
                   <span className="highlight-text">DocYa</span>
                 </h2>
 
-                <p className="mt-5 max-w-xl text-base leading-relaxed text-white/75 md:text-lg">
+                <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-600 md:text-lg dark:text-white/75">
                   Si conocés personas que puedan necesitar atención médica a
                   domicilio, ahora también podés compartir DocYa y obtener
                   beneficios por cada consulta válida generada desde tu enlace.
@@ -88,7 +88,7 @@ export default function ReferidosPromoSection() {
 
                   <Link
                     href="/referidos#registro"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-white/10"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-6 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
                   >
                     Quiero sumarme
                   </Link>
@@ -117,7 +117,7 @@ export default function ReferidosPromoSection() {
                           delay: index * 0.08,
                           ease: cubicBezier(0.22, 1, 0.36, 1),
                         }}
-                        className="rounded-2xl border border-white/10 bg-black/20 p-5 backdrop-blur-md"
+                        className="rounded-2xl border border-slate-200/80 bg-white/65 p-5 backdrop-blur-md dark:border-white/10 dark:bg-black/20"
                       >
                         <div className="flex items-start gap-4">
                           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--brand)_25%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] text-[var(--brand)]">
@@ -125,10 +125,10 @@ export default function ReferidosPromoSection() {
                           </div>
 
                           <div>
-                            <h3 className="text-base font-bold text-white md:text-lg">
+                            <h3 className="text-base font-bold text-slate-900 md:text-lg dark:text-white">
                               {item.title}
                             </h3>
-                            <p className="mt-1 text-sm leading-relaxed text-white/65">
+                            <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-white/65">
                               {item.desc}
                             </p>
                           </div>
@@ -152,7 +152,7 @@ export default function ReferidosPromoSection() {
                   <p className="text-xs font-bold uppercase tracking-[0.20em] text-[var(--brand)]">
                     Oportunidad
                   </p>
-                  <p className="mt-2 text-sm leading-relaxed text-white/80">
+                  <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-white/80">
                     Compartí una solución de salud real, con una experiencia
                     clara y un panel donde podés ver tus resultados.
                   </p>
