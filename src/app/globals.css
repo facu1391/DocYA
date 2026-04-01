@@ -30,7 +30,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* charts/sidebar que ya tenías */
+  /* charts/sidebar */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -55,35 +55,34 @@
 :root {
   --radius: 0.625rem;
 
-  /* Base (zinc) */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
+  /* Base mejorado para modo claro */
+  --background: #f5f7fa;
+  --foreground: #0f172a;
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
+  --card: #ffffff;
+  --card-foreground: #0f172a;
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
 
-  /* NOTA: mantenemos tu “primary” de sistema (zinc) para shadcn;
-     agregamos brand propio abajo para CTAs */
+  /* Sistema */
   --primary: oklch(0.21 0.006 285.885);
   --primary-foreground: oklch(0.985 0 0);
 
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --secondary: #eef2f7;
+  --secondary-foreground: #0f172a;
 
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
+  --muted: #eef2f7;
+  --muted-foreground: #64748b;
 
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
+  --accent: #eef2f7;
+  --accent-foreground: #0f172a;
 
   --destructive: oklch(0.577 0.245 27.325);
 
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.705 0.015 286.067);
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #94a3b8;
 
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -91,16 +90,16 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
 
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
   --sidebar-primary: oklch(0.21 0.006 285.885);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.705 0.015 286.067);
+  --sidebar-accent: #eef2f7;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #94a3b8;
 
-  /* ====== DOCYA BRAND (CTAs, links) ====== */
+  /* ====== DOCYA BRAND ====== */
   --brand: #00b3a6;
   --brand-foreground: #ffffff;
   --brand-hover: #00a193;
@@ -113,13 +112,13 @@
   --footer-border: #0f353d;
 
   /* Hero backgrounds */
-  --hero-bg: #f8fafc;
+  --hero-bg: #f5f7fa;
   --hero-bg-dark: #0a272c;
 
-  /* Nueva landing */
-  --text-muted: rgba(255, 255, 255, 0.72);
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  /* Landing */
+  --text-muted: #64748b;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(15, 23, 42, 0.08);
 }
 
 /* ====== Dark tokens ====== */
@@ -181,7 +180,7 @@
   --hero-bg: #0a272c;
   --hero-bg-dark: #0a272c;
 
-  /* Nueva landing */
+  /* Landing dark */
   --text-muted: rgba(255, 255, 255, 0.72);
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
@@ -201,8 +200,8 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(circle at 15% 50%, rgba(0, 210, 255, 0.08), transparent 25%),
-      radial-gradient(circle at 85% 30%, rgba(58, 134, 255, 0.08), transparent 25%);
+      radial-gradient(circle at 15% 50%, rgba(0, 179, 166, 0.08), transparent 25%),
+      radial-gradient(circle at 85% 30%, rgba(58, 134, 255, 0.06), transparent 25%);
     background-attachment: fixed;
     overflow-x: hidden;
   }
@@ -210,7 +209,6 @@
 
 /* ====== Helpers reutilizables ====== */
 @layer components {
-  /* Botón primario DocYa */
   .btn-primary {
     @apply inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 font-medium shadow-sm transition-colors;
     color: var(--brand-foreground);
@@ -225,7 +223,6 @@
     box-shadow: 0 0 0 4px color-mix(in srgb, rgb(var(--brand-ring)) 30%, transparent);
   }
 
-  /* Botón contorno DocYa */
   .btn-outline-primary {
     @apply inline-flex h-10 items-center justify-center gap-2 rounded-md border px-4 font-medium transition-colors;
     border-color: var(--brand);
@@ -238,7 +235,6 @@
     background: color-mix(in srgb, var(--brand) 12%, transparent);
   }
 
-  /* Link primario DocYa */
   .link-primary {
     color: var(--brand);
   }
@@ -247,21 +243,18 @@
     text-decoration: underline;
   }
 
-  /* Superficie con borde */
   .surface {
     @apply rounded-2xl border;
     background: var(--card);
     color: var(--card-foreground);
   }
 
-  /* Glass sutil ya existente */
   .glass {
     @apply rounded-2xl border;
     background: color-mix(in oklab, var(--background) 70%, transparent);
     backdrop-filter: blur(8px);
   }
 
-  /* Badge */
   .badge {
     @apply inline-flex h-7 items-center gap-1 rounded-full border px-2.5 text-xs font-medium;
     border-color: var(--brand);
@@ -269,7 +262,6 @@
     background: color-mix(in srgb, var(--brand) 10%, transparent);
   }
 
-  /* Nav / Footer helpers */
   .nav-surface {
     @apply border-b;
     background: var(--nav-bg);
@@ -282,7 +274,6 @@
     border-color: var(--footer-border);
   }
 
-  /* ===== Nueva landing ===== */
   .glass-card {
     @apply rounded-3xl border p-8 backdrop-blur-lg transition-all duration-300;
     background: var(--glass-bg);

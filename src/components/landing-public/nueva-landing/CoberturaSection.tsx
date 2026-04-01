@@ -9,22 +9,55 @@ type Zona = {
   detalle: string;
 };
 
-async function getZonas(): Promise<{ activas: Zona[]; proximas: Zona[] }> {
+type ZonasResponse = {
+  activas: Zona[];
+  proximas: Zona[];
+};
+
+async function getZonas(): Promise<ZonasResponse> {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_BASE ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "";
+
+  if (!baseUrl) {
+    console.error("No está definida NEXT_PUBLIC_API_BASE ni NEXT_PUBLIC_API_URL");
+    return { activas: [], proximas: [] };
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/zonas-cobertura`,
+      `${baseUrl.replace(/\/$/, "")}/zonas-cobertura`,
       {
         next: { revalidate: 300 },
+        signal: controller.signal,
       }
     );
 
     if (!res.ok) {
-      throw new Error("Error fetching zonas");
+      console.error("Error al obtener zonas:", res.status, res.statusText);
+      return { activas: [], proximas: [] };
     }
 
-    return res.json();
-  } catch {
+    const data = (await res.json()) as Partial<ZonasResponse>;
+
+    return {
+      activas: Array.isArray(data.activas) ? data.activas : [],
+      proximas: Array.isArray(data.proximas) ? data.proximas : [],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Error en getZonas:", error.message);
+    } else {
+      console.error("Error desconocido en getZonas");
+    }
+
     return { activas: [], proximas: [] };
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -52,8 +85,7 @@ export default async function CoberturaSection() {
 
         <ScrollReveal delay={0.15}>
           <h2 className="section-title mb-4">
-            Dónde estamos{" "}
-            <span className="highlight-text">disponibles</span>
+            Dónde estamos <span className="highlight-text">disponibles</span>
           </h2>
 
           <p className="text-text-muted mb-8 text-xl leading-relaxed">
@@ -69,16 +101,22 @@ export default async function CoberturaSection() {
           </div>
 
           <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {activas.map((zona) => (
-              <div
-                key={zona.id}
-                className="glass-card p-5"
-                style={{ borderColor: "rgba(10, 230, 199, 0.18)" }}
-              >
-                <h5 className="mb-1 font-bold">{zona.nombre}</h5>
-                <p className="text-text-muted m-0 text-xs">{zona.detalle}</p>
+            {activas.length > 0 ? (
+              activas.map((zona) => (
+                <div
+                  key={zona.id}
+                  className="glass-card p-5"
+                  style={{ borderColor: "rgba(10, 230, 199, 0.18)" }}
+                >
+                  <h5 className="mb-1 font-bold">{zona.nombre}</h5>
+                  <p className="text-text-muted m-0 text-xs">{zona.detalle}</p>
+                </div>
+              ))
+            ) : (
+              <div className="text-text-muted text-sm">
+                Próximamente estaremos mostrando las zonas activas.
               </div>
-            ))}
+            )}
           </div>
 
           <div className="mb-4 flex items-center gap-2">
@@ -90,11 +128,17 @@ export default async function CoberturaSection() {
           </div>
 
           <div className="mb-8 flex flex-wrap gap-3 opacity-60">
-            {proximas.map((zona) => (
-              <span key={zona.id} className="badge text-sm">
-                {zona.nombre}
+            {proximas.length > 0 ? (
+              proximas.map((zona) => (
+                <span key={zona.id} className="badge text-sm">
+                  {zona.nombre}
+                </span>
+              ))
+            ) : (
+              <span className="text-text-muted text-sm">
+                Sin nuevas zonas cargadas por el momento.
               </span>
-            ))}
+            )}
           </div>
 
           <div
