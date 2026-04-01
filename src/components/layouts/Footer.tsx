@@ -26,21 +26,20 @@ export default function Footer() {
   const brandName = isPublicAudience ? "DocYa" : "DocYa Pro";
 
   const chipLinkCls =
-    "md:p-0 md:rounded-none md:border-0 md:bg-transparent md:text-current " +
-    "inline-block rounded-full border px-3 py-1.5 text-white/90 hover:text-white " +
+    "md:p-0 md:rounded-none md:border-0 md:bg-transparent md:text-white/75 " +
+    "inline-block rounded-full border px-3 py-1.5 text-white/85 hover:text-white " +
     "border-white/10 hover:bg-white/10 transition";
 
-  const sectionTitleCls = "text-sm font-semibold text-white md:text-left text-center";
+  const sectionTitleCls =
+    "text-[13px] font-semibold uppercase tracking-[0.16em] text-white/85 md:text-left text-center";
 
   return (
     <footer
       role="contentinfo"
-      className="border-t bg-[var(--footer-bg)] border-[var(--footer-border)] text-gray-300"
+      className="border-t border-white/10 bg-[#07141d] text-gray-300"
     >
-      <div className="container py-10 md:py-12">
-        {/* ✅ Wrapper centrado FIX */}
+      <div className="container py-12 md:py-14">
         <div className="mx-auto w-full max-w-6xl px-4">
-          {/* Top grid */}
           <div
             className={[
               "grid gap-8 md:gap-10",
@@ -49,35 +48,28 @@ export default function Footer() {
                 : "md:grid-cols-2 lg:grid-cols-4",
             ].join(" ")}
           >
-            {/* Marca + redes */}
-            <div className="md:text-left text-center">
+            <div className="text-center md:text-left">
               <Link href="/" aria-label="Ir a la Home" className="inline-block">
-                {/* logo claro */}
-                <div className="relative h-9 w-[150px] mx-auto md:mx-0 dark:hidden">
+                <div className="relative mx-auto h-9 w-[150px] dark:hidden md:mx-0">
                   <Image src={LOGOS.light} alt={LOGOS.alt} fill className="object-contain" />
                 </div>
-                {/* logo oscuro */}
-                <div className="relative h-9 w-[150px] mx-auto md:mx-0 hidden dark:block">
+                <div className="relative mx-auto hidden h-9 w-[150px] dark:block md:mx-0">
                   <Image src={LOGOS.dark} alt={LOGOS.alt} fill className="object-contain" />
                 </div>
               </Link>
 
-              <p className="mt-3 text-sm text-gray-400 md:max-w-sm mx-auto md:mx-0">
+              <p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-white/60 md:mx-0">
                 {isPublicAudience ? publicCopy : proCopy}
               </p>
 
-              {/* Social */}
-              <ul className="mt-4 flex items-center justify-center md:justify-start gap-3">
+              <ul className="mt-5 flex items-center justify-center gap-3 md:justify-start">
                 <li>
                   <a
                     href="https://www.linkedin.com/company/docya"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="LinkedIn"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border
-                               border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
-                               bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
-                               text-[var(--brand)] hover:brightness-110 transition"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[#0AE6C7] transition hover:border-[#0AE6C7]/40 hover:bg-white/10 hover:brightness-110"
                   >
                     <Linkedin className="h-4.5 w-4.5" />
                   </a>
@@ -88,10 +80,7 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Instagram"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border
-                               border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
-                               bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
-                               text-[var(--brand)] hover:brightness-110 transition"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[#0AE6C7] transition hover:border-[#0AE6C7]/40 hover:bg-white/10 hover:brightness-110"
                   >
                     <Instagram className="h-4.5 w-4.5" />
                   </a>
@@ -102,10 +91,7 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Facebook"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border
-                               border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
-                               bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
-                               text-[var(--brand)] hover:brightness-110 transition"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[#0AE6C7] transition hover:border-[#0AE6C7]/40 hover:bg-white/10 hover:brightness-110"
                   >
                     <Facebook className="h-4.5 w-4.5" />
                   </a>
@@ -114,10 +100,7 @@ export default function Footer() {
                   <a
                     href="mailto:soporte@docya.com.ar"
                     aria-label="Email"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border
-                               border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
-                               bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
-                               text-[var(--brand)] hover:brightness-110 transition"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[#0AE6C7] transition hover:border-[#0AE6C7]/40 hover:bg-white/10 hover:brightness-110"
                   >
                     <Mail className="h-4.5 w-4.5" />
                   </a>
@@ -125,11 +108,10 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Producto (solo Pro) */}
             {!isPublicAudience && (
-              <div className="md:text-left text-center md:border-0 border-t border-[var(--footer-border)] pt-6 md:pt-0">
+              <div className="border-white/10 pt-6 text-center md:border-0 md:pt-0 md:text-left border-t">
                 <h4 className={sectionTitleCls}>Producto</h4>
-                <ul className="mt-3 flex md:block flex-wrap justify-center gap-2 md:space-y-2 text-sm">
+                <ul className="mt-3 flex flex-wrap justify-center gap-2 text-sm md:block md:space-y-2">
                   <li><Link href="/ingresos" className={chipLinkCls}>Ingresos</Link></li>
                   <li><Link href="/faqs" className={chipLinkCls}>FAQs</Link></li>
                   <li><Link href="/contacto" className={chipLinkCls}>Contacto</Link></li>
@@ -138,10 +120,9 @@ export default function Footer() {
               </div>
             )}
 
-            {/* Legal */}
-            <div className="md:text-left text-center md:border-0 border-t border-[var(--footer-border)] pt-6 md:pt-0">
+            <div className="border-white/10 pt-6 text-center md:border-0 md:pt-0 md:text-left border-t">
               <h4 className={sectionTitleCls}>Legal</h4>
-              <ul className="mt-3 flex md:block flex-wrap justify-center gap-2 md:space-y-2 text-sm">
+              <ul className="mt-3 flex flex-wrap justify-center gap-2 text-sm md:block md:space-y-2">
                 <li>
                   <Link href={`${legalBase}/terminos`} className={chipLinkCls}>
                     Términos y Condiciones
@@ -155,52 +136,49 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Contacto */}
-            <div className="md:text-left text-center md:border-0 border-t border-[var(--footer-border)] pt-6 md:pt-0">
+            <div className="border-white/10 pt-6 text-center md:border-0 md:pt-0 md:text-left border-t">
               <h4 className={sectionTitleCls}>Contacto</h4>
               <ul className="mt-3 space-y-3 text-sm">
-                <li className="flex md:justify-start justify-center gap-2">
-                  <Mail className="h-4 w-4 text-[var(--brand)]" />
-                  <a href="mailto:soporte@docya.com.ar" className="hover:text-[var(--brand)] transition">
+                <li className="flex justify-center gap-2 text-white/75 md:justify-start">
+                  <Mail className="h-4 w-4 text-[#0AE6C7]" />
+                  <a href="mailto:soporte@docya.com.ar" className="transition hover:text-[#0AE6C7]">
                     soporte@docya.com.ar
                   </a>
                 </li>
-                <li className="flex md:justify-start justify-center gap-2">
-                  <Phone className="h-4 w-4 text-[var(--brand)]" />
+                <li className="flex justify-center gap-2 text-white/75 md:justify-start">
+                  <Phone className="h-4 w-4 text-[#0AE6C7]" />
                   <a
                     href="https://wa.me/5491168700607"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-[var(--brand)] transition"
+                    className="transition hover:text-[#0AE6C7]"
                   >
                     +54 9 11 6870-0607
                   </a>
                 </li>
-                <li className="flex md:justify-start justify-center gap-2">
-                  <MapPin className="h-4 w-4 text-[var(--brand)]" />
-                  <span className="text-gray-400">CABA</span>
+                <li className="flex justify-center gap-2 text-white/75 md:justify-start">
+                  <MapPin className="h-4 w-4 text-[#0AE6C7]" />
+                  <span className="text-white/60">CABA</span>
                 </li>
               </ul>
             </div>
           </div>
 
-          {/* Bottom bar */}
-          <div className="mt-10 border-t border-[var(--footer-border)] pt-6">
-            <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-3 text-center text-xs">
+          <div className="mt-10 border-t border-white/10 pt-6">
+            <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-3 text-center text-xs text-white/55">
               <p>
                 © {year} <span className="text-white">{brandName}</span> — Todos los derechos reservados.
               </p>
-              <span className="hidden sm:block opacity-40">•</span>
-              <Link href={`${legalBase}/privacidad`} className="hover:text-[var(--brand)] transition">
+              <span className="hidden opacity-40 sm:block">•</span>
+              <Link href={`${legalBase}/privacidad`} className="transition hover:text-[#0AE6C7]">
                 Privacidad
               </Link>
-              <Link href={`${legalBase}/terminos`} className="hover:text-[var(--brand)] transition">
+              <Link href={`${legalBase}/terminos`} className="transition hover:text-[#0AE6C7]">
                 Términos
               </Link>
             </div>
           </div>
         </div>
-        {/* /wrapper centrado */}
       </div>
     </footer>
   );

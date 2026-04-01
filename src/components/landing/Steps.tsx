@@ -1,3 +1,4 @@
+// src/components/landing/Steps.tsx
 "use client";
 
 import { ClipboardCheck, Clock, Stethoscope } from "lucide-react";
@@ -22,22 +23,28 @@ const steps = [
 
 export default function Steps() {
   return (
-    <section className="relative py-16 md:py-20 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
-      <div className="absolute inset-0 pointer-events-none brand-glow" />
+    <section className="relative bg-[var(--hero-bg)] py-16 md:py-20 dark:bg-[var(--hero-bg-dark)]">
+      <div className="pointer-events-none absolute inset-0 brand-glow" />
 
       <div className="relative mx-auto w-full max-w-6xl px-4">
-        <h2 className="text-center text-2xl md:text-3xl font-semibold">
-          ¿Cómo funciona?
-        </h2>
+        <div className="mx-auto max-w-3xl text-center">
+          <span className="badge">Proceso simple</span>
+          <h2 className="mt-4 text-2xl font-semibold md:text-3xl">
+            ¿Cómo funciona?
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground md:text-base">
+            En pocos pasos podés sumarte, definir tu disponibilidad y empezar a atender.
+          </p>
+        </div>
 
-        <ol className="mt-8 grid gap-6 max-w-5xl mx-auto md:grid-cols-3">
+        <ol className="mx-auto mt-8 grid max-w-5xl gap-6 md:grid-cols-3">
           {steps.map((s, i) => (
             <li
               key={s.title}
-              className="surface rounded-2xl p-6 md:p-7 border shadow-[0_8px_28px_rgba(0,0,0,0.14)] transition-all hover:-translate-y-1"
+              className="surface rounded-3xl border p-6 shadow-[0_8px_28px_rgba(0,0,0,0.14)] transition-all hover:-translate-y-1 md:p-7"
             >
               <div className="flex items-center gap-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border text-[var(--brand)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] border-[color-mix(in_srgb,var(--brand)_45%,transparent)]">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--brand)_45%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] text-[var(--brand)]">
                   {s.icon}
                 </span>
 
@@ -46,8 +53,8 @@ export default function Steps() {
                 </span>
               </div>
 
-              <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+              <h3 className="mt-5 text-lg font-semibold">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
             </li>
           ))}
         </ol>

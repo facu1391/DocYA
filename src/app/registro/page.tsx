@@ -1,3 +1,4 @@
+// src/app/registro/page.tsx
 import RegistroHero from "@/components/registro/RegistroHero";
 import RegistroForm from "@/components/registro/RegistroForm";
 
@@ -17,9 +18,11 @@ export default function Page() {
     <main className="bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
       <RegistroHero mode="pro" />
 
-      <section className="container relative px-3 sm:px-4 md:px-6 py-10 md:py-14">
-        <div className="mx-auto w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
-          <RegistroForm mode="pro" />
+      <section className="relative py-10 md:py-14">
+        <div className="mx-auto w-full max-w-6xl px-4">
+          <div className="mx-auto w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
+            <RegistroForm mode="pro" />
+          </div>
         </div>
       </section>
     </main>
