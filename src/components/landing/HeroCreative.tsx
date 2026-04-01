@@ -1,3 +1,4 @@
+// src/components/landing/HeroCreative.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -79,14 +80,16 @@ export default function HeroCreative() {
       platform === "ios"
         ? APP_STORE_URL
         : platform === "android"
-        ? PLAY_STORE_URL
-        : PLAY_STORE_URL;
+          ? PLAY_STORE_URL
+          : PLAY_STORE_URL;
 
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
-    <section className="relative w-full bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
+    <section className="relative w-full overflow-hidden bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
+      <div className="pointer-events-none absolute inset-0 brand-glow" />
+
       <div className="relative w-full">
         <Swiper
           modules={[Autoplay, Pagination, A11y]}
@@ -99,7 +102,7 @@ export default function HeroCreative() {
         >
           {SLIDES.map((s, i) => (
             <SwiperSlide key={i}>
-              <div className="relative w-full h-[68vh] md:h-[78vh]">
+              <div className="relative h-[72vh] w-full md:h-[84vh]">
                 <Image
                   src={s.src}
                   alt={s.kind === "headline" ? s.title : "DocYa Pro"}
@@ -109,17 +112,21 @@ export default function HeroCreative() {
                   className="object-cover"
                 />
 
-                <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/10" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-black/15" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#02070d]/80 via-[#02070d]/45 to-[#02070d]/20" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#02070d]/70 via-[#02070d]/20 to-transparent" />
 
                 <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
-                  <div className="max-w-4xl">
+                  <div className="max-w-5xl">
+                    <span className="badge mb-5 inline-flex">
+                      DocYa Pro
+                    </span>
+
                     {s.kind === "headline" && (
                       <>
-                        <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-extrabold leading-tight drop-shadow">
+                        <h1 className="mx-auto max-w-4xl text-3xl font-extrabold leading-tight text-white drop-shadow sm:text-4xl md:text-6xl">
                           {s.title}
                         </h1>
-                        <p className="mt-4 text-white/90 text-base sm:text-lg md:text-xl drop-shadow">
+                        <p className="mx-auto mt-5 max-w-3xl text-base text-white/90 drop-shadow sm:text-lg md:text-xl">
                           {s.subtitle}
                         </p>
                       </>
@@ -127,10 +134,10 @@ export default function HeroCreative() {
 
                     {s.kind === "paragraph" && (
                       <>
-                        <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-extrabold drop-shadow">
+                        <h2 className="mx-auto max-w-4xl text-3xl font-extrabold leading-tight text-white drop-shadow sm:text-4xl md:text-5xl">
                           {s.title}
                         </h2>
-                        <p className="mt-4 text-white/90 text-base sm:text-lg md:text-xl drop-shadow">
+                        <p className="mx-auto mt-5 max-w-3xl text-base text-white/90 drop-shadow sm:text-lg md:text-xl">
                           {s.paragraph}
                         </p>
                       </>
@@ -138,28 +145,30 @@ export default function HeroCreative() {
 
                     {s.kind === "bullets" && (
                       <>
-                        <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-extrabold drop-shadow">
+                        <h2 className="mx-auto max-w-4xl text-3xl font-extrabold leading-tight text-white drop-shadow sm:text-4xl md:text-5xl">
                           {s.title}
                         </h2>
-                        <ul className="mt-5 grid gap-2 text-left max-w-xl mx-auto">
+                        <ul className="mx-auto mt-6 grid max-w-2xl gap-3 text-left">
                           {s.bullets.map((b) => (
-                            <li key={b} className="flex items-start gap-2 text-white/95">
-                              <Check className="mt-0.5 h-5 w-5 text-[var(--brand)] shrink-0" />
-                              <span className="text-base sm:text-lg drop-shadow">{b}</span>
+                            <li key={b} className="flex items-start gap-3 text-white/95">
+                              <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--brand)_45%,transparent)] bg-[color-mix(in_srgb,var(--brand)_12%,transparent)]">
+                                <Check className="h-4 w-4 text-[var(--brand)]" />
+                              </span>
+                              <span className="text-base drop-shadow sm:text-lg">{b}</span>
                             </li>
                           ))}
                         </ul>
                       </>
                     )}
 
-                    <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                      <Link href="/registro" className="btn-primary">
+                    <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                      <Link href="/registro" className="btn-primary h-11 px-5">
                         Registrate como profesional <ArrowRight className="h-4 w-4" />
                       </Link>
 
                       <Link
                         href="#"
-                        className="btn-outline-primary"
+                        className="btn-outline-primary h-11 px-5"
                         aria-label="Descargar la app"
                         onClick={(e) => {
                           e.preventDefault();
@@ -169,6 +178,12 @@ export default function HeroCreative() {
                         Descargar app
                       </Link>
                     </div>
+
+                    <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+                      <span className="badge">Horarios flexibles</span>
+                      <span className="badge">Cobertura por zonas</span>
+                      <span className="badge">Ingresos semanales</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -177,8 +192,8 @@ export default function HeroCreative() {
         </Swiper>
       </div>
 
-      <div className="container mx-auto px-6">
-        <p className="text-center text-sm text-muted-foreground py-6">
+      <div className="mx-auto w-full max-w-6xl px-4">
+        <p className="py-6 text-center text-sm text-muted-foreground">
           Atención médica y de enfermería a domicilio en todo el país.
         </p>
       </div>
@@ -206,7 +221,7 @@ export default function HeroCreative() {
           --swiper-pagination-bullet-horizontal-gap: 5px;
         }
         .hero-swiper :global(.swiper-pagination) {
-          bottom: 14px;
+          bottom: 16px;
         }
         .hero-swiper :global(.swiper-pagination-bullet) {
           background: var(--swiper-pagination-bullet-inactive-color);

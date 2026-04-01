@@ -1,3 +1,4 @@
+// src/app/faqs/page.tsx
 import FAQs from "@/components/sections/FAQs";
 import Script from "next/script";
 
@@ -5,7 +6,11 @@ export const metadata = {
   title: "Preguntas frecuentes",
   description: "Respuestas rápidas sobre pagos, disponibilidad, requisitos y más.",
   alternates: { canonical: "/faqs" },
-  openGraph: { title: "Preguntas frecuentes", description: "Respuestas rápidas.", url: "/faqs" },
+  openGraph: {
+    title: "Preguntas frecuentes",
+    description: "Respuestas rápidas.",
+    url: "/faqs",
+  },
 };
 
 export default function Page() {
@@ -34,8 +39,11 @@ export default function Page() {
 
   return (
     <>
-      <Script id="ld-faq" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-      {/* tu componente */}
+      <Script
+        id="ld-faq"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <FAQs />
     </>
   );

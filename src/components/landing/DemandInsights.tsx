@@ -1,3 +1,4 @@
+// src/components/landing/DemandInsights.tsx
 "use client";
 
 import {
@@ -38,13 +39,16 @@ const COLORS = [
 
 export default function DemandInsights() {
   return (
-    <section className="relative py-16 md:py-20 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
-      <div className="absolute inset-0 pointer-events-none brand-glow" />
+    <section className="relative bg-[var(--hero-bg)] py-16 md:py-20 dark:bg-[var(--hero-bg-dark)]">
+      <div className="pointer-events-none absolute inset-0 brand-glow" />
 
       <div className="mx-auto w-full max-w-6xl px-4">
-        <h2 className="text-center text-2xl md:text-3xl font-semibold">
-          ¿Por qué se pide médico a domicilio?
-        </h2>
+        <div className="mx-auto max-w-3xl text-center">
+          <span className="badge">Insights de demanda</span>
+          <h2 className="mt-4 text-2xl font-semibold md:text-3xl">
+            ¿Por qué se pide médico a domicilio?
+          </h2>
+        </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <span className="badge">
@@ -56,16 +60,14 @@ export default function DemandInsights() {
 
         <div
           className="
-            mt-8 px-2 grid gap-6 md:gap-8
-            max-w-[1100px] mx-auto
-            lg:[grid-template-columns:repeat(2,minmax(0,520px))]
-            lg:justify-center
+            mx-auto mt-8 grid max-w-[1100px] gap-6 px-2 md:gap-8
+            lg:justify-center lg:[grid-template-columns:repeat(2,minmax(0,520px))]
           "
         >
-          <article className="surface rounded-3xl p-5 md:p-6 border h-full">
+          <article className="surface h-full rounded-3xl border p-5 md:p-6">
             <h3 className="font-semibold">Motivos principales</h3>
 
-            <div className="h-72 md:h-80 mt-2">
+            <div className="mt-2 h-72 md:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -87,15 +89,15 @@ export default function DemandInsights() {
               </ResponsiveContainer>
             </div>
 
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="mt-2 text-xs text-muted-foreground">
               Distribución ilustrativa para comunicación. No representa datos reales en producción.
             </p>
           </article>
 
-          <article className="surface rounded-3xl p-5 md:p-6 border h-full">
+          <article className="surface h-full rounded-3xl border p-5 md:p-6">
             <h3 className="font-semibold">¿Cuándo se concentra la demanda?</h3>
 
-            <div className="h-72 md:h-80 mt-2">
+            <div className="mt-2 h-72 md:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={franjas} barSize={36}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
@@ -107,14 +109,14 @@ export default function DemandInsights() {
               </ResponsiveContainer>
             </div>
 
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="mt-2 text-xs text-muted-foreground">
               Estimaciones de ejemplo para fines de diseño/UX.
             </p>
           </article>
         </div>
 
         <div className="mt-8 flex items-center justify-center">
-          <a href="/registro" className="btn-primary">
+          <a href="/registro" className="btn-primary h-11 px-5">
             Sumate y empezá a atender
           </a>
         </div>

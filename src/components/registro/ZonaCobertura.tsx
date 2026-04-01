@@ -1,3 +1,4 @@
+// src/components/registro/ZonaCobertura.tsx
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -22,7 +23,6 @@ type Props = {
   error?: string;
 };
 
-/** Respuestas tipadas de la API de georef */
 type GeorefProvinciasResp = {
   provincias?: Array<{ id?: string | number; nombre?: string }>;
 };
@@ -30,7 +30,6 @@ type GeorefDeptosResp = {
   departamentos?: Array<{ id?: string | number; nombre?: string }>;
 };
 
-/** Respuesta del backend /localidades/{provincia} */
 type LocalidadesBackendResp = {
   provincia: string;
   localidades: string[];
@@ -74,9 +73,9 @@ export default function ZonaCobertura({
     }
   };
 
-  // 1) Provincias (Georef)
   useEffect(() => {
     let cancel = false;
+
     (async () => {
       try {
         setLoadingProv(true);
@@ -101,12 +100,12 @@ export default function ZonaCobertura({
         if (!cancel) setLoadingProv(false);
       }
     })();
+
     return () => {
       cancel = true;
     };
   }, []);
 
-  // 2) Opciones (CABA: comunas / Resto: localidades del backend)
   useEffect(() => {
     let cancel = false;
 
@@ -181,10 +180,10 @@ export default function ZonaCobertura({
     return () => {
       cancel = true;
     };
-  }, [provSelId, provSelNombre, esCABA]); // ✅ API_BASE eliminado de deps
+  }, [provSelId, provSelNombre, esCABA]);
 
-  // 3) Notificar a RHF
   const lastZonaRef = useRef<string>("");
+
   useEffect(() => {
     const prov = provSelNombre?.trim() || "";
     const loc = (manual ? manualTexto : opcionSel)?.trim() || "";
@@ -196,12 +195,11 @@ export default function ZonaCobertura({
   }, [provSelNombre, opcionSel, manual, manualTexto, onChangeZona]);
 
   return (
-    <div>
+    <div className="rounded-2xl border border-[color-mix(in_srgb,var(--brand)_8%,var(--border))] p-4 md:p-5">
       <Label>{label}</Label>
 
-      {/* Provincia */}
-      <div className="relative mt-1">
-        <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+      <div className="relative mt-2">
+        <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
         <Select
           value={provSelId || ""}
           onValueChange={(id) => {
@@ -211,7 +209,7 @@ export default function ZonaCobertura({
           }}
           disabled={loadingProv}
         >
-          <SelectTrigger className="w-full h-11 md:h-12 pl-9 pr-8">
+          <SelectTrigger className="h-11 w-full pl-9 pr-8 md:h-12">
             <SelectValue
               placeholder={loadingProv ? "Cargando provincias…" : "Elegí provincia"}
             />
@@ -232,11 +230,10 @@ export default function ZonaCobertura({
         </Select>
       </div>
 
-      {/* Comunas / Localidades */}
       {provSelId ? (
         <div className="mt-3 space-y-2">
           <div className="relative">
-            <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+            <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
 
             {!manual ? (
               <Select
@@ -244,7 +241,7 @@ export default function ZonaCobertura({
                 onValueChange={(v) => setOpcionSel(v)}
                 disabled={loadingOpciones}
               >
-                <SelectTrigger className="w-full h-11 md:h-12 pl-9 pr-8">
+                <SelectTrigger className="h-11 w-full pl-9 pr-8 md:h-12">
                   <SelectValue
                     placeholder={
                       loadingOpciones
@@ -252,8 +249,8 @@ export default function ZonaCobertura({
                           ? "Cargando comunas…"
                           : "Cargando localidades…"
                         : esCABA
-                        ? "Elegí comuna"
-                        : "Elegí localidad"
+                          ? "Elegí comuna"
+                          : "Elegí localidad"
                     }
                   />
                 </SelectTrigger>
@@ -278,9 +275,9 @@ export default function ZonaCobertura({
               </Select>
             ) : (
               <div className="relative">
-                <Edit3 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--brand)]" />
+                <Edit3 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
                 <Input
-                  className="h-11 md:h-12 pl-9 pr-3"
+                  className="h-11 pl-9 pr-3 md:h-12"
                   placeholder={esCABA ? "Escribí tu comuna" : "Escribí tu localidad"}
                   value={manualTexto}
                   onChange={(e) => setManualTexto(e.target.value)}
@@ -289,11 +286,10 @@ export default function ZonaCobertura({
             )}
           </div>
 
-          {/* Toggle manual */}
           <button
             type="button"
             onClick={() => setManual((m) => !m)}
-            className="text-xs underline text-[var(--brand)] hover:opacity-90"
+            className="text-xs text-[var(--brand)] underline hover:opacity-90"
           >
             {manual
               ? "Volver a seleccionar de la lista"
@@ -302,12 +298,10 @@ export default function ZonaCobertura({
         </div>
       ) : null}
 
-      {/* Error */}
-      {error ? <p className="text-xs text-red-500 mt-1">{error}</p> : null}
+      {error ? <p className="mt-1 text-xs text-red-500">{error}</p> : null}
 
-      {/* Vista previa */}
       {value ? (
-        <p className="text-xs text-muted-foreground mt-2">
+        <p className="mt-3 text-xs text-muted-foreground">
           Selección: <span className="font-medium">{value}</span>
         </p>
       ) : null}

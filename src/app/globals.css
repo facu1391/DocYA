@@ -103,8 +103,8 @@
   /* ====== DOCYA BRAND (CTAs, links) ====== */
   --brand: #00b3a6;
   --brand-foreground: #ffffff;
-  --brand-hover: #00a193;    /* un toque más oscuro */
-  --brand-ring: 0 179 166;   /* RGB para ring (sin alpha) */
+  --brand-hover: #00a193;
+  --brand-ring: 0 179 166;
 
   /* Navbar / Footer */
   --nav-bg: #0a272c;
@@ -113,8 +113,13 @@
   --footer-border: #0f353d;
 
   /* Hero backgrounds */
-  --hero-bg: #f8fafc;      /* gris claro */
-  --hero-bg-dark: #0a272c; /* verde oscuro en modo dark */
+  --hero-bg: #f8fafc;
+  --hero-bg-dark: #0a272c;
+
+  /* Nueva landing */
+  --text-muted: rgba(255, 255, 255, 0.72);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 /* ====== Dark tokens ====== */
@@ -161,12 +166,12 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
 
-  /* DocYa brand en dark (ligero ajuste de hover) */
+  /* DocYa brand en dark */
   --brand: #00b3a6;
   --brand-foreground: #ffffff;
   --brand-hover: #009c90;
 
-  /* Navbar / Footer en dark (apenas más oscuro) */
+  /* Navbar / Footer en dark */
   --nav-bg: #071d21;
   --nav-border: #0a2a30;
   --footer-bg: #071d21;
@@ -175,15 +180,31 @@
   /* Hero background dark */
   --hero-bg: #0a272c;
   --hero-bg-dark: #0a272c;
+
+  /* Nueva landing */
+  --text-muted: rgba(255, 255, 255, 0.72);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 /* ====== Base ====== */
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    box-sizing: border-box;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(circle at 15% 50%, rgba(0, 210, 255, 0.08), transparent 25%),
+      radial-gradient(circle at 85% 30%, rgba(58, 134, 255, 0.08), transparent 25%);
+    background-attachment: fixed;
+    overflow-x: hidden;
   }
 }
 
@@ -191,39 +212,49 @@
 @layer components {
   /* Botón primario DocYa */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 h-10
-           font-medium text-[var(--brand-foreground)]
-           shadow-sm transition-colors;
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 font-medium shadow-sm transition-colors;
+    color: var(--brand-foreground);
     background: var(--brand);
   }
-  .btn-primary:hover { background: var(--brand-hover); }
-  .btn-primary:focus-visible { box-shadow: 0 0 0 4px color-mix(in srgb, rgb(var(--brand-ring)) 30%, transparent); }
+
+  .btn-primary:hover {
+    background: var(--brand-hover);
+  }
+
+  .btn-primary:focus-visible {
+    box-shadow: 0 0 0 4px color-mix(in srgb, rgb(var(--brand-ring)) 30%, transparent);
+  }
 
   /* Botón contorno DocYa */
   .btn-outline-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 h-10
-           font-medium transition-colors border;
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md border px-4 font-medium transition-colors;
     border-color: var(--brand);
     color: var(--brand);
     background: transparent;
   }
+
   .btn-outline-primary:hover {
     color: var(--brand-foreground);
     background: color-mix(in srgb, var(--brand) 12%, transparent);
   }
 
   /* Link primario DocYa */
-  .link-primary { color: var(--brand); }
-  .link-primary:hover { text-decoration: underline; }
+  .link-primary {
+    color: var(--brand);
+  }
 
-  /* Superficie con borde (tarjetas) */
+  .link-primary:hover {
+    text-decoration: underline;
+  }
+
+  /* Superficie con borde */
   .surface {
     @apply rounded-2xl border;
     background: var(--card);
     color: var(--card-foreground);
   }
 
-  /* Glass sutil */
+  /* Glass sutil ya existente */
   .glass {
     @apply rounded-2xl border;
     background: color-mix(in oklab, var(--background) 70%, transparent);
@@ -232,7 +263,7 @@
 
   /* Badge */
   .badge {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 h-7 text-xs font-medium border;
+    @apply inline-flex h-7 items-center gap-1 rounded-full border px-2.5 text-xs font-medium;
     border-color: var(--brand);
     color: var(--brand);
     background: color-mix(in srgb, var(--brand) 10%, transparent);
@@ -244,18 +275,90 @@
     background: var(--nav-bg);
     border-color: var(--nav-border);
   }
+
   .footer-surface {
     @apply border-t;
     background: var(--footer-bg);
     border-color: var(--footer-border);
   }
+
+  /* ===== Nueva landing ===== */
+  .glass-card {
+    @apply rounded-3xl border p-8 backdrop-blur-lg transition-all duration-300;
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+  }
+
+  .glass-card:hover {
+    @apply -translate-y-1 shadow-2xl;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .highlight-text {
+    background: linear-gradient(135deg, #0AE6C7, #00A6CE);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .section-title {
+    @apply font-bold leading-tight tracking-tight;
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+  }
+
+  .hero-title {
+    @apply font-bold leading-tight tracking-tight;
+    font-size: clamp(2.8rem, 5vw, 4.5rem);
+  }
+
+  .text-text-muted {
+    color: var(--text-muted);
+  }
 }
 
 /* ====== Utilidades opcionales ====== */
 @layer utilities {
-  /* Glow DocYa */
   .brand-glow {
-    background: radial-gradient(600px 200px at 50% -40px, color-mix(in srgb, var(--brand) 20%, transparent), transparent);
+    background: radial-gradient(
+      600px 200px at 50% -40px,
+      color-mix(in srgb, var(--brand) 20%, transparent),
+      transparent
+    );
+  }
+}
+
+/* ===== Nueva landing ===== */
+.floating-card {
+  @apply absolute flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium backdrop-blur-xl;
+  z-index: 30;
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.dark-section {
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, #0AE6C7, #00A6CE);
+  opacity: 0.4;
+  margin: 0 10px;
+  position: relative;
+  top: 28px;
+}
+
+@media (max-width: 768px) {
+  .step-line {
+    width: 2px;
+    height: 30px;
+    margin: 0;
+    top: 0;
+    flex: none;
   }
 }
 
@@ -263,46 +366,49 @@
 .swiper-button-prev,
 .swiper-button-next {
   color: var(--brand);
-  transition: opacity .2s ease;
+  transition: opacity 0.2s ease;
 }
+
 .swiper-button-prev:hover,
-.swiper-button-next:hover { opacity: .9; }
+.swiper-button-next:hover {
+  opacity: 0.9;
+}
 
 .swiper-pagination-bullet {
   background: color-mix(in srgb, var(--brand) 35%, transparent);
-  opacity: .6;
+  opacity: 0.6;
 }
+
 .swiper-pagination-bullet-active {
   background: var(--brand);
   opacity: 1;
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Carrusel de experiencia: una imagen grande por vez */
 .exp-swiper {
   width: 100%;
 }
 
 .exp-frame {
-  /* Alto amplio y responsivo para que se aprecien bien */
-  height: clamp(420px, 58vw, 640px);
+  height: clamp(500px, 60vw, 700px);
 }
 
-/* Dots con color de marca (ya compatible con tus reglas existentes) */
 .exp-swiper .swiper-pagination-bullet {
   background: color-mix(in srgb, var(--brand) 35%, transparent);
-  opacity: .6;
+  opacity: 0.6;
 }
+
 .exp-swiper .swiper-pagination-bullet-active {
   background: var(--brand);
   opacity: 1;
-}
-
-.exp-frame {
-  /* antes: clamp(420px, 58vw, 640px) */
-  height: clamp(500px, 60vw, 700px);
 }

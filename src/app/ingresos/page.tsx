@@ -1,3 +1,4 @@
+// src/app/ingresos/page.tsx
 import EarningsCalculator from "@/components/sections/EarningsCalculator";
 import EarningsExplainer from "@/components/sections/EarningsExplainer";
 import EarningsExamples from "@/components/sections/EarningsExamples";

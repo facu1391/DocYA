@@ -31,8 +31,8 @@ const items = [
 
 export default function ReferidosPromoSection() {
   return (
-    <section className="relative py-16 md:py-20 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)] overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none brand-glow" />
+    <section className="relative overflow-hidden bg-[var(--hero-bg)] py-16 md:py-20 dark:bg-[var(--hero-bg-dark)]">
+      <div className="pointer-events-none absolute inset-0 brand-glow" />
 
       <div className="relative mx-auto w-full max-w-6xl px-4">
         <motion.div
@@ -42,45 +42,45 @@ export default function ReferidosPromoSection() {
           transition={{ duration: 0.55, ease: cubicBezier(0.22, 1, 0.36, 1) }}
           className="mx-auto w-full max-w-5xl"
         >
-          <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(0,179,166,0.10),rgba(255,255,255,0.03),rgba(0,179,166,0.08))] shadow-[0_10px_60px_rgba(0,0,0,0.25)] backdrop-blur-xl">
-            <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
+          <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(10,230,199,0.08),rgba(255,255,255,0.02),rgba(0,166,206,0.08))] shadow-[0_14px_60px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+            <div className="pointer-events-none absolute inset-0 opacity-[0.05]">
               <div
                 className="h-full w-full"
                 style={{
                   backgroundImage:
-                    "linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)",
-                  backgroundSize: "40px 40px",
+                    "linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)",
+                  backgroundSize: "42px 42px",
                 }}
               />
             </div>
 
-            <div className="absolute left-1/2 top-0 h-[220px] w-[220px] -translate-x-1/2 rounded-full bg-[var(--brand)]/10 blur-3xl pointer-events-none" />
-            <div className="absolute -left-16 bottom-8 h-[180px] w-[180px] rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
-            <div className="absolute -right-16 top-12 h-[180px] w-[180px] rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+            <div className="pointer-events-none absolute left-1/2 top-0 h-[220px] w-[220px] -translate-x-1/2 rounded-full bg-[var(--brand)]/10 blur-3xl" />
+            <div className="pointer-events-none absolute -left-16 bottom-8 h-[180px] w-[180px] rounded-full bg-cyan-500/10 blur-3xl" />
+            <div className="pointer-events-none absolute -right-16 top-12 h-[180px] w-[180px] rounded-full bg-emerald-500/10 blur-3xl" />
 
             <div className="relative grid items-center gap-8 px-6 py-8 md:px-8 md:py-10 lg:grid-cols-[1.05fr_0.95fr] lg:px-10">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[var(--brand)]/25 bg-[var(--brand)]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[var(--brand)]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--brand)_35%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[var(--brand)]">
                   <Sparkles className="h-4 w-4" />
-                  Nuevo programa
+                  Programa de referidos
                 </div>
 
-                <h2 className="mt-5 text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight text-white">
+                <h2 className="mt-5 text-3xl font-extrabold leading-tight text-white md:text-4xl lg:text-5xl">
                   Ganá dinero
                   <br className="hidden sm:block" /> recomendando{" "}
-                  <span className="text-[var(--brand)]">DocYa</span>
+                  <span className="highlight-text">DocYa</span>
                 </h2>
 
-                <p className="mt-5 max-w-xl text-base md:text-lg leading-relaxed text-gray-300">
+                <p className="mt-5 max-w-xl text-base leading-relaxed text-white/75 md:text-lg">
                   Si conocés personas que puedan necesitar atención médica a
                   domicilio, ahora también podés compartir DocYa y obtener
                   beneficios por cada consulta válida generada desde tu enlace.
                 </p>
 
-                <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                   <Link
                     href="/referidos"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--brand)] px-6 py-3.5 text-sm font-bold text-[var(--brand-foreground)] transition-all duration-300 hover:-translate-y-[1px] hover:brightness-110"
+                    className="btn-primary inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold"
                   >
                     Más información
                     <ArrowRight className="h-4 w-4" />
@@ -92,6 +92,12 @@ export default function ReferidosPromoSection() {
                   >
                     Quiero sumarme
                   </Link>
+                </div>
+
+                <div className="mt-6 flex flex-wrap gap-2.5">
+                  <span className="badge">Panel propio</span>
+                  <span className="badge">Consultas válidas</span>
+                  <span className="badge">Seguimiento claro</span>
                 </div>
               </div>
 
@@ -114,15 +120,15 @@ export default function ReferidosPromoSection() {
                         className="rounded-2xl border border-white/10 bg-black/20 p-5 backdrop-blur-md"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[var(--brand)]/20 bg-[var(--brand)]/10 text-[var(--brand)]">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--brand)_25%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] text-[var(--brand)]">
                             <Icon className="h-5 w-5" />
                           </div>
 
                           <div>
-                            <h3 className="text-base md:text-lg font-bold text-white">
+                            <h3 className="text-base font-bold text-white md:text-lg">
                               {item.title}
                             </h3>
-                            <p className="mt-1 text-sm leading-relaxed text-gray-400">
+                            <p className="mt-1 text-sm leading-relaxed text-white/65">
                               {item.desc}
                             </p>
                           </div>
@@ -141,12 +147,12 @@ export default function ReferidosPromoSection() {
                     delay: 0.18,
                     ease: cubicBezier(0.22, 1, 0.36, 1),
                   }}
-                  className="mt-5 rounded-2xl border border-[var(--brand)]/15 bg-[var(--brand)]/10 p-5"
+                  className="mt-5 rounded-2xl border border-[color-mix(in_srgb,var(--brand)_18%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] p-5"
                 >
                   <p className="text-xs font-bold uppercase tracking-[0.20em] text-[var(--brand)]">
                     Oportunidad
                   </p>
-                  <p className="mt-2 text-sm leading-relaxed text-gray-200">
+                  <p className="mt-2 text-sm leading-relaxed text-white/80">
                     Compartí una solución de salud real, con una experiencia
                     clara y un panel donde podés ver tus resultados.
                   </p>

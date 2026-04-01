@@ -1,3 +1,4 @@
+// src/app/contacto/page.tsx
 import ContactHero from "@/components/contact/ContactHero";
 import ContactSidebar from "@/components/contact/ContactSidebar";
 import ContactForm from "@/components/contact/ContactForm";
@@ -18,13 +19,12 @@ export default function Page() {
     <main className="bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
       <ContactHero />
 
-      {/* Contenido centrado */}
-      <section className="container py-10 md:py-14">
-        <div className="grid gap-8 lg:grid-cols-12 max-w-5xl mx-auto">
-          {/* Form a la izquierda (8 cols) */}
-          <ContactForm />
-          {/* Sidebar a la derecha (4 cols, sticky y oculto en mobile) */}
-          <ContactSidebar />
+      <section className="py-10 md:py-14">
+        <div className="mx-auto w-full max-w-6xl px-4">
+          <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-12 lg:items-start">
+            <ContactForm />
+            <ContactSidebar />
+          </div>
         </div>
       </section>
     </main>

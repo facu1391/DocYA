@@ -9,7 +9,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Sun, Moon, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Reutilizados
 import ConfirmModal from "@/components/common/ConfirmModal";
 import LoadingSplash from "@/components/common/LoadingSplash";
 import { proExitCopy } from "@/components/common/confirmCopy";
@@ -23,14 +22,11 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
-  // Modal + splash
   const [openExitModal, setOpenExitModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Páginas que usan navbar público
   const PUBLIC_PREFIXES = ["/", "/registro/paciente", "/legal/pacientes"];
 
-  // 👇 Si estoy en /gracias y aud=paciente => navbar público
   const aud = (searchParams?.get("aud") || "").toLowerCase();
   const isGraciasPaciente = pathname === "/gracias" && aud === "paciente";
 
@@ -38,7 +34,6 @@ export default function Navbar() {
     isGraciasPaciente ||
     PUBLIC_PREFIXES.some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)));
 
-  // zona Pro = no pública
   const inProArea = !isPublicAudience;
 
   const LOGOS = isPublicAudience
@@ -73,7 +68,12 @@ export default function Navbar() {
         : "",
     ].join(" ");
 
-  // Acción confirmada: splash y navega a /
+  const publicSectionCls =
+    "text-sm font-medium text-white/85 transition-colors hover:text-[var(--brand)]";
+
+  const publicMobileSectionCls =
+    "w-full max-w-xs text-center rounded-full px-4 py-2 border transition border-white/10 text-white/90 hover:text-white hover:bg-white/10";
+
   const goPatients = () => {
     setLoading(true);
     setTimeout(() => router.push("/"), 2000);
@@ -90,13 +90,12 @@ export default function Navbar() {
             : "bg-[var(--nav-bg)]",
         ].join(" ")}
       >
-        <nav className="container h-16 flex items-center justify-between">
-          {/* Logo */}
-          <Link href={logoHref} className="flex items-center gap-2 shrink-0" aria-label={logoAria}>
+        <nav className="container flex h-16 items-center justify-between">
+          <Link href={logoHref} className="flex shrink-0 items-center gap-2" aria-label={logoAria}>
             <div className="relative h-10 w-[150px] dark:hidden">
               <Image src={LOGOS.light} alt={LOGOS.alt} fill className="object-contain" priority />
             </div>
-            <div className="relative h-10 w-[150px] hidden dark:block">
+            <div className="relative hidden h-10 w-[150px] dark:block">
               <Image src={LOGOS.dark} alt={LOGOS.alt} fill className="object-contain" priority />
             </div>
           </Link>
@@ -105,9 +104,30 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-6 text-sm font-medium">
             {isPublicAudience ? (
               <>
-                <Link href="/registro/paciente" className="btn-primary h-9 px-3">
-                  Registrate como paciente
+                <a href="#inicio" className={publicSectionCls}>
+                  Inicio
+                </a>
+                <a href="#ia" className={publicSectionCls}>
+                  IA Médica
+                </a>
+                <a href="#como-funciona" className={publicSectionCls}>
+                  Cómo funciona
+                </a>
+                <a href="#cobertura" className={publicSectionCls}>
+                  Cobertura
+                </a>
+                <a href="#precios" className={publicSectionCls}>
+                  Precios
+                </a>
+
+                <Link href="/profesionales" className={publicSectionCls}>
+                  Profesionales
                 </Link>
+
+                <a href="#descargar" className="btn-primary h-9 px-4">
+                  Descargar app
+                </a>
+
                 <Button
                   variant="ghost"
                   size="icon"
@@ -127,12 +147,9 @@ export default function Navbar() {
                 <Link href="/faqs" className={linkCls("/faqs")}>
                   FAQs
                 </Link>
-
-                {/* ✅ Nuevo: Manual (solo Pro) */}
                 <Link href="/manual" className={linkCls("/manual")}>
                   Manual
                 </Link>
-
                 <Link href="/contacto" className={linkCls("/contacto")}>
                   Contacto
                 </Link>
@@ -140,7 +157,6 @@ export default function Navbar() {
                   Registrate
                 </Link>
 
-                {/* “Para pacientes” con modal si estás en zona Pro */}
                 <Link
                   href="/"
                   aria-label="Ir a DocYa (público)"
@@ -182,18 +198,16 @@ export default function Navbar() {
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </Button>
 
-            {!isPublicAudience && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-white/10"
-                aria-label="Abrir menú"
-                aria-expanded={open}
-                onClick={() => setOpen((v) => !v)}
-              >
-                {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/10"
+              aria-label="Abrir menú"
+              aria-expanded={open}
+              onClick={() => setOpen((v) => !v)}
+            >
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
           </div>
         </nav>
 
@@ -212,12 +226,9 @@ export default function Navbar() {
               <Link href="/faqs" className={mobileLinkCls("/faqs")}>
                 FAQs
               </Link>
-
-              {/* ✅ Nuevo: Manual (solo Pro) */}
               <Link href="/manual" className={mobileLinkCls("/manual")}>
                 Manual
               </Link>
-
               <Link href="/contacto" className={mobileLinkCls("/contacto")}>
                 Contacto
               </Link>
@@ -248,22 +259,36 @@ export default function Navbar() {
           <div
             className={[
               "md:hidden overflow-hidden transition-[max-height] duration-300",
-              open ? "max-h-96" : "max-h-0",
+              open ? "max-h-[420px]" : "max-h-0",
             ].join(" ")}
           >
             <div className="container py-4 flex flex-col items-center text-center gap-3 text-sm font-medium">
-              <Link
-                href="/registro/paciente"
-                className="btn-primary h-10 w-full max-w-xs justify-center"
-              >
-                Registrate como paciente
+              <a href="#inicio" className={publicMobileSectionCls}>
+                Inicio
+              </a>
+              <a href="#ia" className={publicMobileSectionCls}>
+                IA Médica
+              </a>
+              <a href="#como-funciona" className={publicMobileSectionCls}>
+                Cómo funciona
+              </a>
+              <a href="#cobertura" className={publicMobileSectionCls}>
+                Cobertura
+              </a>
+              <a href="#precios" className={publicMobileSectionCls}>
+                Precios
+              </a>
+              <Link href="/profesionales" className={publicMobileSectionCls}>
+                Profesionales
               </Link>
+              <a href="#descargar" className="btn-primary h-10 w-full max-w-xs justify-center">
+                Descargar app
+              </a>
             </div>
           </div>
         )}
       </header>
 
-      {/* Splash reutilizado */}
       <LoadingSplash
         show={loading}
         message="Abriendo Pacientes…"
@@ -272,7 +297,6 @@ export default function Navbar() {
         logoSrc="/logo_puclic-light.png"
       />
 
-      {/* Modal reutilizado */}
       <ConfirmModal
         open={openExitModal}
         onOpenChange={setOpenExitModal}
@@ -289,4 +313,3 @@ export default function Navbar() {
     </>
   );
 }
-

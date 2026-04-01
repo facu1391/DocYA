@@ -1,3 +1,4 @@
+// src/components/sections/FAQs.tsx
 "use client";
 
 import {
@@ -34,59 +35,67 @@ export default function FAQs() {
 
       <div className="relative z-10 py-16 md:py-20">
         <div className="mx-auto w-full max-w-6xl px-4">
-          <header className="text-center max-w-3xl mx-auto">
-            <h1 className="text-3xl md:text-5xl font-semibold leading-tight">
+          <header className="mx-auto max-w-3xl text-center">
+            <div className="flex justify-center">
+              <span className="badge">Soporte rápido</span>
+            </div>
+
+            <h1 className="mt-4 text-3xl font-semibold leading-tight md:text-5xl">
               Preguntas <span className="text-[var(--brand)]">frecuentes</span>
             </h1>
-            <p className="mt-3 text-sm md:text-base text-muted-foreground">
-              Respuestas rápidas sobre pagos, disponibilidad y requisitos para usar DocYa Pro como profesional.
+
+            <p className="mt-3 text-sm text-muted-foreground md:text-base">
+              Respuestas rápidas sobre pagos, disponibilidad y requisitos para usar
+              DocYa Pro como profesional.
             </p>
           </header>
 
-          <div className="mt-10 md:mt-12 max-w-4xl mx-auto space-y-4 md:space-y-5">
+          <div className="mx-auto mt-10 max-w-4xl space-y-4 md:mt-12 md:space-y-5">
             <Accordion type="single" collapsible className="space-y-4 md:space-y-5">
               {faqs.map((f, i) => {
                 const num = String(i + 1).padStart(2, "0");
+
                 return (
                   <AccordionItem
                     key={f.q}
                     value={f.q}
                     className="
-                      surface rounded-2xl overflow-hidden
+                      surface overflow-hidden rounded-3xl
+                      border border-[color-mix(in_srgb,var(--brand)_8%,var(--border))]
                       shadow-[0_10px_30px_rgba(0,0,0,0.08)]
-                      border border-[color-mix(in_srgb,var(--brand) 6%,var(--border))]
-                      data-[state=open]:border-[var(--brand)]
                       transition-colors
+                      data-[state=open]:border-[color-mix(in_srgb,var(--brand)_45%,transparent)]
                     "
                   >
                     <AccordionTrigger
                       className="
-                        group flex w-full items-start gap-4 p-5 md:p-6 text-left
+                        group flex w-full items-start gap-4 p-5 text-left md:p-6
                         [&>svg]:hidden
                       "
                     >
                       <span
                         className="
-                          shrink-0 rounded-full px-3 h-7 md:h-8 grid place-items-center
-                          text-xs md:text-sm font-semibold tracking-wider
-                          text-[var(--brand)] bg-[color-mix(in_srgb,var(--brand) 10%,transparent)]
-                          ring-1 ring-[color-mix(in_srgb,var(--brand) 30%,transparent)]
+                          grid h-7 shrink-0 place-items-center rounded-full px-3
+                          text-xs font-semibold tracking-wider md:h-8 md:text-sm
+                          text-[var(--brand)]
+                          bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]
+                          ring-1 ring-[color-mix(in_srgb,var(--brand)_30%,transparent)]
                         "
                       >
                         {num}
                       </span>
 
-                      <span className="text-base md:text-lg font-medium pr-8">
+                      <span className="pr-8 text-base font-medium md:text-lg">
                         {f.q}
                       </span>
 
                       <span className="ml-auto mt-0.5">
                         <Plus className="h-5 w-5 text-[var(--brand)] group-data-[state=open]:hidden" />
-                        <Minus className="h-5 w-5 text-[var(--brand)] hidden group-data-[state=open]:block" />
+                        <Minus className="hidden h-5 w-5 text-[var(--brand)] group-data-[state=open]:block" />
                       </span>
                     </AccordionTrigger>
 
-                    <AccordionContent className="px-6 pt-0 pb-6 text-sm md:text-base text-muted-foreground">
+                    <AccordionContent className="px-6 pb-6 pt-0 text-sm leading-relaxed text-muted-foreground md:text-base">
                       {f.a}
                     </AccordionContent>
                   </AccordionItem>
@@ -94,22 +103,24 @@ export default function FAQs() {
               })}
             </Accordion>
 
-            <div className="text-center pt-4">
-              <p className="text-sm text-muted-foreground">
-                ¿No encontraste lo que buscabas?{" "}
-                <Link href="/contacto" className="link-primary">
-                  Escribinos
-                </Link>{" "}
-                o revisá los{" "}
-                <Link href="/legal/terminos" className="link-primary">
-                  Términos
-                </Link>{" "}
-                y la{" "}
-                <Link href="/legal/privacidad" className="link-primary">
-                  Privacidad
-                </Link>
-                .
-              </p>
+            <div className="pt-4 text-center">
+              <div className="surface rounded-2xl border p-5">
+                <p className="text-sm text-muted-foreground md:text-base">
+                  ¿No encontraste lo que buscabas?{" "}
+                  <Link href="/contacto" className="link-primary">
+                    Escribinos
+                  </Link>{" "}
+                  o revisá los{" "}
+                  <Link href="/legal/terminos" className="link-primary">
+                    Términos
+                  </Link>{" "}
+                  y la{" "}
+                  <Link href="/legal/privacidad" className="link-primary">
+                    Privacidad
+                  </Link>
+                  .
+                </p>
+              </div>
             </div>
           </div>
         </div>

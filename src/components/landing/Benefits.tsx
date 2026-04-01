@@ -1,3 +1,4 @@
+// src/components/landing/Benefits.tsx
 "use client";
 
 import type { ReactNode } from "react";
@@ -34,31 +35,37 @@ const benefits: Benefit[] = [
 
 export default function Benefits() {
   return (
-    <section className="relative py-16 md:py-20 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
-      <div className="absolute inset-0 pointer-events-none brand-glow" />
+    <section className="relative bg-[var(--hero-bg)] py-16 md:py-20 dark:bg-[var(--hero-bg-dark)]">
+      <div className="pointer-events-none absolute inset-0 brand-glow" />
 
       <div className="relative mx-auto w-full max-w-6xl px-4">
-        <h2 className="text-center text-2xl md:text-3xl font-semibold">
-          Beneficios de ser parte
-        </h2>
+        <div className="mx-auto max-w-3xl text-center">
+          <span className="badge">DocYa Pro</span>
+          <h2 className="mt-4 text-2xl font-semibold md:text-3xl">
+            Beneficios de ser parte
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground md:text-base">
+            Una propuesta pensada para profesionales que quieren más control, más herramientas y una experiencia moderna.
+          </p>
+        </div>
 
-        <div className="mt-10 grid gap-6 px-2 max-w-[36rem] mx-auto md:max-w-none md:justify-center md:[grid-template-columns:repeat(2,minmax(0,36rem))] md:gap-8">
+        <div className="mx-auto mt-10 grid max-w-[36rem] gap-6 px-2 md:max-w-none md:justify-center md:[grid-template-columns:repeat(2,minmax(0,36rem))] md:gap-8">
           {benefits.map((b, i) => (
             <article
               key={b.title}
-              className="glass rounded-2xl p-6 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.2)] will-change-transform opacity-0 translate-y-4 animate-[fade-up_.6s_ease-out_forwards]"
+              className="glass-card opacity-0 translate-y-4 shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all duration-300 will-change-transform hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.2)] animate-[fade-up_.6s_ease-out_forwards]"
               style={{ animationDelay: `${120 * i}ms` }}
             >
               <div className="flex items-start gap-4">
-                <div className="inline-flex items-center justify-center rounded-xl h-11 w-11 border text-[var(--brand)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] border-[color-mix(in_srgb,var(--brand)_45%,transparent)] shadow-sm">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--brand)_45%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] text-[var(--brand)] shadow-sm">
                   {b.icon}
                 </div>
 
                 <div>
-                  <h3 className="text-xl md:text-2xl font-semibold text-[var(--brand)]">
+                  <h3 className="text-xl font-semibold text-[var(--brand)] md:text-2xl">
                     {b.title}
                   </h3>
-                  <p className="mt-2 text-sm md:text-base text-muted-foreground">
+                  <p className="mt-2 text-sm text-muted-foreground md:text-base leading-relaxed">
                     {b.desc}
                   </p>
                 </div>

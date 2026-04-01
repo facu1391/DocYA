@@ -4,7 +4,6 @@
 import { usePathname } from "next/navigation";
 import Footer from "@/components/layouts/Footer";
 import FloatingCTA from "@/components/fab/FloatingCTA";
-import FloatingPacienteCTA from "@/components/fab/FloatingPacienteCTA";
 import ScrollToTopButton from "@/components/fab/ScrollToTopButton";
 
 export default function FooterChrome() {
@@ -18,7 +17,6 @@ export default function FooterChrome() {
     <>
       <Footer />
       <FloatingCTA />
-      <FloatingPacienteCTA />
       <ScrollToTopButton />
     </>
   );

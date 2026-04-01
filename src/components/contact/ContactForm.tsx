@@ -1,3 +1,4 @@
+// src/components/contact/ContactForm.tsx
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -48,31 +49,46 @@ export default function ContactForm() {
   }
 
   const Err = ({ msg }: { msg?: string }) =>
-    msg ? <p className="text-xs text-red-500 mt-1">{msg}</p> : null;
+    msg ? <p className="mt-1 text-xs text-red-500">{msg}</p> : null;
 
   return (
     <article className="lg:col-span-8">
-      <div className="surface rounded-2xl p-6 md:p-8">
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="grid gap-4">
-          <input type="text" className="hidden" tabIndex={-1} autoComplete="off" {...register("website")} />
+      <div className="surface rounded-3xl border p-6 shadow-[0_10px_30px_rgba(0,0,0,0.08)] md:p-8">
+        <div className="mb-6">
+          <span className="badge">Formulario</span>
+          <h2 className="mt-3 text-xl font-semibold md:text-2xl">Escribinos</h2>
+          <p className="mt-2 text-sm text-muted-foreground md:text-base">
+            Completá tus datos y te respondemos lo antes posible.
+          </p>
+        </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="grid gap-4">
+          <input
+            type="text"
+            className="hidden"
+            tabIndex={-1}
+            autoComplete="off"
+            {...register("website")}
+          />
+
+          <div className="grid gap-4 md:grid-cols-2">
             <div>
               <Label>Nombre</Label>
-              <Input {...register("nombre")} />
+              <Input {...register("nombre")} className="mt-2 h-11 md:h-12" />
               <Err msg={errors.nombre?.message} />
             </div>
+
             <div>
               <Label>Email</Label>
-              <Input type="email" {...register("email")} />
+              <Input type="email" {...register("email")} className="mt-2 h-11 md:h-12" />
               <Err msg={errors.email?.message} />
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <div>
               <Label>Teléfono (opcional)</Label>
-              <Input {...register("telefono")} />
+              <Input {...register("telefono")} className="mt-2 h-11 md:h-12" />
             </div>
 
             <div>
@@ -81,7 +97,7 @@ export default function ContactForm() {
                 {...register("motivo")}
                 defaultValue=""
                 className="
-                  w-full h-10 rounded-md border px-3
+                  mt-2 h-11 w-full rounded-md border px-3 md:h-12
                   bg-background
                   focus:outline-none focus:ring-2 focus:ring-[var(--brand)]
                   focus:border-[var(--brand)]
@@ -101,7 +117,7 @@ export default function ContactForm() {
 
           <div>
             <Label>Mensaje</Label>
-            <Textarea rows={6} {...register("mensaje")} />
+            <Textarea rows={6} {...register("mensaje")} className="mt-2 min-h-[150px]" />
             <Err msg={errors.mensaje?.message} />
           </div>
 
@@ -109,7 +125,7 @@ export default function ContactForm() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-[var(--brand-foreground)]"
+              className="h-11 bg-[var(--brand)] text-[var(--brand-foreground)] hover:bg-[var(--brand-hover)]"
             >
               {isSubmitting ? (
                 <>
@@ -135,7 +151,7 @@ export default function ContactForm() {
         </form>
       </div>
 
-      <div className="text-center mt-6">
+      <div className="mt-6 text-center lg:text-left">
         <p className="text-sm text-muted-foreground">
           ¿Dudas comunes? Visitá las{" "}
           <Link href="/faqs" className="link-primary">

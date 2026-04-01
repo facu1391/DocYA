@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
 import FloatingCTA from "@/components/fab/FloatingCTA";
-import FloatingPacienteCTA from "@/components/fab/FloatingPacienteCTA";
+
 import ScrollToTopButton from "@/components/fab/ScrollToTopButton";
 
 export default function AppChrome() {
@@ -29,7 +29,6 @@ export default function AppChrome() {
 
       <Footer />
       <FloatingCTA />
-      <FloatingPacienteCTA />
       <ScrollToTopButton />
     </>
   );
