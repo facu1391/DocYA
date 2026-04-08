@@ -29,61 +29,81 @@ export default function ReferidosLoginPage() {
   const [error, setError] = useState("");
   const [googleLoaded, setGoogleLoaded] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
+  const [googleStatus, setGoogleStatus] = useState("");
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
   const googleRenderedRef = useRef(false);
 
   useEffect(() => {
-    if (!googleLoaded || !googleButtonRef.current || googleRenderedRef.current || !window.google?.accounts?.id) {
+    if (!googleLoaded || !googleButtonRef.current || googleRenderedRef.current) {
       return;
     }
 
-    window.google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: async (response: { credential?: string }) => {
-        if (!response.credential) return;
-        setGoogleBusy(true);
-        setError("");
+    let attempts = 0;
+    const maxAttempts = 20;
 
-        try {
-          const res = await fetch(apiUrl("/referidos/google"), {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id_token: response.credential }),
-          });
-
-          const data = await res.json().catch(() => ({}));
-
-          if (!res.ok) {
-            setError(
-              data.detail ||
-                "No se pudo ingresar con Google. Si todavía no tenés cuenta, registrate primero.",
-            );
-            return;
-          }
-
-          localStorage.setItem("docya_token", data.access_token);
-          localStorage.setItem("docya_referente", JSON.stringify(data.referente));
-          router.push("/referidos/panel");
-        } catch {
-          setError("Error de conexión. Intentá de nuevo.");
-        } finally {
-          setGoogleBusy(false);
+    const renderGoogleButton = () => {
+      const googleId = window.google?.accounts?.id;
+      if (!googleId || !googleButtonRef.current) {
+        attempts += 1;
+        if (attempts < maxAttempts) {
+          window.setTimeout(renderGoogleButton, 300);
+        } else {
+          setGoogleStatus("No pudimos cargar Google en este momento. Probá recargar la página.");
         }
-      },
-      auto_select: false,
-      cancel_on_tap_outside: true,
-    });
+        return;
+      }
 
-    window.google.accounts.id.renderButton(googleButtonRef.current, {
-      theme: "outline",
-      size: "large",
-      shape: "pill",
-      text: "signin_with",
-      width: 360,
-      logo_alignment: "left",
-    });
+      setGoogleStatus("");
+      googleId.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: async (response: { credential?: string }) => {
+          if (!response.credential) return;
+          setGoogleBusy(true);
+          setError("");
 
-    googleRenderedRef.current = true;
+          try {
+            const res = await fetch(apiUrl("/referidos/google"), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id_token: response.credential }),
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+              setError(
+                data.detail ||
+                  "No se pudo ingresar con Google. Si todavía no tenés cuenta, registrate primero.",
+              );
+              return;
+            }
+
+            localStorage.setItem("docya_token", data.access_token);
+            localStorage.setItem("docya_referente", JSON.stringify(data.referente));
+            router.push("/referidos/panel");
+          } catch {
+            setError("Error de conexión. Intentá de nuevo.");
+          } finally {
+            setGoogleBusy(false);
+          }
+        },
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+
+      googleId.renderButton(googleButtonRef.current, {
+        theme: "outline",
+        size: "large",
+        shape: "pill",
+        text: "signin_with",
+        width: 360,
+        logo_alignment: "left",
+      });
+
+      googleRenderedRef.current = true;
+    };
+
+    renderGoogleButton();
   }, [googleLoaded, router]);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -161,6 +181,11 @@ export default function ReferidosLoginPage() {
                 <div ref={googleButtonRef} />
               )}
             </div>
+            {googleStatus && (
+              <p className="mt-3 text-center text-xs text-amber-400">
+                {googleStatus}
+              </p>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
