@@ -1,9 +1,10 @@
+// src/components/registro/RegistroPacienteGoogleFlow.tsx
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import {
   Calendar,
@@ -117,7 +118,6 @@ function countryFlag(code: string) {
 
 export default function RegistroPacienteGoogleFlow() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
   const addressInputRef = useRef<HTMLInputElement | null>(null);
   const autocompleteRef = useRef<GooglePlacesAutocomplete | null>(null);
@@ -149,56 +149,63 @@ export default function RegistroPacienteGoogleFlow() {
   const telefonoValido = (value: string) => /^\+[1-9]\d{7,14}$/.test(value);
 
   useEffect(() => {
-    const refFromUrl = (searchParams.get("ref") || "").trim();
-    const refStored =
-      typeof window !== "undefined" ? window.localStorage.getItem("docya_ref_code") || "" : "";
+    if (typeof window === "undefined") return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const refFromUrl = (urlParams.get("ref") || "").trim();
+    const refStored = window.localStorage.getItem("docya_ref_code") || "";
     const finalRef = refFromUrl || refStored;
+
     if (finalRef) {
       setCodigoReferido(finalRef);
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem("docya_ref_code", finalRef);
-      }
+      window.localStorage.setItem("docya_ref_code", finalRef);
     }
-  }, [searchParams]);
+  }, []);
 
-  const handleGoogleCredential = useCallback(async (credential: string) => {
-    setGoogleBusy(true);
-    setStatusMessage("");
-    try {
-      const res = await fetch("/api/auth_google_paciente", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_token: credential, codigo_referido: codigoReferido || undefined }),
-      });
-      const data: GoogleAuthResponse = await res.json().catch(() => ({}));
+  const handleGoogleCredential = useCallback(
+    async (credential: string) => {
+      setGoogleBusy(true);
+      setStatusMessage("");
+      try {
+        const res = await fetch("/api/auth_google_paciente", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_token: credential,
+            codigo_referido: codigoReferido || undefined,
+          }),
+        });
+        const data: GoogleAuthResponse = await res.json().catch(() => ({}));
 
-      if (!res.ok) {
-        throw new Error(data?.detail || "No se pudo validar Google");
+        if (!res.ok) {
+          throw new Error(data?.detail || "No se pudo validar Google");
+        }
+
+        const nextUserId = String(data.user?.id ?? "");
+        if (!nextUserId) {
+          throw new Error("No se recibió el usuario de Google");
+        }
+
+        setUserId(nextUserId);
+        setPrefillName(data.user?.full_name ?? "");
+        setPrefillEmail(data.user?.email ?? "");
+
+        if (data.perfil_completo || data.user?.perfil_completo) {
+          toast.success("Tu cuenta ya está lista. Ahora podés ingresar a DocYa.");
+          setLoadingSplash(true);
+          return;
+        }
+
+        setStage("profile");
+        toast.success("Continuemos con los datos finales de tu perfil.");
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "No se pudo iniciar con Google");
+      } finally {
+        setGoogleBusy(false);
       }
-
-      const nextUserId = String(data.user?.id ?? "");
-      if (!nextUserId) {
-        throw new Error("No se recibió el usuario de Google");
-      }
-
-      setUserId(nextUserId);
-      setPrefillName(data.user?.full_name ?? "");
-      setPrefillEmail(data.user?.email ?? "");
-
-      if (data.perfil_completo || data.user?.perfil_completo) {
-        toast.success("Tu cuenta ya está lista. Ahora podés ingresar a DocYa.");
-        setLoadingSplash(true);
-        return;
-      }
-
-      setStage("profile");
-      toast.success("Continuemos con los datos finales de tu perfil.");
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "No se pudo iniciar con Google");
-    } finally {
-      setGoogleBusy(false);
-    }
-  }, [codigoReferido]);
+    },
+    [codigoReferido],
+  );
 
   useEffect(() => {
     if (!loadingSplash) return;
@@ -343,7 +350,7 @@ export default function RegistroPacienteGoogleFlow() {
   return (
     <>
       <Script
-        src={`https://accounts.google.com/gsi/client`}
+        src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
         onLoad={() => setGoogleLoaded(true)}
       />
