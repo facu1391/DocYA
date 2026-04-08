@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import {
   User2, Mail, Phone, Stethoscope, IdCard, Send, Loader2,
@@ -34,9 +34,25 @@ type Props = {
 
 export default function RegistroForm({ mode = "pro" }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loadingSplash, setLoadingSplash] = useState(false);
+  const [codigoReferido, setCodigoReferido] = useState("");
 
   const isPaciente = mode === "paciente";
+
+  useEffect(() => {
+    if (!isPaciente) return;
+    const refFromUrl = (searchParams.get("ref") || "").trim();
+    const refStored =
+      typeof window !== "undefined" ? window.localStorage.getItem("docya_ref_code") || "" : "";
+    const finalRef = refFromUrl || refStored;
+    if (finalRef) {
+      setCodigoReferido(finalRef);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("docya_ref_code", finalRef);
+      }
+    }
+  }, [isPaciente, searchParams]);
 
   const {
     register,
@@ -134,6 +150,7 @@ export default function RegistroForm({ mode = "pro" }: Props) {
           localidad,
           fecha_nacimiento: raw.fechaNacimiento || null,
           acepto_condiciones: true,
+          codigo_referido: codigoReferido || undefined,
         };
 
         const res = await fetch("/api/register_paciente", {

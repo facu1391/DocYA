@@ -1,7 +1,6 @@
-
-// src/app/gracias/page.tsx
 import Link from "next/link";
 import { PartyPopper, MailCheck, Clock, ArrowRight } from "lucide-react";
+import DownloadAppPublic from "@/components/landing-public/DownloadAppPublic";
 import ConfettiCelebration from "@/components/utils/ConfettiCelebration";
 
 export const metadata = {
@@ -12,32 +11,28 @@ export const metadata = {
   openGraph: { title: "¡Gracias!", description: "Registro enviado.", url: "/gracias" },
 };
 
-// Next 15: searchParams es Promise<Record<string,string|string[]|undefined>>
 type SP = Record<string, string | string[] | undefined>;
 
 export default async function Gracias({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
 
-  // confetti on success (?celebra=1)
   const celebra = sp?.celebra;
   const fire =
     (typeof celebra === "string" && celebra === "1") ||
     (Array.isArray(celebra) && celebra.includes("1"));
 
-  // modo audiencia (?aud=paciente | pro)
   const audParam = sp?.aud;
   const isPaciente =
     (typeof audParam === "string" && audParam.toLowerCase() === "paciente") ||
     (Array.isArray(audParam) && audParam.map((s) => s.toLowerCase()).includes("paciente"));
 
-  // Textos por audiencia (default = profesionales)
   const copy = isPaciente
     ? {
         badge: "Registro enviado",
         p1: (
           <>
-            <strong>Revisá tu correo para activar tu cuenta</strong>. Si no ves el mensaje en
-            unos minutos, mirá en <strong>Spam</strong> o <strong>Promociones</strong>. Una vez
+            <strong>Revisá tu correo para activar tu cuenta</strong>. Si no ves el mensaje en unos
+            minutos, mirá en <strong>Spam</strong> o <strong>Promociones</strong>. Una vez
             activada, ya podés usar DocYa para solicitar atención.
           </>
         ),
@@ -45,27 +40,40 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
         c1_p: (
           <>
             Abrí el email de <strong>confirmación</strong> y seguí el enlace para activar tu
-            usuario. Si no llega, revisá <strong>Spam</strong>/<strong>Promociones</strong>.
+            usuario. Si no llega, revisá <strong>Spam</strong> y <strong>Promociones</strong>.
           </>
         ),
-        c2_t: "Validación de datos",
+        c2_t: "Perfil listo",
         c2_p: (
           <>
             Verificamos tus <strong>datos básicos</strong> y tu <strong>zona de cobertura</strong>.
-            Si necesitamos algo, nos contactamos por email.
+            Si necesitamos algo más, nos contactamos por email.
           </>
         ),
-        c3_t: "Siguiente paso",
+        c3_t: "Descargá la app",
         c3_p: (
           <>
-            Luego de activar el correo, podés volver al inicio para conocer más y descargar la app
-            cuando esté disponible en tu zona.
+            Activá tu cuenta y empezá a disfrutar la experiencia DocYa desde tu celular, con acceso
+            rápido a profesionales verificados y seguimiento de tus consultas.
           </>
         ),
-        // 👇 Solo “Volver al inicio” (sin “Ver FAQs”)
         ctas: (
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/" className="btn-primary">Volver al inicio</Link>
+          <div className="mt-8 space-y-6">
+            <div className="text-center">
+              <p className="text-base md:text-lg font-semibold text-foreground">
+                Descargá la app y empezá a disfrutar la experiencia DocYa
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Tené tu cuenta siempre a mano, pedí atención en minutos y seguí toda tu experiencia
+                desde la app.
+              </p>
+            </div>
+            <DownloadAppPublic />
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link href="/" className="btn-outline-primary">
+                Volver al inicio
+              </Link>
+            </div>
           </div>
         ),
         help: (
@@ -73,12 +81,12 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
             ¿Necesitás ayuda con tu registro? Escribinos a{" "}
             <a href="mailto:soporte@docya.com.ar" className="link-primary">
               soporte@docya.com.ar
-            </a>.
+            </a>
+            .
           </>
         ),
       }
     : {
-        // PROFESIONALES
         badge: "Registro enviado",
         p1: (
           <>
@@ -91,7 +99,7 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
         c1_p: (
           <>
             Abrí el email de <strong>confirmación</strong> y seguí el enlace para activar tu
-            usuario. Si no llega, revisá <strong>Spam</strong>/<strong>Promociones</strong>.
+            usuario. Si no llega, revisá <strong>Spam</strong> y <strong>Promociones</strong>.
           </>
         ),
         c2_t: "Validación de datos",
@@ -110,8 +118,12 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
         ),
         ctas: (
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/faqs" className="btn-outline-primary">Ver FAQs</Link>
-            <Link href="/ingresos" className="btn-primary">Ver calculadora de ingresos</Link>
+            <Link href="/faqs" className="btn-outline-primary">
+              Ver FAQs
+            </Link>
+            <Link href="/ingresos" className="btn-primary">
+              Ver calculadora de ingresos
+            </Link>
           </div>
         ),
         help: (
@@ -119,60 +131,58 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
             ¿Tenés una urgencia con tu registro? Escribinos a{" "}
             <a href="mailto:soporte@docya.com.ar" className="link-primary">
               soporte@docya.com.ar
-            </a>.
+            </a>
+            .
           </>
         ),
       };
 
   return (
     <main className="bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
-      {/* Confetti si venís del registro */}
       <ConfettiCelebration fire={!!fire} />
 
-      {/* Hero */}
-      <section className="border-b border-[var(--nav-border)] relative">
-        <div className="absolute inset-0 pointer-events-none brand-glow" />
+      <section className="relative border-b border-[var(--nav-border)]">
+        <div className="brand-glow pointer-events-none absolute inset-0" />
         <div className="container py-12 md:py-16">
           <div className="mx-auto max-w-3xl text-center">
             <div className="flex justify-center">
               <span className="badge">{copy.badge}</span>
             </div>
-            <h1 className="mt-3 text-3xl md:text-5xl font-semibold inline-flex items-center justify-center gap-3">
+            <h1 className="mt-3 inline-flex items-center justify-center gap-3 text-3xl font-semibold md:text-5xl">
               ¡Gracias por registrarte!
               <PartyPopper className="h-7 w-7 text-[var(--brand)]" />
             </h1>
-            <p className="mt-3 text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground md:text-base">
               {copy.p1}
             </p>
           </div>
         </div>
       </section>
 
-      {/* Próximos pasos + CTAs */}
       <section className="container py-10 md:py-14">
-        <div className="max-w-5xl mx-auto grid gap-6 md:grid-cols-3">
-          <article className="surface rounded-2xl p-6 border">
+        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+          <article className="surface rounded-2xl border p-6">
             <MailCheck className="h-5 w-5 text-[var(--brand)]" />
             <h3 className="mt-3 font-semibold">{copy.c1_t}</h3>
-            <p className="text-sm text-muted-foreground mt-1">{copy.c1_p}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{copy.c1_p}</p>
           </article>
 
-          <article className="surface rounded-2xl p-6 border">
+          <article className="surface rounded-2xl border p-6">
             <Clock className="h-5 w-5 text-[var(--brand)]" />
             <h3 className="mt-3 font-semibold">{copy.c2_t}</h3>
-            <p className="text-sm text-muted-foreground mt-1">{copy.c2_p}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{copy.c2_p}</p>
           </article>
 
-          <article className="surface rounded-2xl p-6 border">
+          <article className="surface rounded-2xl border p-6">
             <ArrowRight className="h-5 w-5 text-[var(--brand)]" />
             <h3 className="mt-3 font-semibold">{copy.c3_t}</h3>
-            <p className="text-sm text-muted-foreground mt-1">{copy.c3_p}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{copy.c3_p}</p>
           </article>
         </div>
 
         {copy.ctas}
 
-        <p className="text-center text-xs text-muted-foreground mt-6">{copy.help}</p>
+        <p className="mt-6 text-center text-xs text-muted-foreground">{copy.help}</p>
       </section>
     </main>
   );
