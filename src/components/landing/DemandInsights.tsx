@@ -84,7 +84,7 @@ export default function DemandInsights() {
                   </Pie>
 
                   <Legend verticalAlign="bottom" align="center" />
-                  <Tooltip formatter={(v: number) => [`${v}%`, "Participación"]} />
+                  <Tooltip formatter={(v) => [`${Number(v ?? 0)}%`, "Participación"]} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -103,7 +103,7 @@ export default function DemandInsights() {
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                   <XAxis dataKey="name" />
                   <YAxis tickFormatter={(v) => `${v}%`} />
-                  <Tooltip formatter={(v: number) => [`${v}%`, "Demanda"]} />
+                  <Tooltip formatter={(v) => [`${Number(v ?? 0)}%`, "Demanda"]} />
                   <Bar dataKey="pct" fill="var(--brand)" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

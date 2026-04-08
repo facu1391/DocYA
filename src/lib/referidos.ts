@@ -6,6 +6,7 @@ export interface Referente {
   tipo: string
   codigo_referido: string
   link_referido: string
+  foto_url?: string | null
 }
 
 export interface Stats {
