@@ -58,7 +58,7 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
           </>
         ),
         ctas: (
-          <div className="mt-8 space-y-6">
+          <div className="mx-auto mt-8 max-w-5xl space-y-6">
             <div className="text-center">
               <p className="text-base md:text-lg font-semibold text-foreground">
                 Descargá la app y empezá a disfrutar la experiencia DocYa
@@ -160,7 +160,7 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
       </section>
 
       <section className="container py-10 md:py-14">
-        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+        <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-3 xl:max-w-5xl">
           <article className="surface rounded-2xl border p-6">
             <MailCheck className="h-5 w-5 text-[var(--brand)]" />
             <h3 className="mt-3 font-semibold">{copy.c1_t}</h3>
