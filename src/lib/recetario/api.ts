@@ -1,32 +1,77 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL!;
-
-// Ã¢â€â‚¬Ã¢â€â‚¬ Helpers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+const BASE =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_API_BASE ||
+  "";
 
 function authHeaders(token: string) {
   return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Auth Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+async function parseApiResponse<T>(res: Response): Promise<T> {
+  const contentType = res.headers.get("content-type") || "";
+  const raw = await res.text();
 
-export async function loginMedico(email: string, password: string) {
+  if (!contentType.includes("application/json")) {
+    if (raw.trim().startsWith("<!DOCTYPE") || raw.trim().startsWith("<html")) {
+      throw new Error(
+        "La API devolvio HTML en lugar de JSON. Revisa la URL del backend en Vercel.",
+      );
+    }
+    throw new Error("La API devolvio una respuesta no valida.");
+  }
+
+  return JSON.parse(raw) as T;
+}
+
+function requireBaseUrl() {
+  if (!BASE) {
+    throw new Error("Falta configurar NEXT_PUBLIC_API_URL o NEXT_PUBLIC_API_BASE.");
+  }
+}
+
+interface LoginMedicoResponse {
+  medico_id: number;
+  access_token: string;
+  full_name?: string;
+  tipo?: string;
+  email?: string;
+  dni?: string;
+  validado?: boolean;
+  matricula_validada?: boolean;
+  perfil_completo?: boolean;
+  especialidad?: string | null;
+  matricula?: string | null;
+  firma_url?: string | null;
+  detail?: string;
+  [key: string]: unknown;
+}
+
+export async function loginMedico(
+  email: string,
+  password: string,
+): Promise<LoginMedicoResponse> {
+  requireBaseUrl();
   const res = await fetch(`${BASE}/auth/login_medico`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || "Error al iniciar sesiÃƒÂ³n");
+  const data = await parseApiResponse<LoginMedicoResponse>(res);
+  if (!res.ok) throw new Error(data.detail || "Error al iniciar sesion");
   return data;
 }
 
-export async function loginMedicoConGoogle(idToken: string) {
+export async function loginMedicoConGoogle(
+  idToken: string,
+): Promise<LoginMedicoResponse> {
+  requireBaseUrl();
   const res = await fetch(`${BASE}/auth/google_medico`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id_token: idToken }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || "Error al iniciar sesiÃƒÆ’Ã‚Â³n con Google");
+  const data = await parseApiResponse<LoginMedicoResponse>(res);
+  if (!res.ok) throw new Error(data.detail || "Error al iniciar sesion con Google");
   return data;
 }
 
@@ -47,24 +92,34 @@ export interface MedicoPerfil {
   validado?: boolean;
 }
 
-export async function obtenerPerfilMedico(medico_id: number, token: string): Promise<MedicoPerfil> {
+export async function obtenerPerfilMedico(
+  medico_id: number,
+  token: string,
+): Promise<MedicoPerfil> {
+  requireBaseUrl();
   const res = await fetch(`${BASE}/auth/medico/${medico_id}`, {
     headers: authHeaders(token),
   });
-  const data = await res.json();
+  const data = await parseApiResponse<MedicoPerfil & { detail?: string }>(res);
   if (!res.ok) throw new Error(data.detail || "Error al cargar el perfil");
   return data;
 }
 
 export async function registerMedico(payload: Record<string, unknown>) {
+  requireBaseUrl();
   const res = await fetch(`${BASE}/auth/register_medico`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  const data = await res.json();
+  const data = await parseApiResponse<{
+    medico_id?: number;
+    id?: number;
+    detail?: string;
+    [key: string]: unknown;
+  }>(res);
   if (!res.ok) throw new Error(data.detail || "Error al registrarse");
-  return data as { medico_id?: number; id?: number; [key: string]: unknown };
+  return data;
 }
 
 export interface CompletarPerfilMedicoIn {
@@ -84,10 +139,22 @@ export interface CompletarPerfilMedicoIn {
   acepta_terminos: boolean;
 }
 
+interface CompletarPerfilMedicoResponse {
+  ok?: boolean;
+  detail?: string;
+  medico?: Partial<MedicoPerfil> & {
+    validado?: boolean;
+    matricula_validada?: boolean;
+    perfil_completo?: boolean;
+  };
+  [key: string]: unknown;
+}
+
 export async function completarPerfilMedico(
   payload: CompletarPerfilMedicoIn,
-  token?: string
-) {
+  token?: string,
+): Promise<CompletarPerfilMedicoResponse> {
+  requireBaseUrl();
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -96,24 +163,25 @@ export async function completarPerfilMedico(
     headers,
     body: JSON.stringify(payload),
   });
-  const data = await res.json();
+  const data = await parseApiResponse<CompletarPerfilMedicoResponse>(res);
   if (!res.ok) throw new Error(data.detail || "Error al completar el perfil");
   return data;
 }
 
 export async function subirFirmaDigital(medico_id: number, file: File) {
+  requireBaseUrl();
   const form = new FormData();
   form.append("file", file);
   const res = await fetch(`${BASE}/auth/medico/${medico_id}/firma`, {
     method: "POST",
     body: form,
   });
-  const data = await res.json();
+  const data = await parseApiResponse<{ ok: boolean; firma_url: string; detail?: string }>(
+    res,
+  );
   if (!res.ok) throw new Error(data.detail || "Error al subir la firma");
-  return data as { ok: boolean; firma_url: string };
+  return data;
 }
-
-// Ã¢â€â‚¬Ã¢â€â‚¬ Medicamentos Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 export interface Medicamento {
   id: number;
@@ -130,31 +198,32 @@ export interface Medicamento {
   pvp_pami?: number | null;
   cobertura_pct?: number | null;
   importe_afiliado?: number | null;
-  /** Indica si el resultado matcheÃƒÂ³ por nombre comercial o principio activo */
   match_field?: "nombre_comercial" | "principio_activo";
 }
 
 export async function buscarMedicamentos(q: string): Promise<Medicamento[]> {
+  requireBaseUrl();
   if (q.length < 2) return [];
   const res = await fetch(`${BASE}/medicamentos?q=${encodeURIComponent(q)}&limit=12`);
-  const data = await res.json();
+  const data = await parseApiResponse<{ resultados?: Medicamento[] }>(res);
   return data.resultados ?? [];
 }
 
-export async function buscarPorPrincipioActivo(nombre: string): Promise<Medicamento[]> {
+export async function buscarPorPrincipioActivo(
+  nombre: string,
+): Promise<Medicamento[]> {
+  requireBaseUrl();
   const res = await fetch(
-    `${BASE}/medicamentos/principio/${encodeURIComponent(nombre)}?limit=10`
+    `${BASE}/medicamentos/principio/${encodeURIComponent(nombre)}?limit=10`,
   );
-  const data = await res.json();
+  const data = await parseApiResponse<{ resultados?: Medicamento[] }>(res);
   return data.resultados ?? [];
 }
-
-// Ã¢â€â‚¬Ã¢â€â‚¬ Recetario Ã¢â‚¬â€ Pacientes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 export const TIPOS_DOCUMENTO = ["DNI", "CI", "Pasaporte", "LC", "LE"] as const;
 export const SEXOS = ["M", "F", "X"] as const;
-export type TipoDocumento = typeof TIPOS_DOCUMENTO[number];
-export type Sexo = typeof SEXOS[number];
+export type TipoDocumento = (typeof TIPOS_DOCUMENTO)[number];
+export type Sexo = (typeof SEXOS)[number];
 
 export interface Paciente {
   id: number;
@@ -192,27 +261,37 @@ export interface PacienteIn {
 
 export async function crearPaciente(
   data: PacienteIn,
-  token: string
+  token: string,
 ): Promise<{ paciente_id: number; creado_en: string }> {
+  requireBaseUrl();
   const res = await fetch(`${BASE}/recetario/pacientes`, {
     method: "POST",
     headers: authHeaders(token),
     body: JSON.stringify(data),
   });
-  const json = await res.json();
+  const json = await parseApiResponse<{
+    paciente_id: number;
+    creado_en: string;
+    detail?: string;
+  }>(res);
   if (!res.ok) throw new Error(json.detail || "Error al crear paciente");
   return json;
 }
 
 export async function listarPacientes(
   token: string,
-  q?: string
+  q?: string,
 ): Promise<{ total: number; pacientes: Paciente[] }> {
+  requireBaseUrl();
   const url = q
     ? `${BASE}/recetario/pacientes?q=${encodeURIComponent(q)}`
     : `${BASE}/recetario/pacientes`;
   const res = await fetch(url, { headers: authHeaders(token) });
-  const json = await res.json();
+  const json = await parseApiResponse<{
+    total: number;
+    pacientes: Paciente[];
+    detail?: string;
+  }>(res);
   if (!res.ok) throw new Error(json.detail || "Error al listar pacientes");
   return json;
 }
@@ -220,32 +299,32 @@ export async function listarPacientes(
 export async function editarPaciente(
   id: number,
   data: PacienteIn,
-  token: string
+  token: string,
 ): Promise<{ ok: boolean }> {
+  requireBaseUrl();
   const res = await fetch(`${BASE}/recetario/pacientes/${id}`, {
     method: "PUT",
     headers: authHeaders(token),
     body: JSON.stringify(data),
   });
-  const json = await res.json();
+  const json = await parseApiResponse<{ ok: boolean; detail?: string }>(res);
   if (!res.ok) throw new Error(json.detail || "Error al editar paciente");
   return json;
 }
 
 export async function eliminarPaciente(
   id: number,
-  token: string
+  token: string,
 ): Promise<{ ok: boolean }> {
+  requireBaseUrl();
   const res = await fetch(`${BASE}/recetario/pacientes/${id}`, {
     method: "DELETE",
     headers: authHeaders(token),
   });
-  const json = await res.json();
+  const json = await parseApiResponse<{ ok: boolean; detail?: string }>(res);
   if (!res.ok) throw new Error(json.detail || "Error al eliminar paciente");
   return json;
 }
-
-// Ã¢â€â‚¬Ã¢â€â‚¬ Recetario Ã¢â‚¬â€ Recetas Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 export interface MedicamentoItem {
   nombre?: string;
@@ -281,7 +360,7 @@ export interface RecetaResumen {
 
 export async function emitirReceta(
   data: RecetaIn,
-  token: string
+  token: string,
 ): Promise<{
   ok: boolean;
   id: number;
@@ -292,23 +371,39 @@ export async function emitirReceta(
   pdf_url: string;
   status: string;
 }> {
+  requireBaseUrl();
   const res = await fetch(`${BASE}/recetario/recetas`, {
     method: "POST",
     headers: authHeaders(token),
     body: JSON.stringify(data),
   });
-  const json = await res.json();
+  const json = await parseApiResponse<{
+    ok: boolean;
+    id: number;
+    receta_id: number;
+    uuid: string;
+    cuir: string;
+    url_html: string;
+    pdf_url: string;
+    status: string;
+    detail?: string;
+  }>(res);
   if (!res.ok) throw new Error(json.detail || "Error al emitir receta");
   return json;
 }
 
 export async function listarRecetas(
-  token: string
+  token: string,
 ): Promise<{ total: number; recetas: RecetaResumen[] }> {
+  requireBaseUrl();
   const res = await fetch(`${BASE}/recetario/recetas`, {
     headers: authHeaders(token),
   });
-  const json = await res.json();
+  const json = await parseApiResponse<{
+    total: number;
+    recetas: RecetaResumen[];
+    detail?: string;
+  }>(res);
   if (!res.ok) throw new Error(json.detail || "Error al cargar historial");
   return json;
 }
@@ -316,23 +411,26 @@ export async function listarRecetas(
 export async function anularReceta(
   id: number,
   motivo: string,
-  token: string
+  token: string,
 ): Promise<{ ok: boolean }> {
+  requireBaseUrl();
   const res = await fetch(`${BASE}/recetario/recetas/${id}/anular`, {
     method: "PATCH",
     headers: authHeaders(token),
     body: JSON.stringify({ motivo }),
   });
-  const json = await res.json();
+  const json = await parseApiResponse<{ ok: boolean; detail?: string }>(res);
   if (!res.ok) throw new Error(json.detail || "Error al anular receta");
   return json;
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Recetario Ã¢â‚¬â€ Certificados Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-
 export interface CertificadoIn {
   paciente_id: number;
-  tipo_certificado: "ausentismo_laboral" | "ausentismo_escolar" | "constancia_asistencia" | "reposo_domiciliario";
+  tipo_certificado:
+    | "ausentismo_laboral"
+    | "ausentismo_escolar"
+    | "constancia_asistencia"
+    | "reposo_domiciliario";
   diagnostico?: string;
   reposo_dias?: number;
   observaciones?: string;
@@ -352,25 +450,36 @@ export interface CertificadoResumen {
 
 export async function emitirCertificado(
   data: CertificadoIn,
-  token: string
+  token: string,
 ): Promise<{ id: number; creado_en: string; url_html: string }> {
+  requireBaseUrl();
   const res = await fetch(`${BASE}/recetario/certificados`, {
     method: "POST",
     headers: authHeaders(token),
     body: JSON.stringify(data),
   });
-  const json = await res.json();
+  const json = await parseApiResponse<{
+    id: number;
+    creado_en: string;
+    url_html: string;
+    detail?: string;
+  }>(res);
   if (!res.ok) throw new Error(json.detail || "Error al emitir certificado");
   return json;
 }
 
 export async function listarCertificados(
-  token: string
+  token: string,
 ): Promise<{ total: number; certificados: CertificadoResumen[] }> {
+  requireBaseUrl();
   const res = await fetch(`${BASE}/recetario/certificados`, {
     headers: authHeaders(token),
   });
-  const json = await res.json();
+  const json = await parseApiResponse<{
+    total: number;
+    certificados: CertificadoResumen[];
+    detail?: string;
+  }>(res);
   if (!res.ok) throw new Error(json.detail || "Error al cargar certificados");
   return json;
 }
