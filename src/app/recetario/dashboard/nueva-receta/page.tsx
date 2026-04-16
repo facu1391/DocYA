@@ -1,3 +1,4 @@
+// src/app/recetario/dashboard/nueva-receta/page.tsx
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -7,7 +8,6 @@ import { listarPacientes, emitirReceta, type Paciente, type MedicamentoItem } fr
 import { Medicamento } from "@/lib/recetario/api";
 import MedicamentoSearch from "@/components/recetario/MedicamentoSearch";
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Types Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 interface LineaReceta {
   medicamento: Medicamento;
   concentracion: string;
@@ -30,7 +30,6 @@ function getFormaConcentracion(forma?: string | null, concentracion?: string | n
   return [forma, concentracion].filter(Boolean).join(" ").trim();
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Style helpers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const inp: React.CSSProperties = {
   width: "100%", background: "var(--input-bg)", border: "1px solid var(--glass-border)",
   borderRadius: 8, padding: "0.75rem 1rem", color: "var(--text-main)",
@@ -55,7 +54,6 @@ const FRECUENCIAS = [
   "Cuatro veces al dÃƒÂ­a","A demanda","SegÃƒÂºn necesidad",
 ];
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ PDF generation (sin cambios) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 async function loadImageAsBase64(url: string): Promise<string | null> {
   try {
     const resp = await fetch(url);
@@ -159,7 +157,7 @@ async function generarPDF(
       l.medicamento.laboratorio || "",
     ].filter(Boolean).join(" Ã‚Â· ");
     if (sub) doc.text(sub, tx, y+12);
-    if (l.medicamento.alertas?.length) { doc.setTextColor(180,83,9); doc.setFontSize(7); doc.text(`Ã¢Å¡Â  ${l.medicamento.alertas[0]}`, PW-M-2, y+7, { align:"right" }); }
+    if (l.medicamento.alertas?.length) { doc.setTextColor(180,83,9); doc.setFontSize(7); doc.text(`Ã¢Å¡Â  ${l.medicamento.alertas[0]}`, PW-M-2, y+7, { align:"right" }); }
     doc.setTextColor(...dark); doc.setFontSize(8);
     doc.text(`Cant.: ${l.cantidad}`, tx, y+19);
     doc.text(`PresentaciÃƒÂ³n: ${l.presentacion || "Ã¢â‚¬â€"}`, tx+25, y+19);
@@ -186,7 +184,6 @@ async function generarPDF(
   doc.save(`receta_${nombre}_${Date.now()}.pdf`);
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Main Component Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 export default function NuevaRecetaPage() {
   const medico = getMedico();
   const router = useRouter();
@@ -210,7 +207,7 @@ export default function NuevaRecetaPage() {
         handleSessionExpired(error, router);
       })
       .finally(() => setLoadingPacs(false));
-  }, []);
+  }, [router]);
 
   const pacienteSeleccionado = pacientes.find((p) => p.id === pacienteId) ?? null;
 
@@ -264,7 +261,6 @@ export default function NuevaRecetaPage() {
     setGenerando(false);
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Success screen Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   if (success) {
     return (
       <div className="flex flex-col items-center justify-center gap-6 py-16 animate-fade-up">
@@ -286,7 +282,6 @@ export default function NuevaRecetaPage() {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Main form Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   return (
     <div className="flex flex-col gap-6 pb-12 animate-fade-up">
       <div>
@@ -296,7 +291,6 @@ export default function NuevaRecetaPage() {
         </p>
       </div>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ 1. Paciente Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <div className="glass-card">
         <div className="section-title">Ã°Å¸â€˜Â¤ Paciente</div>
 
@@ -307,8 +301,8 @@ export default function NuevaRecetaPage() {
           </div>
         ) : pacientes.length === 0 ? (
           <div style={{ background:"rgba(251,191,36,0.08)", border:"1px solid rgba(251,191,36,0.25)", borderRadius:8, padding:"1rem 1.25rem", fontSize:"0.9rem", color:"#fbbf24" }}>
-            Ã¢Å¡Â  No tenÃƒÂ©s pacientes registrados.{" "}
-            <Link href="/recetario/dashboard/pacientes" style={{ color:"var(--primary)", fontWeight:700 }}>RegistrÃƒÂ¡ uno primero Ã¢â€ â€™</Link>
+            Ã¢Å¡Â  No tenÃƒÂ©s pacientes registrados.{" "}
+            <Link href="/recetario/dashboard/pacientes" style={{ color:"var(--primary)", fontWeight:700 }}>RegistrÃƒÂ¡ uno primero Ã¢â€ â€™</Link>
           </div>
         ) : (
           <div>
@@ -326,7 +320,6 @@ export default function NuevaRecetaPage() {
               ))}
             </select>
 
-            {/* Chip del paciente seleccionado */}
             {pacienteSeleccionado && (
               <div style={{ marginTop:"0.75rem", display:"flex", alignItems:"center", gap:"0.75rem", background:"rgba(10,230,199,0.06)", border:"1px solid rgba(10,230,199,0.2)", borderRadius:10, padding:"0.75rem 1rem" }}>
                 <div style={{ width:36,height:36,borderRadius:"50%",background:"linear-gradient(135deg,rgba(10,230,199,0.3),rgba(0,166,206,0.3))",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:"0.9rem",color:"var(--primary)",flexShrink:0 }}>
@@ -344,7 +337,6 @@ export default function NuevaRecetaPage() {
           </div>
         )}
 
-        {/* Extras cobertura */}
         {pacienteId && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
             {[
@@ -364,7 +356,6 @@ export default function NuevaRecetaPage() {
         )}
       </div>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ 2. DiagnÃƒÂ³stico Ã¢â€â‚¬Ã¢â€â‚¬ */}
       {pacienteId && (
         <div className="glass-card">
           <div className="section-title">Ã°Å¸Â©Âº DiagnÃƒÂ³stico</div>
@@ -375,10 +366,9 @@ export default function NuevaRecetaPage() {
         </div>
       )}
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ 3. Medicamentos Ã¢â€â‚¬Ã¢â€â‚¬ */}
       {pacienteId && (
         <div className="glass-card" style={{ overflow: "visible" }}>
-          <div className="section-title">Ã°Å¸â€™Å  Agregar Medicamento</div>
+          <div className="section-title">Ã°Å¸â€™Å  Agregar Medicamento</div>
           <MedicamentoSearch onSelect={agregarMedicamento} />
           <p style={{ color:"var(--text-muted)", fontSize:"0.8rem", marginTop:"0.75rem" }}>
             BuscÃƒÂ¡ por nombre comercial (Tafirol) o principio activo (Paracetamol)
@@ -386,7 +376,6 @@ export default function NuevaRecetaPage() {
         </div>
       )}
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ 4. Lista de medicamentos Ã¢â€â‚¬Ã¢â€â‚¬ */}
       {lineas.length > 0 && (
         <div className="flex flex-col gap-4">
           <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
@@ -415,7 +404,7 @@ export default function NuevaRecetaPage() {
                         l.medicamento.laboratorio
                       ].filter(Boolean).join(" Ã‚Â· ")}
                     </p>
-                    {l.medicamento.alertas?.length > 0 && <p style={{ color:"#fbbf24", fontSize:"0.78rem", marginTop:4 }}>Ã¢Å¡Â  {l.medicamento.alertas.join(", ")}</p>}
+                    {l.medicamento.alertas?.length > 0 && <p style={{ color:"#fbbf24", fontSize:"0.78rem", marginTop:4 }}>Ã¢Å¡Â  {l.medicamento.alertas.join(", ")}</p>}
                   </div>
                 </div>
                 <button onClick={() => quitarLinea(i)} style={{ background:"none", border:"none", color:"var(--text-muted)", cursor:"pointer", fontSize:"1.2rem", padding:4, transition:"color 0.2s" }}
@@ -468,23 +457,20 @@ export default function NuevaRecetaPage() {
         </div>
       )}
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Acciones Ã¢â€â‚¬Ã¢â€â‚¬ */}
       {puedeEmitir && (
         <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
           {error && (
             <div style={{ background:"rgba(244,63,94,0.1)", border:"1px solid rgba(244,63,94,0.3)", borderRadius:8, padding:"0.85rem 1rem", color:"#f87171", fontSize:"0.88rem" }}>
-              Ã¢Å¡Â  {error}
+              Ã¢Å¡Â  {error}
             </div>
           )}
           <div style={{ display:"flex", gap:"0.75rem", flexWrap:"wrap" }}>
-            {/* Emitir (guarda en BD + genera HTML oficial) */}
             <button className="btn-primary" style={{ flex:1, padding:"1rem", fontSize:"1rem", justifyContent:"center" }}
               onClick={handleEmitir} disabled={emitiendo || generando}>
               {emitiendo
                 ? <><span className="spin" style={{ width:18,height:18,border:"2px solid rgba(255,255,255,0.3)",borderTopColor:"white",borderRadius:"50%",display:"inline-block" }} /> Emitiendo...</>
                 : "Ã¢Å“â€¦ Firmar y Emitir Receta"}
             </button>
-            {/* PDF local (sin guardar en BD) */}
             <button className="btn-outline" style={{ padding:"1rem 1.5rem", fontSize:"0.95rem" }}
               onClick={handlePDF} disabled={generando || emitiendo}>
               {generando ? "Generando..." : "Ã°Å¸â€œâ€ž Solo PDF local"}

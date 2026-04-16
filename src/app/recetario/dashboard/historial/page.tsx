@@ -1,3 +1,4 @@
+// src/app/recetario/dashboard/historial/page.tsx
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -20,14 +21,14 @@ export default function HistorialPage() {
 
   async function compartirReceta(url: string, paciente: string) {
     const texto = `Receta mÃƒÂ©dica de DocYa Ã¢â‚¬â€ ${paciente}\n${url}`;
-    // Web Share API (nativo en mÃƒÂ³vil)
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({ title: "Receta DocYa", text: texto, url });
         return;
-      } catch { /* cancelado */ return; }
+      } catch {
+        return;
+      }
     }
-    // Fallback: abrir WhatsApp con el link
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank");
   }
 
@@ -44,13 +45,13 @@ export default function HistorialPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => { load(); }, [load]);
 
   async function handleAnular(r: RecetaResumen) {
     const motivo = prompt(`Ã‚Â¿Motivo de anulaciÃƒÂ³n para la receta de ${r.paciente}?\n(Opcional, podÃƒÂ©s dejarlo vacÃƒÂ­o)`) ?? "";
-    if (motivo === null) return; // user cancelled
+    if (motivo === null) return;
     const token = getToken();
     if (!token) return;
     setAnulando(r.id);
@@ -78,8 +79,6 @@ export default function HistorialPage() {
 
   return (
     <div className="flex flex-col gap-6 animate-fade-up pb-12">
-
-      {/* Toast */}
       {toast && (
         <div style={{
           position:"fixed", bottom:"2rem", right:"2rem", zIndex:300,
@@ -90,7 +89,6 @@ export default function HistorialPage() {
         }}>Ã¢Å“â€œ {toast}</div>
       )}
 
-      {/* Header */}
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"1rem" }}>
         <div>
           <h1 style={{ fontSize:"1.75rem", fontWeight:800 }}>Historial de Recetas</h1>
@@ -103,7 +101,6 @@ export default function HistorialPage() {
         </a>
       </div>
 
-      {/* Filtros */}
       <div style={{ display:"flex", gap:"0.5rem", flexWrap:"wrap" }}>
         {(["todas","valida","anulada"] as const).map((f) => (
           <button key={f} onClick={() => setFiltro(f)}
@@ -122,7 +119,6 @@ export default function HistorialPage() {
         ))}
       </div>
 
-      {/* Content */}
       {loading ? (
         <div style={{ textAlign:"center", padding:"3rem", color:"var(--text-muted)" }}>
           <div className="spin" style={{ width:36,height:36,border:"3px solid rgba(10,230,199,0.2)",borderTopColor:"var(--primary)",borderRadius:"50%",margin:"0 auto 1rem" }} />
@@ -145,8 +141,6 @@ export default function HistorialPage() {
             return (
               <div key={r.id} className="glass-card" style={{ padding:"1.1rem 1.4rem", borderLeft:`3px solid ${esValida ? "var(--primary-dark)" : "rgba(244,63,94,0.5)"}` }}>
                 <div style={{ display:"flex", alignItems:"flex-start", gap:"1rem", flexWrap:"wrap" }}>
-
-                  {/* Info principal */}
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ display:"flex", alignItems:"center", gap:"0.6rem", flexWrap:"wrap", marginBottom:"0.3rem" }}>
                       <span style={{ fontWeight:700, fontSize:"1rem" }}>{r.paciente}</span>
@@ -170,9 +164,7 @@ export default function HistorialPage() {
                     </div>
                   </div>
 
-                  {/* Acciones */}
                   <div style={{ display:"flex", gap:"0.4rem", flexShrink:0, flexWrap:"wrap", alignItems:"center" }}>
-                    {/* Ver HTML */}
                     <a href={`${base}/recetario/recetas/${r.id}/html?token=${token}`} target="_blank" rel="noopener noreferrer"
                       style={{ background:"rgba(10,230,199,0.08)", border:"1px solid rgba(10,230,199,0.2)", color:"var(--primary)", borderRadius:8, padding:"0.45rem 0.9rem", cursor:"pointer", fontSize:"0.82rem", fontWeight:600, textDecoration:"none", transition:"all 0.2s", display:"inline-flex", alignItems:"center", gap:"0.3rem" }}
                       onMouseEnter={(e) => (e.currentTarget.style.background="rgba(10,230,199,0.15)")}
@@ -180,7 +172,6 @@ export default function HistorialPage() {
                       <Printer size={13} strokeWidth={2} /> Ver
                     </a>
 
-                    {/* QR verificar */}
                     <a href={`${base}/recetario/verificar/${r.uuid}`} target="_blank" rel="noopener noreferrer"
                       style={{ background:"rgba(96,165,250,0.08)", border:"1px solid rgba(96,165,250,0.2)", color:"#60a5fa", borderRadius:8, padding:"0.45rem 0.9rem", cursor:"pointer", fontSize:"0.82rem", fontWeight:600, textDecoration:"none", transition:"all 0.2s", display:"inline-flex", alignItems:"center", gap:"0.3rem" }}
                       onMouseEnter={(e) => (e.currentTarget.style.background="rgba(96,165,250,0.15)")}
@@ -188,7 +179,6 @@ export default function HistorialPage() {
                       <QrCode size={13} strokeWidth={2} /> Verificar
                     </a>
 
-                    {/* Compartir */}
                     <button title="Compartir receta"
                       onClick={() => compartirReceta(`${base}/recetario/verificar/${r.uuid}`, r.paciente)}
                       style={{ background:"rgba(124,58,237,0.08)", border:"1px solid rgba(124,58,237,0.2)", color:"#a78bfa", borderRadius:8, padding:"0.45rem 0.9rem", cursor:"pointer", fontSize:"0.82rem", fontWeight:600, transition:"all 0.2s", display:"inline-flex", alignItems:"center", gap:"0.3rem" }}
@@ -197,7 +187,6 @@ export default function HistorialPage() {
                       <Share2 size={13} strokeWidth={2} /> Compartir
                     </button>
 
-                    {/* Anular */}
                     {esValida && (
                       <button onClick={() => handleAnular(r)} disabled={anulando === r.id}
                         style={{ background:"rgba(244,63,94,0.08)", border:"1px solid rgba(244,63,94,0.2)", color:"#f43f5e", borderRadius:8, padding:"0.45rem 0.9rem", cursor:"pointer", fontSize:"0.82rem", fontWeight:600, transition:"all 0.2s", opacity: anulando === r.id ? 0.5 : 1, display:"inline-flex", alignItems:"center", gap:"0.3rem" }}

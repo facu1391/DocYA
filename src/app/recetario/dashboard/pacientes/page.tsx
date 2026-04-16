@@ -1,3 +1,4 @@
+// src/app/recetario/dashboard/pacientes/page.tsx
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -167,7 +168,7 @@ export default function PacientesPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => { load(); }, [load]);
 
