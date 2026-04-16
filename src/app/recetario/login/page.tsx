@@ -1,5 +1,6 @@
+// src/app/recetario/login/page.tsx
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -50,7 +51,7 @@ export default function LoginPage() {
   const [googleReady, setGoogleReady] = useState(false);
   const googleButtonRef = useRef<HTMLDivElement>(null);
 
-  async function completarIngreso(data: {
+  const completarIngreso = useCallback(async (data: {
     medico_id: number;
     access_token: string;
     full_name?: string;
@@ -63,7 +64,7 @@ export default function LoginPage() {
     firma_url?: string | null;
     photo_url?: string | null;
     [key: string]: unknown;
-  }) {
+  }) => {
     let perfil;
     try {
       perfil = await obtenerPerfilMedico(data.medico_id, data.access_token);
@@ -99,9 +100,9 @@ export default function LoginPage() {
       return;
     }
     router.push("/recetario/dashboard");
-  }
+  }, [router]);
 
-  async function handleGoogleCredential(credential?: string) {
+  const handleGoogleCredential = useCallback(async (credential?: string) => {
     if (!credential) {
       setError("Google no devolviÃƒÂ³ credenciales vÃƒÂ¡lidas.");
       return;
@@ -119,7 +120,7 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [completarIngreso]);
 
   useEffect(() => {
     if (!googleReady || !googleButtonRef.current || !window.google) return;
@@ -138,7 +139,7 @@ export default function LoginPage() {
       width: 360,
       logo_alignment: "left",
     });
-  }, [googleReady]);
+  }, [googleReady, handleGoogleCredential]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

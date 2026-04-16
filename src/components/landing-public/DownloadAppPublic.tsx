@@ -1,5 +1,7 @@
+// src/components/landing-public/DownloadAppPublic.tsx
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
 const PLAY_STORE_URL =
@@ -24,9 +26,11 @@ export default function DownloadAppPublic() {
         <span className="badge border-white/15 bg-white/10 text-white">
           Descargá DocYa
         </span>
+
         <h2 className="mt-4 text-2xl font-semibold md:text-3xl">
           Llevá tu salud al próximo nivel
         </h2>
+
         <p className="mx-auto mt-3 max-w-2xl text-sm text-white/80 md:text-base">
           Descargá DocYa y accedé a profesionales verificados en minutos, sin esperas.
         </p>
@@ -39,10 +43,13 @@ export default function DownloadAppPublic() {
             aria-label="Descargar DocYa en Google Play"
             className="transition-transform duration-200 hover:scale-[1.02]"
           >
-            <img
+            <Image
               src={PLAY_STORE_BADGE}
               alt="Disponible en Google Play"
+              width={210}
+              height={62}
               className="h-auto w-[190px] md:w-[210px]"
+              unoptimized
             />
           </Link>
 
@@ -53,10 +60,13 @@ export default function DownloadAppPublic() {
             aria-label="Descargar DocYa en App Store"
             className="transition-transform duration-200 hover:scale-[1.02]"
           >
-            <img
+            <Image
               src={APP_STORE_BADGE}
               alt="Descargar en App Store"
+              width={188}
+              height={62}
               className="h-auto w-[170px] md:w-[188px]"
+              unoptimized
             />
           </Link>
         </div>
