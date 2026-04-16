@@ -16,20 +16,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import {
-  User2,
-  Mail,
-  Phone,
-  Stethoscope,
-  IdCard,
-  Send,
-  Loader2,
-  Image as ImageIcon,
-  IdCard as IdIcon,
-  Camera,
-  Lock,
+  User2, Mail, Phone, Stethoscope, IdCard, Send, Loader2,
+  Image as ImageIcon, IdCard as IdIcon, Camera, Lock,
 } from "lucide-react";
 import LoadingSplash from "@/components/common/LoadingSplash";
 import ZonaCobertura from "@/components/registro/ZonaCobertura";
@@ -43,24 +34,25 @@ type Props = {
 
 export default function RegistroForm({ mode = "pro" }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loadingSplash, setLoadingSplash] = useState(false);
   const [codigoReferido, setCodigoReferido] = useState("");
 
   const isPaciente = mode === "paciente";
 
   useEffect(() => {
-    if (!isPaciente || typeof window === "undefined") return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const refFromUrl = (urlParams.get("ref") || "").trim();
-    const refStored = window.localStorage.getItem("docya_ref_code") || "";
+    if (!isPaciente) return;
+    const refFromUrl = (searchParams.get("ref") || "").trim();
+    const refStored =
+      typeof window !== "undefined" ? window.localStorage.getItem("docya_ref_code") || "" : "";
     const finalRef = refFromUrl || refStored;
-
     if (finalRef) {
       setCodigoReferido(finalRef);
-      window.localStorage.setItem("docya_ref_code", finalRef);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("docya_ref_code", finalRef);
+      }
     }
-  }, [isPaciente]);
+  }, [isPaciente, searchParams]);
 
   const {
     register,
@@ -195,13 +187,7 @@ export default function RegistroForm({ mode = "pro" }: Props) {
     msg ? <p className="mt-1 text-xs text-red-500">{msg}</p> : null;
 
   function FileRow({
-    id,
-    label,
-    icon,
-    accept = "image/*",
-    onChange,
-    fileName,
-    error,
+    id, label, icon, accept = "image/*", onChange, fileName, error,
   }: {
     id: string;
     label: string;
@@ -215,9 +201,7 @@ export default function RegistroForm({ mode = "pro" }: Props) {
 
     return (
       <div>
-        <Label htmlFor={id} className="mb-1 block">
-          {label}
-        </Label>
+        <Label htmlFor={id} className="mb-1 block">{label}</Label>
         <div className="flex items-center gap-2 rounded-xl border bg-background px-3 py-2 focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]">
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--brand)_45%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] text-[var(--brand)]">
             {icon}

@@ -20,6 +20,13 @@ const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   "327572770521-tom99oocat1tcp9pahlejsar4iu62lhg.apps.googleusercontent.com";
 
+type GoogleIdConfiguration = {
+  client_id: string;
+  callback: (response: { credential?: string }) => void | Promise<void>;
+  auto_select?: boolean;
+  cancel_on_tap_outside?: boolean;
+};
+
 export default function ReferidosLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -89,7 +96,7 @@ export default function ReferidosLoginPage() {
         },
         auto_select: false,
         cancel_on_tap_outside: true,
-      });
+      } as GoogleIdConfiguration);
 
       googleId.renderButton(googleButtonRef.current, {
         theme: "outline",

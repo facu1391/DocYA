@@ -18,6 +18,13 @@ const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   "327572770521-tom99oocat1tcp9pahlejsar4iu62lhg.apps.googleusercontent.com";
 
+type GoogleIdConfiguration = {
+  client_id: string;
+  callback: (response: { credential?: string }) => void | Promise<void>;
+  auto_select?: boolean;
+  cancel_on_tap_outside?: boolean;
+};
+
 function parseGoogleCredential(credential: string): GoogleProfile {
   const [, payloadPart] = credential.split(".");
   const normalized = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
@@ -85,7 +92,7 @@ export default function RegistrationForm() {
       },
       auto_select: false,
       cancel_on_tap_outside: true,
-    });
+    } as GoogleIdConfiguration);
 
     window.google.accounts.id.renderButton(googleButtonRef.current, {
       theme: "outline",

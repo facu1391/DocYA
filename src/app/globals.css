@@ -200,17 +200,17 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(circle at 12% 22%, rgba(0, 179, 166, 0.12), transparent 28%),
-      radial-gradient(circle at 85% 18%, rgba(58, 134, 255, 0.1), transparent 30%),
-      linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(232, 244, 248, 0.96) 42%, rgba(223, 240, 238, 0.92) 100%);
+      radial-gradient(circle at 10% 20%, rgba(0, 179, 166, 0.08), transparent 35%),
+      radial-gradient(circle at 90% 10%, rgba(58, 134, 255, 0.06), transparent 35%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(245, 247, 250, 0.95) 100%);
     background-attachment: fixed;
     overflow-x: hidden;
   }
 
   .dark body {
     background-image:
-      radial-gradient(circle at 15% 50%, rgba(0, 179, 166, 0.08), transparent 25%),
-      radial-gradient(circle at 85% 30%, rgba(58, 134, 255, 0.06), transparent 25%);
+      radial-gradient(circle at 15% 40%, rgba(0, 179, 166, 0.06), transparent 30%),
+      radial-gradient(circle at 85% 20%, rgba(58, 134, 255, 0.04), transparent 30%);
   }
 }
 
@@ -282,21 +282,45 @@
   }
 
   .glass-card {
-    @apply rounded-3xl border p-8 backdrop-blur-lg transition-all duration-300;
+    @apply rounded-3xl border p-8 backdrop-blur-xl transition-all duration-300;
     background: var(--glass-bg);
     border-color: var(--glass-border);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+  }
+
+  .dark .glass-card {
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.1), 0 8px 30px -4px rgba(0, 0, 0, 0.5);
   }
 
   .glass-card:hover {
-    @apply -translate-y-1 shadow-2xl;
+    @apply -translate-y-1;
+    box-shadow: 0 12px 30px -5px rgba(0, 179, 166, 0.08);
+    border-color: rgba(0, 179, 166, 0.2);
+  }
+
+  .dark .glass-card:hover {
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.1), 0 12px 40px -5px rgba(0, 179, 166, 0.15);
     border-color: rgba(255, 255, 255, 0.15);
   }
 
   .highlight-text {
-    background: linear-gradient(135deg, #0AE6C7, #00A6CE);
+    background: linear-gradient(135deg, var(--brand), #00A6CE);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  .badge-trusted {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide;
+    background: color-mix(in srgb, var(--brand) 8%, transparent);
+    border-color: color-mix(in srgb, var(--brand) 20%, transparent);
+    color: var(--brand);
+  }
+
+  .dark .badge-trusted {
+    background: color-mix(in srgb, var(--brand) 15%, transparent);
+    border-color: color-mix(in srgb, var(--brand) 30%, transparent);
+    color: #4df0e1;
   }
 
   .section-title {
@@ -335,9 +359,9 @@
 }
 
 .dark-section {
-  background: rgba(0, 0, 0, 0.3);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--hero-bg-dark);
+  border-top: 1px solid var(--nav-border);
+  border-bottom: 1px solid var(--nav-border);
 }
 
 .step-line {

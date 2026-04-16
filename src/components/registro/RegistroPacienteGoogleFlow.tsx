@@ -23,45 +23,43 @@ import { Button } from "@/components/ui/button";
 import LoadingSplash from "@/components/common/LoadingSplash";
 import TermsPaciente from "./TermsPaciente";
 
-declare global {
-  interface Window {
-    google?: {
-      accounts?: {
-        id?: {
-          initialize: (config: {
-            client_id: string;
-            callback: (response: { credential?: string }) => void;
-            auto_select?: boolean;
-            cancel_on_tap_outside?: boolean;
-          }) => void;
-          renderButton: (
-            element: HTMLElement,
-            options: {
-              theme: string;
-              size: string;
-              shape: string;
-              text: string;
-              width: number;
-              logo_alignment: string;
-            },
-          ) => void;
-        };
-      };
-      maps?: {
-        places?: {
-          Autocomplete?: new (
-            input: HTMLInputElement,
-            options: {
-              fields: string[];
-              componentRestrictions?: { country: string };
-              types?: string[];
-            },
-          ) => GooglePlacesAutocomplete;
-        };
+type GoogleWindow = Window & {
+  google?: {
+    accounts?: {
+      id?: {
+        initialize: (config: {
+          client_id: string;
+          callback: (response: { credential?: string }) => void;
+          auto_select?: boolean;
+          cancel_on_tap_outside?: boolean;
+        }) => void;
+        renderButton: (
+          element: HTMLElement,
+          options: {
+            theme: string;
+            size: string;
+            shape: string;
+            text: string;
+            width: number;
+            logo_alignment: string;
+          },
+        ) => void;
       };
     };
-  }
-}
+    maps?: {
+      places?: {
+        Autocomplete?: new (
+          input: HTMLInputElement,
+          options: {
+            fields: string[];
+            componentRestrictions?: { country: string };
+            types?: string[];
+          },
+        ) => GooglePlacesAutocomplete;
+      };
+    };
+  };
+};
 
 type GooglePlacesPlace = {
   formatted_address?: string;
@@ -94,6 +92,13 @@ type CountryOption = {
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   "327572770521-tom99oocat1tcp9pahlejsar4iu62lhg.apps.googleusercontent.com";
+
+type GoogleIdConfiguration = {
+  client_id: string;
+  callback: (response: { credential?: string }) => void | Promise<void>;
+  auto_select?: boolean;
+  cancel_on_tap_outside?: boolean;
+};
 
 const PLACES_API_KEY =
   process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyAcvJIlpOAkRzVaXlcnE8lJQfQGBqx-bKA";
@@ -218,11 +223,12 @@ export default function RegistroPacienteGoogleFlow() {
   }, [loadingSplash, router]);
 
   useEffect(() => {
-    if (!googleLoaded || googleRenderedRef.current || !googleButtonRef.current || !window.google?.accounts?.id) {
+    const googleApi = (window as GoogleWindow).google;
+    if (!googleLoaded || googleRenderedRef.current || !googleButtonRef.current || !googleApi?.accounts?.id) {
       return;
     }
 
-    window.google.accounts.id.initialize({
+    googleApi.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: (response: { credential?: string }) => {
         if (response?.credential) {
@@ -231,9 +237,9 @@ export default function RegistroPacienteGoogleFlow() {
       },
       auto_select: false,
       cancel_on_tap_outside: true,
-    });
+    } as GoogleIdConfiguration);
 
-    window.google.accounts.id.renderButton(googleButtonRef.current, {
+    googleApi.accounts.id.renderButton(googleButtonRef.current, {
       theme: "outline",
       size: "large",
       shape: "pill",
@@ -252,7 +258,7 @@ export default function RegistroPacienteGoogleFlow() {
     const maxAttempts = 20;
 
     const bindAutocomplete = () => {
-      const Autocomplete = window.google?.maps?.places?.Autocomplete;
+      const Autocomplete = (window as GoogleWindow).google?.maps?.places?.Autocomplete;
       if (!Autocomplete || !addressInputRef.current) {
         attempts += 1;
         if (attempts < maxAttempts) {

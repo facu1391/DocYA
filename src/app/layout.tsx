@@ -4,8 +4,7 @@ import { Poppins, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import HeaderChrome from "@/components/layouts/HeaderChrome";
-import FooterChrome from "@/components/layouts/FooterChrome";
+import AppShell from "@/components/layouts/AppShell";
 import { Toaster } from "react-hot-toast";
 
 const SITE_URL = "https://www.docya.com.ar";
@@ -122,13 +121,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es-AR" suppressHydrationWarning>
       <body className={`${poppins.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <HeaderChrome />
-
-          <main className="flex-1 bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)] overflow-x-hidden">
-            {children}
-          </main>
-
-          <FooterChrome />
+          <AppShell>{children}</AppShell>
           <Toaster position="top-right" />
         </ThemeProvider>
 
