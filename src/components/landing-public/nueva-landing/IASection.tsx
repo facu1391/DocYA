@@ -4,16 +4,18 @@ import { CheckCircle2, Clock, AlertTriangle, Map } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
 
 const features = [
-  { icon: CheckCircle2, label: "Gratis e inmediato" },
-  { icon: Clock, label: "Disponible 24/7" },
-  { icon: AlertTriangle, label: "Detecta signos de alarma" },
-  { icon: Map, label: "Te guía paso a paso" },
+  { icon: CheckCircle2, label: "Triage Inteligente Inicial" },
+  { icon: AlertTriangle, label: "Detección de Signos de Alarma" },
+  { icon: Clock, label: "Asistencia Continua 24/7" },
+  { icon: Map, label: "Derivación Segura a Domicilio" },
 ];
 
 export default function IASection() {
   return (
-    <section id="ia" className="py-32">
-      <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 items-center gap-16 px-6 md:grid-cols-2">
+    <section id="ia" className="relative overflow-hidden py-32">
+      <div className="pointer-events-none absolute left-0 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--brand)]/5 blur-[100px]" />
+
+      <div className="relative z-10 mx-auto grid w-full max-w-[1200px] grid-cols-1 items-center gap-16 px-6 md:grid-cols-2">
         <ScrollReveal>
           <div
             className="glass-card mx-auto overflow-hidden p-0"
@@ -30,33 +32,45 @@ export default function IASection() {
         </ScrollReveal>
 
         <ScrollReveal delay={0.15}>
+          <div className="badge-trusted mb-4 w-fit">
+            <span className="flex h-2 w-2 animate-pulse rounded-full bg-[var(--brand)]"></span>
+            Asistente Médico Virtual
+          </div>
+
           <h2 className="section-title mb-4">
-            Consultá GRATIS con{" "}
-            <span className="highlight-text">IA médica</span>
+            Evaluación preliminar con{" "}
+            <span className="highlight-text">IA Médica</span>
           </h2>
 
           <p className="text-text-muted mb-8 max-w-lg text-xl leading-relaxed">
-            Nuestra inteligencia artificial analiza tus síntomas, te hace preguntas y te
-            orienta en segundos, sin costo.
+            Nuestro sistema de validación inteligente analiza tus síntomas
+            mediante protocolos clínicos comprobados, orientándote de manera
+            segura y sin costo alguno.
           </p>
 
-          <ul className="mb-8 flex flex-col gap-5">
+          <div className="mb-10 flex flex-col gap-6">
             {features.map(({ icon: Icon, label }) => (
-              <li key={label} className="flex items-center gap-4 text-lg font-medium">
-                <Icon size={24} style={{ color: "var(--accent)" }} className="shrink-0" />
-                {label}
-              </li>
+              <div key={label} className="flex items-start gap-4">
+                <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--brand)]/10 text-[var(--brand)]">
+                  <Icon size={16} />
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-foreground">{label}</h4>
+                  <p className="text-sm text-text-muted">
+                    Paso validado por profesionales de la salud.
+                  </p>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
 
-          <div
-            className="rounded-r-2xl px-6 py-5 text-lg"
-            style={{
-              background: "rgba(0, 210, 255, 0.08)",
-              borderLeft: "4px solid #0AE6C7",
-            }}
-          >
-            <strong>Sin pagar. Sin vueltas. En segundos.</strong>
+          <div className="rounded-r-2xl border-l-4 border-[var(--brand)] bg-[var(--brand)]/10 px-6 py-5">
+            <strong className="mb-1 block text-lg text-[var(--brand)]">
+              Pre-diagnóstico confidencial
+            </strong>
+            <span className="text-sm font-medium text-foreground">
+              100% gratuito. Sin compromisos. En segundos.
+            </span>
           </div>
         </ScrollReveal>
       </div>

@@ -1,10 +1,9 @@
-// src/components/registro/RegistroPacienteGoogleFlow.tsx
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import {
   Calendar,
@@ -24,45 +23,43 @@ import { Button } from "@/components/ui/button";
 import LoadingSplash from "@/components/common/LoadingSplash";
 import TermsPaciente from "./TermsPaciente";
 
-declare global {
-  interface Window {
-    google?: {
-      accounts?: {
-        id?: {
-          initialize: (config: {
-            client_id: string;
-            callback: (response: { credential?: string }) => void;
-            auto_select?: boolean;
-            cancel_on_tap_outside?: boolean;
-          }) => void;
-          renderButton: (
-            element: HTMLElement,
-            options: {
-              theme: string;
-              size: string;
-              shape: string;
-              text: string;
-              width: number;
-              logo_alignment: string;
-            },
-          ) => void;
-        };
-      };
-      maps?: {
-        places?: {
-          Autocomplete?: new (
-            input: HTMLInputElement,
-            options: {
-              fields: string[];
-              componentRestrictions?: { country: string };
-              types?: string[];
-            },
-          ) => GooglePlacesAutocomplete;
-        };
+type GoogleWindow = Window & {
+  google?: {
+    accounts?: {
+      id?: {
+        initialize: (config: {
+          client_id: string;
+          callback: (response: { credential?: string }) => void;
+          auto_select?: boolean;
+          cancel_on_tap_outside?: boolean;
+        }) => void;
+        renderButton: (
+          element: HTMLElement,
+          options: {
+            theme: string;
+            size: string;
+            shape: string;
+            text: string;
+            width: number;
+            logo_alignment: string;
+          },
+        ) => void;
       };
     };
-  }
-}
+    maps?: {
+      places?: {
+        Autocomplete?: new (
+          input: HTMLInputElement,
+          options: {
+            fields: string[];
+            componentRestrictions?: { country: string };
+            types?: string[];
+          },
+        ) => GooglePlacesAutocomplete;
+      };
+    };
+  };
+};
 
 type GooglePlacesPlace = {
   formatted_address?: string;
@@ -96,6 +93,13 @@ const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   "327572770521-tom99oocat1tcp9pahlejsar4iu62lhg.apps.googleusercontent.com";
 
+type GoogleIdConfiguration = {
+  client_id: string;
+  callback: (response: { credential?: string }) => void | Promise<void>;
+  auto_select?: boolean;
+  cancel_on_tap_outside?: boolean;
+};
+
 const PLACES_API_KEY =
   process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyAcvJIlpOAkRzVaXlcnE8lJQfQGBqx-bKA";
 
@@ -118,9 +122,11 @@ function countryFlag(code: string) {
 
 export default function RegistroPacienteGoogleFlow() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
   const addressInputRef = useRef<HTMLInputElement | null>(null);
   const autocompleteRef = useRef<GooglePlacesAutocomplete | null>(null);
+  const codigoReferidoRef = useRef("");
   const googleRenderedRef = useRef(false);
   const [googleLoaded, setGoogleLoaded] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
@@ -149,63 +155,64 @@ export default function RegistroPacienteGoogleFlow() {
   const telefonoValido = (value: string) => /^\+[1-9]\d{7,14}$/.test(value);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const refFromUrl = (urlParams.get("ref") || "").trim();
-    const refStored = window.localStorage.getItem("docya_ref_code") || "";
+    const refFromUrl = (searchParams.get("ref") || "").trim();
+    const refStored =
+      typeof window !== "undefined" ? window.localStorage.getItem("docya_ref_code") || "" : "";
     const finalRef = refFromUrl || refStored;
-
     if (finalRef) {
       setCodigoReferido(finalRef);
-      window.localStorage.setItem("docya_ref_code", finalRef);
-    }
-  }, []);
-
-  const handleGoogleCredential = useCallback(
-    async (credential: string) => {
-      setGoogleBusy(true);
-      setStatusMessage("");
-      try {
-        const res = await fetch("/api/auth_google_paciente", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id_token: credential,
-            codigo_referido: codigoReferido || undefined,
-          }),
-        });
-        const data: GoogleAuthResponse = await res.json().catch(() => ({}));
-
-        if (!res.ok) {
-          throw new Error(data?.detail || "No se pudo validar Google");
-        }
-
-        const nextUserId = String(data.user?.id ?? "");
-        if (!nextUserId) {
-          throw new Error("No se recibió el usuario de Google");
-        }
-
-        setUserId(nextUserId);
-        setPrefillName(data.user?.full_name ?? "");
-        setPrefillEmail(data.user?.email ?? "");
-
-        if (data.perfil_completo || data.user?.perfil_completo) {
-          toast.success("Tu cuenta ya está lista. Ahora podés ingresar a DocYa.");
-          setLoadingSplash(true);
-          return;
-        }
-
-        setStage("profile");
-        toast.success("Continuemos con los datos finales de tu perfil.");
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : "No se pudo iniciar con Google");
-      } finally {
-        setGoogleBusy(false);
+      codigoReferidoRef.current = finalRef;
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("docya_ref_code", finalRef);
       }
-    },
-    [codigoReferido],
-  );
+    }
+  }, [searchParams]);
+
+  const handleGoogleCredential = useCallback(async (credential: string) => {
+    setGoogleBusy(true);
+    setStatusMessage("");
+    try {
+      const res = await fetch("/api/auth_google_paciente", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_token: credential,
+          codigo_referido: codigoReferidoRef.current || codigoReferido || undefined,
+        }),
+      });
+      const data: GoogleAuthResponse = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.detail || "No se pudo validar Google");
+      }
+
+      const nextUserId = String(data.user?.id ?? "");
+      if (!nextUserId) {
+        throw new Error("No se recibió el usuario de Google");
+      }
+
+      setUserId(nextUserId);
+      setPrefillName(data.user?.full_name ?? "");
+      setPrefillEmail(data.user?.email ?? "");
+
+      if (data.perfil_completo || data.user?.perfil_completo) {
+        toast.success("Tu cuenta ya está lista. Ahora podés ingresar a DocYa.");
+        setLoadingSplash(true);
+        return;
+      }
+
+      setStage("profile");
+      toast.success("Continuemos con los datos finales de tu perfil.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo iniciar con Google");
+    } finally {
+      setGoogleBusy(false);
+    }
+  }, [codigoReferido]);
+
+  useEffect(() => {
+    codigoReferidoRef.current = codigoReferido;
+  }, [codigoReferido]);
 
   useEffect(() => {
     if (!loadingSplash) return;
@@ -216,11 +223,12 @@ export default function RegistroPacienteGoogleFlow() {
   }, [loadingSplash, router]);
 
   useEffect(() => {
-    if (!googleLoaded || googleRenderedRef.current || !googleButtonRef.current || !window.google?.accounts?.id) {
+    const googleApi = (window as GoogleWindow).google;
+    if (!googleLoaded || googleRenderedRef.current || !googleButtonRef.current || !googleApi?.accounts?.id) {
       return;
     }
 
-    window.google.accounts.id.initialize({
+    googleApi.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: (response: { credential?: string }) => {
         if (response?.credential) {
@@ -229,9 +237,9 @@ export default function RegistroPacienteGoogleFlow() {
       },
       auto_select: false,
       cancel_on_tap_outside: true,
-    });
+    } as GoogleIdConfiguration);
 
-    window.google.accounts.id.renderButton(googleButtonRef.current, {
+    googleApi.accounts.id.renderButton(googleButtonRef.current, {
       theme: "outline",
       size: "large",
       shape: "pill",
@@ -250,7 +258,7 @@ export default function RegistroPacienteGoogleFlow() {
     const maxAttempts = 20;
 
     const bindAutocomplete = () => {
-      const Autocomplete = window.google?.maps?.places?.Autocomplete;
+      const Autocomplete = (window as GoogleWindow).google?.maps?.places?.Autocomplete;
       if (!Autocomplete || !addressInputRef.current) {
         attempts += 1;
         if (attempts < maxAttempts) {
@@ -350,7 +358,7 @@ export default function RegistroPacienteGoogleFlow() {
   return (
     <>
       <Script
-        src="https://accounts.google.com/gsi/client"
+        src={`https://accounts.google.com/gsi/client`}
         strategy="afterInteractive"
         onLoad={() => setGoogleLoaded(true)}
       />

@@ -1,0 +1,1104 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Script from "next/script";
+import { useRouter } from "next/navigation";
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronDown,
+  CreditCard,
+  FileBadge2,
+  Home,
+  IdCard,
+  PenLine,
+  Phone,
+  ScanFace,
+  ShieldCheck,
+  Upload,
+  Stethoscope,
+  X,
+  Check,
+  Eraser,
+} from "lucide-react";
+import { completarPerfilMedico, subirFirmaDigital } from "@/lib/recetario/api";
+import { clearSession, getMedico, getToken, saveSession, type MedicoSession } from "@/lib/recetario/auth";
+
+const GOOGLE_PLACES_API_KEY =
+  process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY ||
+  "AIzaSyAcvJIlpOAkRzVaXlcnE8lJQfQGBqx-bKA";
+const TIPOS = ["medico", "enfermero"] as const;
+const TIPOS_DOCUMENTO = ["dni", "pasaporte", "otro"] as const;
+
+const COUNTRIES = [
+  { code: "AR", name: "Argentina", phoneCode: "54", flag: "Ã°Å¸â€¡Â¦Ã°Å¸â€¡Â·" },
+  { code: "UY", name: "Uruguay", phoneCode: "598", flag: "Ã°Å¸â€¡ÂºÃ°Å¸â€¡Â¾" },
+  { code: "CL", name: "Chile", phoneCode: "56", flag: "Ã°Å¸â€¡Â¨Ã°Å¸â€¡Â±" },
+  { code: "PY", name: "Paraguay", phoneCode: "595", flag: "Ã°Å¸â€¡ÂµÃ°Å¸â€¡Â¾" },
+  { code: "BO", name: "Bolivia", phoneCode: "591", flag: "Ã°Å¸â€¡Â§Ã°Å¸â€¡Â´" },
+  { code: "BR", name: "Brasil", phoneCode: "55", flag: "Ã°Å¸â€¡Â§Ã°Å¸â€¡Â·" },
+  { code: "PE", name: "PerÃƒÂº", phoneCode: "51", flag: "Ã°Å¸â€¡ÂµÃ°Å¸â€¡Âª" },
+  { code: "CO", name: "Colombia", phoneCode: "57", flag: "Ã°Å¸â€¡Â¨Ã°Å¸â€¡Â´" },
+  { code: "MX", name: "MÃƒÂ©xico", phoneCode: "52", flag: "Ã°Å¸â€¡Â²Ã°Å¸â€¡Â½" },
+  { code: "ES", name: "EspaÃƒÂ±a", phoneCode: "34", flag: "Ã°Å¸â€¡ÂªÃ°Å¸â€¡Â¸" },
+  { code: "US", name: "Estados Unidos", phoneCode: "1", flag: "Ã°Å¸â€¡ÂºÃ°Å¸â€¡Â¸" },
+] as const;
+
+type FotoKey = "foto_dni_frente" | "foto_dni_dorso" | "selfie_dni";
+
+function SignaturePad({ onSigned }: { onSigned: (file: File | null) => void }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isDrawing = useRef(false);
+  const lastPos = useRef({ x: 0, y: 0 });
+  const [isEmpty, setIsEmpty] = useState(true);
+
+  const initCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const width = canvas.offsetWidth;
+    const height = canvas.offsetHeight;
+    if (!width || !height) return;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.scale(dpr, dpr);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(16, height - 32);
+    ctx.lineTo(width - 16, height - 32);
+    ctx.stroke();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(initCanvas, 30);
+    const canvas = canvasRef.current;
+    if (!canvas) return () => clearTimeout(timer);
+
+    const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      if (!isDrawing.current) return;
+      const ctx = getCtx();
+      if (!ctx) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      drawLine(ctx, lastPos.current.x, lastPos.current.y, x, y);
+      lastPos.current = { x, y };
+    };
+
+    canvas.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => {
+      clearTimeout(timer);
+      canvas.removeEventListener("touchmove", onTouchMove);
+    };
+  }, [initCanvas]);
+
+  function getCtx() {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!ctx) return null;
+    ctx.strokeStyle = "#1e293b";
+    ctx.lineWidth = 2.8;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    return ctx;
+  }
+
+  function drawLine(
+    ctx: CanvasRenderingContext2D,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ) {
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+
+  function onMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
+    isDrawing.current = true;
+    const rect = canvasRef.current!.getBoundingClientRect();
+    lastPos.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  function onMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
+    if (!isDrawing.current) return;
+    const ctx = getCtx();
+    if (!ctx) return;
+    const rect = canvasRef.current!.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    drawLine(ctx, lastPos.current.x, lastPos.current.y, x, y);
+    lastPos.current = { x, y };
+    if (isEmpty) setIsEmpty(false);
+  }
+
+  function onMouseUp() {
+    if (!isDrawing.current) return;
+    isDrawing.current = false;
+    exportSignature();
+  }
+
+  function onTouchStart(e: React.TouchEvent<HTMLCanvasElement>) {
+    isDrawing.current = true;
+    const rect = canvasRef.current!.getBoundingClientRect();
+    const touch = e.touches[0];
+    lastPos.current = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+  }
+
+  function onTouchEnd() {
+    isDrawing.current = false;
+    setIsEmpty(false);
+    exportSignature();
+  }
+
+  function clear() {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(16, canvas.offsetHeight - 32);
+    ctx.lineTo(canvas.offsetWidth - 16, canvas.offsetHeight - 32);
+    ctx.stroke();
+    setIsEmpty(true);
+    onSigned(null);
+  }
+
+  function exportSignature() {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      onSigned(new File([blob], "firma.png", { type: "image/png" }));
+    }, "image/png");
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+      <div
+        style={{
+          position: "relative",
+          borderRadius: "var(--radius-sm)",
+          overflow: "hidden",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          background: "#fff",
+        }}
+      >
+        {isEmpty && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.5rem",
+              pointerEvents: "none",
+              userSelect: "none",
+            }}
+          >
+            <PenLine size={28} color="#cbd5e1" strokeWidth={1.4} />
+            <span style={{ color: "#94a3b8", fontSize: "0.9rem", fontWeight: 500 }}>
+              FirmÃƒÂ¡ acÃƒÂ¡ con tu dedo o mouse
+            </span>
+          </div>
+        )}
+        <canvas
+          ref={canvasRef}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+          style={{ width: "100%", height: 220, display: "block", touchAction: "none" }}
+        />
+      </div>
+
+      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+        <button
+          type="button"
+          className="btn-outline"
+          onClick={clear}
+          style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem" }}
+        >
+          <Eraser size={16} />
+          Limpiar
+        </button>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.45rem",
+            color: isEmpty ? "var(--text-muted)" : "#34d399",
+            fontSize: "0.92rem",
+            fontWeight: 600,
+          }}
+        >
+          {isEmpty ? <Upload size={16} /> : <Check size={16} />}
+          {isEmpty ? "Firma pendiente" : "Firma lista para subir"}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+export default function CompletarPerfilPage() {
+  const router = useRouter();
+  const medico = useMemo(() => getMedico(), []);
+  const token = useMemo(() => getToken(), []);
+  const [ready, setReady] = useState(false);
+  const [googleReady, setGoogleReady] = useState(false);
+  const [autocompleteReady, setAutocompleteReady] = useState(false);
+  const [googleError, setGoogleError] = useState("");
+  const [showTerms, setShowTerms] = useState(false);
+  const [countryCode, setCountryCode] = useState<string>("AR");
+  const addressInputRef = useRef<HTMLInputElement>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const autocompleteInitAttempts = useRef(0);
+
+  const [form, setForm] = useState({
+    tipo: (medico?.tipo || "medico").toLowerCase(),
+    tipo_documento: "dni",
+    numero_documento: medico?.dni || "",
+    matricula: medico?.matricula || "",
+    especialidad: medico?.especialidad || "",
+    telefono: "",
+    direccion: "",
+    provincia: "",
+    localidad: "",
+    acepta_terminos: false,
+  });
+  const [fotos, setFotos] = useState<Record<FotoKey, string>>({
+    foto_dni_frente: "",
+    foto_dni_dorso: "",
+    selfie_dni: "",
+  });
+  const [fotoNombres, setFotoNombres] = useState<Record<FotoKey, string>>({
+    foto_dni_frente: "",
+    foto_dni_dorso: "",
+    selfie_dni: "",
+  });
+  const [firmaFile, setFirmaFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const selectedCountry =
+    COUNTRIES.find((country) => country.code === countryCode) ?? COUNTRIES[0];
+
+  useEffect(() => {
+    if (!medico || !token) {
+      router.replace("/recetario/login");
+      return;
+    }
+    if (medico.perfil_completo) {
+      router.replace(
+        medico.validado && medico.matricula_validada
+          ? "/recetario/dashboard"
+          : "/recetario/cuenta-en-revision",
+      );
+      return;
+    }
+    setReady(true);
+  }, [medico, token, router]);
+
+  // Poll for Google Maps in case the script was already loaded (e.g. navigating back to this page)
+  useEffect(() => {
+    if (googleReady) return;
+    const check = () => {
+      if ((window as Window & { google?: unknown }).google) setGoogleReady(true);
+    };
+    check();
+    const id = setInterval(check, 300);
+    return () => clearInterval(id);
+  }, [googleReady]);
+
+  // Initialize the Autocomplete widget once Google is ready and input is mounted
+  useEffect(() => {
+    if (!googleReady || !addressInputRef.current || autocompleteRef.current) return;
+
+    let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const initAutocomplete = () => {
+      if (cancelled || autocompleteRef.current || !addressInputRef.current) return;
+
+      const g = (window as Window & { google?: typeof google }).google;
+      const AutocompleteCtor = g?.maps?.places?.Autocomplete;
+
+      if (!AutocompleteCtor) {
+        autocompleteInitAttempts.current += 1;
+        if (autocompleteInitAttempts.current >= 30) {
+          setGoogleError("Google Places no terminÃƒÂ³ de inicializar.");
+          return;
+        }
+        retryTimer = setTimeout(initAutocomplete, 300);
+        return;
+      }
+
+      const ac = new AutocompleteCtor(addressInputRef.current, {
+        types: ["address"],
+        componentRestrictions: { country: countryCode.toLowerCase() },
+        fields: ["formatted_address", "address_components"],
+      });
+
+      autocompleteRef.current = ac;
+      autocompleteInitAttempts.current = 0;
+      setAutocompleteReady(true);
+      setGoogleError("");
+
+      ac.addListener("place_changed", () => {
+        const place = ac.getPlace();
+        const formatted: string =
+          place.formatted_address ?? addressInputRef.current?.value ?? "";
+        setForm((prev) => ({ ...prev, direccion: formatted }));
+
+        const components: Array<{ long_name: string; types: string[] }> =
+          place.address_components ?? [];
+        const findByType = (type: string) =>
+          components.find((c) => c.types.includes(type))?.long_name ?? "";
+
+        const locality =
+          findByType("locality") ||
+          findByType("administrative_area_level_2") ||
+          findByType("sublocality");
+        const province = findByType("administrative_area_level_1");
+
+        setForm((prev) => ({
+          ...prev,
+          localidad: prev.localidad || locality,
+          provincia: prev.provincia || province,
+        }));
+      });
+    };
+
+    initAutocomplete();
+
+    return () => {
+      cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, [googleReady, countryCode]);
+
+  // Update country restriction when user changes country selector
+  useEffect(() => {
+    autocompleteRef.current?.setComponentRestrictions({ country: countryCode.toLowerCase() });
+  }, [countryCode]);
+
+  if (!medico || !token || !ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg-base)" }}>
+        <div
+          className="spin"
+          style={{
+            width: 40,
+            height: 40,
+            border: "3px solid rgba(10,230,199,0.2)",
+            borderTopColor: "var(--primary)",
+            borderRadius: "50%",
+          }}
+        />
+      </div>
+    );
+  }
+
+  const medicoSession = medico;
+  const tokenValue = token;
+
+  function update<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function toBase64(file: File) {
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleFoto(key: FotoKey, file?: File) {
+    if (!file) return;
+    const base64 = await toBase64(file);
+    setFotos((prev) => ({ ...prev, [key]: base64 }));
+    setFotoNombres((prev) => ({ ...prev, [key]: file.name }));
+  }
+
+  function buildInternationalPhone() {
+    const digits = form.telefono.replace(/[^\d]/g, "");
+    return `+${selectedCountry.phoneCode}${digits}`;
+  }
+
+  function isValidInternationalPhone(value: string) {
+    return /^\+[1-9]\d{7,14}$/.test(value);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    if (!form.acepta_terminos) {
+      setError("Debes aceptar los tÃƒÂ©rminos para continuar.");
+      return;
+    }
+
+    const telefonoInternacional = buildInternationalPhone();
+    if (!isValidInternationalPhone(telefonoInternacional)) {
+      setError("IngresÃƒÂ¡ un telÃƒÂ©fono internacional vÃƒÂ¡lido.");
+      return;
+    }
+
+    if (!fotos.foto_dni_frente || !fotos.foto_dni_dorso || !fotos.selfie_dni) {
+      setError("SubÃƒÂ­ frente, dorso y selfie con documento para continuar.");
+      return;
+    }
+
+    if (!firmaFile) {
+      setError("FirmÃƒÆ’Ã‚Â¡ digitalmente para completar tu perfil.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const data = await completarPerfilMedico(
+        {
+          medico_id: medicoSession.medico_id,
+          tipo: form.tipo,
+          tipo_documento: form.tipo_documento,
+          numero_documento: form.numero_documento.trim(),
+          matricula: form.matricula.trim(),
+          especialidad: form.especialidad.trim() || null,
+          telefono: telefonoInternacional,
+          direccion: form.direccion.trim(),
+          provincia: form.provincia.trim() || null,
+          localidad: form.localidad.trim() || null,
+          foto_dni_frente: fotos.foto_dni_frente,
+          foto_dni_dorso: fotos.foto_dni_dorso,
+          selfie_dni: fotos.selfie_dni,
+          acepta_terminos: form.acepta_terminos,
+        },
+        tokenValue,
+      );
+      const firmaResult = await subirFirmaDigital(medicoSession.medico_id, firmaFile);
+
+      const nextSession: MedicoSession = {
+        ...medicoSession,
+        tipo: data.medico?.tipo ?? medicoSession.tipo,
+        email: data.medico?.email ?? medicoSession.email,
+        dni: form.numero_documento.trim(),
+        validado: data.medico?.validado ?? false,
+        matricula_validada: data.medico?.matricula_validada ?? false,
+        perfil_completo: data.medico?.perfil_completo ?? true,
+        especialidad: form.especialidad.trim() || medicoSession.especialidad,
+        matricula: form.matricula.trim(),
+        firma_url: firmaResult?.firma_url ?? medicoSession.firma_url,
+      };
+      saveSession(nextSession);
+      router.replace("/recetario/cuenta-en-revision");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "No se pudo completar el perfil.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function salir() {
+    clearSession();
+    router.replace("/recetario/login");
+  }
+
+  return (
+    <>
+      <Script
+        src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_API_KEY}&libraries=places&loading=async&language=es&region=AR`}
+        strategy="afterInteractive"
+        onLoad={() => {
+          setGoogleReady(true);
+          setGoogleError("");
+        }}
+        onError={() => {
+          setGoogleError("No se pudo cargar Google Maps Places.");
+        }}
+      />
+      {/* Dark theme for Google Places autocomplete dropdown */}
+      <style>{`
+        .pac-container {
+          background: #0f1629;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px;
+          box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+          margin-top: 4px;
+          font-family: Outfit, sans-serif;
+          z-index: 2147483647 !important;
+        }
+        .pac-item {
+          background: transparent;
+          border-top: 1px solid rgba(255,255,255,0.06);
+          color: #e2e8f0;
+          padding: 10px 14px;
+          cursor: pointer;
+          font-size: 0.88rem;
+        }
+        .pac-item:hover, .pac-item-selected {
+          background: rgba(10,230,199,0.08) !important;
+        }
+        .pac-item-query { color: #0ae6c7; font-weight: 600; }
+        .pac-matched { color: #0ae6c7; font-weight: 700; }
+        .pac-icon { display: none; }
+      `}</style>
+      <div className="min-h-screen py-10 px-4" style={{ background: "var(--bg-base)" }}>
+        <div style={{ maxWidth: 840, margin: "0 auto" }}>
+          <div className="glass-card" style={{ padding: "2rem" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "1rem",
+                marginBottom: "1.6rem",
+              }}
+            >
+              <div
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "rgba(10,230,199,0.12)",
+                  border: "1px solid rgba(10,230,199,0.18)",
+                  color: "var(--primary)",
+                  flexShrink: 0,
+                }}
+              >
+                <ShieldCheck size={26} strokeWidth={1.8} />
+              </div>
+              <div>
+                <h1 style={{ fontSize: "1.9rem", fontWeight: 800, marginBottom: "0.5rem" }}>
+                  Completa tu perfil profesional
+                </h1>
+                <p style={{ color: "var(--text-muted)", lineHeight: 1.6 }}>
+                  Ya validamos tu acceso con Google. Ahora necesitamos los mismos datos
+                  que te pedimos en DocYa Pro para revisar tu matrÃƒÂ­cula y habilitar el recetario.
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field label="ProfesiÃƒÂ³n" icon={<Stethoscope size={14} />} required>
+                  <select
+                    className="input"
+                    value={form.tipo}
+                    onChange={(e) => update("tipo", e.target.value)}
+                  >
+                    {TIPOS.map((tipo) => (
+                      <option key={tipo} value={tipo}>
+                        {tipo === "medico" ? "MÃƒÂ©dico" : "Enfermero"}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+
+                <Field label="MatrÃƒÂ­cula" icon={<FileBadge2 size={14} />} required>
+                  <input
+                    className="input"
+                    value={form.matricula}
+                    onChange={(e) => update("matricula", e.target.value)}
+                    placeholder="Ej: MN 123456"
+                    required
+                  />
+                </Field>
+              </div>
+
+              <Field label="Especialidad" icon={<Stethoscope size={14} />}>
+                <input
+                  className="input"
+                  value={form.especialidad}
+                  onChange={(e) => update("especialidad", e.target.value)}
+                  placeholder="Ej: ClÃƒÂ­nica MÃƒÂ©dica"
+                />
+              </Field>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field label="Tipo de documento" icon={<IdCard size={14} />} required>
+                  <select
+                    className="input"
+                    value={form.tipo_documento}
+                    onChange={(e) => update("tipo_documento", e.target.value)}
+                  >
+                    {TIPOS_DOCUMENTO.map((tipo) => (
+                      <option key={tipo} value={tipo}>
+                        {tipo.toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+
+                <Field label="NÃƒÂºmero de documento" icon={<CreditCard size={14} />} required>
+                  <input
+                    className="input"
+                    value={form.numero_documento}
+                    onChange={(e) => update("numero_documento", e.target.value)}
+                    placeholder="Ej: 30123456"
+                    required
+                  />
+                </Field>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-[240px,1fr] gap-4">
+                <Field label="PaÃƒÂ­s" icon={<Phone size={14} />} required>
+                  <div style={{ position: "relative" }}>
+                    <select
+                      className="input"
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      style={{ appearance: "none", paddingRight: "2.2rem" }}
+                    >
+                      {COUNTRIES.map((country) => (
+                        <option key={country.code} value={country.code}>
+                          {country.flag} {country.name} (+{country.phoneCode})
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown
+                      size={16}
+                      style={{
+                        position: "absolute",
+                        right: 14,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "var(--text-muted)",
+                        pointerEvents: "none",
+                      }}
+                    />
+                  </div>
+                </Field>
+
+                <Field label="TelÃƒÂ©fono internacional" icon={<Phone size={14} />} required>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "96px 1fr",
+                      gap: "0.65rem",
+                    }}
+                  >
+                    <div
+                      className="input"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: 700,
+                        color: "var(--text-main)",
+                      }}
+                    >
+                      +{selectedCountry.phoneCode}
+                    </div>
+                    <input
+                      className="input"
+                      value={form.telefono}
+                      onChange={(e) => update("telefono", e.target.value)}
+                      placeholder="Ej: 11 2233 4455"
+                      required
+                    />
+                  </div>
+                </Field>
+              </div>
+
+              <Field label="DirecciÃƒÂ³n" icon={<Home size={14} />} required>
+                <input
+                  ref={addressInputRef}
+                  className="input"
+                  value={form.direccion}
+                  onChange={(e) => update("direccion", e.target.value)}
+                  placeholder="Ej: Av. Cabildo 1234"
+                  required
+                  autoComplete="off"
+                />
+                {googleError && (
+                  <div
+                    style={{
+                      marginTop: "0.55rem",
+                      color: "#fca5a5",
+                      fontSize: "0.82rem",
+                      lineHeight: 1.45,
+                    }}
+                  >
+                    {googleError}
+                  </div>
+                )}
+                {!googleError && googleReady && !autocompleteReady && (
+                  <div
+                    style={{
+                      marginTop: "0.55rem",
+                      color: "#fbbf24",
+                      fontSize: "0.82rem",
+                      lineHeight: 1.45,
+                    }}
+                  >
+                    Cargando autocompletado de Google Maps...
+                  </div>
+                )}
+                <div
+                  style={{
+                    marginTop: "0.55rem",
+                    color: "var(--text-muted)",
+                    fontSize: "0.82rem",
+                    lineHeight: 1.45,
+                  }}
+                >
+                  La direcciÃƒÂ³n se autocompleta con Google Maps y, cuando haya datos disponibles,
+                  completa automÃƒÂ¡ticamente provincia y localidad para el perfil.
+                </div>
+              </Field>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <UploadCard
+                  label="DNI frente"
+                  fileName={fotoNombres.foto_dni_frente}
+                  onChange={(file) => handleFoto("foto_dni_frente", file)}
+                />
+                <UploadCard
+                  label="DNI dorso"
+                  fileName={fotoNombres.foto_dni_dorso}
+                  onChange={(file) => handleFoto("foto_dni_dorso", file)}
+                />
+                <UploadCard
+                  label="Selfie con DNI"
+                  fileName={fotoNombres.selfie_dni}
+                  onChange={(file) => handleFoto("selfie_dni", file)}
+                />
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.95rem",
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid var(--glass-border)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "1rem",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.7rem" }}>
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 14,
+                      display: "grid",
+                      placeItems: "center",
+                      background: "rgba(10,230,199,0.12)",
+                      color: "var(--primary)",
+                    }}
+                  >
+                    <PenLine size={18} />
+                  </div>
+                  <div>
+                    <div style={{ color: "var(--text-main)", fontWeight: 700 }}>Firma digital</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
+                      FirmÃƒÆ’Ã‚Â¡ igual que en DocYa Pro para validar recetas, certificados y documentos.
+                    </div>
+                  </div>
+                </div>
+
+                <SignaturePad onSigned={setFirmaFile} />
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.65rem",
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid var(--glass-border)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "1rem 1rem 1.1rem",
+                }}
+              >
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "0.75rem",
+                    color: "var(--text-muted)",
+                    fontSize: "0.92rem",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={form.acepta_terminos}
+                    onChange={(e) => update("acepta_terminos", e.target.checked)}
+                    style={{ marginTop: 3 }}
+                  />
+                  <span>
+                    Acepto los tÃƒÂ©rminos y condiciones y confirmo que la documentaciÃƒÂ³n enviada es real.
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowTerms(true)}
+                  style={{
+                    alignSelf: "flex-start",
+                    background: "transparent",
+                    border: "none",
+                    color: "var(--primary)",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    padding: 0,
+                  }}
+                >
+                  Ver tÃƒÂ©rminos y condiciones
+                </button>
+              </div>
+
+              {error && (
+                <div
+                  style={{
+                    background: "rgba(244,63,94,0.1)",
+                    border: "1px solid rgba(244,63,94,0.3)",
+                    borderRadius: "var(--radius-sm)",
+                    padding: "0.875rem 1rem",
+                    color: "#f87171",
+                    fontSize: "0.9rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <AlertCircle size={16} strokeWidth={2} />
+                  {error}
+                </div>
+              )}
+
+              <div style={{ display: "flex", gap: "0.85rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
+                <button type="button" className="btn-outline" onClick={salir}>
+                  Volver al login
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={loading}
+                  style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem" }}
+                >
+                  {loading ? (
+                    <>
+                      <span
+                        className="spin"
+                        style={{
+                          width: 16,
+                          height: 16,
+                          border: "2px solid rgba(255,255,255,0.3)",
+                          borderTopColor: "white",
+                          borderRadius: "50%",
+                          display: "inline-block",
+                        }}
+                      />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 size={16} strokeWidth={2.2} />
+                      Enviar para revisiÃƒÂ³n
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
+    </>
+  );
+}
+
+function Field({
+  label,
+  icon,
+  required,
+  children,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label
+        className="label"
+        style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}
+      >
+        {icon}
+        {label}
+        {required ? " *" : ""}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function UploadCard({
+  label,
+  fileName,
+  onChange,
+}: {
+  label: string;
+  fileName: string;
+  onChange: (file?: File) => void;
+}) {
+  return (
+    <label
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "0.65rem",
+        padding: "1rem",
+        border: "2px dashed var(--glass-border)",
+        borderRadius: "var(--radius-sm)",
+        background: "var(--input-bg)",
+        cursor: "pointer",
+        textAlign: "center",
+        minHeight: 148,
+      }}
+    >
+      <div style={{ color: fileName ? "var(--primary)" : "var(--text-muted)" }}>
+        {fileName ? <CheckCircle2 size={24} strokeWidth={1.8} /> : <ScanFace size={20} />}
+      </div>
+      <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>{label}</div>
+      <div style={{ color: "var(--text-muted)", fontSize: "0.8rem", lineHeight: 1.4 }}>
+        {fileName || "SubÃƒÂ­ una imagen legible"}
+      </div>
+      <input
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={(e) => onChange(e.target.files?.[0])}
+      />
+    </label>
+  );
+}
+
+function TermsModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(2,8,23,0.76)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1rem",
+        zIndex: 100,
+      }}
+    >
+      <div
+        className="glass-card"
+        style={{
+          maxWidth: 760,
+          width: "100%",
+          maxHeight: "84vh",
+          overflowY: "auto",
+          padding: "1.6rem",
+          position: "relative",
+        }}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            position: "absolute",
+            right: 16,
+            top: 16,
+            width: 36,
+            height: 36,
+            borderRadius: "50%",
+            border: "1px solid var(--glass-border)",
+            background: "transparent",
+            color: "var(--text-muted)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <X size={18} />
+        </button>
+
+        <h2 style={{ fontSize: "1.55rem", fontWeight: 800, marginBottom: "1rem" }}>
+          TÃƒÂ©rminos y condiciones
+        </h2>
+        <div style={{ display: "grid", gap: "1rem", color: "var(--text-muted)", lineHeight: 1.65 }}>
+          <section>
+            <h3 style={{ color: "var(--text-main)", fontSize: "1rem", fontWeight: 700, marginBottom: "0.35rem" }}>
+              1. Uso profesional
+            </h3>
+            <p>
+              El acceso al recetario DocYa estÃƒÂ¡ reservado exclusivamente para profesionales de la salud
+              que cuenten con matrÃƒÂ­cula vÃƒÂ¡lida y documentaciÃƒÂ³n autÃƒÂ©ntica.
+            </p>
+          </section>
+          <section>
+            <h3 style={{ color: "var(--text-main)", fontSize: "1rem", fontWeight: 700, marginBottom: "0.35rem" }}>
+              2. ValidaciÃƒÂ³n de identidad
+            </h3>
+            <p>
+              Al completar este perfil aceptÃƒÂ¡s que DocYa verifique tu identidad, tu matrÃƒÂ­cula y la
+              documentaciÃƒÂ³n enviada antes de habilitar el acceso al panel.
+            </p>
+          </section>
+          <section>
+            <h3 style={{ color: "var(--text-main)", fontSize: "1rem", fontWeight: 700, marginBottom: "0.35rem" }}>
+              3. Responsabilidad profesional
+            </h3>
+            <p>
+              Toda receta, certificado o documento emitido desde la plataforma es responsabilidad del
+              profesional autenticado que lo genera.
+            </p>
+          </section>
+          <section>
+            <h3 style={{ color: "var(--text-main)", fontSize: "1rem", fontWeight: 700, marginBottom: "0.35rem" }}>
+              4. ProtecciÃƒÂ³n de datos
+            </h3>
+            <p>
+              Los datos cargados se utilizan para verificar credenciales, habilitar funciones clÃƒÂ­nicas
+              y cumplir con las obligaciones operativas y regulatorias aplicables.
+            </p>
+          </section>
+          <section>
+            <h3 style={{ color: "var(--text-main)", fontSize: "1rem", fontWeight: 700, marginBottom: "0.35rem" }}>
+              5. AceptaciÃƒÂ³n
+            </h3>
+            <p>
+              Al continuar declarÃƒÂ¡s que la informaciÃƒÂ³n suministrada es veraz, completa y actualizada,
+              y aceptÃƒÂ¡s las polÃƒÂ­ticas operativas de DocYa para el uso del recetario profesional.
+            </p>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}

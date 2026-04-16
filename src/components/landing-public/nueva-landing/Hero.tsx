@@ -26,13 +26,13 @@ export default function Hero() {
       <div className="w-full max-w-[1200px] mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center relative z-10">
         <div>
           <motion.div
-            className="badge mb-6 w-fit"
+            className="badge-trusted mb-6 w-fit"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
             <Sparkles size={16} />
-            Consultas con IA 100% GRATIS
+            EVALUACIÓN MÉDICA AVALADA POR IA
           </motion.div>
 
           <motion.h1
@@ -51,8 +51,7 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
           >
-            Consultá GRATIS con inteligencia artificial médica y, si lo necesitás, recibí
-            atención en tu domicilio con asignación rápida del profesional más cercano.
+            Experimentá la tranquilidad de tener asistencia médica premium en minutos. Consultá sin cargo mediante Inteligencia Artificial y solicitá un profesional a domicilio si es necesario.
           </motion.p>
 
           <motion.div
@@ -87,6 +86,21 @@ export default function Hero() {
                 />
               </a>
             </div>
+
+            <div className="mt-8 flex flex-wrap items-center gap-6 border-t border-border/50 pt-6">
+              <div className="flex items-center gap-2 text-sm font-medium text-text-muted">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </span>
+                Médicos Matriculados
+              </div>
+              <div className="flex items-center gap-2 text-sm font-medium text-text-muted">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </span>
+                Datos Encriptados
+              </div>
+            </div>
           </motion.div>
         </div>
 
@@ -109,22 +123,32 @@ export default function Hero() {
 
             <motion.div
               className="floating-card"
-              style={{ top: "20%", right: "-15%" }}
-              animate={{ y: [0, -15, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              style={{ top: "15%", right: "-25%", boxShadow: "0 10px 30px rgba(0, 179, 166, 0.15)" }}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             >
-              <Stethoscope size={18} className="text-primary" />
-              <span>Médico en camino</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--brand)]/10">
+                <Stethoscope size={16} className="text-[var(--brand)]" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-foreground">Dra. M. López</div>
+                <div className="text-[10px] text-[var(--brand)] font-semibold">En camino (6 min)</div>
+              </div>
             </motion.div>
 
             <motion.div
               className="floating-card"
-              style={{ bottom: "25%", left: "-20%" }}
-              animate={{ y: [0, -15, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+              style={{ bottom: "20%", left: "-25%", boxShadow: "0 10px 30px rgba(58, 134, 255, 0.15)" }}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
             >
-              <Bot size={18} className="text-primary" />
-              <span>IA evaluando...</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10">
+                <Bot size={16} className="text-blue-500" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-foreground">Análisis Completado</div>
+                <div className="text-[10px] text-text-muted">Pre-diagnóstico seguro</div>
+              </div>
             </motion.div>
           </div>
         </motion.div>

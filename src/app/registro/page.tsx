@@ -1,4 +1,5 @@
 // src/app/registro/page.tsx
+import { Suspense } from "react";
 import RegistroHero from "@/components/registro/RegistroHero";
 import RegistroForm from "@/components/registro/RegistroForm";
 
@@ -21,7 +22,9 @@ export default function Page() {
       <section className="relative py-10 md:py-14">
         <div className="mx-auto w-full max-w-6xl px-4">
           <div className="mx-auto w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
-            <RegistroForm mode="pro" />
+            <Suspense fallback={null}>
+              <RegistroForm mode="pro" />
+            </Suspense>
           </div>
         </div>
       </section>
