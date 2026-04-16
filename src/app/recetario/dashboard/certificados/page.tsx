@@ -334,10 +334,10 @@ function NuevoCertificadoModal({
     <div style={{
       position: "fixed", inset: 0, zIndex: 200,
       background: "rgba(2,6,23,0.84)", backdropFilter: "blur(14px)",
-      display: "flex", alignItems: "center", justifyContent: "center",
+      display: "flex", alignItems: "flex-start", justifyContent: "center",
       padding: "1.25rem", overflowY: "auto",
     }}>
-      <div className="glass-card" style={{ width: "min(1240px, 100%)", padding: "1.6rem", margin: "auto", maxHeight: "92vh", overflowY: "auto", background: "linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.93))", border: "1px solid rgba(255,255,255,0.12)" }}>
+      <div className="glass-card" style={{ width: "min(1240px, 100%)", padding: "1.6rem", margin: "1.5rem auto", background: "linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.93))", border: "1px solid rgba(255,255,255,0.12)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", gap: "1rem" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: 4 }}>
@@ -547,7 +547,7 @@ export default function CertificadosPage() {
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
 
-  const base = process.env.NEXT_PUBLIC_API_URL ?? "";
+  const base = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE || "";
   const token = getToken() ?? "";
 
   const showToast = (msg: string) => {
@@ -739,3 +739,4 @@ export default function CertificadosPage() {
     </div>
   );
 }
+
