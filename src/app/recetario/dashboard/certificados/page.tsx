@@ -547,7 +547,10 @@ export default function CertificadosPage() {
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
 
-  const base = process.env.NEXT_PUBLIC_API_URL ?? "";
+  const base =
+    process.env.NEXT_PUBLIC_API_BASE ??
+    process.env.NEXT_PUBLIC_API_URL ??
+    "";
   const token = getToken() ?? "";
 
   const showToast = (msg: string) => {
