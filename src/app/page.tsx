@@ -1,5 +1,6 @@
 // src/app/page.tsx
 import Hero from "@/components/landing-public/nueva-landing/Hero";
+import InstitutionalSupportSection from "@/components/landing-public/nueva-landing/InstitutionalSupportSection";
 import IASection from "@/components/landing-public/nueva-landing/IASection";
 import GeoSection from "@/components/landing-public/nueva-landing/GeoSection";
 import DomicilioSection from "@/components/landing-public/nueva-landing/DomicilioSection";
@@ -16,6 +17,7 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <InstitutionalSupportSection />
       <IASection />
       <GeoSection />
       <DomicilioSection />
