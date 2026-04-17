@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -6,7 +6,7 @@ import { PenLine, Eraser, Check, AlertCircle, LogOut } from "lucide-react";
 import { subirFirmaDigital } from "@/lib/recetario/api";
 import { getMedico, saveSession, clearSession } from "@/lib/recetario/auth";
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Signature Pad (same as registro) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ── Signature Pad (same as registro) ──────────────────────────────────────────
 function SignaturePad({ onSigned }: { onSigned: (file: File | null) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
@@ -103,7 +103,7 @@ function SignaturePad({ onSigned }: { onSigned: (file: File | null) => void }) {
         {isEmpty && (
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.5rem", pointerEvents: "none" }}>
             <PenLine size={28} color="#cbd5e1" strokeWidth={1.4} />
-            <span style={{ color: "#cbd5e1", fontSize: "0.9rem", fontWeight: 500 }}>FirmÃƒÂ¡ aquÃƒÂ­ con tu dedo o mouse</span>
+            <span style={{ color: "#cbd5e1", fontSize: "0.9rem", fontWeight: 500 }}>Firmá aquí con tu dedo o mouse</span>
           </div>
         )}
         <canvas ref={canvasRef}
@@ -114,7 +114,7 @@ function SignaturePad({ onSigned }: { onSigned: (file: File | null) => void }) {
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "0.6rem" }}>
         <span style={{ fontSize: "0.76rem", color: "var(--text-muted)" }}>
-          {isEmpty ? "El lienzo estÃƒÂ¡ vacÃƒÂ­o" : <span style={{ color: "var(--primary)", fontWeight: 600 }}>Ã¢Å“â€œ Firma capturada</span>}
+          {isEmpty ? "El lienzo está vacío" : <span style={{ color: "var(--primary)", fontWeight: 600 }}>✓ Firma capturada</span>}
         </span>
         <button type="button" onClick={clear} style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", background: "transparent", border: "1px solid var(--glass-border)", color: "var(--text-muted)", padding: "0.35rem 0.85rem", borderRadius: 9999, cursor: "pointer", fontSize: "0.8rem", fontWeight: 600 }}>
           <Eraser size={13} strokeWidth={2} /> Borrar
@@ -124,7 +124,7 @@ function SignaturePad({ onSigned }: { onSigned: (file: File | null) => void }) {
   );
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Page Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function FirmaDigitalPage() {
   const router  = useRouter();
   const [firmaFile, setFirmaFile] = useState<File | null>(null);
@@ -141,13 +141,13 @@ export default function FirmaDigitalPage() {
   }, [router]);
 
   async function handleGuardar() {
-    if (!firmaFile) { setError("DibujÃƒÂ¡ tu firma antes de continuar."); return; }
+    if (!firmaFile) { setError("Dibujá tu firma antes de continuar."); return; }
     const m = getMedico();
     if (!m) return;
     setLoading(true); setError("");
     try {
       const res = await subirFirmaDigital(m.medico_id, firmaFile);
-      // Actualizar sesiÃƒÂ³n con la nueva firma_url
+      // Actualizar sesión con la nueva firma_url
       const firmaUrl: string = (res as { firma_url?: string }).firma_url ?? "";
       saveSession({ ...m, firma_url: firmaUrl });
       router.push("/recetario/dashboard");
@@ -181,10 +181,10 @@ export default function FirmaDigitalPage() {
             <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 56, height: 56, borderRadius: "50%", background: "rgba(10,230,199,0.1)", border: "1px solid rgba(10,230,199,0.2)", marginBottom: "1rem" }}>
               <PenLine size={24} color="var(--primary)" strokeWidth={1.8} />
             </div>
-            <h2 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "0.4rem" }}>RegistrÃƒÂ¡ tu firma digital</h2>
+            <h2 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "0.4rem" }}>Registrá tu firma digital</h2>
             <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", lineHeight: 1.5 }}>
               Hola, <strong style={{ color: "var(--text-main)" }}>{medico.full_name}</strong>.<br />
-              Tu firma aparecerÃƒÂ¡ en todas las recetas y certificados que emitas.
+              Tu firma aparecerá en todas las recetas y certificados que emitas.
             </p>
           </div>
 
@@ -192,7 +192,7 @@ export default function FirmaDigitalPage() {
           <div style={{ background: "rgba(10,230,199,0.05)", border: "1px solid rgba(10,230,199,0.15)", borderRadius: 10, padding: "0.9rem 1.1rem", display: "flex", gap: "0.75rem", marginBottom: "1.5rem" }}>
             <PenLine size={17} color="var(--primary)" strokeWidth={1.8} style={{ flexShrink: 0, marginTop: 2 }} />
             <p style={{ fontSize: "0.83rem", color: "var(--text-muted)", lineHeight: 1.6 }}>
-              DibujÃƒÂ¡ con tu dedo (celular) o mouse (PC). PodÃƒÂ©s borrar y repetir las veces que quieras. Una vez guardada, podÃƒÂ©s actualizarla desde tu perfil.
+              Dibujá con tu dedo (celular) o mouse (PC). Podés borrar y repetir las veces que quieras. Una vez guardada, podés actualizarla desde tu perfil.
             </p>
           </div>
 
@@ -209,7 +209,7 @@ export default function FirmaDigitalPage() {
           {/* Actions */}
           <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.75rem" }}>
             <button onClick={handleLogout} style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", background: "transparent", border: "1px solid var(--glass-border)", color: "var(--text-muted)", padding: "0.75rem 1.25rem", borderRadius: 10, cursor: "pointer", fontSize: "0.87rem", fontWeight: 600 }}>
-              <LogOut size={14} strokeWidth={2} /> Cerrar sesiÃƒÂ³n
+              <LogOut size={14} strokeWidth={2} /> Cerrar sesión
             </button>
             <button onClick={handleGuardar} disabled={loading || !firmaFile}
               style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", padding: "0.85rem 1.5rem", borderRadius: 10, cursor: loading || !firmaFile ? "not-allowed" : "pointer", fontSize: "0.95rem", fontWeight: 700, opacity: !firmaFile ? 0.5 : 1, background: "linear-gradient(135deg, var(--primary), var(--secondary))", color: "#030b12", border: "none" }}>
@@ -225,3 +225,4 @@ export default function FirmaDigitalPage() {
     </div>
   );
 }
+

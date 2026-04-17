@@ -1,5 +1,4 @@
-// src/app/recetario/login/page.tsx
-"use client";
+﻿"use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -37,9 +36,9 @@ declare global {
 }
 
 const features = [
-  { icon: "Ã°Å¸â€Â", text: "Firma digital con validez legal (Ley 25.506)" },
-  { icon: "Ã°Å¸â€™Å ", text: "Recetas electrÃƒÂ³nicas con vademecum completo" },
-  { icon: "Ã°Å¸â€œâ€¹", text: "Historial de documentos con trazabilidad total" },
+  { icon: "🔐", text: "Firma digital con validez legal (Ley 25.506)" },
+  { icon: "💊", text: "Recetas electrónicas con vademecum completo" },
+  { icon: "📋", text: "Historial de documentos con trazabilidad total" },
 ];
 
 export default function LoginPage() {
@@ -104,7 +103,7 @@ export default function LoginPage() {
 
   const handleGoogleCredential = useCallback(async (credential?: string) => {
     if (!credential) {
-      setError("Google no devolviÃƒÂ³ credenciales vÃƒÂ¡lidas.");
+      setError("Google no devolvió credenciales válidas.");
       return;
     }
 
@@ -216,7 +215,7 @@ export default function LoginPage() {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              mÃƒÂ¡s moderno
+              más moderno
             </span>{" "}
             de Argentina
           </h1>
@@ -227,7 +226,7 @@ export default function LoginPage() {
               marginBottom: "2.5rem",
             }}
           >
-            EmitÃƒÂ­ recetas y certificados mÃƒÂ©dicos digitales con firma legal, desde cualquier
+            Emití recetas y certificados médicos digitales con firma legal, desde cualquier
             dispositivo.
           </p>
           <div className="flex flex-col gap-4">
@@ -262,7 +261,7 @@ export default function LoginPage() {
         {/* Bottom */}
         <div className="relative z-10">
           <p style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>
-            Ã‚Â© 2026 DocYa Ã¢â‚¬â€ AtenciÃƒÂ³n mÃƒÂ©dica a domicilio
+            © 2026 DocYa — Atención médica a domicilio
           </p>
         </div>
       </div>
@@ -292,7 +291,7 @@ export default function LoginPage() {
                 fontSize: "0.9rem",
               }}
             >
-              IngresÃƒÂ¡ a tu panel para emitir documentos mÃƒÂ©dicos
+              Ingresá a tu panel para emitir documentos médicos
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -311,16 +310,16 @@ export default function LoginPage() {
               <div>
                 <div className="flex justify-between items-center mb-1.5">
                   <label className="label" style={{ marginBottom: 0 }}>
-                    ContraseÃƒÂ±a
+                    Contraseña
                   </label>
                   <a href="#" style={{ fontSize: "0.8rem", color: "var(--primary)" }}>
-                    Ã‚Â¿Olvidaste la contraseÃƒÂ±a?
+                    ¿Olvidaste la contraseña?
                   </a>
                 </div>
                 <input
                   className="input"
                   type="password"
-                  placeholder="Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢"
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -338,7 +337,7 @@ export default function LoginPage() {
                     fontSize: "0.9rem",
                   }}
                 >
-                  Ã¢Å¡Â  {error}
+                  ⚠ {error}
                 </div>
               )}
 
@@ -364,7 +363,7 @@ export default function LoginPage() {
                     Ingresando...
                   </>
                 ) : (
-                  "Ingresar al Panel Ã¢â€ â€™"
+                  "Ingresar al Panel →"
                 )}
               </button>
             </form>
@@ -387,7 +386,7 @@ export default function LoginPage() {
                 }}
               >
                 <div style={{ flex: 1, height: 1, background: "var(--glass-border)" }} />
-                o seguÃƒÆ’Ã‚Â­ con Google
+                o seguí con Google
                 <div style={{ flex: 1, height: 1, background: "var(--glass-border)" }} />
               </div>
               <div
@@ -425,15 +424,15 @@ export default function LoginPage() {
               }}
             >
               <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-                Ã‚Â¿No tenÃƒÂ©s cuenta?{" "}
+                ¿No tenés cuenta?{" "}
                 <Link href="/recetario/registro" style={{ color: "var(--primary)", fontWeight: 600 }}>
-                  Registrarse aquÃƒÂ­
+                  Registrarse aquí
                 </Link>
               </p>
             </div>
             <div style={{ width: "100%", padding: "1.5rem 1rem", textAlign: "center", color: "var(--text-muted)", fontSize: "0.85rem" }}>
               <div style={{ fontSize: "0.95rem", color: "var(--text-main)", fontWeight: 600, marginBottom: "0.6rem" }}>
-                Todos nuestros profesionales estÃƒÂ¡n validados por
+                Todos nuestros profesionales están validados por
               </div>
               <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
                 <Image
@@ -452,3 +451,4 @@ export default function LoginPage() {
     </>
   );
 }
+

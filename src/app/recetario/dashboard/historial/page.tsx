@@ -1,5 +1,4 @@
-// src/app/recetario/dashboard/historial/page.tsx
-"use client";
+﻿"use client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -20,15 +19,15 @@ export default function HistorialPage() {
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
   async function compartirReceta(url: string, paciente: string) {
-    const texto = `Receta mÃƒÂ©dica de DocYa Ã¢â‚¬â€ ${paciente}\n${url}`;
+    const texto = `Receta médica de DocYa — ${paciente}\n${url}`;
+    // Web Share API (nativo en móvil)
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({ title: "Receta DocYa", text: texto, url });
         return;
-      } catch {
-        return;
-      }
+      } catch { /* cancelado */ return; }
     }
+    // Fallback: abrir WhatsApp con el link
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank");
   }
 
@@ -50,8 +49,8 @@ export default function HistorialPage() {
   useEffect(() => { load(); }, [load]);
 
   async function handleAnular(r: RecetaResumen) {
-    const motivo = prompt(`Ã‚Â¿Motivo de anulaciÃƒÂ³n para la receta de ${r.paciente}?\n(Opcional, podÃƒÂ©s dejarlo vacÃƒÂ­o)`) ?? "";
-    if (motivo === null) return;
+    const motivo = prompt(`¿Motivo de anulación para la receta de ${r.paciente}?\n(Opcional, podés dejarlo vacío)`) ?? "";
+    if (motivo === null) return; // user cancelled
     const token = getToken();
     if (!token) return;
     setAnulando(r.id);
@@ -79,6 +78,8 @@ export default function HistorialPage() {
 
   return (
     <div className="flex flex-col gap-6 animate-fade-up pb-12">
+
+      {/* Toast */}
       {toast && (
         <div style={{
           position:"fixed", bottom:"2rem", right:"2rem", zIndex:300,
@@ -86,9 +87,10 @@ export default function HistorialPage() {
           borderRadius:10, padding:"0.85rem 1.5rem",
           color:"var(--primary)", fontWeight:600, fontSize:"0.9rem",
           backdropFilter:"blur(8px)",
-        }}>Ã¢Å“â€œ {toast}</div>
+        }}>✓ {toast}</div>
       )}
 
+      {/* Header */}
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"1rem" }}>
         <div>
           <h1 style={{ fontSize:"1.75rem", fontWeight:800 }}>Historial de Recetas</h1>
@@ -101,6 +103,7 @@ export default function HistorialPage() {
         </a>
       </div>
 
+      {/* Filtros */}
       <div style={{ display:"flex", gap:"0.5rem", flexWrap:"wrap" }}>
         {(["todas","valida","anulada"] as const).map((f) => (
           <button key={f} onClick={() => setFiltro(f)}
@@ -113,12 +116,13 @@ export default function HistorialPage() {
               boxShadow: filtro === f ? "0 4px 12px var(--primary-glow)" : "none",
             }}>
             {f === "todas" && `Todas (${totales.todas})`}
-            {f === "valida" && <><CheckCircle2 size={13} strokeWidth={2} /> VÃƒÂ¡lidas ({totales.valida})</>}
+            {f === "valida" && <><CheckCircle2 size={13} strokeWidth={2} /> Válidas ({totales.valida})</>}
             {f === "anulada" && <><XCircle size={13} strokeWidth={2} /> Anuladas ({totales.anulada})</>}
           </button>
         ))}
       </div>
 
+      {/* Content */}
       {loading ? (
         <div style={{ textAlign:"center", padding:"3rem", color:"var(--text-muted)" }}>
           <div className="spin" style={{ width:36,height:36,border:"3px solid rgba(10,230,199,0.2)",borderTopColor:"var(--primary)",borderRadius:"50%",margin:"0 auto 1rem" }} />
@@ -128,19 +132,22 @@ export default function HistorialPage() {
         <div className="glass-card" style={{ textAlign:"center", padding:"3rem" }}>
           <div style={{ marginBottom:"1rem", color:"var(--text-muted)" }}><ClipboardList size={48} strokeWidth={1.2} /></div>
           <h3 style={{ fontWeight:700, marginBottom:"0.5rem" }}>
-            {filtro === "todas" ? "TodavÃƒÂ­a no emitiste recetas" : `No hay recetas ${filtro === "valida" ? "vÃƒÂ¡lidas" : "anuladas"}`}
+            {filtro === "todas" ? "Todavía no emitiste recetas" : `No hay recetas ${filtro === "valida" ? "válidas" : "anuladas"}`}
           </h3>
           <p style={{ color:"var(--text-muted)", fontSize:"0.9rem" }}>
-            {filtro === "todas" ? "Las recetas que emitas aparecerÃƒÂ¡n aquÃƒÂ­" : "CambiÃƒÂ¡ el filtro para ver otras recetas"}
+            {filtro === "todas" ? "Las recetas que emitas aparecerán aquí" : "Cambiá el filtro para ver otras recetas"}
           </p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           {filtradas.map((r) => {
             const esValida = r.estado === "valida";
+            const recetaUrl = r.url_html || `${base}/recetario/recetas/${r.id}/html?token=${token}`;
             return (
               <div key={r.id} className="glass-card" style={{ padding:"1.1rem 1.4rem", borderLeft:`3px solid ${esValida ? "var(--primary-dark)" : "rgba(244,63,94,0.5)"}` }}>
                 <div style={{ display:"flex", alignItems:"flex-start", gap:"1rem", flexWrap:"wrap" }}>
+
+                  {/* Info principal */}
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ display:"flex", alignItems:"center", gap:"0.6rem", flexWrap:"wrap", marginBottom:"0.3rem" }}>
                       <span style={{ fontWeight:700, fontSize:"1rem" }}>{r.paciente}</span>
@@ -151,27 +158,30 @@ export default function HistorialPage() {
                         border: `1px solid ${esValida ? "rgba(20,184,166,0.3)" : "rgba(244,63,94,0.3)"}`,
                       }}>
                         {esValida
-                        ? <><CheckCircle2 size={11} strokeWidth={2} /> VÃƒÂ¡lida</>
+                        ? <><CheckCircle2 size={11} strokeWidth={2} /> Válida</>
                         : <><XCircle size={11} strokeWidth={2} /> Anulada</>}
                       </span>
                     </div>
                     <div style={{ color:"var(--text-muted)", fontSize:"0.82rem", lineHeight:1.6 }}>
                       {r.documento}
-                      {r.diagnostico && <span> Ã‚Â· {r.diagnostico}</span>}
+                      {r.diagnostico && <span> · {r.diagnostico}</span>}
                     </div>
                     <div style={{ color:"var(--text-muted)", fontSize:"0.78rem", marginTop:2, display:"flex", alignItems:"center", gap:"0.3rem" }}>
-                      <CalendarDays size={11} strokeWidth={1.8} /> {r.fecha} &nbsp;Ã‚Â·&nbsp; ID #{r.id}
+                      <CalendarDays size={11} strokeWidth={1.8} /> {r.fecha} &nbsp;·&nbsp; ID #{r.id}
                     </div>
                   </div>
 
+                  {/* Acciones */}
                   <div style={{ display:"flex", gap:"0.4rem", flexShrink:0, flexWrap:"wrap", alignItems:"center" }}>
-                    <a href={`${base}/recetario/recetas/${r.id}/html?token=${token}`} target="_blank" rel="noopener noreferrer"
+                    {/* Ver HTML */}
+                    <a href={recetaUrl} target="_blank" rel="noopener noreferrer"
                       style={{ background:"rgba(10,230,199,0.08)", border:"1px solid rgba(10,230,199,0.2)", color:"var(--primary)", borderRadius:8, padding:"0.45rem 0.9rem", cursor:"pointer", fontSize:"0.82rem", fontWeight:600, textDecoration:"none", transition:"all 0.2s", display:"inline-flex", alignItems:"center", gap:"0.3rem" }}
                       onMouseEnter={(e) => (e.currentTarget.style.background="rgba(10,230,199,0.15)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background="rgba(10,230,199,0.08)")}>
                       <Printer size={13} strokeWidth={2} /> Ver
                     </a>
 
+                    {/* QR verificar */}
                     <a href={`${base}/recetario/verificar/${r.uuid}`} target="_blank" rel="noopener noreferrer"
                       style={{ background:"rgba(96,165,250,0.08)", border:"1px solid rgba(96,165,250,0.2)", color:"#60a5fa", borderRadius:8, padding:"0.45rem 0.9rem", cursor:"pointer", fontSize:"0.82rem", fontWeight:600, textDecoration:"none", transition:"all 0.2s", display:"inline-flex", alignItems:"center", gap:"0.3rem" }}
                       onMouseEnter={(e) => (e.currentTarget.style.background="rgba(96,165,250,0.15)")}
@@ -179,14 +189,16 @@ export default function HistorialPage() {
                       <QrCode size={13} strokeWidth={2} /> Verificar
                     </a>
 
+                    {/* Compartir */}
                     <button title="Compartir receta"
-                      onClick={() => compartirReceta(`${base}/recetario/verificar/${r.uuid}`, r.paciente)}
+                      onClick={() => compartirReceta(recetaUrl, r.paciente)}
                       style={{ background:"rgba(124,58,237,0.08)", border:"1px solid rgba(124,58,237,0.2)", color:"#a78bfa", borderRadius:8, padding:"0.45rem 0.9rem", cursor:"pointer", fontSize:"0.82rem", fontWeight:600, transition:"all 0.2s", display:"inline-flex", alignItems:"center", gap:"0.3rem" }}
                       onMouseEnter={(e) => (e.currentTarget.style.background="rgba(124,58,237,0.15)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background="rgba(124,58,237,0.08)")}>
                       <Share2 size={13} strokeWidth={2} /> Compartir
                     </button>
 
+                    {/* Anular */}
                     {esValida && (
                       <button onClick={() => handleAnular(r)} disabled={anulando === r.id}
                         style={{ background:"rgba(244,63,94,0.08)", border:"1px solid rgba(244,63,94,0.2)", color:"#f43f5e", borderRadius:8, padding:"0.45rem 0.9rem", cursor:"pointer", fontSize:"0.82rem", fontWeight:600, transition:"all 0.2s", opacity: anulando === r.id ? 0.5 : 1, display:"inline-flex", alignItems:"center", gap:"0.3rem" }}
@@ -205,3 +217,4 @@ export default function HistorialPage() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -13,8 +13,8 @@ import {
   Moon,
   LogOut,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import { getMedico, clearSession, type MedicoSession } from "@/lib/recetario/auth";
+import { useTheme } from "@/components/recetario/ThemeProvider";
 
 const NAV_LINKS = [
   { href: "/recetario/dashboard",              label: "Inicio",        Icon: LayoutDashboard },
@@ -27,7 +27,7 @@ const NAV_LINKS = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router   = useRouter();
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
+  const { theme, toggle } = useTheme();
   const [medico, setMedico] = useState<MedicoSession | null>(null);
 
   useEffect(() => {
@@ -53,7 +53,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   const initials = medico.full_name.split(" ").filter(Boolean).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
-  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-base)", display: "flex", flexDirection: "column" }}>
@@ -109,7 +108,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Theme toggle */}
             <button
-              onClick={toggleTheme}
+              onClick={toggle}
               title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
               style={{
                 width: 36, height: 36,
@@ -157,7 +156,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Logout */}
             <button
               onClick={logout}
-              title="Cerrar sesiÃƒÂ³n"
+              title="Cerrar sesión"
               style={{
                 display: "flex", alignItems: "center", gap: "0.35rem",
                 background: "transparent",
@@ -189,7 +188,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Footer */}
       <div style={{ textAlign: "center", padding: "1.5rem", borderTop: "1px solid var(--glass-border)", color: "var(--text-muted)", fontSize: "0.8rem" }}>
         <div style={{ fontSize: "0.95rem", color: "var(--text-main)", fontWeight: 600, marginBottom: "0.75rem" }}>
-          Todos nuestros profesionales estÃƒÂ¡n validados por
+          Todos nuestros profesionales están validados por
         </div>
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "0.85rem", flexWrap: "wrap", marginBottom: "1rem" }}>
           <Image
@@ -200,8 +199,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             style={{ objectFit: "contain" }}
           />
         </div>
-        Ã‚Â© 2026 DocYa Ã¢â‚¬â€ Documentos mÃƒÂ©dicos digitales
+        © 2026 DocYa — Documentos médicos digitales
       </div>
     </div>
   );
 }
+

@@ -1,5 +1,4 @@
-// src/app/recetario/dashboard/page.tsx
-"use client";
+﻿"use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -79,7 +78,7 @@ export default function DashboardPage() {
 
   const initials = medico.full_name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   const hour     = new Date().getHours();
-  const greeting = hour >= 6 && hour < 13 ? "Buenos dÃƒÂ­as" : hour >= 13 && hour < 20 ? "Buenas tardes" : "Buenas noches";
+  const greeting = hour >= 6 && hour < 13 ? "Buenos días" : hour >= 13 && hour < 20 ? "Buenas tardes" : "Buenas noches";
   const fecha    = new Date().toLocaleDateString("es-AR", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
@@ -89,7 +88,7 @@ export default function DashboardPage() {
     { label: "Total recetas",   value: stats.recetas,   Icon: Pill,         color: "#60a5fa" },
     { label: "Recetas activas", value: stats.validas,   Icon: CheckCircle2, color: "#4ade80" },
     {
-      label: "MatrÃƒÂ­cula",
+      label: "Matrícula",
       value: medico.matricula_validada ? "Validada" : "Pendiente",
       Icon: medico.matricula_validada ? BadgeCheck : Clock,
       color: medico.matricula_validada ? "#4ade80" : "#fbbf24",
@@ -97,10 +96,10 @@ export default function DashboardPage() {
   ];
 
   const actions = [
-    { href: "/recetario/dashboard/pacientes",    Icon: Users,         title: "Mis Pacientes",  desc: "RegistrÃƒÂ¡ y gestionÃƒÂ¡ los pacientes de tu consultorio",         color: "var(--primary)" },
-    { href: "/recetario/dashboard/nueva-receta", Icon: FilePlus2,     title: "Nueva Receta",   desc: "Emitir receta electrÃƒÂ³nica con firma digital y QR",             color: "#60a5fa" },
-    { href: "/recetario/dashboard/historial",    Icon: ClipboardList, title: "Historial",      desc: "RevisÃƒÂ¡ todas las recetas emitidas, descargalas o anulalas",    color: "#a78bfa" },
-    { href: "/recetario/dashboard/certificados", Icon: FileCheck2,    title: "Certificados",   desc: "Emitir certificados mÃƒÂ©dicos con firma digital y cÃƒÂ³digo QR",    color: "#34d399" },
+    { href: "/recetario/dashboard/pacientes",    Icon: Users,         title: "Mis Pacientes",  desc: "Registrá y gestioná los pacientes de tu consultorio",         color: "var(--primary)" },
+    { href: "/recetario/dashboard/nueva-receta", Icon: FilePlus2,     title: "Nueva Receta",   desc: "Emitir receta electrónica con firma digital y QR",             color: "#60a5fa" },
+    { href: "/recetario/dashboard/historial",    Icon: ClipboardList, title: "Historial",      desc: "Revisá todas las recetas emitidas, descargalas o anulalas",    color: "#a78bfa" },
+    { href: "/recetario/dashboard/certificados", Icon: FileCheck2,    title: "Certificados",   desc: "Emitir certificados médicos con firma digital y código QR",    color: "#34d399" },
   ];
 
   const profileFields = [
@@ -108,8 +107,8 @@ export default function DashboardPage() {
     { label: "Email",           value: medico.email,                                    Icon: Mail },
     { label: "DNI",             value: medico.dni,                                      Icon: CreditCard },
     { label: "Tipo",            value: medico.tipo,                                     Icon: Stethoscope },
-    { label: "Especialidad",    value: medico.especialidad ?? "Ã¢â‚¬â€",                       Icon: Hash },
-    { label: "MatrÃƒÂ­cula",       value: medico.matricula ?? "Ã¢â‚¬â€",                         Icon: BadgeCheck },
+    { label: "Especialidad",    value: medico.especialidad ?? "—",                       Icon: Hash },
+    { label: "Matrícula",       value: medico.matricula ?? "—",                         Icon: BadgeCheck },
     { label: "Estado",          value: medico.matricula_validada ? "Validada" : "Pendiente", Icon: ShieldCheck },
   ];
 
@@ -155,7 +154,7 @@ export default function DashboardPage() {
       {/* Quick actions */}
       <div>
         <h2 style={{ fontSize: "0.76rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", marginBottom: "1rem" }}>
-          Acciones rÃƒÂ¡pidas
+          Acciones rápidas
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-up delay-2">
           {actions.map(({ href, Icon, title, desc, color }, i) => (
@@ -203,3 +202,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

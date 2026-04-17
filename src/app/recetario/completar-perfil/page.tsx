@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
@@ -31,17 +31,17 @@ const TIPOS = ["medico", "enfermero"] as const;
 const TIPOS_DOCUMENTO = ["dni", "pasaporte", "otro"] as const;
 
 const COUNTRIES = [
-  { code: "AR", name: "Argentina", phoneCode: "54", flag: "Ã°Å¸â€¡Â¦Ã°Å¸â€¡Â·" },
-  { code: "UY", name: "Uruguay", phoneCode: "598", flag: "Ã°Å¸â€¡ÂºÃ°Å¸â€¡Â¾" },
-  { code: "CL", name: "Chile", phoneCode: "56", flag: "Ã°Å¸â€¡Â¨Ã°Å¸â€¡Â±" },
-  { code: "PY", name: "Paraguay", phoneCode: "595", flag: "Ã°Å¸â€¡ÂµÃ°Å¸â€¡Â¾" },
-  { code: "BO", name: "Bolivia", phoneCode: "591", flag: "Ã°Å¸â€¡Â§Ã°Å¸â€¡Â´" },
-  { code: "BR", name: "Brasil", phoneCode: "55", flag: "Ã°Å¸â€¡Â§Ã°Å¸â€¡Â·" },
-  { code: "PE", name: "PerÃƒÂº", phoneCode: "51", flag: "Ã°Å¸â€¡ÂµÃ°Å¸â€¡Âª" },
-  { code: "CO", name: "Colombia", phoneCode: "57", flag: "Ã°Å¸â€¡Â¨Ã°Å¸â€¡Â´" },
-  { code: "MX", name: "MÃƒÂ©xico", phoneCode: "52", flag: "Ã°Å¸â€¡Â²Ã°Å¸â€¡Â½" },
-  { code: "ES", name: "EspaÃƒÂ±a", phoneCode: "34", flag: "Ã°Å¸â€¡ÂªÃ°Å¸â€¡Â¸" },
-  { code: "US", name: "Estados Unidos", phoneCode: "1", flag: "Ã°Å¸â€¡ÂºÃ°Å¸â€¡Â¸" },
+  { code: "AR", name: "Argentina", phoneCode: "54", flag: "🇦🇷" },
+  { code: "UY", name: "Uruguay", phoneCode: "598", flag: "🇺🇾" },
+  { code: "CL", name: "Chile", phoneCode: "56", flag: "🇨🇱" },
+  { code: "PY", name: "Paraguay", phoneCode: "595", flag: "🇵🇾" },
+  { code: "BO", name: "Bolivia", phoneCode: "591", flag: "🇧🇴" },
+  { code: "BR", name: "Brasil", phoneCode: "55", flag: "🇧🇷" },
+  { code: "PE", name: "Perú", phoneCode: "51", flag: "🇵🇪" },
+  { code: "CO", name: "Colombia", phoneCode: "57", flag: "🇨🇴" },
+  { code: "MX", name: "México", phoneCode: "52", flag: "🇲🇽" },
+  { code: "ES", name: "España", phoneCode: "34", flag: "🇪🇸" },
+  { code: "US", name: "Estados Unidos", phoneCode: "1", flag: "🇺🇸" },
 ] as const;
 
 type FotoKey = "foto_dni_frente" | "foto_dni_dorso" | "selfie_dni";
@@ -213,7 +213,7 @@ function SignaturePad({ onSigned }: { onSigned: (file: File | null) => void }) {
           >
             <PenLine size={28} color="#cbd5e1" strokeWidth={1.4} />
             <span style={{ color: "#94a3b8", fontSize: "0.9rem", fontWeight: 500 }}>
-              FirmÃƒÂ¡ acÃƒÂ¡ con tu dedo o mouse
+              Firmá acá con tu dedo o mouse
             </span>
           </div>
         )}
@@ -309,8 +309,8 @@ export default function CompletarPerfilPage() {
     if (medico.perfil_completo) {
       router.replace(
         medico.validado && medico.matricula_validada
-          ? "/recetario/dashboard"
-          : "/recetario/cuenta-en-revision",
+          ? "/dashboard"
+          : "/cuenta-en-revision",
       );
       return;
     }
@@ -338,13 +338,21 @@ export default function CompletarPerfilPage() {
     const initAutocomplete = () => {
       if (cancelled || autocompleteRef.current || !addressInputRef.current) return;
 
-      const g = (window as Window & { google?: typeof google }).google;
+      const g = (window as Window & {
+        google?: {
+          maps?: {
+            places?: {
+              Autocomplete?: typeof google.maps.places.Autocomplete;
+            };
+          };
+        };
+      }).google;
       const AutocompleteCtor = g?.maps?.places?.Autocomplete;
 
       if (!AutocompleteCtor) {
         autocompleteInitAttempts.current += 1;
         if (autocompleteInitAttempts.current >= 30) {
-          setGoogleError("Google Places no terminÃƒÂ³ de inicializar.");
+          setGoogleError("Google Places no terminó de inicializar.");
           return;
         }
         retryTimer = setTimeout(initAutocomplete, 300);
@@ -454,23 +462,23 @@ export default function CompletarPerfilPage() {
     setError("");
 
     if (!form.acepta_terminos) {
-      setError("Debes aceptar los tÃƒÂ©rminos para continuar.");
+      setError("Debes aceptar los términos para continuar.");
       return;
     }
 
     const telefonoInternacional = buildInternationalPhone();
     if (!isValidInternationalPhone(telefonoInternacional)) {
-      setError("IngresÃƒÂ¡ un telÃƒÂ©fono internacional vÃƒÂ¡lido.");
+      setError("Ingresá un teléfono internacional válido.");
       return;
     }
 
     if (!fotos.foto_dni_frente || !fotos.foto_dni_dorso || !fotos.selfie_dni) {
-      setError("SubÃƒÂ­ frente, dorso y selfie con documento para continuar.");
+      setError("Subí frente, dorso y selfie con documento para continuar.");
       return;
     }
 
     if (!firmaFile) {
-      setError("FirmÃƒÆ’Ã‚Â¡ digitalmente para completar tu perfil.");
+      setError("Firmá digitalmente para completar tu perfil.");
       return;
     }
 
@@ -595,14 +603,14 @@ export default function CompletarPerfilPage() {
                 </h1>
                 <p style={{ color: "var(--text-muted)", lineHeight: 1.6 }}>
                   Ya validamos tu acceso con Google. Ahora necesitamos los mismos datos
-                  que te pedimos en DocYa Pro para revisar tu matrÃƒÂ­cula y habilitar el recetario.
+                  que te pedimos en DocYa Pro para revisar tu matrícula y habilitar el recetario.
                 </p>
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="ProfesiÃƒÂ³n" icon={<Stethoscope size={14} />} required>
+                <Field label="Profesión" icon={<Stethoscope size={14} />} required>
                   <select
                     className="input"
                     value={form.tipo}
@@ -610,13 +618,13 @@ export default function CompletarPerfilPage() {
                   >
                     {TIPOS.map((tipo) => (
                       <option key={tipo} value={tipo}>
-                        {tipo === "medico" ? "MÃƒÂ©dico" : "Enfermero"}
+                        {tipo === "medico" ? "Médico" : "Enfermero"}
                       </option>
                     ))}
                   </select>
                 </Field>
 
-                <Field label="MatrÃƒÂ­cula" icon={<FileBadge2 size={14} />} required>
+                <Field label="Matrícula" icon={<FileBadge2 size={14} />} required>
                   <input
                     className="input"
                     value={form.matricula}
@@ -632,7 +640,7 @@ export default function CompletarPerfilPage() {
                   className="input"
                   value={form.especialidad}
                   onChange={(e) => update("especialidad", e.target.value)}
-                  placeholder="Ej: ClÃƒÂ­nica MÃƒÂ©dica"
+                  placeholder="Ej: Clínica Médica"
                 />
               </Field>
 
@@ -651,7 +659,7 @@ export default function CompletarPerfilPage() {
                   </select>
                 </Field>
 
-                <Field label="NÃƒÂºmero de documento" icon={<CreditCard size={14} />} required>
+                <Field label="Número de documento" icon={<CreditCard size={14} />} required>
                   <input
                     className="input"
                     value={form.numero_documento}
@@ -663,7 +671,7 @@ export default function CompletarPerfilPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-[240px,1fr] gap-4">
-                <Field label="PaÃƒÂ­s" icon={<Phone size={14} />} required>
+                <Field label="País" icon={<Phone size={14} />} required>
                   <div style={{ position: "relative" }}>
                     <select
                       className="input"
@@ -691,7 +699,7 @@ export default function CompletarPerfilPage() {
                   </div>
                 </Field>
 
-                <Field label="TelÃƒÂ©fono internacional" icon={<Phone size={14} />} required>
+                <Field label="Teléfono internacional" icon={<Phone size={14} />} required>
                   <div
                     style={{
                       display: "grid",
@@ -722,7 +730,7 @@ export default function CompletarPerfilPage() {
                 </Field>
               </div>
 
-              <Field label="DirecciÃƒÂ³n" icon={<Home size={14} />} required>
+              <Field label="Dirección" icon={<Home size={14} />} required>
                 <input
                   ref={addressInputRef}
                   className="input"
@@ -764,8 +772,8 @@ export default function CompletarPerfilPage() {
                     lineHeight: 1.45,
                   }}
                 >
-                  La direcciÃƒÂ³n se autocompleta con Google Maps y, cuando haya datos disponibles,
-                  completa automÃƒÂ¡ticamente provincia y localidad para el perfil.
+                  La dirección se autocompleta con Google Maps y, cuando haya datos disponibles,
+                  completa automáticamente provincia y localidad para el perfil.
                 </div>
               </Field>
 
@@ -815,7 +823,7 @@ export default function CompletarPerfilPage() {
                   <div>
                     <div style={{ color: "var(--text-main)", fontWeight: 700 }}>Firma digital</div>
                     <div style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-                      FirmÃƒÆ’Ã‚Â¡ igual que en DocYa Pro para validar recetas, certificados y documentos.
+                      Firmá igual que en DocYa Pro para validar recetas, certificados y documentos.
                     </div>
                   </div>
                 </div>
@@ -851,7 +859,7 @@ export default function CompletarPerfilPage() {
                     style={{ marginTop: 3 }}
                   />
                   <span>
-                    Acepto los tÃƒÂ©rminos y condiciones y confirmo que la documentaciÃƒÂ³n enviada es real.
+                    Acepto los términos y condiciones y confirmo que la documentación enviada es real.
                   </span>
                 </label>
                 <button
@@ -867,7 +875,7 @@ export default function CompletarPerfilPage() {
                     padding: 0,
                   }}
                 >
-                  Ver tÃƒÂ©rminos y condiciones
+                  Ver términos y condiciones
                 </button>
               </div>
 
@@ -918,7 +926,7 @@ export default function CompletarPerfilPage() {
                   ) : (
                     <>
                       <CheckCircle2 size={16} strokeWidth={2.2} />
-                      Enviar para revisiÃƒÂ³n
+                      Enviar para revisión
                     </>
                   )}
                 </button>
@@ -989,7 +997,7 @@ function UploadCard({
       </div>
       <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>{label}</div>
       <div style={{ color: "var(--text-muted)", fontSize: "0.8rem", lineHeight: 1.4 }}>
-        {fileName || "SubÃƒÂ­ una imagen legible"}
+        {fileName || "Subí una imagen legible"}
       </div>
       <input
         type="file"
@@ -1049,7 +1057,7 @@ function TermsModal({ onClose }: { onClose: () => void }) {
         </button>
 
         <h2 style={{ fontSize: "1.55rem", fontWeight: 800, marginBottom: "1rem" }}>
-          TÃƒÂ©rminos y condiciones
+          Términos y condiciones
         </h2>
         <div style={{ display: "grid", gap: "1rem", color: "var(--text-muted)", lineHeight: 1.65 }}>
           <section>
@@ -1057,17 +1065,17 @@ function TermsModal({ onClose }: { onClose: () => void }) {
               1. Uso profesional
             </h3>
             <p>
-              El acceso al recetario DocYa estÃƒÂ¡ reservado exclusivamente para profesionales de la salud
-              que cuenten con matrÃƒÂ­cula vÃƒÂ¡lida y documentaciÃƒÂ³n autÃƒÂ©ntica.
+              El acceso al recetario DocYa está reservado exclusivamente para profesionales de la salud
+              que cuenten con matrícula válida y documentación auténtica.
             </p>
           </section>
           <section>
             <h3 style={{ color: "var(--text-main)", fontSize: "1rem", fontWeight: 700, marginBottom: "0.35rem" }}>
-              2. ValidaciÃƒÂ³n de identidad
+              2. Validación de identidad
             </h3>
             <p>
-              Al completar este perfil aceptÃƒÂ¡s que DocYa verifique tu identidad, tu matrÃƒÂ­cula y la
-              documentaciÃƒÂ³n enviada antes de habilitar el acceso al panel.
+              Al completar este perfil aceptás que DocYa verifique tu identidad, tu matrícula y la
+              documentación enviada antes de habilitar el acceso al panel.
             </p>
           </section>
           <section>
@@ -1081,20 +1089,20 @@ function TermsModal({ onClose }: { onClose: () => void }) {
           </section>
           <section>
             <h3 style={{ color: "var(--text-main)", fontSize: "1rem", fontWeight: 700, marginBottom: "0.35rem" }}>
-              4. ProtecciÃƒÂ³n de datos
+              4. Protección de datos
             </h3>
             <p>
-              Los datos cargados se utilizan para verificar credenciales, habilitar funciones clÃƒÂ­nicas
+              Los datos cargados se utilizan para verificar credenciales, habilitar funciones clínicas
               y cumplir con las obligaciones operativas y regulatorias aplicables.
             </p>
           </section>
           <section>
             <h3 style={{ color: "var(--text-main)", fontSize: "1rem", fontWeight: 700, marginBottom: "0.35rem" }}>
-              5. AceptaciÃƒÂ³n
+              5. Aceptación
             </h3>
             <p>
-              Al continuar declarÃƒÂ¡s que la informaciÃƒÂ³n suministrada es veraz, completa y actualizada,
-              y aceptÃƒÂ¡s las polÃƒÂ­ticas operativas de DocYa para el uso del recetario profesional.
+              Al continuar declarás que la información suministrada es veraz, completa y actualizada,
+              y aceptás las políticas operativas de DocYa para el uso del recetario profesional.
             </p>
           </section>
         </div>
@@ -1102,3 +1110,4 @@ function TermsModal({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
+

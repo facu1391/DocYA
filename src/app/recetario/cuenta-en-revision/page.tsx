@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -38,12 +38,12 @@ export default function CuentaEnRevisionPage() {
         </div>
 
         <h1 style={{ fontSize: "1.9rem", fontWeight: 800, marginBottom: "0.6rem" }}>
-          Tu cuenta estÃƒÂ¡ en revisiÃƒÂ³n
+          Tu cuenta está en revisión
         </h1>
         <p style={{ color: "var(--text-muted)", lineHeight: 1.65, fontSize: "1rem" }}>
           {medico?.full_name ? `${medico.full_name}, ` : ""}
-          ya recibimos tu documentaciÃƒÂ³n. PodrÃƒÂ¡s usar el panel de recetas y certificados
-          reciÃƒÂ©n cuando el equipo DocYa valide tu matrÃƒÂ­cula profesional.
+          ya recibimos tu documentación. Podrás usar el panel de recetas y certificados
+          recién cuando el equipo DocYa valide tu matrícula profesional.
         </p>
 
         <div
@@ -67,10 +67,10 @@ export default function CuentaEnRevisionPage() {
             <Clock3 size={18} color="#fbbf24" style={{ flexShrink: 0, marginTop: 2 }} />
             <div>
               <div style={{ fontWeight: 700, marginBottom: "0.25rem" }}>
-                RevisiÃƒÂ³n manual
+                Revisión manual
               </div>
               <div style={{ color: "var(--text-muted)", fontSize: "0.92rem", lineHeight: 1.5 }}>
-                Verificamos la matrÃƒÂ­cula, la identidad y la documentaciÃƒÂ³n clÃƒÂ­nica antes de habilitar
+                Verificamos la matrícula, la identidad y la documentación clínica antes de habilitar
                 el acceso al recetario.
               </div>
             </div>
@@ -93,8 +93,8 @@ export default function CuentaEnRevisionPage() {
                 Aviso cuando quede habilitada
               </div>
               <div style={{ color: "var(--text-muted)", fontSize: "0.92rem", lineHeight: 1.5 }}>
-                Cuando la matrÃƒÂ­cula estÃƒÂ© aprobada vas a poder entrar normalmente con email,
-                contraseÃƒÂ±a o Google.
+                Cuando la matrícula esté aprobada vas a poder entrar normalmente con email,
+                contraseña o Google.
               </div>
             </div>
           </div>
@@ -111,10 +111,11 @@ export default function CuentaEnRevisionPage() {
             style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem" }}
           >
             <LogOut size={15} strokeWidth={2.2} />
-            Cerrar sesiÃƒÂ³n
+            Cerrar sesión
           </button>
         </div>
       </div>
     </div>
   );
 }
+

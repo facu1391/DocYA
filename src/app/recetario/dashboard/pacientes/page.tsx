@@ -1,5 +1,4 @@
-// src/app/recetario/dashboard/pacientes/page.tsx
-"use client";
+﻿"use client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Search, UserPlus, Pencil, Trash2, Users, Phone, Mail as MailIcon, X, Check } from "lucide-react";
@@ -17,7 +16,7 @@ const EMPTY: PacienteIn = {
   obra_social: "", plan: "", nro_credencial: "", cuil: "", observaciones: "",
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ small helpers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ── small helpers ─────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
   width: "100%", background: "var(--input-bg)", border: "1px solid var(--glass-border)",
   borderRadius: 8, padding: "0.75rem 1rem", color: "var(--text-main)",
@@ -36,7 +35,7 @@ function focusOff(e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTM
   e.target.style.boxShadow = "none";
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Modal form Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ── Modal form ────────────────────────────────────────────────────────────────
 function PacienteModal({
   initial, onSave, onClose, loading, error,
 }: {
@@ -52,14 +51,14 @@ function PacienteModal({
   const fields: { label: string; key: keyof PacienteIn; required?: boolean; type?: string }[] = [
     { label: "Nombre *",          key: "nombre",        required: true },
     { label: "Apellido *",        key: "apellido",       required: true },
-    { label: "NÃ‚Â° Documento *",    key: "nro_documento",  required: true },
+    { label: "N° Documento *",    key: "nro_documento",  required: true },
     { label: "CUIL",              key: "cuil" },
     { label: "Fecha de nac.",     key: "fecha_nacimiento", type: "date" },
-    { label: "TelÃƒÂ©fono",          key: "telefono" },
+    { label: "Teléfono",          key: "telefono" },
     { label: "Email",             key: "email",          type: "email" },
     { label: "Obra social",       key: "obra_social" },
     { label: "Plan",              key: "plan" },
-    { label: "NÃ‚Â° Credencial",     key: "nro_credencial" },
+    { label: "N° Credencial",     key: "nro_credencial" },
   ];
 
   return (
@@ -111,7 +110,7 @@ function PacienteModal({
             </div>
           ))}
 
-          {/* Observaciones Ã¢â‚¬â€ full width */}
+          {/* Observaciones — full width */}
           <div style={{ gridColumn: "1 / -1" }}>
             <label style={lbl}>Observaciones</label>
             <textarea
@@ -125,7 +124,7 @@ function PacienteModal({
 
         {error && (
           <div style={{ marginTop: "1rem", background: "rgba(244,63,94,0.1)", border: "1px solid rgba(244,63,94,0.3)", borderRadius: 8, padding: "0.8rem 1rem", color: "#f87171", fontSize: "0.88rem" }}>
-            Ã¢Å¡Â  {error}
+            ⚠ {error}
           </div>
         )}
 
@@ -142,7 +141,7 @@ function PacienteModal({
   );
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Main Page Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function PacientesPage() {
   const router = useRouter();
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
@@ -182,17 +181,17 @@ export default function PacientesPage() {
     const token = getToken();
     if (!token) return;
     if (!form.nombre.trim() || !form.apellido.trim() || !form.nro_documento.trim()) {
-      setError("Nombre, apellido y NÃ‚Â° de documento son obligatorios");
+      setError("Nombre, apellido y N° de documento son obligatorios");
       return;
     }
     setSaving(true); setError("");
     try {
       if (modal.editing) {
         await editarPaciente(modal.editing.id, form, token);
-        showToast("Paciente actualizado Ã¢Å“â€œ");
+        showToast("Paciente actualizado ✓");
       } else {
         await crearPaciente(form, token);
-        showToast("Paciente registrado Ã¢Å“â€œ");
+        showToast("Paciente registrado ✓");
       }
       setModal({ open: false, editing: null });
       load(q || undefined);
@@ -205,7 +204,7 @@ export default function PacientesPage() {
   }
 
   async function handleDelete(p: Paciente) {
-    if (!confirm(`Ã‚Â¿Eliminar a ${p.apellido}, ${p.nombre}?\n\nEsta acciÃƒÂ³n no se puede deshacer.`)) return;
+    if (!confirm(`¿Eliminar a ${p.apellido}, ${p.nombre}?\n\nEsta acción no se puede deshacer.`)) return;
     const token = getToken();
     if (!token) return;
     try {
@@ -229,7 +228,7 @@ export default function PacientesPage() {
           borderRadius: 10, padding: "0.85rem 1.5rem",
           color: "var(--primary)", fontWeight: 600, fontSize: "0.9rem",
           backdropFilter: "blur(8px)",
-        }}>Ã¢Å“â€œ {toast}</div>
+        }}>✓ {toast}</div>
       )}
 
       {/* Header */}
@@ -268,10 +267,10 @@ export default function PacientesPage() {
         <div className="glass-card" style={{ textAlign: "center", padding: "3rem" }}>
           <div style={{ marginBottom: "1rem", color:"var(--text-muted)" }}><Users size={48} strokeWidth={1.2} /></div>
           <h3 style={{ fontWeight: 700, marginBottom: "0.5rem" }}>
-            {q ? "Sin resultados" : "TodavÃƒÂ­a no tenÃƒÂ©s pacientes"}
+            {q ? "Sin resultados" : "Todavía no tenés pacientes"}
           </h3>
           <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-            {q ? `No se encontraron pacientes para "${q}"` : "RegistrÃƒÂ¡ tu primer paciente para empezar a emitir recetas"}
+            {q ? `No se encontraron pacientes para "${q}"` : "Registrá tu primer paciente para empezar a emitir recetas"}
           </p>
         </div>
       ) : (
@@ -296,13 +295,13 @@ export default function PacientesPage() {
                 </div>
                 <div style={{ color: "var(--text-muted)", fontSize: "0.82rem", marginTop: 2 }}>
                   {p.tipo_documento} {p.nro_documento}
-                  {p.fecha_nacimiento && ` Ã‚Â· Nac: ${new Date(p.fecha_nacimiento + "T00:00").toLocaleDateString("es-AR")}`}
-                  {p.obra_social && ` Ã‚Â· ${p.obra_social}${p.plan ? ` / ${p.plan}` : ""}`}
+                  {p.fecha_nacimiento && ` · Nac: ${new Date(p.fecha_nacimiento + "T00:00").toLocaleDateString("es-AR")}`}
+                  {p.obra_social && ` · ${p.obra_social}${p.plan ? ` / ${p.plan}` : ""}`}
                 </div>
                 {p.telefono && (
                   <div style={{ color: "var(--text-muted)", fontSize: "0.8rem", display:"flex", alignItems:"center", gap:"0.3rem" }}>
                     <Phone size={11} strokeWidth={1.8} /> {p.telefono}
-                    {p.email && <><span style={{margin:"0 2px"}}>Ã‚Â·</span><MailIcon size={11} strokeWidth={1.8} /> {p.email}</>}
+                    {p.email && <><span style={{margin:"0 2px"}}>·</span><MailIcon size={11} strokeWidth={1.8} /> {p.email}</>}
                   </div>
                 )}
               </div>
@@ -358,3 +357,4 @@ export default function PacientesPage() {
     </div>
   );
 }
+

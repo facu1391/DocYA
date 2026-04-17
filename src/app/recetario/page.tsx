@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getMedico, getToken } from "@/lib/recetario/auth";
@@ -24,3 +24,4 @@ export default function Home() {
   }, [router]);
   return null;
 }
+
