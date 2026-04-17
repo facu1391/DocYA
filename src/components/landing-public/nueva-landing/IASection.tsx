@@ -21,7 +21,7 @@ export default function IASection() {
             className="relative mx-auto h-[650px] w-[320px] max-w-full"
           >
             <Image
-              src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774994567/WhatsApp_Image_2026-03-31_at_7.00.47_PM-portrait_si8jph.png"
+              src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1776467625/Green_Minimalist_Q_A_Phone_Chatting_Instagram_Story_1_cjt2p0.png"
               alt="Atención médica a domicilio"
               fill
               className="object-cover"
