@@ -185,9 +185,17 @@ export default function LoginPage() {
         strategy="afterInteractive"
         onLoad={() => setGoogleReady(true)}
       />
-      <div className="min-h-screen flex" style={{ background: "var(--bg-base)" }}>
+      <div className="min-h-screen p-3 sm:p-4 lg:p-6" style={{ background: "var(--bg-base)" }}>
         <div
-          className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden"
+          className="mx-auto flex min-h-[calc(100vh-1.5rem)] w-full max-w-[1720px] overflow-hidden rounded-[28px] border"
+          style={{
+            background: "linear-gradient(180deg, rgba(6,15,26,0.98), rgba(3,11,18,0.98))",
+            borderColor: "var(--glass-border)",
+            boxShadow: "0 24px 70px rgba(0,0,0,0.35)",
+          }}
+        >
+        <div
+          className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 xl:p-16 relative overflow-hidden"
           style={{
             background: "linear-gradient(135deg, #060f1a 0%, #030b12 100%)",
             borderRight: "1px solid var(--glass-border)",
@@ -289,7 +297,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-6">
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 xl:p-12">
           <div className="w-full max-w-md animate-fade-up">
             <div className="flex lg:hidden items-center justify-center gap-2 mb-8">
               <Image
@@ -493,6 +501,7 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </>
   );
