@@ -18,15 +18,14 @@ export default function IASection() {
       <div className="relative z-10 mx-auto grid w-full max-w-[1200px] grid-cols-1 items-center gap-16 px-6 md:grid-cols-2">
         <ScrollReveal>
           <div
-            className="glass-card mx-auto overflow-hidden p-0"
-            style={{ aspectRatio: "9/16", maxWidth: 340 }}
+            className="relative mx-auto w-full max-w-[340px]"
+            style={{ aspectRatio: "9/16" }}
           >
             <Image
               src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1776467625/Green_Minimalist_Q_A_Phone_Chatting_Instagram_Story_1_cjt2p0.png"
               alt="Atención médica a domicilio"
-              width={340}
-              height={604}
-              className="h-full w-full object-cover"
+              fill
+              className="object-contain"
             />
           </div>
         </ScrollReveal>

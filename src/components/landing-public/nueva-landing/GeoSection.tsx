@@ -42,7 +42,7 @@ export default function GeoSection() {
             style={{ aspectRatio: "16/9" }}
           >
             <Image
-              src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774879044/Captura_de_pantalla_2026-03-30_105623_lkgxo2.png"
+              src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1776468713/Captura_de_pantalla_2026-04-09_144113-portrait_vagywd.png"
               alt="Mapa seguimiento médico"
               width={600}
               height={338}
