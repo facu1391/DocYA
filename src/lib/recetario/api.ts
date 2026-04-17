@@ -1,10 +1,23 @@
-// lib/recetario/api.ts
-const BASE = process.env.NEXT_PUBLIC_API_URL!;
+const BASE =
+  process.env.NEXT_PUBLIC_API_BASE ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function authHeaders(token: string) {
   return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+}
+
+async function parseJsonResponse(res: Response) {
+  const text = await res.text();
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error(
+      `La API respondió un formato inválido (${res.status}). Verificá NEXT_PUBLIC_API_BASE/NEXT_PUBLIC_API_URL.`,
+    );
+  }
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -15,7 +28,7 @@ export async function loginMedico(email: string, password: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
-  const data = await res.json();
+  const data = await parseJsonResponse(res);
   if (!res.ok) throw new Error(data.detail || "Error al iniciar sesión");
   return data;
 }
@@ -26,7 +39,7 @@ export async function loginMedicoConGoogle(idToken: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id_token: idToken }),
   });
-  const data = await res.json();
+  const data = await parseJsonResponse(res);
   if (!res.ok) throw new Error(data.detail || "Error al iniciar sesión con Google");
   return data;
 }
@@ -52,7 +65,7 @@ export async function obtenerPerfilMedico(medico_id: number, token: string): Pro
   const res = await fetch(`${BASE}/auth/medico/${medico_id}`, {
     headers: authHeaders(token),
   });
-  const data = await res.json();
+  const data = await parseJsonResponse(res);
   if (!res.ok) throw new Error(data.detail || "Error al cargar el perfil");
   return data;
 }
@@ -63,7 +76,7 @@ export async function registerMedico(payload: Record<string, unknown>) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  const data = await res.json();
+  const data = await parseJsonResponse(res);
   if (!res.ok) throw new Error(data.detail || "Error al registrarse");
   return data as { medico_id?: number; id?: number; [key: string]: unknown };
 }
@@ -97,7 +110,7 @@ export async function completarPerfilMedico(
     headers,
     body: JSON.stringify(payload),
   });
-  const data = await res.json();
+  const data = await parseJsonResponse(res);
   if (!res.ok) throw new Error(data.detail || "Error al completar el perfil");
   return data;
 }
@@ -109,7 +122,7 @@ export async function subirFirmaDigital(medico_id: number, file: File) {
     method: "POST",
     body: form,
   });
-  const data = await res.json();
+  const data = await parseJsonResponse(res);
   if (!res.ok) throw new Error(data.detail || "Error al subir la firma");
   return data as { ok: boolean; firma_url: string };
 }
@@ -138,7 +151,7 @@ export interface Medicamento {
 export async function buscarMedicamentos(q: string): Promise<Medicamento[]> {
   if (q.length < 2) return [];
   const res = await fetch(`${BASE}/medicamentos?q=${encodeURIComponent(q)}&limit=12`);
-  const data = await res.json();
+  const data = await parseJsonResponse(res);
   return data.resultados ?? [];
 }
 
@@ -146,7 +159,7 @@ export async function buscarPorPrincipioActivo(nombre: string): Promise<Medicame
   const res = await fetch(
     `${BASE}/medicamentos/principio/${encodeURIComponent(nombre)}?limit=10`
   );
-  const data = await res.json();
+  const data = await parseJsonResponse(res);
   return data.resultados ?? [];
 }
 
@@ -200,7 +213,7 @@ export async function crearPaciente(
     headers: authHeaders(token),
     body: JSON.stringify(data),
   });
-  const json = await res.json();
+  const json = await parseJsonResponse(res);
   if (!res.ok) throw new Error(json.detail || "Error al crear paciente");
   return json;
 }
@@ -213,7 +226,7 @@ export async function listarPacientes(
     ? `${BASE}/recetario/pacientes?q=${encodeURIComponent(q)}`
     : `${BASE}/recetario/pacientes`;
   const res = await fetch(url, { headers: authHeaders(token) });
-  const json = await res.json();
+  const json = await parseJsonResponse(res);
   if (!res.ok) throw new Error(json.detail || "Error al listar pacientes");
   return json;
 }
@@ -228,7 +241,7 @@ export async function editarPaciente(
     headers: authHeaders(token),
     body: JSON.stringify(data),
   });
-  const json = await res.json();
+  const json = await parseJsonResponse(res);
   if (!res.ok) throw new Error(json.detail || "Error al editar paciente");
   return json;
 }
@@ -241,7 +254,7 @@ export async function eliminarPaciente(
     method: "DELETE",
     headers: authHeaders(token),
   });
-  const json = await res.json();
+  const json = await parseJsonResponse(res);
   if (!res.ok) throw new Error(json.detail || "Error al eliminar paciente");
   return json;
 }
@@ -299,7 +312,7 @@ export async function emitirReceta(
     headers: authHeaders(token),
     body: JSON.stringify(data),
   });
-  const json = await res.json();
+  const json = await parseJsonResponse(res);
   if (!res.ok) throw new Error(json.detail || "Error al emitir receta");
   return json;
 }
@@ -310,7 +323,7 @@ export async function listarRecetas(
   const res = await fetch(`${BASE}/recetario/recetas`, {
     headers: authHeaders(token),
   });
-  const json = await res.json();
+  const json = await parseJsonResponse(res);
   if (!res.ok) throw new Error(json.detail || "Error al cargar historial");
   return json;
 }
@@ -325,7 +338,7 @@ export async function anularReceta(
     headers: authHeaders(token),
     body: JSON.stringify({ motivo }),
   });
-  const json = await res.json();
+  const json = await parseJsonResponse(res);
   if (!res.ok) throw new Error(json.detail || "Error al anular receta");
   return json;
 }
@@ -361,7 +374,7 @@ export async function emitirCertificado(
     headers: authHeaders(token),
     body: JSON.stringify(data),
   });
-  const json = await res.json();
+  const json = await parseJsonResponse(res);
   if (!res.ok) throw new Error(json.detail || "Error al emitir certificado");
   return json;
 }
@@ -372,7 +385,7 @@ export async function listarCertificados(
   const res = await fetch(`${BASE}/recetario/certificados`, {
     headers: authHeaders(token),
   });
-  const json = await res.json();
+  const json = await parseJsonResponse(res);
   if (!res.ok) throw new Error(json.detail || "Error al cargar certificados");
   return json;
 }
