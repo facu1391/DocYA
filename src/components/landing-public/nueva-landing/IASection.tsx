@@ -22,7 +22,7 @@ export default function IASection() {
             style={{ aspectRatio: "9/16", maxWidth: 340 }}
           >
             <Image
-              src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774895672/Quer%C3%A9s_que_un_m%C3%A9dico_vaya_a_tu_domicilio_ahora_%EF%B8%8F_Atenci%C3%B3n_en_tu_casa_%EF%B8%8F_Sin_guardias_ni_esperas_%EF%B8%8F_Evaluaci%C3%B3n_m%C3%A9dica_completa_swptiq.png"
+              src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1776467625/Green_Minimalist_Q_A_Phone_Chatting_Instagram_Story_1_cjt2p0.png"
               alt="Atención médica a domicilio"
               width={340}
               height={604}
