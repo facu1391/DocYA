@@ -1,12 +1,12 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { buscarMedicamentos, Medicamento } from "@/lib/recetario/api";
+import { buscarMedicamentos, Medicamento } from "@/lib/api";
 
 interface Props {
   onSelect: (m: Medicamento) => void;
 }
 
-/** Resalta las letras que coinciden con la bÃƒÂºsqueda dentro de un texto */
+/** Resalta las letras que coinciden con la búsqueda dentro de un texto */
 function Highlight({ text, q }: { text: string; q: string }) {
   if (!q || !text) return <>{text}</>;
   const idx = text.toLowerCase().indexOf(q.toLowerCase());
@@ -113,7 +113,7 @@ export default function MedicamentoSearch({ onSelect }: Props) {
           type="text"
           value={q}
           onChange={handleChange}
-          placeholder="Tafirol Ã‚Â· Paracetamol Ã‚Â· Amoxicilina Ã‚Â· Ibuprofeno..."
+          placeholder="Tafirol · Paracetamol · Amoxicilina · Ibuprofeno..."
           style={inputStyle}
           onFocus={(e) => {
             e.target.style.borderColor = "var(--primary-dark)";
@@ -158,7 +158,7 @@ export default function MedicamentoSearch({ onSelect }: Props) {
             overflowY: "auto",
           }}
         >
-          {/* Resumen de bÃƒÂºsqueda */}
+          {/* Resumen de búsqueda */}
           {q.length >= 2 && (byNombreCount > 0 || byPrincipioCount > 0) && (
             <div
               style={{
@@ -256,13 +256,13 @@ export default function MedicamentoSearch({ onSelect }: Props) {
                           fontWeight: 700,
                         }}
                       >
-                        Ã¢Å¡Â 
+                        ⚠
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* SubtÃƒÂ­tulo: principio activo resaltado si fue el motivo del match */}
+                {/* Subtítulo: principio activo resaltado si fue el motivo del match */}
                 <div style={{ color: "var(--text-muted)", fontSize: "0.78rem", marginTop: 2 }}>
                   {m.principio_activo_str && (
                     <span style={byPrincipio ? { color: "#7dd3fc" } : {}}>
@@ -271,7 +271,7 @@ export default function MedicamentoSearch({ onSelect }: Props) {
                   )}
                   {[m.forma, m.laboratorio]
                     .filter(Boolean)
-                    .map((s) => ` Ã‚Â· ${s}`)
+                    .map((s) => ` · ${s}`)
                     .join("")}
                 </div>
               </div>

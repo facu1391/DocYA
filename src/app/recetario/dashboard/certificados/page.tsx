@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useCallback, type CSSProperties, type ComponentType } from "react";
 import { useRouter } from "next/navigation";
@@ -64,7 +64,7 @@ const templates: CertTemplate[] = [
   {
     id: "ausentismo_laboral",
     label: "Ausentismo laboral",
-    desc: "JustificaciÃƒÂ³n para trabajo, empresa u organismo",
+    desc: "Justificación para trabajo, empresa u organismo",
     icon: BriefcaseBusiness,
     accent: "#14b8a6",
     requiresDiagnostico: true,
@@ -72,13 +72,13 @@ const templates: CertTemplate[] = [
       { key: "presentar_ante", label: "Presentar ante", placeholder: "Empresa / empleador / organismo", required: true },
       {
         key: "tipo_indicacion",
-        label: "Tipo de indicaciÃƒÂ³n",
+        label: "Tipo de indicación",
         placeholder: "",
         type: "select",
         required: true,
-        options: ["ausencia laboral justificada", "reposo domiciliario absoluto", "reposo relativo", "reducciÃƒÂ³n de tareas"],
+        options: ["ausencia laboral justificada", "reposo domiciliario absoluto", "reposo relativo", "reducción de tareas"],
       },
-      { key: "dias_indicados", label: "DÃƒÂ­as indicados", placeholder: "3", type: "number", required: true },
+      { key: "dias_indicados", label: "Días indicados", placeholder: "3", type: "number", required: true },
       { key: "fecha_inicio", label: "Fecha inicio", placeholder: "", type: "date", required: true },
       { key: "fecha_fin", label: "Fecha fin", placeholder: "", type: "date", required: true },
     ],
@@ -86,35 +86,35 @@ const templates: CertTemplate[] = [
   {
     id: "ausentismo_escolar",
     label: "Ausentismo escolar",
-    desc: "JustificaciÃƒÂ³n de inasistencia para instituciÃƒÂ³n educativa",
+    desc: "Justificación de inasistencia para institución educativa",
     icon: School,
     accent: "#0ea5e9",
     requiresDiagnostico: true,
     fields: [
       { key: "responsable", label: "Padre, madre o tutor", placeholder: "Nombre del responsable", required: true },
-      { key: "institucion", label: "InstituciÃƒÂ³n educativa", placeholder: "Nombre de la escuela / jardÃƒÂ­n", required: true },
+      { key: "institucion", label: "Institución educativa", placeholder: "Nombre de la escuela / jardín", required: true },
       { key: "fecha_desde", label: "Desde", placeholder: "", type: "date", required: true },
       { key: "fecha_hasta", label: "Hasta", placeholder: "", type: "date", required: true },
-      { key: "dias_habiles", label: "DÃƒÂ­as hÃƒÂ¡biles", placeholder: "2", type: "number", required: true },
+      { key: "dias_habiles", label: "Días hábiles", placeholder: "2", type: "number", required: true },
     ],
   },
   {
     id: "constancia_asistencia",
     label: "Constancia de asistencia",
-    desc: "Acredita concurrencia a consulta sin exponer datos clÃƒÂ­nicos de mÃƒÂ¡s",
+    desc: "Acredita concurrencia a consulta sin exponer datos clínicos de más",
     icon: Stethoscope,
     accent: "#22c55e",
     fields: [
       { key: "fecha_asistencia", label: "Fecha de asistencia", placeholder: "", type: "date", required: true },
       { key: "hora_asistencia", label: "Hora", placeholder: "", type: "time", required: true },
-      { key: "duracion_minutos", label: "DuraciÃƒÂ³n en minutos", placeholder: "30", type: "number", required: true },
-      { key: "motivo_consulta", label: "Motivo de consulta", placeholder: "Control clÃƒÂ­nico / seguimiento / sÃƒÂ­ntomas", required: true },
+      { key: "duracion_minutos", label: "Duración en minutos", placeholder: "30", type: "number", required: true },
+      { key: "motivo_consulta", label: "Motivo de consulta", placeholder: "Control clínico / seguimiento / síntomas", required: true },
     ],
   },
   {
     id: "reposo_domiciliario",
     label: "Reposo domiciliario",
-    desc: "IndicaciÃƒÂ³n formal de reposo con perÃƒÂ­odo e indicaciones",
+    desc: "Indicación formal de reposo con período e indicaciones",
     icon: House,
     accent: "#f59e0b",
     requiresDiagnostico: true,
@@ -127,10 +127,10 @@ const templates: CertTemplate[] = [
         required: true,
         options: ["absoluto", "relativo", "en cama"],
       },
-      { key: "dias_indicados", label: "DÃƒÂ­as indicados", placeholder: "4", type: "number", required: true },
+      { key: "dias_indicados", label: "Días indicados", placeholder: "4", type: "number", required: true },
       { key: "fecha_inicio", label: "Fecha inicio", placeholder: "", type: "date", required: true },
       { key: "fecha_fin", label: "Fecha fin", placeholder: "", type: "date", required: true },
-      { key: "indicaciones_adicionales", label: "Indicaciones adicionales", placeholder: "HidrataciÃƒÂ³n, control, medicaciÃƒÂ³n...", type: "textarea" },
+      { key: "indicaciones_adicionales", label: "Indicaciones adicionales", placeholder: "Hidratación, control, medicación...", type: "textarea" },
     ],
   },
 ];
@@ -175,7 +175,7 @@ function renderField(
         onFocus={focusOn}
         onBlur={focusOff}
       >
-        <option value="">SeleccionÃƒÂ¡...</option>
+        <option value="">Seleccioná...</option>
         {field.options?.map((opt) => (
           <option key={opt} value={opt}>{opt}</option>
         ))}
@@ -237,11 +237,11 @@ function renderTemplateGuide(
       <>
         <p style={{ color: "var(--text-main)", fontSize: "0.95rem", lineHeight: 1.9 }}>
           <strong style={{ color: "var(--primary-dark)", letterSpacing: "0.08em" }}>CERTIFICO</strong> que el/la Sr./Sra.
-          {" "}<span style={{ color: "var(--text-muted)" }}>{data.nombre}</span>, de <span style={{ color: "var(--text-muted)" }}>{data.edad}</span> aÃƒÂ±os,
+          {" "}<span style={{ color: "var(--text-muted)" }}>{data.nombre}</span>, de <span style={{ color: "var(--text-muted)" }}>{data.edad}</span> años,
           DNI Nro. <span style={{ color: "var(--text-muted)" }}>{data.documento}</span>.
         </p>
         <p style={{ color: "var(--text-main)", fontSize: "0.95rem", lineHeight: 1.9, marginTop: 12 }}>
-          Por lo expuesto, se indica <span style={{ color: "var(--text-muted)" }}>{campos.dias_indicados || "Nro."}</span> dÃƒÂ­as de{" "}
+          Por lo expuesto, se indica <span style={{ color: "var(--text-muted)" }}>{campos.dias_indicados || "Nro."}</span> días de{" "}
           <span style={{ color: "var(--text-muted)" }}>{campos.tipo_indicacion || "Seleccionar"}</span>, con fecha de inicio el{" "}
           <span style={{ color: "var(--text-muted)" }}>{campos.fecha_inicio || "dd/mm/aaaa"}</span> y alta estimada el{" "}
           <span style={{ color: "var(--text-muted)" }}>{campos.fecha_fin || "dd/mm/aaaa"}</span>.
@@ -255,14 +255,14 @@ function renderTemplateGuide(
       <>
         <p style={{ color: "var(--text-main)", fontSize: "0.95rem", lineHeight: 1.9 }}>
           <strong style={{ color: "var(--primary-dark)", letterSpacing: "0.08em" }}>CERTIFICO</strong> que el/la menor{" "}
-          <span style={{ color: "var(--text-muted)" }}>{data.nombre}</span>, de <span style={{ color: "var(--text-muted)" }}>{data.edad}</span> aÃƒÂ±os,
+          <span style={{ color: "var(--text-muted)" }}>{data.nombre}</span>, de <span style={{ color: "var(--text-muted)" }}>{data.edad}</span> años,
           DNI Nro. <span style={{ color: "var(--text-muted)" }}>{data.documento}</span>, hijo/a de{" "}
           <span style={{ color: "var(--text-muted)" }}>{campos.responsable || "Nombre del padre / madre / tutor"}</span>.
         </p>
         <p style={{ color: "var(--text-main)", fontSize: "0.95rem", lineHeight: 1.9, marginTop: 12 }}>
-          Motivo por el cual estuvo imposibilitado/a de concurrir al establecimiento educativo desde el dÃƒÂ­a{" "}
-          <span style={{ color: "var(--text-muted)" }}>{campos.fecha_desde || "dd/mm/aaaa"}</span> hasta el dÃƒÂ­a{" "}
-          <span style={{ color: "var(--text-muted)" }}>{campos.fecha_hasta || "dd/mm/aaaa"}</span>, inclusive ({campos.dias_habiles || "Nro."} dÃƒÂ­as hÃƒÂ¡biles).
+          Motivo por el cual estuvo imposibilitado/a de concurrir al establecimiento educativo desde el día{" "}
+          <span style={{ color: "var(--text-muted)" }}>{campos.fecha_desde || "dd/mm/aaaa"}</span> hasta el día{" "}
+          <span style={{ color: "var(--text-muted)" }}>{campos.fecha_hasta || "dd/mm/aaaa"}</span>, inclusive ({campos.dias_habiles || "Nro."} días hábiles).
         </p>
       </>
     );
@@ -272,10 +272,10 @@ function renderTemplateGuide(
     return (
       <p style={{ color: "var(--text-main)", fontSize: "0.95rem", lineHeight: 1.9 }}>
         <strong style={{ color: "var(--primary-dark)", letterSpacing: "0.08em" }}>HAGO CONSTAR</strong> que el/la Sr./Sra.{" "}
-        <span style={{ color: "var(--text-muted)" }}>{data.nombre}</span>, de <span style={{ color: "var(--text-muted)" }}>{data.edad}</span> aÃƒÂ±os,
-        DNI Nro. <span style={{ color: "var(--text-muted)" }}>{data.documento}</span>, concurriÃƒÂ³ a consulta mÃƒÂ©dica el dÃƒÂ­a{" "}
+        <span style={{ color: "var(--text-muted)" }}>{data.nombre}</span>, de <span style={{ color: "var(--text-muted)" }}>{data.edad}</span> años,
+        DNI Nro. <span style={{ color: "var(--text-muted)" }}>{data.documento}</span>, concurrió a consulta médica el día{" "}
         <span style={{ color: "var(--text-muted)" }}>{campos.fecha_asistencia || "dd/mm/aaaa"}</span> a las{" "}
-        <span style={{ color: "var(--text-muted)" }}>{campos.hora_asistencia || "HH:MM"}</span> horas, con una duraciÃƒÂ³n aproximada de{" "}
+        <span style={{ color: "var(--text-muted)" }}>{campos.hora_asistencia || "HH:MM"}</span> horas, con una duración aproximada de{" "}
         <span style={{ color: "var(--text-muted)" }}>{campos.duracion_minutos || "XX"}</span> minutos.
       </p>
     );
@@ -285,12 +285,12 @@ function renderTemplateGuide(
     <>
       <p style={{ color: "var(--text-main)", fontSize: "0.95rem", lineHeight: 1.9 }}>
         <strong style={{ color: "var(--primary-dark)", letterSpacing: "0.08em" }}>CERTIFICO Y PRESCRIBO</strong> que el/la Sr./Sra.{" "}
-        <span style={{ color: "var(--text-muted)" }}>{data.nombre}</span>, de <span style={{ color: "var(--text-muted)" }}>{data.edad}</span> aÃƒÂ±os,
+        <span style={{ color: "var(--text-muted)" }}>{data.nombre}</span>, de <span style={{ color: "var(--text-muted)" }}>{data.edad}</span> años,
         DNI Nro. <span style={{ color: "var(--text-muted)" }}>{data.documento}</span>, requiere reposo.
       </p>
       <p style={{ color: "var(--text-main)", fontSize: "0.95rem", lineHeight: 1.9, marginTop: 12 }}>
         Reposo domiciliario <span style={{ color: "var(--text-muted)" }}>{campos.tipo_reposo || "absoluto"}</span> por{" "}
-        <span style={{ color: "var(--text-muted)" }}>{campos.dias_indicados || "XX"}</span> dÃƒÂ­as, desde el{" "}
+        <span style={{ color: "var(--text-muted)" }}>{campos.dias_indicados || "XX"}</span> días, desde el{" "}
         <span style={{ color: "var(--text-muted)" }}>{campos.fecha_inicio || "dd/mm/aaaa"}</span> hasta el{" "}
         <span style={{ color: "var(--text-muted)" }}>{campos.fecha_fin || "dd/mm/aaaa"}</span>.
       </p>
@@ -334,10 +334,10 @@ function NuevoCertificadoModal({
     <div style={{
       position: "fixed", inset: 0, zIndex: 200,
       background: "rgba(2,6,23,0.84)", backdropFilter: "blur(14px)",
-      display: "flex", alignItems: "flex-start", justifyContent: "center",
+      display: "flex", alignItems: "center", justifyContent: "center",
       padding: "1.25rem", overflowY: "auto",
     }}>
-      <div className="glass-card" style={{ width: "min(1240px, 100%)", padding: "1.6rem", margin: "1.5rem auto", background: "linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.93))", border: "1px solid rgba(255,255,255,0.12)" }}>
+      <div className="glass-card" style={{ width: "min(1240px, 100%)", padding: "1.6rem", margin: "auto", maxHeight: "92vh", overflowY: "auto", background: "linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.93))", border: "1px solid rgba(255,255,255,0.12)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", gap: "1rem" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: 4 }}>
@@ -345,7 +345,7 @@ function NuevoCertificadoModal({
               <h2 style={{ fontWeight: 800, fontSize: "1.15rem", color: "var(--text-main)" }}>Nuevo Certificado</h2>
             </div>
             <p style={{ color: "var(--text-muted)", fontSize: "0.86rem" }}>
-              ElegÃƒÂ­ un modelo y completÃƒÂ¡ solo los campos necesarios. El resto se toma del paciente y del perfil mÃƒÂ©dico.
+              Elegí un modelo y completá solo los campos necesarios. El resto se toma del paciente y del perfil médico.
             </p>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", display: "flex" }}>
@@ -403,13 +403,13 @@ function NuevoCertificadoModal({
                   </div>
                   {paciente.obra_social && (
                     <div style={{ color: "var(--text-muted)", fontSize: "0.84rem", marginTop: 4 }}>
-                      {paciente.obra_social}{paciente.plan ? ` Ã‚Â· ${paciente.plan}` : ""}
+                      {paciente.obra_social}{paciente.plan ? ` · ${paciente.plan}` : ""}
                     </div>
                   )}
                 </>
               ) : (
                 <div style={{ color: "var(--text-muted)", fontSize: "0.84rem" }}>
-                  ElegÃƒÂ­ un paciente para precompletar el certificado.
+                  Elegí un paciente para precompletar el certificado.
                 </div>
               )}
             </div>
@@ -440,10 +440,10 @@ function NuevoCertificadoModal({
                     onFocus={focusOn}
                     onBlur={focusOff}
                   >
-                    <option value={0}>SeleccionÃƒÂ¡ un paciente...</option>
+                    <option value={0}>Seleccioná un paciente...</option>
                     {pacientes.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.apellido}, {p.nombre} Ã¢â‚¬â€ {p.tipo_documento} {p.nro_documento}
+                        {p.apellido}, {p.nombre} — {p.tipo_documento} {p.nro_documento}
                       </option>
                     ))}
                   </select>
@@ -451,10 +451,10 @@ function NuevoCertificadoModal({
 
                 {template.requiresDiagnostico && (
                   <div>
-                    <label style={lbl}>DiagnÃƒÂ³stico *</label>
+                    <label style={lbl}>Diagnóstico *</label>
                     <input
                       style={inp}
-                      placeholder="Ej: cuadro gripal, lumbalgia aguda, sÃƒÂ­ndrome febril..."
+                      placeholder="Ej: cuadro gripal, lumbalgia aguda, síndrome febril..."
                       value={diagnostico}
                       onChange={(e) => setDiagnostico(e.target.value)}
                       onFocus={focusOn}
@@ -474,7 +474,7 @@ function NuevoCertificadoModal({
 
                 {tipo === "reposo_domiciliario" || tipo === "ausentismo_laboral" ? (
                   <div style={{ maxWidth: 220 }}>
-                    <label style={lbl}>DÃƒÂ­as de reposo</label>
+                    <label style={lbl}>Días de reposo</label>
                     <input
                       style={inp}
                       type="number"
@@ -547,7 +547,7 @@ export default function CertificadosPage() {
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
 
-  const base = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE || "";
+  const base = process.env.NEXT_PUBLIC_API_URL ?? "";
   const token = getToken() ?? "";
 
   const showToast = (msg: string) => {
@@ -578,16 +578,16 @@ export default function CertificadosPage() {
   async function handleSave(form: CertificadoIn) {
     const template = templateMap[form.tipo_certificado];
     if (!form.paciente_id) {
-      setError("SeleccionÃƒÂ¡ un paciente");
+      setError("Seleccioná un paciente");
       return;
     }
     if (template.requiresDiagnostico && !form.diagnostico?.trim()) {
-      setError("El diagnÃƒÂ³stico es obligatorio para este modelo");
+      setError("El diagnóstico es obligatorio para este modelo");
       return;
     }
     for (const field of template.fields) {
       if (field.required && !String(form.campos?.[field.key] ?? "").trim()) {
-        setError(`CompletÃƒÂ¡ el campo "${field.label}"`);
+        setError(`Completá el campo "${field.label}"`);
         return;
       }
     }
@@ -617,9 +617,9 @@ export default function CertificadosPage() {
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--text-main)" }}>Certificados MÃƒÂ©dicos</h1>
+          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--text-main)" }}>Certificados Médicos</h1>
           <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginTop: 4 }}>
-            Modelos profesionales DocYa con campos dinÃƒÂ¡micos por tipo de certificado.
+            Modelos profesionales DocYa con campos dinámicos por tipo de certificado.
           </p>
         </div>
         <button
@@ -659,10 +659,10 @@ export default function CertificadosPage() {
             <FileCheck2 size={48} strokeWidth={1.2} />
           </div>
           <h3 style={{ fontWeight: 700, marginBottom: "0.5rem", color: "var(--text-main)" }}>
-            TodavÃƒÂ­a no emitiste certificados
+            Todavía no emitiste certificados
           </h3>
           <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
-            PodÃƒÂ©s emitir ausentismo laboral, escolar, constancia de asistencia y reposo domiciliario con diseÃƒÂ±o DocYa.
+            Podés emitir ausentismo laboral, escolar, constancia de asistencia y reposo domiciliario con diseño DocYa.
           </p>
           <button className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }} onClick={() => { setError(""); setModal(true); }}>
             <Plus size={15} strokeWidth={2.5} /> Emitir primer certificado
@@ -701,7 +701,7 @@ export default function CertificadosPage() {
                       )}
                       {c.reposo_dias != null && (
                         <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                          <BedDouble size={11} strokeWidth={1.8} /> {c.reposo_dias} dÃƒÂ­a{c.reposo_dias !== 1 ? "s" : ""}
+                          <BedDouble size={11} strokeWidth={1.8} /> {c.reposo_dias} día{c.reposo_dias !== 1 ? "s" : ""}
                         </span>
                       )}
                       <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -11,29 +11,29 @@ import {
 import { registerMedico, subirFirmaDigital } from "@/lib/recetario/api";
 
 const ESPECIALIDADES = [
-  "ClÃƒÂ­nica MÃƒÂ©dica","PediatrÃƒÂ­a","CardiologÃƒÂ­a","GinecologÃƒÂ­a","Obstetricia",
-  "CirugÃƒÂ­a General","Ortopedia y TraumatologÃƒÂ­a","NeurologÃƒÂ­a","PsiquiatrÃƒÂ­a",
-  "DermatologÃƒÂ­a","OftalmologÃƒÂ­a","OtorrinolaringologÃƒÂ­a","UrologÃƒÂ­a","OncologÃƒÂ­a",
-  "EndocrinologÃƒÂ­a","ReumatologÃƒÂ­a","GastroenterologÃƒÂ­a","NeumologÃƒÂ­a",
-  "InfectologÃƒÂ­a","Medicina de Emergencias",
+  "Clínica Médica","Pediatría","Cardiología","Ginecología","Obstetricia",
+  "Cirugía General","Ortopedia y Traumatología","Neurología","Psiquiatría",
+  "Dermatología","Oftalmología","Otorrinolaringología","Urología","Oncología",
+  "Endocrinología","Reumatología","Gastroenterología","Neumología",
+  "Infectología","Medicina de Emergencias",
 ];
 const PROVINCIAS = [
-  "Buenos Aires","Ciudad AutÃƒÂ³noma de Buenos Aires","Catamarca","Chaco",
-  "Chubut","CÃƒÂ³rdoba","Corrientes","Entre RÃƒÂ­os","Formosa","Jujuy","La Pampa",
-  "La Rioja","Mendoza","Misiones","NeuquÃƒÂ©n","RÃƒÂ­o Negro","Salta","San Juan",
-  "San Luis","Santa Cruz","Santa Fe","Santiago del Estero","Tierra del Fuego","TucumÃƒÂ¡n",
+  "Buenos Aires","Ciudad Autónoma de Buenos Aires","Catamarca","Chaco",
+  "Chubut","Córdoba","Corrientes","Entre Ríos","Formosa","Jujuy","La Pampa",
+  "La Rioja","Mendoza","Misiones","Neuquén","Río Negro","Salta","San Juan",
+  "San Luis","Santa Cruz","Santa Fe","Santiago del Estero","Tierra del Fuego","Tucumán",
 ];
 const TIPOS = ["Medico","Enfermero","Kinesiologo","Fonoaudiologo","Psicologo"];
 const steps = ["Datos Personales", "Datos Profesionales", "Identidad", "Firma Digital"];
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Signature pad Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ── Signature pad ──────────────────────────────────────────────────────────────
 function SignaturePad({ onSigned }: { onSigned: (file: File | null) => void }) {
   const canvasRef    = useRef<HTMLCanvasElement>(null);
   const isDrawing    = useRef(false);
   const lastPos      = useRef({ x: 0, y: 0 });
   const [isEmpty, setIsEmpty] = useState(true);
 
-  // Init canvas Ã¢â‚¬â€ call after the element has real layout dimensions
+  // Init canvas — call after the element has real layout dimensions
   const initCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -176,7 +176,7 @@ function SignaturePad({ onSigned }: { onSigned: (file: File | null) => void }) {
           }}>
             <PenLine size={28} color="#cbd5e1" strokeWidth={1.4} />
             <span style={{ color: "#cbd5e1", fontSize: "0.9rem", fontWeight: 500 }}>
-              FirmÃƒÂ¡ aquÃƒÂ­ con tu dedo o mouse
+              Firmá aquí con tu dedo o mouse
             </span>
           </div>
         )}
@@ -202,7 +202,7 @@ function SignaturePad({ onSigned }: { onSigned: (file: File | null) => void }) {
       {/* Toolbar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "0.6rem" }}>
         <span style={{ fontSize: "0.76rem", color: "var(--text-muted)" }}>
-          {isEmpty ? "El lienzo estÃƒÂ¡ vacÃƒÂ­o" : <span style={{ color: "var(--primary)", fontWeight: 600 }}>Ã¢Å“â€œ Firma capturada</span>}
+          {isEmpty ? "El lienzo está vacío" : <span style={{ color: "var(--primary)", fontWeight: 600 }}>✓ Firma capturada</span>}
         </span>
         <button
           type="button"
@@ -224,7 +224,7 @@ function SignaturePad({ onSigned }: { onSigned: (file: File | null) => void }) {
   );
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Step indicator Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ── Step indicator ─────────────────────────────────────────────────────────────
 function StepIndicator({ current }: { current: number }) {
   return (
     <div className="flex items-center justify-center gap-0 mb-8">
@@ -268,7 +268,7 @@ function StepIndicator({ current }: { current: number }) {
   );
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ File drop zone Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ── File drop zone ─────────────────────────────────────────────────────────────
 function DropZone({ label, Icon: IconComp, uploaded, fileName, accept, onChange }: {
   label: string;
   Icon: React.ComponentType<{ size?: number; strokeWidth?: number; color?: string }>;
@@ -295,7 +295,7 @@ function DropZone({ label, Icon: IconComp, uploaded, fileName, accept, onChange 
           {uploaded ? <CheckCircle2 size={26} strokeWidth={1.8} /> : <Upload size={26} strokeWidth={1.5} />}
         </div>
         <span style={{ fontSize: "0.83rem", color: uploaded ? "var(--primary)" : "var(--text-muted)", fontWeight: uploaded ? 600 : 400 }}>
-          {fileName || "HacÃƒÂ© click para subir"}
+          {fileName || "Hacé click para subir"}
         </span>
         <input type="file" accept={accept ?? "image/*"} style={{ display: "none" }}
           onChange={(e) => e.target.files?.[0] && onChange(e.target.files[0])} />
@@ -304,7 +304,7 @@ function DropZone({ label, Icon: IconComp, uploaded, fileName, accept, onChange 
   );
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Main page Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ── Main page ──────────────────────────────────────────────────────────────────
 export default function RegistroPage() {
   const router = useRouter();
   const [step, setStep]       = useState(1);
@@ -339,7 +339,7 @@ export default function RegistroPage() {
 
   async function handleSubmit() {
     if (!firmaFile) {
-      setError("NecesitÃƒÂ¡s firmar antes de continuar.");
+      setError("Necesitás firmar antes de continuar.");
       return;
     }
     setLoading(true);
@@ -364,7 +364,7 @@ export default function RegistroPage() {
     }
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Success Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // ── Success ─────────────────────────────────────────────────────────────────
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg-base)" }}>
@@ -373,17 +373,17 @@ export default function RegistroPage() {
             <CheckCircle2 size={56} strokeWidth={1.5} />
           </div>
           <h2 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--primary)" }}>
-            Ã‚Â¡Registro exitoso!
+            ¡Registro exitoso!
           </h2>
           <p style={{ color: "var(--text-muted)" }}>
-            RevisÃƒÂ¡ tu email para confirmar la cuenta. Redirigiendo al login...
+            Revisá tu email para confirmar la cuenta. Redirigiendo al login...
           </p>
         </div>
       </div>
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Page Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // ── Page ────────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen py-10 px-4" style={{ background: "var(--bg-base)" }}>
       <div style={{ maxWidth: 620, margin: "0 auto" }}>
@@ -400,18 +400,18 @@ export default function RegistroPage() {
             {steps[step - 1]}
           </h3>
           <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: "2rem" }}>
-            {step === 1 && "CompletÃƒÂ¡ tus datos personales y de contacto."}
-            {step === 2 && "IngresÃƒÂ¡ tu matrÃƒÂ­cula y especialidad para validar tus credenciales."}
-            {step === 3 && "SubÃƒÂ­ las fotos requeridas para verificar tu identidad mÃƒÂ©dica."}
-            {step === 4 && "DibujÃƒÂ¡ tu firma con el dedo o el mouse. Se incrustarÃƒÂ¡ en cada receta que emitas."}
+            {step === 1 && "Completá tus datos personales y de contacto."}
+            {step === 2 && "Ingresá tu matrícula y especialidad para validar tus credenciales."}
+            {step === 3 && "Subí las fotos requeridas para verificar tu identidad médica."}
+            {step === 4 && "Dibujá tu firma con el dedo o el mouse. Se incrustará en cada receta que emitas."}
           </p>
 
-          {/* Ã¢â€â‚¬Ã¢â€â‚¬ Step 1 Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
+          {/* ── Step 1 ──────────────────────────────────────────────────────── */}
           {step === 1 && (
             <div className="flex flex-col gap-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { label: "Nombre completo", key: "full_name", placeholder: "Dr. Juan GarcÃƒÂ­a", Icon: User },
+                  { label: "Nombre completo", key: "full_name", placeholder: "Dr. Juan García", Icon: User },
                   { label: "DNI",             key: "dni",       placeholder: "30123456",       Icon: CreditCard },
                 ].map(({ label, key, placeholder, Icon }) => (
                   <div key={key}>
@@ -433,7 +433,7 @@ export default function RegistroPage() {
                 </div>
                 <div>
                   <label className="label" style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                    <Phone size={12} strokeWidth={2} color="var(--text-muted)" /> TelÃƒÂ©fono *
+                    <Phone size={12} strokeWidth={2} color="var(--text-muted)" /> Teléfono *
                   </label>
                   <input className="input" type="tel" placeholder="+54 9 11..."
                     value={form.telefono} onChange={(e) => update("telefono", e.target.value)} />
@@ -442,9 +442,9 @@ export default function RegistroPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="label" style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                    <Lock size={12} strokeWidth={2} color="var(--text-muted)" /> ContraseÃƒÂ±a *
+                    <Lock size={12} strokeWidth={2} color="var(--text-muted)" /> Contraseña *
                   </label>
-                  <input className="input" type="password" placeholder="MÃƒÂ­nimo 8 caracteres"
+                  <input className="input" type="password" placeholder="Mínimo 8 caracteres"
                     value={form.password} onChange={(e) => update("password", e.target.value)} />
                 </div>
                 <div>
@@ -452,7 +452,7 @@ export default function RegistroPage() {
                     <MapPin size={12} strokeWidth={2} color="var(--text-muted)" /> Provincia *
                   </label>
                   <select className="input" value={form.provincia} onChange={(e) => update("provincia", e.target.value)}>
-                    <option value="">SeleccionÃƒÂ¡...</option>
+                    <option value="">Seleccioná...</option>
                     {PROVINCIAS.map((p) => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
@@ -467,22 +467,22 @@ export default function RegistroPage() {
             </div>
           )}
 
-          {/* Ã¢â€â‚¬Ã¢â€â‚¬ Step 2 Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
+          {/* ── Step 2 ──────────────────────────────────────────────────────── */}
           {step === 2 && (
             <div className="flex flex-col gap-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="label" style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                    <Stethoscope size={12} strokeWidth={2} color="var(--text-muted)" /> ProfesiÃƒÂ³n *
+                    <Stethoscope size={12} strokeWidth={2} color="var(--text-muted)" /> Profesión *
                   </label>
                   <select className="input" value={form.tipo} onChange={(e) => update("tipo", e.target.value)}>
-                    <option value="">SeleccionÃƒÂ¡...</option>
+                    <option value="">Seleccioná...</option>
                     {TIPOS.map((t) => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="label" style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                    <Hash size={12} strokeWidth={2} color="var(--text-muted)" /> MatrÃƒÂ­cula (MN/MP) *
+                    <Hash size={12} strokeWidth={2} color="var(--text-muted)" /> Matrícula (MN/MP) *
                   </label>
                   <input className="input" placeholder="MN 123456"
                     value={form.matricula} onChange={(e) => update("matricula", e.target.value)} />
@@ -493,30 +493,30 @@ export default function RegistroPage() {
                   <Stethoscope size={12} strokeWidth={2} color="var(--text-muted)" /> Especialidad *
                 </label>
                 <select className="input" value={form.especialidad} onChange={(e) => update("especialidad", e.target.value)}>
-                  <option value="">SeleccionÃƒÂ¡ tu especialidad...</option>
+                  <option value="">Seleccioná tu especialidad...</option>
                   {ESPECIALIDADES.map((e) => <option key={e} value={e}>{e}</option>)}
                 </select>
               </div>
               <div style={{ background: "rgba(10,230,199,0.05)", border: "1px solid rgba(10,230,199,0.15)", borderRadius: "var(--radius-sm)", padding: "1rem 1.25rem", display: "flex", gap: "0.75rem" }}>
                 <ShieldCheck size={18} color="var(--primary)" strokeWidth={1.8} style={{ flexShrink: 0, marginTop: 2 }} />
                 <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", lineHeight: 1.6 }}>
-                  Tus credenciales serÃƒÂ¡n validadas contra los registros oficiales del Ministerio de Salud.
+                  Tus credenciales serán validadas contra los registros oficiales del Ministerio de Salud.
                 </p>
               </div>
             </div>
           )}
 
-          {/* Ã¢â€â‚¬Ã¢â€â‚¬ Step 3 Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
+          {/* ── Step 3 ──────────────────────────────────────────────────────── */}
           {step === 3 && (
             <div className="flex flex-col gap-4">
               <DropZone label="Foto de perfil (para la app)" Icon={Camera}
                 uploaded={!!fotos.foto_perfil} fileName={fotoNames.foto_perfil}
                 accept="image/*" onChange={(f) => handleFoto("foto_perfil", f)} />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <DropZone label="DNI Ã¢â‚¬â€ Frente" Icon={IdCard}
+                <DropZone label="DNI — Frente" Icon={IdCard}
                   uploaded={!!fotos.dni_frente} fileName={fotoNames.dni_frente}
                   accept="image/*,application/pdf" onChange={(f) => handleFoto("dni_frente", f)} />
-                <DropZone label="DNI Ã¢â‚¬â€ Dorso" Icon={IdCard}
+                <DropZone label="DNI — Dorso" Icon={IdCard}
                   uploaded={!!fotos.dni_dorso} fileName={fotoNames.dni_dorso}
                   accept="image/*,application/pdf" onChange={(f) => handleFoto("dni_dorso", f)} />
               </div>
@@ -526,7 +526,7 @@ export default function RegistroPage() {
             </div>
           )}
 
-          {/* Ã¢â€â‚¬Ã¢â€â‚¬ Step 4: Signature pad Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
+          {/* ── Step 4: Signature pad ────────────────────────────────────────── */}
           {step === 4 && (
             <div className="flex flex-col gap-5">
 
@@ -534,7 +534,7 @@ export default function RegistroPage() {
               <div style={{ background: "rgba(10,230,199,0.05)", border: "1px solid rgba(10,230,199,0.15)", borderRadius: "var(--radius-sm)", padding: "1rem 1.25rem", display: "flex", gap: "0.75rem" }}>
                 <PenLine size={18} color="var(--primary)" strokeWidth={1.8} style={{ flexShrink: 0, marginTop: 2 }} />
                 <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", lineHeight: 1.6 }}>
-                  Esta firma aparecerÃƒÂ¡ en todas tus recetas. Dibujala con tu dedo (celular) o mouse (computadora). PodÃƒÂ©s borrar y volver a firmar cuantas veces quieras.
+                  Esta firma aparecerá en todas tus recetas. Dibujala con tu dedo (celular) o mouse (computadora). Podés borrar y volver a firmar cuantas veces quieras.
                 </p>
               </div>
 
@@ -549,9 +549,9 @@ export default function RegistroPage() {
               {/* Tips */}
               <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
                 {[
-                  "UsÃƒÂ¡ todo el espacio disponible para que quede legible",
-                  "En celular: girÃƒÂ¡ el telÃƒÂ©fono en horizontal para mÃƒÂ¡s espacio",
-                  "PodÃƒÂ©s actualizar tu firma en cualquier momento desde tu perfil",
+                  "Usá todo el espacio disponible para que quede legible",
+                  "En celular: girá el teléfono en horizontal para más espacio",
+                  "Podés actualizar tu firma en cualquier momento desde tu perfil",
                 ].map((tip, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.78rem", color: "var(--text-muted)" }}>
                     <CheckCircle2 size={12} strokeWidth={2} color="var(--primary)" style={{ flexShrink: 0 }} />
@@ -569,7 +569,7 @@ export default function RegistroPage() {
             </div>
           )}
 
-          {/* Ã¢â€â‚¬Ã¢â€â‚¬ Navigation Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
+          {/* ── Navigation ──────────────────────────────────────────────────── */}
           <div className="flex justify-between mt-8" style={{ borderTop: "1px solid var(--glass-border)", paddingTop: "1.5rem" }}>
             {step > 1 ? (
               <button className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
@@ -604,12 +604,13 @@ export default function RegistroPage() {
         </div>
 
         <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.85rem", color: "var(--text-muted)" }}>
-          Ã‚Â¿Ya tenÃƒÂ©s cuenta?{" "}
+          ¿Ya tenés cuenta?{" "}
           <Link href="/recetario/login" style={{ color: "var(--primary)", fontWeight: 600, textDecoration: "none" }}>
-            Iniciar sesiÃƒÂ³n
+            Iniciar sesión
           </Link>
         </p>
       </div>
     </div>
   );
 }
+

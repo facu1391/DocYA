@@ -1,25 +1,14 @@
-// src/app/recetario/login/page.tsx
-"use client";
-
-import { ClipboardList, Pill, ShieldCheck } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+﻿"use client";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import Script from "next/script";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  loginMedico,
-  loginMedicoConGoogle,
-  obtenerPerfilMedico,
-} from "@/lib/recetario/api";
+import { loginMedico, loginMedicoConGoogle, obtenerPerfilMedico } from "@/lib/recetario/api";
 import { MedicoSession, saveSession } from "@/lib/recetario/auth";
 
 function decodeGoogleJwt(token: string): Record<string, string> | null {
-  try {
-    return JSON.parse(atob(token.split(".")[1]));
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(atob(token.split(".")[1])); } catch { return null; }
 }
 
 const GOOGLE_CLIENT_ID =
@@ -47,18 +36,9 @@ declare global {
 }
 
 const features = [
-  {
-    icon: ShieldCheck,
-    text: "Firma digital con validez legal (Ley 25.506)",
-  },
-  {
-    icon: Pill,
-    text: "Recetas electronicas con vademecum completo",
-  },
-  {
-    icon: ClipboardList,
-    text: "Historial de documentos con trazabilidad total",
-  },
+  { icon: "🔐", text: "Firma digital con validez legal (Ley 25.506)" },
+  { icon: "💊", text: "Recetas electrónicas con vademecum completo" },
+  { icon: "📋", text: "Historial de documentos con trazabilidad total" },
 ];
 
 export default function LoginPage() {
@@ -70,7 +50,7 @@ export default function LoginPage() {
   const [googleReady, setGoogleReady] = useState(false);
   const googleButtonRef = useRef<HTMLDivElement>(null);
 
-  const completarIngreso = useCallback(async (data: {
+  async function completarIngreso(data: {
     medico_id: number;
     access_token: string;
     full_name?: string;
@@ -83,7 +63,7 @@ export default function LoginPage() {
     firma_url?: string | null;
     photo_url?: string | null;
     [key: string]: unknown;
-  }) => {
+  }) {
     let perfil;
     try {
       perfil = await obtenerPerfilMedico(data.medico_id, data.access_token);
@@ -106,10 +86,7 @@ export default function LoginPage() {
       especialidad: perfil?.especialidad ?? data.especialidad ?? undefined,
       matricula: perfil?.matricula ?? data.matricula ?? undefined,
       firma_url: perfil?.firma_url ?? data.firma_url ?? undefined,
-      photo_url:
-        (perfil as { photo_url?: string } | undefined)?.photo_url ??
-        data.photo_url ??
-        undefined,
+      photo_url: (perfil as { photo_url?: string } | undefined)?.photo_url ?? data.photo_url ?? undefined,
     };
 
     saveSession(sessionData);
@@ -122,28 +99,27 @@ export default function LoginPage() {
       return;
     }
     router.push("/recetario/dashboard");
-  }, [router]);
+  }
 
-  const handleGoogleCredential = useCallback(async (credential?: string) => {
+  async function handleGoogleCredential(credential?: string) {
     if (!credential) {
-      setError("Google no devolvio credenciales validas.");
+      setError("Google no devolvió credenciales válidas.");
       return;
     }
 
     setError("");
     setLoading(true);
     try {
+      // Decodificar JWT de Google para obtener foto de perfil
       const googlePayload = decodeGoogleJwt(credential);
       const data = await loginMedicoConGoogle(credential);
       await completarIngreso({ ...data, photo_url: googlePayload?.picture ?? null });
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Error inesperado al iniciar con Google",
-      );
+      setError(err instanceof Error ? err.message : "Error inesperado al iniciar con Google");
     } finally {
       setLoading(false);
     }
-  }, [completarIngreso]);
+  }
 
   useEffect(() => {
     if (!googleReady || !googleButtonRef.current || !window.google) return;
@@ -162,7 +138,7 @@ export default function LoginPage() {
       width: 360,
       logo_alignment: "left",
     });
-  }, [googleReady, handleGoogleCredential]);
+  }, [googleReady]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -185,324 +161,294 @@ export default function LoginPage() {
         strategy="afterInteractive"
         onLoad={() => setGoogleReady(true)}
       />
-      <div className="min-h-screen p-3 sm:p-4 lg:p-6" style={{ background: "var(--bg-base)" }}>
+      <div className="min-h-screen flex" style={{ background: "var(--bg-base)" }}>
+      {/* Left Brand Panel */}
+      <div
+        className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden"
+        style={{
+          background: "linear-gradient(135deg, #060f1a 0%, #030b12 100%)",
+          borderRight: "1px solid var(--glass-border)",
+        }}
+      >
+        {/* Ambient glow */}
         <div
-          className="mx-auto flex min-h-[calc(100vh-1.5rem)] w-full max-w-[1720px] overflow-hidden rounded-[28px] border"
           style={{
-            background: "linear-gradient(180deg, rgba(6,15,26,0.98), rgba(3,11,18,0.98))",
-            borderColor: "var(--glass-border)",
-            boxShadow: "0 24px 70px rgba(0,0,0,0.35)",
+            position: "absolute",
+            top: "20%",
+            left: "30%",
+            width: 400,
+            height: 400,
+            background: "radial-gradient(circle, rgba(10,230,199,0.12) 0%, transparent 70%)",
+            filter: "blur(60px)",
+            pointerEvents: "none",
           }}
-        >
-        <div
-          className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 xl:p-16 relative overflow-hidden"
-          style={{
-            background: "linear-gradient(135deg, #060f1a 0%, #030b12 100%)",
-            borderRight: "1px solid var(--glass-border)",
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              top: "20%",
-              left: "30%",
-              width: 400,
-              height: 400,
-              background:
-                "radial-gradient(circle, rgba(10,230,199,0.12) 0%, transparent 70%)",
-              filter: "blur(60px)",
-              pointerEvents: "none",
-            }}
+        />
+
+        {/* Logo */}
+        <div className="relative z-10">
+          <div className="flex items-center gap-3">
+          <Image
+            src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png"
+            alt="DocYa"
+            width={140}
+            height={140}
           />
 
-          <div className="relative z-10">
-            <div className="flex items-center gap-3">
-              <Image
-                src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png"
-                alt="DocYa"
-                width={140}
-                height={140}
-              />
-            </div>
-          </div>
-
-          <div className="relative z-10">
-            <h1
-              style={{
-                fontSize: "2.5rem",
-                fontWeight: 800,
-                lineHeight: 1.2,
-                marginBottom: "1.5rem",
-              }}
-            >
-              El sistema de recetas{" "}
-              <span
-                style={{
-                  background: "linear-gradient(135deg, var(--primary), var(--secondary))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                mas moderno
-              </span>{" "}
-              de Argentina
-            </h1>
-            <p
-              style={{
-                color: "var(--text-muted)",
-                fontSize: "1.1rem",
-                marginBottom: "2.5rem",
-              }}
-            >
-              Emiti recetas y certificados medicos digitales con firma legal, desde
-              cualquier dispositivo.
-            </p>
-            <div className="flex flex-col gap-4">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <div
-                    key={feature.text}
-                    className="flex items-center gap-4 animate-fade-up"
-                    style={{ animationDelay: `${index * 0.15}s` }}
-                  >
-                    <div
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: "50%",
-                        background: "rgba(10,230,199,0.1)",
-                        border: "1px solid rgba(10,230,199,0.2)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <Icon size={20} color="var(--primary)" />
-                    </div>
-                    <span style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>
-                      {feature.text}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="relative z-10">
-            <p style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>
-              © 2026 DocYa | Atencion medica a domicilio
-            </p>
           </div>
         </div>
 
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 xl:p-12">
-          <div className="w-full max-w-md animate-fade-up">
-            <div className="flex lg:hidden items-center justify-center gap-2 mb-8">
-              <Image
-                src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png"
-                alt="DocYa"
-                width={100}
-                height={100}
-              />
-            </div>
-
-            <div className="glass-card">
-              <h2 style={{ fontSize: "1.75rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-                Bienvenido, Doc
-              </h2>
-              <p
-                style={{
-                  color: "var(--text-muted)",
-                  marginBottom: "2rem",
-                  fontSize: "0.9rem",
-                }}
-              >
-                Ingresa a tu panel para emitir documentos medicos
-              </p>
-
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                <div>
-                  <label className="label">Email o DNI</label>
-                  <input
-                    className="input"
-                    type="text"
-                    placeholder="medico@docya.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoFocus
-                  />
-                </div>
-                <div>
-                  <div className="flex justify-between items-center mb-1.5">
-                    <label className="label" style={{ marginBottom: 0 }}>
-                      Contrasena
-                    </label>
-                    <a href="#" style={{ fontSize: "0.8rem", color: "var(--primary)" }}>
-                      ¿Olvidaste la contrasena?
-                    </a>
-                  </div>
-                  <input
-                    className="input"
-                    type="password"
-                    placeholder="........"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-
-                {error && (
-                  <div
-                    style={{
-                      background: "rgba(244,63,94,0.1)",
-                      border: "1px solid rgba(244,63,94,0.3)",
-                      borderRadius: "var(--radius-sm)",
-                      padding: "0.875rem 1rem",
-                      color: "#f87171",
-                      fontSize: "0.9rem",
-                    }}
-                  >
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  className="btn-primary w-full"
-                  style={{ marginTop: "0.5rem", padding: "1rem", fontSize: "1rem" }}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <span
-                        className="spin"
-                        style={{
-                          width: 18,
-                          height: 18,
-                          border: "2px solid rgba(255,255,255,0.3)",
-                          borderTopColor: "white",
-                          borderRadius: "50%",
-                          display: "inline-block",
-                        }}
-                      />{" "}
-                      Ingresando...
-                    </>
-                  ) : (
-                    "Ingresar al Panel"
-                  )}
-                </button>
-              </form>
-
+        {/* Center content */}
+        <div className="relative z-10">
+          <h1
+            style={{
+              fontSize: "2.5rem",
+              fontWeight: 800,
+              lineHeight: 1.2,
+              marginBottom: "1.5rem",
+            }}
+          >
+            El sistema de recetas{" "}
+            <span
+              style={{
+                background: "linear-gradient(135deg, var(--primary), var(--secondary))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              más moderno
+            </span>{" "}
+            de Argentina
+          </h1>
+          <p
+            style={{
+              color: "var(--text-muted)",
+              fontSize: "1.1rem",
+              marginBottom: "2.5rem",
+            }}
+          >
+            Emití recetas y certificados médicos digitales con firma legal, desde cualquier
+            dispositivo.
+          </p>
+          <div className="flex flex-col gap-4">
+            {features.map((f, i) => (
               <div
-                style={{
-                  marginTop: "1rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.85rem",
-                }}
+                key={i}
+                className="flex items-center gap-4 animate-fade-up"
+                style={{ animationDelay: `${i * 0.15}s` }}
               >
                 <div
                   style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: "50%",
+                    background: "rgba(10,230,199,0.1)",
+                    border: "1px solid rgba(10,230,199,0.2)",
                     display: "flex",
                     alignItems: "center",
-                    gap: "0.85rem",
-                    color: "var(--text-muted)",
-                    fontSize: "0.85rem",
+                    justifyContent: "center",
+                    fontSize: "1.2rem",
+                    flexShrink: 0,
                   }}
                 >
-                  <div style={{ flex: 1, height: 1, background: "var(--glass-border)" }} />
-                  o segui con Google
-                  <div style={{ flex: 1, height: 1, background: "var(--glass-border)" }} />
+                  {f.icon}
                 </div>
-                <div
-                  style={{
-                    border: "1px solid var(--glass-border)",
-                    borderRadius: "999px",
-                    padding: "0.65rem",
-                    background: "rgba(255,255,255,0.04)",
-                  }}
-                >
-                  <div
-                    ref={googleButtonRef}
-                    style={{
-                      minHeight: 44,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {!googleReady && (
-                      <span style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-                        Cargando acceso con Google...
-                      </span>
-                    )}
-                  </div>
+                <span style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>{f.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom */}
+        <div className="relative z-10">
+          <p style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>
+            © 2026 DocYa — Atención médica a domicilio
+          </p>
+        </div>
+      </div>
+
+      {/* Right Form Panel */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6">
+        <div className="w-full max-w-md animate-fade-up">
+          {/* Mobile logo */}
+          <div className="flex lg:hidden items-center justify-center gap-2 mb-8">
+            <Image
+              src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png"
+              alt="DocYa"
+              width={100}
+              height={100}
+            />
+
+          </div>
+
+          <div className="glass-card">
+            <h2 style={{ fontSize: "1.75rem", fontWeight: 700, marginBottom: "0.5rem" }}>
+              Bienvenido, Doc
+            </h2>
+            <p
+              style={{
+                color: "var(--text-muted)",
+                marginBottom: "2rem",
+                fontSize: "0.9rem",
+              }}
+            >
+              Ingresá a tu panel para emitir documentos médicos
+            </p>
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <div>
+                <label className="label">Email o DNI</label>
+                <input
+                  className="input"
+                  type="text"
+                  placeholder="medico@docya.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoFocus
+                />
+              </div>
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="label" style={{ marginBottom: 0 }}>
+                    Contraseña
+                  </label>
+                  <a href="#" style={{ fontSize: "0.8rem", color: "var(--primary)" }}>
+                    ¿Olvidaste la contraseña?
+                  </a>
                 </div>
+                <input
+                  className="input"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </div>
 
-              <div
-                style={{
-                  borderTop: "1px solid var(--glass-border)",
-                  marginTop: "2rem",
-                  paddingTop: "1.5rem",
-                  textAlign: "center",
-                }}
+              {error && (
+                <div
+                  style={{
+                    background: "rgba(244,63,94,0.1)",
+                    border: "1px solid rgba(244,63,94,0.3)",
+                    borderRadius: "var(--radius-sm)",
+                    padding: "0.875rem 1rem",
+                    color: "#f87171",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  ⚠ {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="btn-primary w-full"
+                style={{ marginTop: "0.5rem", padding: "1rem", fontSize: "1rem" }}
+                disabled={loading}
               >
-                <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-                  ¿No tenes cuenta?{" "}
-                  <Link
-                    href="/recetario/registro"
-                    style={{ color: "var(--primary)", fontWeight: 600 }}
-                  >
-                    Registrarse aqui
-                  </Link>
-                </p>
-              </div>
+                {loading ? (
+                  <>
+                    <span
+                      className="spin"
+                      style={{
+                        width: 18,
+                        height: 18,
+                        border: "2px solid rgba(255,255,255,0.3)",
+                        borderTopColor: "white",
+                        borderRadius: "50%",
+                        display: "inline-block",
+                      }}
+                    />{" "}
+                    Ingresando...
+                  </>
+                ) : (
+                  "Ingresar al Panel →"
+                )}
+              </button>
+            </form>
+
+            <div
+              style={{
+                marginTop: "1rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.85rem",
+              }}
+            >
               <div
                 style={{
-                  width: "100%",
-                  padding: "1.5rem 1rem",
-                  textAlign: "center",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.85rem",
                   color: "var(--text-muted)",
                   fontSize: "0.85rem",
                 }}
               >
+                <div style={{ flex: 1, height: 1, background: "var(--glass-border)" }} />
+                o seguí con Google
+                <div style={{ flex: 1, height: 1, background: "var(--glass-border)" }} />
+              </div>
+              <div
+                style={{
+                  border: "1px solid var(--glass-border)",
+                  borderRadius: "999px",
+                  padding: "0.65rem",
+                  background: "rgba(255,255,255,0.04)",
+                }}
+              >
                 <div
+                  ref={googleButtonRef}
                   style={{
-                    fontSize: "0.95rem",
-                    color: "var(--text-main)",
-                    fontWeight: 600,
-                    marginBottom: "0.6rem",
-                  }}
-                >
-                  Todos nuestros profesionales estan validados por
-                </div>
-                <div
-                  style={{
+                    minHeight: 44,
                     display: "flex",
-                    justifyContent: "center",
                     alignItems: "center",
-                    gap: "0.75rem",
-                    flexWrap: "wrap",
+                    justifyContent: "center",
                   }}
                 >
-                  <Image
-                    src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1775043651/logosisa_dxtx66.png"
-                    alt="Logo SISA"
-                    width={100}
-                    height={24}
-                    style={{ objectFit: "contain" }}
-                  />
+                  {!googleReady && (
+                    <span style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
+                      Cargando acceso con Google...
+                    </span>
+                  )}
                 </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                borderTop: "1px solid var(--glass-border)",
+                marginTop: "2rem",
+                paddingTop: "1.5rem",
+                textAlign: "center",
+              }}
+            >
+              <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
+                ¿No tenés cuenta?{" "}
+                <Link href="/recetario/registro" style={{ color: "var(--primary)", fontWeight: 600 }}>
+                  Registrarse aquí
+                </Link>
+              </p>
+            </div>
+            <div style={{ width: "100%", padding: "1.5rem 1rem", textAlign: "center", color: "var(--text-muted)", fontSize: "0.85rem" }}>
+              <div style={{ fontSize: "0.95rem", color: "var(--text-main)", fontWeight: 600, marginBottom: "0.6rem" }}>
+                Todos nuestros profesionales están validados por
+              </div>
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+                <Image
+                  src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1775043651/logosisa_dxtx66.png"
+                  alt="Logo SISA"
+                  width={100}
+                  height={24}
+                  style={{ objectFit: "contain" }}
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
-      </div>
+    </div>
     </>
   );
 }
+

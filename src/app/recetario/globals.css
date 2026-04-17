@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --bg-base: #030b12;
   --bg-surface: #060f1a;
@@ -74,8 +78,7 @@ body {
 @layer components {
   /* Cards */
   .glass-card {
-    position: relative;
-    overflow: visible;
+    @apply relative overflow-hidden;
     background: var(--bg-card);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -92,7 +95,6 @@ body {
     background: linear-gradient(90deg, transparent, rgba(10,230,199,0.5), transparent);
     opacity: 0;
     transition: var(--transition);
-    pointer-events: none;
   }
   .glass-card:hover::before { opacity: 1; }
   .glass-card:hover {
@@ -103,12 +105,7 @@ body {
 
   /* Buttons */
   .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    transition: var(--transition);
+    @apply inline-flex items-center justify-center gap-2 font-semibold cursor-pointer transition-all;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: #030b12;
     padding: 0.75rem 1.75rem;
@@ -116,7 +113,6 @@ body {
     border: none;
     box-shadow: 0 4px 15px var(--primary-glow);
     font-weight: 700;
-    text-decoration: none;
   }
   .btn-primary:hover {
     box-shadow: 0 8px 25px var(--primary-glow);
@@ -131,12 +127,7 @@ body {
   }
 
   .btn-outline {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    transition: var(--transition);
+    @apply inline-flex items-center justify-center gap-2 font-semibold cursor-pointer transition-all;
     background: transparent;
     color: var(--primary);
     padding: 0.75rem 1.75rem;
@@ -150,12 +141,7 @@ body {
   }
 
   .btn-danger {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    transition: var(--transition);
+    @apply inline-flex items-center justify-center gap-2 font-semibold cursor-pointer transition-all;
     background: transparent;
     color: #f43f5e;
     padding: 0.75rem 1.75rem;
@@ -167,8 +153,7 @@ body {
 
   /* Inputs */
   .input {
-    width: 100%;
-    transition: var(--transition);
+    @apply w-full transition-all;
     background: var(--input-bg);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-sm);
@@ -187,8 +172,7 @@ body {
 
   /* Labels */
   .label {
-    display: block;
-    margin-bottom: 0.375rem;
+    @apply block mb-1.5;
     font-size: 0.82rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -197,23 +181,11 @@ body {
   }
 
   /* Card alias */
-  .card {
-    position: relative;
-    overflow: visible;
-    background: var(--bg-card);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    padding: 1.75rem;
-    transition: var(--transition);
-  }
+  .card { @apply glass-card; }
 
   /* Badge */
   .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
+    @apply inline-flex items-center gap-1.5;
     padding: 0.3rem 0.85rem;
     border-radius: var(--radius-pill);
     font-size: 0.75rem;
@@ -256,16 +228,10 @@ body {
 
   /* Stat card */
   .stat-card {
-    position: relative;
-    overflow: visible;
-    background: var(--bg-card);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    transition: var(--transition);
+    @apply glass-card;
     padding: 1.25rem 1.5rem;
-    min-height: 128px;
+    position: relative;
+    overflow: hidden;
   }
   .stat-card::after {
     content: '';
@@ -316,9 +282,3 @@ body {
 .delay-4 { animation-delay: 0.4s; opacity: 0; }
 
 .spin { animation: spin 1s linear infinite; }
-
-.glass-card > *:first-child,
-.card > *:first-child,
-.stat-card > *:first-child {
-  margin-top: 0;
-}

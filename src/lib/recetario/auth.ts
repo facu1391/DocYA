@@ -1,4 +1,4 @@
-export interface MedicoSession {
+﻿export interface MedicoSession {
   medico_id: number;
   full_name: string;
   tipo: string;
@@ -35,7 +35,7 @@ export const clearSession = () => {
 
 const SESSION_ERROR_MESSAGES = new Set([
   "Token expirado",
-  "Token invÃƒÂ¡lido",
+  "Token inválido",
   "Token no proporcionado",
 ]);
 
@@ -54,3 +54,4 @@ export const handleSessionExpired = (
   }
   return true;
 };
+
