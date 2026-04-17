@@ -72,7 +72,7 @@ export default function DashboardPage() {
         anuladas:  recetasArr.filter((r) => r.estado === "anulada").length,
       });
     });
-  }, []);
+  }, [router]);
 
   if (!medico) return null;
 

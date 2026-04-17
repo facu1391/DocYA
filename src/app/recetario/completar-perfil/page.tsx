@@ -11,7 +11,6 @@ import {
   FileBadge2,
   Home,
   IdCard,
-  MapPin,
   PenLine,
   Phone,
   ScanFace,

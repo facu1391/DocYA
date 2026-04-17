@@ -210,7 +210,7 @@ export default function NuevaRecetaPage() {
         handleSessionExpired(error, router);
       })
       .finally(() => setLoadingPacs(false));
-  }, []);
+  }, [router]);
 
   const pacienteSeleccionado = pacientes.find((p) => p.id === pacienteId) ?? null;
 
