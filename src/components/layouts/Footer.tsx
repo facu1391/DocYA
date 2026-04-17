@@ -164,14 +164,36 @@ export default function Footer() {
             </div>
 
             {isPublicAudience && (
-              <div className="border-white/10 flex items-center justify-center pt-6 text-center border-t md:border-0 md:pt-0">
-                <div className="relative h-20 w-full max-w-[180px]">
-                  <Image
-                    src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1775043651/logosisa_dxtx66.png"
-                    alt="Logo SISA"
-                    fill
-                    className="object-contain"
-                  />
+              <div className="border-white/10 pt-6 text-center md:border-0 md:pt-0 md:text-left border-t">
+                <h4 className={sectionTitleCls}>Respaldo institucional</h4>
+                <div className="mt-4 space-y-5">
+                  <div>
+                    <div className="relative mx-auto h-20 w-full max-w-[320px] md:mx-0">
+                      <Image
+                        src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1776466341/Dise%C3%B1o_sin_t%C3%ADtulo_31_zqxiuz.png"
+                        alt="Logo del Ministerio de Salud de la Nacion"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-white/70">
+                      DocYa se encuentra registrada en el Ministerio de Salud de la Nacion (ID 0259).
+                    </p>
+                  </div>
+
+                  <div>
+                    <div className="relative mx-auto h-16 w-full max-w-[320px] md:mx-0">
+                      <Image
+                        src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1775043651/logosisa_dxtx66.png"
+                        alt="Logo SISA"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-white/70">
+                      Todos nuestros profesionales estan validados en SISA.
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
