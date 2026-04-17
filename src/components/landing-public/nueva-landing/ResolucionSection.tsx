@@ -1,5 +1,4 @@
 // src/components/landing-public/nueva-landing/ResolucionSection.tsx
-import Image from "next/image";
 import { FileCheck2, HeartPulse, Check } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
 
@@ -28,15 +27,6 @@ export default function ResolucionSection() {
                 ))}
               </ul>
 
-              <div className="mt-auto overflow-hidden rounded-2xl">
-                <Image
-                  src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774897898/Captura_de_pantalla_2026-03-30_161120_hghhrp.png"
-                  alt="Receta o consulta DocYa"
-                  width={500}
-                  height={280}
-                  className="h-auto w-full rounded-2xl"
-                />
-              </div>
             </div>
           </ScrollReveal>
 

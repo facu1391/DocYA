@@ -39,136 +39,140 @@ export default function Footer() {
       <div className="container py-12 md:py-14">
         <div className="mx-auto w-full max-w-6xl px-4">
           {isPublicAudience ? (
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.45fr)] lg:gap-14">
-              <div className="text-center md:text-left">
-                <Link href="/" aria-label="Ir a la Home" className="inline-block">
-                  <div className="relative mx-auto h-9 w-[150px] dark:hidden md:mx-0">
-                    <Image src={logos.light} alt={logos.alt} fill className="object-contain" />
-                  </div>
-                  <div className="relative mx-auto hidden h-9 w-[150px] dark:block md:mx-0">
-                    <Image src={logos.dark} alt={logos.alt} fill className="object-contain" />
-                  </div>
-                </Link>
+            <div className="mx-auto max-w-5xl">
+              <div className="grid gap-10 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start lg:gap-16">
+                <div className="text-center md:text-left">
+                  <Link href="/" aria-label="Ir a la Home" className="inline-block">
+                    <div className="relative mx-auto h-9 w-[150px] dark:hidden md:mx-0">
+                      <Image src={logos.light} alt={logos.alt} fill className="object-contain" />
+                    </div>
+                    <div className="relative mx-auto hidden h-9 w-[150px] dark:block md:mx-0">
+                      <Image src={logos.dark} alt={logos.alt} fill className="object-contain" />
+                    </div>
+                  </Link>
 
-                <p className="mx-auto mt-4 max-w-sm text-sm leading-7 text-white/60 md:mx-0">
-                  {publicCopy}
-                </p>
+                  <p className="mx-auto mt-4 max-w-sm text-sm leading-7 text-white/60 md:mx-0">
+                    {publicCopy}
+                  </p>
 
-                <ul className="mt-5 flex items-center justify-center gap-3 md:justify-start">
-                  <li>
-                    <a
-                      href="https://www.linkedin.com/company/docya"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="LinkedIn"
-                      className={socialIconCls}
-                    >
-                      <Linkedin className="h-4.5 w-4.5" />
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://instagram.com/docya.argentina"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Instagram"
-                      className={socialIconCls}
-                    >
-                      <Instagram className="h-4.5 w-4.5" />
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://facebook.com/docya"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Facebook"
-                      className={socialIconCls}
-                    >
-                      <Facebook className="h-4.5 w-4.5" />
-                    </a>
-                  </li>
-                  <li>
-                    <a href="mailto:soporte@docya.com.ar" aria-label="Email" className={socialIconCls}>
-                      <Mail className="h-4.5 w-4.5" />
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="grid gap-8 sm:grid-cols-2">
-                <div className="border-t border-white/10 pt-6 text-center sm:border-0 sm:pt-0 md:text-left">
-                  <h4 className={sectionTitleCls}>Legal</h4>
-                  <ul className="mt-3 flex flex-wrap justify-center gap-2 text-sm md:block md:space-y-2">
+                  <ul className="mt-5 flex items-center justify-center gap-3 md:justify-start">
                     <li>
-                      <Link href={`${legalBase}/terminos`} className={chipLinkCls}>
-                        Terminos y Condiciones
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href={`${legalBase}/privacidad`} className={chipLinkCls}>
-                        Politica de Privacidad
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="border-t border-white/10 pt-6 text-center sm:border-0 sm:pt-0 md:text-left">
-                  <h4 className={sectionTitleCls}>Contacto</h4>
-                  <ul className="mt-3 space-y-3 text-sm">
-                    <li className="flex justify-center gap-2 text-white/75 md:justify-start">
-                      <Mail className="h-4 w-4 text-[#0AE6C7]" />
-                      <a href="mailto:soporte@docya.com.ar" className="transition hover:text-[#0AE6C7]">
-                        soporte@docya.com.ar
-                      </a>
-                    </li>
-                    <li className="flex justify-center gap-2 text-white/75 md:justify-start">
-                      <Phone className="h-4 w-4 text-[#0AE6C7]" />
                       <a
-                        href="https://wa.me/5491168700607"
+                        href="https://www.linkedin.com/company/docya"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="transition hover:text-[#0AE6C7]"
+                        aria-label="LinkedIn"
+                        className={socialIconCls}
                       >
-                        +54 9 11 6870-0607
+                        <Linkedin className="h-4.5 w-4.5" />
                       </a>
                     </li>
-                    <li className="flex justify-center gap-2 text-white/75 md:justify-start">
-                      <MapPin className="h-4 w-4 text-[#0AE6C7]" />
-                      <span className="text-white/60">CABA</span>
+                    <li>
+                      <a
+                        href="https://instagram.com/docya.argentina"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Instagram"
+                        className={socialIconCls}
+                      >
+                        <Instagram className="h-4.5 w-4.5" />
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://facebook.com/docya"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Facebook"
+                        className={socialIconCls}
+                      >
+                        <Facebook className="h-4.5 w-4.5" />
+                      </a>
+                    </li>
+                    <li>
+                      <a href="mailto:soporte@docya.com.ar" aria-label="Email" className={socialIconCls}>
+                        <Mail className="h-4.5 w-4.5" />
+                      </a>
                     </li>
                   </ul>
                 </div>
 
-                <div className="border-t border-white/10 pt-6 text-center sm:col-span-2 md:text-left">
-                  <h4 className={sectionTitleCls}>Respaldo institucional</h4>
-                  <div className="mt-4 grid gap-6 lg:grid-cols-2">
-                    <div className="mx-auto w-full max-w-[320px] md:mx-0">
-                      <div className="relative h-20 w-full">
-                        <Image
-                          src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1776466341/Dise%C3%B1o_sin_t%C3%ADtulo_31_zqxiuz.png"
-                          alt="Logo del Ministerio de Salud de la Nacion"
-                          fill
-                          className="object-contain object-center md:object-left"
-                        />
-                      </div>
-                      <p className="mt-3 text-sm leading-6 text-white/70">
-                        DocYa se encuentra registrada en el Ministerio de Salud de la Nacion (ID 0259).
-                      </p>
+                <div className="border-t border-white/10 pt-6 lg:pt-1">
+                  <div className="grid gap-8 sm:grid-cols-2">
+                    <div className="text-center md:text-left">
+                      <h4 className={sectionTitleCls}>Legal</h4>
+                      <ul className="mt-3 flex flex-wrap justify-center gap-2 text-sm md:block md:space-y-2">
+                        <li>
+                          <Link href={`${legalBase}/terminos`} className={chipLinkCls}>
+                            Terminos y Condiciones
+                          </Link>
+                        </li>
+                        <li>
+                          <Link href={`${legalBase}/privacidad`} className={chipLinkCls}>
+                            Politica de Privacidad
+                          </Link>
+                        </li>
+                      </ul>
                     </div>
 
-                    <div className="mx-auto w-full max-w-[320px] md:mx-0">
-                      <div className="relative h-16 w-full">
-                        <Image
-                          src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1775043651/logosisa_dxtx66.png"
-                          alt="Logo SISA"
-                          fill
-                          className="object-contain object-center md:object-left"
-                        />
+                    <div className="text-center md:text-left">
+                      <h4 className={sectionTitleCls}>Contacto</h4>
+                      <ul className="mt-3 space-y-3 text-sm">
+                        <li className="flex justify-center gap-2 text-white/75 md:justify-start">
+                          <Mail className="h-4 w-4 text-[#0AE6C7]" />
+                          <a href="mailto:soporte@docya.com.ar" className="transition hover:text-[#0AE6C7]">
+                            soporte@docya.com.ar
+                          </a>
+                        </li>
+                        <li className="flex justify-center gap-2 text-white/75 md:justify-start">
+                          <Phone className="h-4 w-4 text-[#0AE6C7]" />
+                          <a
+                            href="https://wa.me/5491168700607"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="transition hover:text-[#0AE6C7]"
+                          >
+                            +54 9 11 6870-0607
+                          </a>
+                        </li>
+                        <li className="flex justify-center gap-2 text-white/75 md:justify-start">
+                          <MapPin className="h-4 w-4 text-[#0AE6C7]" />
+                          <span className="text-white/60">CABA</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 border-t border-white/10 pt-6 text-center md:text-left">
+                    <h4 className={sectionTitleCls}>Respaldo institucional</h4>
+                    <div className="mt-4 grid gap-8 sm:grid-cols-2">
+                      <div className="mx-auto w-full max-w-[250px] md:mx-0">
+                        <div className="relative h-20 w-full">
+                          <Image
+                            src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1776466341/Dise%C3%B1o_sin_t%C3%ADtulo_31_zqxiuz.png"
+                            alt="Logo del Ministerio de Salud de la Nacion"
+                            fill
+                            className="object-contain object-center md:object-left"
+                          />
+                        </div>
+                        <p className="mt-3 text-sm leading-6 text-white/70">
+                          DocYa se encuentra registrada en el Ministerio de Salud de la Nacion (ID 0259).
+                        </p>
                       </div>
-                      <p className="mt-3 text-sm leading-6 text-white/70">
-                        Todos nuestros profesionales estan validados en SISA.
-                      </p>
+
+                      <div className="mx-auto w-full max-w-[250px] md:mx-0">
+                        <div className="relative h-16 w-full">
+                          <Image
+                            src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1775043651/logosisa_dxtx66.png"
+                            alt="Logo SISA"
+                            fill
+                            className="object-contain object-center md:object-left"
+                          />
+                        </div>
+                        <p className="mt-3 text-sm leading-6 text-white/70">
+                          Todos nuestros profesionales estan validados en SISA.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

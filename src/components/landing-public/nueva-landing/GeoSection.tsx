@@ -37,16 +37,12 @@ export default function GeoSection() {
         </ScrollReveal>
 
         <ScrollReveal>
-          <div
-            className="glass-card w-full overflow-hidden rounded-[20px] p-0"
-            style={{ aspectRatio: "16/9" }}
-          >
+          <div className="relative mx-auto h-[650px] w-[320px] max-w-full overflow-hidden rounded-[32px] border border-white/10">
             <Image
               src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1776468713/Captura_de_pantalla_2026-04-09_144113-portrait_vagywd.png"
               alt="Mapa seguimiento médico"
-              width={600}
-              height={338}
-              className="h-full w-full object-cover"
+              fill
+              className="object-cover"
             />
           </div>
         </ScrollReveal>
