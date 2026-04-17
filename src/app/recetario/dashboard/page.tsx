@@ -230,14 +230,15 @@ export default function DashboardPage() {
             <div style={{ marginBottom: "0.6rem" }}>
               <Icon size={22} color={color} strokeWidth={1.8} />
             </div>
-            <div style={{ fontSize: "1.7rem", fontWeight: 800, color, lineHeight: 1 }}>
+            <div style={{ fontSize: "1.7rem", fontWeight: 800, color, lineHeight: 1.15, paddingTop: "0.1rem" }}>
               {value}
             </div>
             <div
               style={{
                 color: "var(--text-muted)",
                 fontSize: "0.78rem",
-                marginTop: "0.3rem",
+                marginTop: "0.45rem",
+                lineHeight: 1.35,
               }}
             >
               {label}
@@ -262,7 +263,17 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 animate-fade-up delay-2">
           {actions.map(({ href, Icon, title, desc, color }) => (
             <Link key={href} href={href} style={{ textDecoration: "none" }}>
-              <div className="glass-card" style={{ height: "100%", cursor: "pointer" }}>
+              <div
+                className="glass-card"
+                style={{
+                  height: "100%",
+                  minHeight: 172,
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-start",
+                }}
+              >
                 <div
                   style={{
                     width: 46,
@@ -293,6 +304,7 @@ export default function DashboardPage() {
                     color: "var(--text-muted)",
                     fontSize: "0.84rem",
                     lineHeight: 1.5,
+                    minHeight: 52,
                   }}
                 >
                   {desc}
@@ -301,7 +313,7 @@ export default function DashboardPage() {
                   style={{
                     color,
                     fontSize: "0.83rem",
-                    marginTop: "1rem",
+                    marginTop: "auto",
                     fontWeight: 600,
                     display: "flex",
                     alignItems: "center",

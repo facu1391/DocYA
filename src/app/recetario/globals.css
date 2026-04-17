@@ -75,7 +75,7 @@ body {
   /* Cards */
   .glass-card {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     background: var(--bg-card);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -92,6 +92,7 @@ body {
     background: linear-gradient(90deg, transparent, rgba(10,230,199,0.5), transparent);
     opacity: 0;
     transition: var(--transition);
+    pointer-events: none;
   }
   .glass-card:hover::before { opacity: 1; }
   .glass-card:hover {
@@ -198,7 +199,7 @@ body {
   /* Card alias */
   .card {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     background: var(--bg-card);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -256,7 +257,7 @@ body {
   /* Stat card */
   .stat-card {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     background: var(--bg-card);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -264,6 +265,7 @@ body {
     border-radius: var(--radius-lg);
     transition: var(--transition);
     padding: 1.25rem 1.5rem;
+    min-height: 128px;
   }
   .stat-card::after {
     content: '';
@@ -314,3 +316,9 @@ body {
 .delay-4 { animation-delay: 0.4s; opacity: 0; }
 
 .spin { animation: spin 1s linear infinite; }
+
+.glass-card > *:first-child,
+.card > *:first-child,
+.stat-card > *:first-child {
+  margin-top: 0;
+}
