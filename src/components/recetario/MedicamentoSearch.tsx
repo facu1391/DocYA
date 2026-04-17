@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { buscarMedicamentos, Medicamento } from "@/lib/api";
+import { buscarMedicamentos, Medicamento } from "@/lib/recetario/api";
 
 interface Props {
   onSelect: (m: Medicamento) => void;
