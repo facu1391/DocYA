@@ -29,7 +29,28 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  async rewrites() {
+    const apiBase =
+      process.env.NEXT_PUBLIC_API_BASE ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      "https://docya-railway-production.up.railway.app";
+
+    return [
+      {
+        source: "/recetario/recetas/:path*/html",
+        destination: `${apiBase}/recetario/recetas/:path*/html`,
+      },
+      {
+        source: "/recetario/certificados/:path*/html",
+        destination: `${apiBase}/recetario/certificados/:path*/html`,
+      },
+      {
+        source: "/recetario/verificar/:path*",
+        destination: `${apiBase}/recetario/verificar/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
-

@@ -66,7 +66,10 @@ export default function HistorialPage() {
     }
   }
 
-  const base  = process.env.NEXT_PUBLIC_API_URL ?? "";
+  const base =
+    process.env.NEXT_PUBLIC_API_BASE ??
+    process.env.NEXT_PUBLIC_API_URL ??
+    "";
   const token = getToken() ?? "";
   const filtradas = filtro === "todas" ? recetas : recetas.filter((r) => r.estado === filtro);
 
