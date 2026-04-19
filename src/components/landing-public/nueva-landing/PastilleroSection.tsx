@@ -207,12 +207,12 @@ export default function PastilleroSection() {
 
         <ScrollReveal delay={0.8} className="mt-28 border-t border-white/10 pt-16 text-center">
           <p className="text-3xl font-light italic text-gray-300">
-            "DocYa no solo te atiende.{" "}
+            &quot;DocYa no solo te atiende.{" "}
             <span className="relative inline-block font-bold text-white">
               Te cuida todos los días.
               <span className="absolute bottom-0 left-0 h-1 w-full rounded-full bg-[#14B8A6]/50" />
             </span>
-            "
+            &quot;
           </p>
         </ScrollReveal>
       </div>
