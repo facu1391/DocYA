@@ -17,6 +17,7 @@ import {
 import { apiUrl } from "@/lib/referidos";
 
 const GOOGLE_CLIENT_ID =
+  process.env.NEXT_PUBLIC_REFERIDOS_GOOGLE_CLIENT_ID ||
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   "327572770521-tom99oocat1tcp9pahlejsar4iu62lhg.apps.googleusercontent.com";
 

@@ -39,7 +39,7 @@ export function getReferidosApiBase() {
   return (
     process.env.NEXT_PUBLIC_API_BASE ||
     process.env.NEXT_PUBLIC_API_URL ||
-    ""
+    "https://docya-railway-production.up.railway.app"
   )
 }
 
