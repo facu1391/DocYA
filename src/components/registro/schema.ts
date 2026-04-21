@@ -50,6 +50,7 @@ export const registroPacienteSchema = z
     telefono: z.string().min(6, "Teléfono inválido"),
     dni: z.string().regex(/^\d{7,9}$/, "DNI inválido (7 a 9 dígitos)"),
     fechaNacimiento: z.string().min(1, "Ingresá tu fecha de nacimiento"),
+    sexo: z.string().regex(/^(masculino|femenino|otro)$/, "Seleccioná tu sexo"),
     zona: z.string().min(2, "Ingresá una zona"),
     password: z.string().min(8, "Mínimo 8 caracteres"),
     passwordConfirm: z.string().min(8, "Confirmá tu contraseña"),

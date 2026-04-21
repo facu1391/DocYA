@@ -149,6 +149,7 @@ export default function RegistroForm({ mode = "pro" }: Props) {
           provincia,
           localidad,
           fecha_nacimiento: raw.fechaNacimiento || null,
+          sexo: raw.sexo,
           acepto_condiciones: true,
           codigo_referido: codigoReferido || undefined,
         };
@@ -371,6 +372,25 @@ export default function RegistroForm({ mode = "pro" }: Props) {
                   />
                 </div>
                 <Err msg={(errors as any)?.fechaNacimiento?.message} />
+              </div>
+            )}
+
+            {isPaciente && (
+              <div>
+                <Label>Sexo</Label>
+                <div className="relative mt-1">
+                  <select
+                    className="h-11 w-full rounded-md border bg-background px-3 pr-8 focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] md:h-12"
+                    defaultValue=""
+                    {...register("sexo" as any)}
+                  >
+                    <option value="">Elegí una opción</option>
+                    <option value="masculino">Masculino</option>
+                    <option value="femenino">Femenino</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+                <Err msg={(errors as any)?.sexo?.message} />
               </div>
             )}
           </div>
