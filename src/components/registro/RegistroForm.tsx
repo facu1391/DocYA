@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Script from "next/script";
 import {
   registroPacienteSchema,
   registroSchema,
@@ -42,6 +43,32 @@ type Props = {
   mode?: Mode;
 };
 
+type GoogleWindow = Window & {
+  google?: {
+    maps?: {
+      places?: {
+        Autocomplete?: new (
+          input: HTMLInputElement,
+          options: {
+            fields: string[];
+            componentRestrictions?: { country: string };
+            types?: string[];
+          },
+        ) => GooglePlacesAutocomplete;
+      };
+    };
+  };
+};
+
+type GooglePlacesPlace = {
+  formatted_address?: string;
+};
+
+type GooglePlacesAutocomplete = {
+  addListener: (eventName: "place_changed", handler: () => void) => void;
+  getPlace: () => GooglePlacesPlace;
+};
+
 const PRO_COUNTRIES = [
   { code: "AR", phoneCode: "54" },
   { code: "UY", phoneCode: "598" },
@@ -52,6 +79,9 @@ const PRO_COUNTRIES = [
   { code: "ES", phoneCode: "34" },
   { code: "US", phoneCode: "1" },
 ];
+
+const PRO_PLACES_API_KEY =
+  process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyDVv_barlVwHJTgLF66dP4ESUffCBuS3uA";
 
 function flagEmoji(code: string) {
   return code
@@ -65,6 +95,10 @@ export default function RegistroForm({ mode = "pro" }: Props) {
   const [loadingSplash, setLoadingSplash] = useState(false);
   const [codigoReferido, setCodigoReferido] = useState("");
   const [proCountry, setProCountry] = useState(PRO_COUNTRIES[0]);
+  const [placesLoaded, setPlacesLoaded] = useState(false);
+  const [placesStatus, setPlacesStatus] = useState("");
+  const proAddressInputRef = useRef<HTMLInputElement | null>(null);
+  const proAutocompleteRef = useRef<GooglePlacesAutocomplete | null>(null);
 
   const isPaciente = mode === "paciente";
 
@@ -98,6 +132,41 @@ export default function RegistroForm({ mode = "pro" }: Props) {
   const dniFrente = watch("dniFrente" as any) as File | undefined;
   const dniDorso = watch("dniDorso" as any) as File | undefined;
   const selfieDni = watch("selfieDni" as any) as File | undefined;
+
+  useEffect(() => {
+    if (isPaciente || !placesLoaded || !proAddressInputRef.current) return;
+
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    const bindAutocomplete = () => {
+      const Autocomplete = (window as GoogleWindow).google?.maps?.places?.Autocomplete;
+      if (!Autocomplete || !proAddressInputRef.current) {
+        attempts += 1;
+        if (attempts < maxAttempts) {
+          window.setTimeout(bindAutocomplete, 300);
+        } else {
+          setPlacesStatus("Google Places no termino de inicializar.");
+        }
+        return;
+      }
+
+      setPlacesStatus("");
+      proAutocompleteRef.current = new Autocomplete(proAddressInputRef.current, {
+        fields: ["formatted_address"],
+        componentRestrictions: { country: "ar" },
+        types: ["address"],
+      });
+
+      proAutocompleteRef.current.addListener("place_changed", () => {
+        const place = proAutocompleteRef.current?.getPlace?.();
+        const value = place?.formatted_address || proAddressInputRef.current?.value || "";
+        setValue("direccion" as any, value, { shouldValidate: true, shouldDirty: true });
+      });
+    };
+
+    bindAutocomplete();
+  }, [isPaciente, placesLoaded, setValue]);
 
   const onPickFile =
     (field: keyof RegistroFormValues) =>
@@ -208,6 +277,8 @@ export default function RegistroForm({ mode = "pro" }: Props) {
   const Err = ({ msg }: { msg?: string }) =>
     msg ? <p className="mt-1 text-xs text-red-500">{msg}</p> : null;
 
+  const direccionField = register("direccion" as any);
+
   function FileRow({
     id,
     label,
@@ -262,6 +333,15 @@ export default function RegistroForm({ mode = "pro" }: Props) {
 
   return (
     <>
+      {!isPaciente && (
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${PRO_PLACES_API_KEY}&libraries=places&loading=async&language=es&region=AR`}
+          strategy="afterInteractive"
+          onLoad={() => setPlacesLoaded(true)}
+          onReady={() => setPlacesLoaded(true)}
+        />
+      )}
+
       <div className="surface rounded-3xl border p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] sm:p-6 md:p-8">
         <div className="mb-6">
           <span className="badge">Formulario</span>
@@ -447,11 +527,16 @@ export default function RegistroForm({ mode = "pro" }: Props) {
                   <Input
                     className="h-11 pl-9 md:h-12"
                     placeholder="Ej: Av. Santa Fe 1234, piso 4, CABA"
-                    {...register("direccion" as any)}
+                    {...direccionField}
+                    ref={(node) => {
+                      direccionField.ref(node);
+                      proAddressInputRef.current = node;
+                    }}
                     autoComplete="street-address"
                   />
                 </div>
                 <Err msg={(errors as any)?.direccion?.message} />
+                {placesStatus ? <p className="mt-1 text-xs text-amber-600">{placesStatus}</p> : null}
               </div>
             </>
           )}

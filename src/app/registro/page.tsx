@@ -2,6 +2,7 @@
 import { Suspense } from "react";
 import RegistroHero from "@/components/registro/RegistroHero";
 import RegistroForm from "@/components/registro/RegistroForm";
+import RegistroProGoogleFlow from "@/components/registro/RegistroProGoogleFlow";
 
 export const metadata = {
   title: "Registro de profesionales",
@@ -23,7 +24,10 @@ export default function Page() {
         <div className="mx-auto w-full max-w-6xl px-4">
           <div className="mx-auto w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
             <Suspense fallback={null}>
-              <RegistroForm mode="pro" />
+              <div className="grid gap-6">
+                <RegistroProGoogleFlow />
+                <RegistroForm mode="pro" />
+              </div>
             </Suspense>
           </div>
         </div>
