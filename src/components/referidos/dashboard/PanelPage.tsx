@@ -22,6 +22,7 @@ import {
   apiUrl,
   getStoredReferente,
   getStoredToken,
+  setStoredReferente,
 } from "@/lib/referidos";
 
 function StatCard({
@@ -178,7 +179,16 @@ export default function PanelPage() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => d && setStats(d))
+      .then((d) => {
+        if (!d) return;
+        setStats(d);
+        // Sincronizar código y link por si el admin los cambió
+        if (d.codigo_referido && d.link_referido) {
+          const updated = { ...stored, codigo_referido: d.codigo_referido, link_referido: d.link_referido };
+          setStoredReferente(updated);
+          setReferente(updated);
+        }
+      })
       .finally(() => setLoading(false));
   }, []);
 
