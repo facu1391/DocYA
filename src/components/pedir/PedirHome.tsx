@@ -17,7 +17,14 @@ import {
   Moon,
   Sun,
 } from "lucide-react";
-import { toast } from "react-hot-toast";
+// toast simple inline
+const notify = (msg: string, ok = true) => {
+  const el = document.createElement("div");
+  el.textContent = msg;
+  el.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;color:#fff;background:${ok ? "rgba(0,179,166,0.9)" : "rgba(239,68,68,0.9)"};box-shadow:0 8px 24px rgba(0,0,0,0.25);transition:opacity 0.3s`;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 300); }, 3000);
+};
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 const GOOGLE_CLIENT_ID =
@@ -72,27 +79,21 @@ const TRUST = [
   { icon: Star, label: "Pagos seguros con MP" },
 ];
 
-declare global {
-  interface Window {
-    google?: {
-      accounts?: {
-        id?: {
-          initialize: (c: object) => void;
-          renderButton: (el: HTMLElement, opts: object) => void;
-        };
-      };
-    };
-    AppleID?: {
-      auth?: {
-        init: (c: object) => void;
-        signIn: () => Promise<{
-          authorization: { id_token: string };
-          user?: { name?: { firstName?: string; lastName?: string }; email?: string };
-        }>;
-      };
-    };
-  }
-}
+type GoogleId = {
+  initialize: (c: object) => void;
+  renderButton: (el: HTMLElement, opts: object) => void;
+};
+type AppleAuthFn = {
+  init: (c: object) => void;
+  signIn: () => Promise<{
+    authorization: { id_token: string };
+    user?: { name?: { firstName?: string; lastName?: string }; email?: string };
+  }>;
+};
+type PedirWin = {
+  google?: { accounts?: { id?: GoogleId } };
+  AppleID?: { auth?: AppleAuthFn };
+};
 
 export default function PedirHome() {
   const router = useRouter();
@@ -134,9 +135,9 @@ export default function PedirHome() {
         email: data.user?.email ?? "",
         perfil_completo: data.perfil_completo ?? data.user?.perfil_completo ?? false,
       });
-      toast.success("¡Bienvenido a DocYa!");
+      notify("¡Bienvenido a DocYa!");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "No se pudo iniciar sesión");
+      notify(e instanceof Error ? e.message : "No se pudo iniciar sesión", false);
     } finally {
       setGoogleBusy(false);
     }
@@ -145,7 +146,7 @@ export default function PedirHome() {
   // Renderizar botón Google
   useEffect(() => {
     if (!googleLoaded || googleRendered.current || !googleRef.current || user) return;
-    const g = window.google?.accounts?.id;
+    const g = (window as unknown as PedirWin).google?.accounts?.id;
     if (!g) return;
     g.initialize({
       client_id: GOOGLE_CLIENT_ID,
@@ -167,13 +168,14 @@ export default function PedirHome() {
   const handleApple = useCallback(async () => {
     setAppleBusy(true);
     try {
-      window.AppleID?.auth?.init({
+      const appleAuth = (window as unknown as PedirWin).AppleID?.auth;
+      appleAuth?.init({
         clientId: APPLE_SERVICE_ID,
         scope: "name email",
         redirectURI: "https://www.docya.com.ar/pedir",
         usePopup: true,
       });
-      const resp = await window.AppleID?.auth?.signIn();
+      const resp = await appleAuth?.signIn();
       if (!resp) throw new Error("Apple no respondió");
       const token = resp.authorization?.id_token;
       if (!token) throw new Error("Token inválido");
@@ -193,10 +195,10 @@ export default function PedirHome() {
         email: data.user?.email ?? resp.user?.email ?? "",
         perfil_completo: data.perfil_completo ?? data.user?.perfil_completo ?? false,
       });
-      toast.success("¡Bienvenido a DocYa!");
+      notify("¡Bienvenido a DocYa!");
     } catch (e: unknown) {
       if (e && typeof e === "object" && "error" in e && (e as { error: string }).error === "popup_closed_by_user") return;
-      toast.error(e instanceof Error ? e.message : "No se pudo iniciar con Apple");
+      notify(e instanceof Error ? e.message : "No se pudo iniciar con Apple", false);
     } finally {
       setAppleBusy(false);
     }
@@ -231,7 +233,7 @@ export default function PedirHome() {
               {user ? (
                 <>
                   <span style={{ fontSize: 14, color: muted }}>{user.full_name.split(" ")[0]}</span>
-                  <button onClick={logout} style={{ fontSize: 13, color: muted, background: "none", border: "none", cursor: "pointer", padding: "6px 12px", borderRadius: 999, border: `1px solid ${border}` }}>Salir</button>
+                  <button onClick={logout} style={{ fontSize: 13, color: muted, background: "none", cursor: "pointer", padding: "6px 12px", borderRadius: 999, border: `1px solid ${border}` }}>Salir</button>
                 </>
               ) : null}
               <button onClick={() => setDark(d => !d)} style={{ background: "none", border: "none", cursor: "pointer", color: muted, padding: 6, borderRadius: 999, display: "flex", alignItems: "center" }}>
