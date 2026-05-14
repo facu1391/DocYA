@@ -139,6 +139,7 @@ export default function RegistroPacienteGoogleFlow() {
   const [googleBusy, setGoogleBusy] = useState(false);
   const [appleBusy, setAppleBusy] = useState(false);
   const [aceptaTerminosApple, setAceptaTerminosApple] = useState(false);
+  const [aceptaTerminosGeneral, setAceptaTerminosGeneral] = useState(false);
   const [stage, setStage] = useState<"google" | "profile">("google");
   const [loadingSplash, setLoadingSplash] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -178,7 +179,7 @@ export default function RegistroPacienteGoogleFlow() {
   }, [searchParams]);
 
   const handleAppleSignIn = useCallback(async () => {
-    if (!aceptaTerminosApple) {
+    if (!aceptaTerminosGeneral) {
       toast.error("Debés aceptar los términos y condiciones.");
       return;
     }
@@ -237,7 +238,7 @@ export default function RegistroPacienteGoogleFlow() {
     } finally {
       setAppleBusy(false);
     }
-  }, [aceptaTerminosApple]);
+  }, [aceptaTerminosGeneral]);
 
   const handleGoogleCredential = useCallback(async (credential: string) => {
     setGoogleBusy(true);
@@ -451,6 +452,7 @@ export default function RegistroPacienteGoogleFlow() {
 
         {stage === "google" ? (
           <div className="grid gap-5">
+            {/* Validación de identidad */}
             <div className="rounded-2xl border bg-background/70 p-5">
               <div className="flex items-start gap-3">
                 <div className="rounded-xl border border-[color-mix(in_srgb,var(--brand)_35%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] p-2 text-[var(--brand)]">
@@ -459,18 +461,46 @@ export default function RegistroPacienteGoogleFlow() {
                 <div>
                   <p className="text-sm font-semibold">Primero validamos tu identidad</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Usá tu cuenta Google y después te pedimos documento, teléfono, dirección y fecha de nacimiento.
+                    Usá tu cuenta Google o Apple y después te pedimos documento, teléfono, dirección y fecha de nacimiento.
                   </p>
                 </div>
               </div>
             </div>
 
+            {/* Términos compartidos */}
+            <div className="rounded-2xl border bg-background/70 p-5">
+              <div className="mb-3 max-h-40 overflow-auto rounded-xl border p-3">
+                <TermsPaciente />
+              </div>
+              <div className="flex items-start gap-3">
+                <input
+                  id="aceptaTerminosGeneral"
+                  type="checkbox"
+                  className="mt-0.5 h-4 w-4 shrink-0"
+                  checked={aceptaTerminosGeneral}
+                  onChange={(e) => setAceptaTerminosGeneral(e.target.checked)}
+                />
+                <label htmlFor="aceptaTerminosGeneral" className="cursor-pointer text-sm text-muted-foreground leading-snug">
+                  Acepto los{" "}
+                  <Link href="/legal/pacientes/terminos" className="link-primary">
+                    Términos y Condiciones
+                  </Link>{" "}
+                  y la{" "}
+                  <Link href="/legal/pacientes/privacidad" className="link-primary">
+                    Política de Privacidad
+                  </Link>
+                  .
+                </label>
+              </div>
+            </div>
+
+            {/* Google */}
             <div className="rounded-2xl border bg-background p-5">
               <div className="mb-4 flex items-center gap-2 text-sm font-medium">
                 <Mail className="h-4 w-4 text-[var(--brand)]" />
                 Ingresar con Google
               </div>
-              <div className="flex min-h-12 items-center justify-center">
+              <div className={`flex min-h-12 items-center justify-center transition-opacity ${!aceptaTerminosGeneral ? "pointer-events-none opacity-40" : ""}`}>
                 {googleBusy ? (
                   <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                     Validando tu cuenta
@@ -490,6 +520,7 @@ export default function RegistroPacienteGoogleFlow() {
               ) : null}
             </div>
 
+            {/* Apple */}
             <div className="rounded-2xl border bg-background p-5">
               <div className="mb-4 flex items-center gap-2 text-sm font-medium">
                 <svg className="h-4 w-4" viewBox="0 0 814 1000" fill="currentColor">
@@ -497,37 +528,10 @@ export default function RegistroPacienteGoogleFlow() {
                 </svg>
                 Ingresar con Apple
               </div>
-
-              {/* Términos */}
-              <div className="mb-4 flex items-start gap-3">
-                <input
-                  id="aceptaTerminosApple"
-                  type="checkbox"
-                  className="mt-1 h-4 w-4"
-                  checked={aceptaTerminosApple}
-                  onChange={(e) => setAceptaTerminosApple(e.target.checked)}
-                />
-                <Label htmlFor="aceptaTerminosApple" className="text-sm text-muted-foreground">
-                  Acepto los{" "}
-                  <Link href="/legal/pacientes/terminos" className="link-primary">
-                    Términos y Condiciones
-                  </Link>{" "}
-                  y la{" "}
-                  <Link href="/legal/pacientes/privacidad" className="link-primary">
-                    Política de Privacidad
-                  </Link>
-                  .
-                </Label>
-              </div>
-
-              <div className="mb-3 max-h-40 overflow-auto rounded-xl border p-3">
-                <TermsPaciente />
-              </div>
-
               <button
                 type="button"
                 onClick={handleAppleSignIn}
-                disabled={appleBusy || !aceptaTerminosApple}
+                disabled={appleBusy || !aceptaTerminosGeneral}
                 className="flex w-full items-center justify-center gap-3 rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:opacity-80 disabled:opacity-40 dark:bg-white dark:text-black"
               >
                 {appleBusy ? (
@@ -544,7 +548,6 @@ export default function RegistroPacienteGoogleFlow() {
                   </>
                 )}
               </button>
-
               {codigoReferido ? (
                 <p className="mt-2 text-xs font-medium text-[var(--brand)]">
                   Referido aplicado: {codigoReferido}

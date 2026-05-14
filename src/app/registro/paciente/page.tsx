@@ -15,16 +15,16 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <main className="bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
+    <div>
       <RegistroHero mode="paciente" />
 
       <section className="container relative px-3 sm:px-4 md:px-6 py-10 md:py-14">
-        <div className="mx-auto w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
+        <div className="mx-auto w-full max-w-lg sm:max-w-xl md:max-w-2xl">
           <Suspense fallback={null}>
             <RegistroPacienteGoogleFlow />
           </Suspense>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

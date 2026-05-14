@@ -9,7 +9,14 @@ export default function Footer() {
   const year = new Date().getFullYear();
   const pathname = usePathname();
 
-  const isPublicAudience = pathname === "/" || pathname.startsWith("/legal/pacientes");
+  const isPublicAudience =
+    pathname === "/" ||
+    pathname.startsWith("/legal/pacientes") ||
+    pathname.startsWith("/registro/paciente") ||
+    pathname.startsWith("/gracias") ||
+    pathname.startsWith("/como-funciona") ||
+    pathname.startsWith("/precios") ||
+    pathname.startsWith("/cobertura");
   const legalBase = isPublicAudience ? "/legal/pacientes" : "/legal/pro";
 
   const publicCopy =
