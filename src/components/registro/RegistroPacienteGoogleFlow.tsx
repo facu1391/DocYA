@@ -311,12 +311,16 @@ export default function RegistroPacienteGoogleFlow() {
       cancel_on_tap_outside: true,
     } as GoogleIdConfiguration);
 
+    const btnWidth = Math.min(
+      googleButtonRef.current.offsetWidth || 300,
+      360,
+    );
     googleApi.accounts.id.renderButton(googleButtonRef.current, {
       theme: "outline",
       size: "large",
       shape: "pill",
       text: "signup_with",
-      width: 360,
+      width: btnWidth,
       logo_alignment: "left",
     });
 
@@ -443,7 +447,7 @@ export default function RegistroPacienteGoogleFlow() {
         strategy="afterInteractive"
       />
 
-      <div className="surface w-full overflow-hidden rounded-3xl border p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] sm:p-6 md:p-8">
+      <div className="surface w-full overflow-hidden rounded-3xl border p-4 shadow-[0_10px_30px_rgba(0,0,0,0.08)] [overflow-wrap:anywhere] sm:p-6 md:p-8">
         <div className="mb-6">
           <span className="badge">Pacientes</span>
           <h2 className="mt-3 text-xl font-semibold md:text-2xl">{title}</h2>
@@ -503,14 +507,14 @@ export default function RegistroPacienteGoogleFlow() {
                 <Mail className="h-4 w-4 text-[var(--brand)]" />
                 Ingresar con Google
               </div>
-              <div className={`flex min-h-12 items-center justify-center transition-opacity ${!aceptaTerminosGeneral ? "pointer-events-none opacity-40" : ""}`}>
+              <div className={`w-full min-h-12 flex items-center justify-center transition-opacity ${!aceptaTerminosGeneral ? "pointer-events-none opacity-40" : ""}`}>
                 {googleBusy ? (
                   <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                     Validando tu cuenta
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </div>
                 ) : (
-                  <div ref={googleButtonRef} />
+                  <div ref={googleButtonRef} className="w-full" />
                 )}
               </div>
               <p className="mt-4 text-xs text-muted-foreground">
