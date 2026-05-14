@@ -138,6 +138,7 @@ export default function RegistroPacienteGoogleFlow() {
   const [googleLoaded, setGoogleLoaded] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [appleBusy, setAppleBusy] = useState(false);
+  const [aceptaTerminosApple, setAceptaTerminosApple] = useState(false);
   const [stage, setStage] = useState<"google" | "profile">("google");
   const [loadingSplash, setLoadingSplash] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -177,6 +178,10 @@ export default function RegistroPacienteGoogleFlow() {
   }, [searchParams]);
 
   const handleAppleSignIn = useCallback(async () => {
+    if (!aceptaTerminosApple) {
+      toast.error("Debés aceptar los términos y condiciones.");
+      return;
+    }
     setAppleBusy(true);
     setStatusMessage("");
     try {
@@ -232,7 +237,7 @@ export default function RegistroPacienteGoogleFlow() {
     } finally {
       setAppleBusy(false);
     }
-  }, []);
+  }, [aceptaTerminosApple]);
 
   const handleGoogleCredential = useCallback(async (credential: string) => {
     setGoogleBusy(true);
@@ -490,13 +495,40 @@ export default function RegistroPacienteGoogleFlow() {
                 <svg className="h-4 w-4" viewBox="0 0 814 1000" fill="currentColor">
                   <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-42.3-150.9-103.2c-46-60.9-85.5-159-85.5-252.9 0-73.4 13.1-145.8 41.1-207.8 40.2-91.5 105-150 165.9-150 62.5 0 101.6 39.5 165.9 39.5 62.5 0 100.2-39.5 165.9-39.5 62.5 0 126.2 58.4 165.9 150zm-114.3-258.8c27.6-31.7 47.6-75.7 47.6-119.8 0-6.1-.5-12.2-1.6-17.3-45.1 1.6-98.8 30.3-130.5 63.2-27.6 29.9-51.2 73.9-51.2 118.5 0 6.7 1.1 13.4 1.6 15.5 2.7.5 7.1 1.1 11.6 1.1 41.9 0 91.5-28.1 122.5-61.2z" />
                 </svg>
-                Continuar con Apple
+                Ingresar con Apple
               </div>
+
+              {/* Términos */}
+              <div className="mb-4 flex items-start gap-3">
+                <input
+                  id="aceptaTerminosApple"
+                  type="checkbox"
+                  className="mt-1 h-4 w-4"
+                  checked={aceptaTerminosApple}
+                  onChange={(e) => setAceptaTerminosApple(e.target.checked)}
+                />
+                <Label htmlFor="aceptaTerminosApple" className="text-sm text-muted-foreground">
+                  Acepto los{" "}
+                  <Link href="/legal/pacientes/terminos" className="link-primary">
+                    Términos y Condiciones
+                  </Link>{" "}
+                  y la{" "}
+                  <Link href="/legal/pacientes/privacidad" className="link-primary">
+                    Política de Privacidad
+                  </Link>
+                  .
+                </Label>
+              </div>
+
+              <div className="mb-3 max-h-40 overflow-auto rounded-xl border p-3">
+                <TermsPaciente />
+              </div>
+
               <button
                 type="button"
                 onClick={handleAppleSignIn}
-                disabled={appleBusy}
-                className="flex w-full items-center justify-center gap-3 rounded-full border border-foreground/20 bg-foreground px-6 py-3 text-sm font-semibold text-background transition hover:opacity-90 disabled:opacity-50"
+                disabled={appleBusy || !aceptaTerminosApple}
+                className="flex w-full items-center justify-center gap-3 rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:opacity-80 disabled:opacity-40 dark:bg-white dark:text-black"
               >
                 {appleBusy ? (
                   <>
@@ -512,7 +544,13 @@ export default function RegistroPacienteGoogleFlow() {
                   </>
                 )}
               </button>
-              <p className="mt-3 text-xs text-muted-foreground">
+
+              {codigoReferido ? (
+                <p className="mt-2 text-xs font-medium text-[var(--brand)]">
+                  Referido aplicado: {codigoReferido}
+                </p>
+              ) : null}
+              <p className="mt-2 text-xs text-muted-foreground">
                 Funciona mejor en Safari. En otros navegadores abre un popup de Apple.
               </p>
             </div>
