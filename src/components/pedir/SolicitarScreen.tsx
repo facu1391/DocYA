@@ -1,34 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Script from "next/script";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowLeft, MapPin, Stethoscope, Video, HeartPulse,
+  ArrowLeft, Stethoscope, Video, HeartPulse,
   CreditCard, Wallet, Banknote, Loader2, ChevronRight,
   Navigation,
 } from "lucide-react";
+import AddressInput from "./AddressInput";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
-const PLACES_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyAcvJIlpOAkRzVaXlcnE8lJQfQGBqx-bKA";
 
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean };
 type MetodoPago = "tarjeta" | "saldo_mp" | "efectivo";
-
-type GWin = Window & {
-  google?: {
-    maps?: {
-      places?: {
-        Autocomplete?: new (
-          el: HTMLInputElement,
-          opts: { fields: string[]; componentRestrictions?: { country: string }; types?: string[] }
-        ) => { addListener: (e: string, fn: () => void) => void; getPlace: () => { formatted_address?: string; geometry?: { location?: { lat: () => number; lng: () => number } } } };
-      };
-    };
-  };
-};
 
 const TIPO_CONFIG = {
   medico:       { label: "Médico a domicilio",     icon: Stethoscope, color: "#00b3a6" },
@@ -57,9 +43,7 @@ export default function SolicitarScreen() {
   const tipo = (params.get("tipo") ?? "medico") as keyof typeof TIPO_CONFIG;
   const cfg = TIPO_CONFIG[tipo] ?? TIPO_CONFIG.medico;
 
-  const addressRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<unknown>(null);
-  const [placesLoaded, setPlacesLoaded] = useState(false);
+  // AddressInput component maneja el autocomplete internamente
 
   const [user, setUser] = useState<PedirUser | null>(null);
   const [motivo, setMotivo] = useState("");
@@ -95,24 +79,8 @@ export default function SolicitarScreen() {
     );
   }, []);
 
-  // Google Places autocomplete
-  useEffect(() => {
-    if (!placesLoaded || !addressRef.current) return;
-    const Autocomplete = (window as GWin).google?.maps?.places?.Autocomplete;
-    if (!Autocomplete) return;
-    const ac = new Autocomplete(addressRef.current, {
-      fields: ["formatted_address", "geometry"],
-      componentRestrictions: { country: "ar" },
-      types: ["address"],
-    });
-    ac.addListener("place_changed", () => {
-      const place = ac.getPlace();
-      if (place.formatted_address) setDireccion(place.formatted_address);
-      const loc = place.geometry?.location;
-      if (loc) { setLat(loc.lat()); setLng(loc.lng()); }
-    });
-    autocompleteRef.current = ac;
-  }, [placesLoaded]);
+
+  const PLACES_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyAcvJIlpOAkRzVaXlcnE8lJQfQGBqx-bKA";
 
   const usarUbicacionActual = useCallback(() => {
     if (!navigator.geolocation) return notify("Geolocalización no disponible", false);
@@ -126,15 +94,12 @@ export default function SolicitarScreen() {
           );
           const data = await res.json();
           const addr = data.results?.[0]?.formatted_address;
-          if (addr) {
-            setDireccion(addr);
-            if (addressRef.current) addressRef.current.value = addr;
-          }
+          if (addr) setDireccion(addr);
         } catch (_) {}
       },
       () => notify("No pudimos obtener tu ubicación", false)
     );
-  }, []);
+  }, [PLACES_KEY]);
 
   const handleSubmit = useCallback(async () => {
     if (!user) return;
@@ -212,11 +177,6 @@ export default function SolicitarScreen() {
 
   return (
     <>
-      <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=${PLACES_KEY}&libraries=places&loading=async&language=es&region=AR`}
-        strategy="afterInteractive"
-        onLoad={() => setPlacesLoaded(true)}
-      />
 
       <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
@@ -266,16 +226,17 @@ export default function SolicitarScreen() {
               <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>
                 {tipo === "teleconsulta" ? "Tu ubicación (para asignar profesional cercano)" : "Dirección de atención"}
               </label>
-              <div style={{ position: "relative" }}>
-                <MapPin size={18} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: cfg.color }} />
-                <input
-                  ref={addressRef}
-                  value={direccion}
-                  onChange={e => setDireccion(e.target.value)}
-                  placeholder="Empezá a escribir tu dirección..."
-                  style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "14px 14px 14px 44px", color: text, fontSize: 15, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
-                />
-              </div>
+              <AddressInput
+                value={direccion}
+                onChange={setDireccion}
+                onPlaceSelect={(addr, lat, lng) => {
+                  setDireccion(addr);
+                  if (lat !== undefined) setLat(lat);
+                  if (lng !== undefined) setLng(lng);
+                }}
+                placeholder="Empezá a escribir tu dirección..."
+                dark={dark}
+              />
               <button
                 onClick={usarUbicacionActual}
                 style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10, fontSize: 13, color: cfg.color, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}

@@ -136,6 +136,10 @@ export default function PedirHome() {
         perfil_completo: data.perfil_completo ?? data.user?.perfil_completo ?? false,
       });
       notify("¡Bienvenido a DocYa!");
+      // Si el perfil no está completo, redirigir a completar perfil
+      if (!data.perfil_completo && !data.user?.perfil_completo) {
+        router.push("/pedir/perfil");
+      }
     } catch (e) {
       notify(e instanceof Error ? e.message : "No se pudo iniciar sesión", false);
     } finally {
@@ -196,6 +200,9 @@ export default function PedirHome() {
         perfil_completo: data.perfil_completo ?? data.user?.perfil_completo ?? false,
       });
       notify("¡Bienvenido a DocYa!");
+      if (!data.perfil_completo && !data.user?.perfil_completo) {
+        router.push("/pedir/perfil");
+      }
     } catch (e: unknown) {
       if (e && typeof e === "object" && "error" in e && (e as { error: string }).error === "popup_closed_by_user") return;
       notify(e instanceof Error ? e.message : "No se pudo iniciar con Apple", false);
