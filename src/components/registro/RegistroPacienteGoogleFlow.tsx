@@ -472,7 +472,7 @@ export default function RegistroPacienteGoogleFlow() {
               <div className="mb-3 max-h-40 overflow-auto rounded-xl border p-3">
                 <TermsPaciente />
               </div>
-              <div className="flex items-start gap-3">
+              <div className="flex min-w-0 items-start gap-3">
                 <input
                   id="aceptaTerminosGeneral"
                   type="checkbox"
@@ -480,7 +480,7 @@ export default function RegistroPacienteGoogleFlow() {
                   checked={aceptaTerminosGeneral}
                   onChange={(e) => setAceptaTerminosGeneral(e.target.checked)}
                 />
-                <label htmlFor="aceptaTerminosGeneral" className="cursor-pointer text-sm text-muted-foreground leading-snug">
+                <label htmlFor="aceptaTerminosGeneral" className="min-w-0 cursor-pointer break-words text-sm leading-snug text-muted-foreground">
                   Acepto los{" "}
                   <Link href="/legal/pacientes/terminos" className="link-primary">
                     Términos y Condiciones
