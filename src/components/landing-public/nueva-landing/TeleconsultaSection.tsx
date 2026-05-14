@@ -47,56 +47,39 @@ export default function TeleconsultaSection() {
 
         {/* Card visual */}
         <ScrollReveal delay={0.15} className="order-1 md:order-2">
-          <div className="glass-card relative flex aspect-[4/3] flex-col items-center justify-center overflow-hidden rounded-3xl shadow-2xl">
-            {/* Fondo degradado */}
+          <div
+            className="glass-card flex flex-col items-center justify-center gap-6 overflow-hidden rounded-3xl p-10 shadow-2xl"
+            style={{
+              background:
+                "radial-gradient(ellipse at 60% 20%, rgba(0,210,255,0.10) 0%, transparent 60%), radial-gradient(ellipse at 30% 80%, rgba(58,134,255,0.08) 0%, transparent 60%)",
+            }}
+          >
+            {/* Ícono */}
             <div
-              className="absolute inset-0"
+              className="flex h-24 w-24 items-center justify-center rounded-3xl shadow-xl"
               style={{
-                background:
-                  "radial-gradient(ellipse at 60% 30%, rgba(0,210,255,0.13) 0%, transparent 70%), radial-gradient(ellipse at 30% 80%, rgba(58,134,255,0.10) 0%, transparent 60%)",
-              }}
-            />
-
-            {/* Ícono central */}
-            <div
-              className="relative z-10 mb-6 flex h-24 w-24 items-center justify-center rounded-3xl shadow-xl"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(0,210,255,0.18) 0%, rgba(10,230,199,0.22) 100%)",
+                background: "linear-gradient(135deg, rgba(0,210,255,0.18) 0%, rgba(10,230,199,0.22) 100%)",
                 border: "1px solid rgba(10,230,199,0.25)",
               }}
             >
               <Video size={44} style={{ color: "var(--primary)" }} />
             </div>
 
-            <p
-              className="relative z-10 text-center text-2xl font-bold"
-              style={{ color: "var(--primary)" }}
-            >
-              Videollamada
-            </p>
-            <p className="relative z-10 mt-2 text-center text-text-muted">
-              Consulta médica online segura
-            </p>
+            <div className="text-center">
+              <p className="text-2xl font-bold" style={{ color: "var(--primary)" }}>
+                Videollamada
+              </p>
+              <p className="mt-1 text-text-muted">Consulta médica online segura</p>
+            </div>
 
-            {/* Badge inferior */}
-            <div className="absolute bottom-6 left-6 flex items-center gap-3 rounded-2xl border border-border/50 bg-background/90 p-4 shadow-lg backdrop-blur-md">
-              <div
-                className="rounded-full p-2"
-                style={{
-                  background: "rgba(10,230,199,0.12)",
-                  color: "var(--primary)",
-                }}
-              >
-                <Video size={20} />
+            {/* Badge */}
+            <div className="flex items-center gap-3 rounded-2xl border border-border/50 bg-background/80 px-5 py-3 shadow backdrop-blur-md">
+              <div className="rounded-full p-2" style={{ background: "rgba(10,230,199,0.12)", color: "var(--primary)" }}>
+                <Video size={18} />
               </div>
               <div>
-                <p className="m-0 text-sm font-bold leading-tight">
-                  Disponible 24/7
-                </p>
-                <p className="m-0 text-xs text-text-muted">
-                  Médicos en minutos
-                </p>
+                <p className="m-0 text-sm font-bold leading-tight">Disponible 24/7</p>
+                <p className="m-0 text-xs text-text-muted">Médicos en minutos</p>
               </div>
             </div>
           </div>
