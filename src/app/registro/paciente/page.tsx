@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import RegistroHero from "@/components/registro/RegistroHero";
-import RegistroForm from "@/components/registro/RegistroForm";
 import RegistroPacienteGoogleFlow from "@/components/registro/RegistroPacienteGoogleFlow";
 
 export const metadata = {
@@ -21,14 +20,9 @@ export default function Page() {
 
       <section className="container relative px-3 sm:px-4 md:px-6 py-10 md:py-14">
         <div className="mx-auto w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
-          <div className="grid gap-8">
-            <Suspense fallback={null}>
-              <RegistroPacienteGoogleFlow />
-            </Suspense>
-            <Suspense fallback={null}>
-              <RegistroForm mode="paciente" />
-            </Suspense>
-          </div>
+          <Suspense fallback={null}>
+            <RegistroPacienteGoogleFlow />
+          </Suspense>
         </div>
       </section>
     </main>
