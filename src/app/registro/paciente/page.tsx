@@ -18,8 +18,8 @@ export default function Page() {
     <div>
       <RegistroHero mode="paciente" />
 
-      <section className="container relative px-3 sm:px-4 md:px-6 py-10 md:py-14">
-        <div className="mx-auto w-full max-w-lg sm:max-w-xl md:max-w-2xl">
+      <section className="px-4 py-6 md:py-12">
+        <div className="mx-auto w-full max-w-xl">
           <Suspense fallback={null}>
             <RegistroPacienteGoogleFlow />
           </Suspense>
