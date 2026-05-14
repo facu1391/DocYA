@@ -443,7 +443,7 @@ export default function RegistroPacienteGoogleFlow() {
         strategy="afterInteractive"
       />
 
-      <div className="surface rounded-3xl border p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] sm:p-6 md:p-8">
+      <div className="surface w-full overflow-hidden rounded-3xl border p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] sm:p-6 md:p-8">
         <div className="mb-6">
           <span className="badge">Pacientes</span>
           <h2 className="mt-3 text-xl font-semibold md:text-2xl">{title}</h2>
