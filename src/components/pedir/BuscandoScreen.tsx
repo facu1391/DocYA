@@ -20,6 +20,8 @@ type ConsultaData = {
   medico_matricula?: string;
   eta?: number;
   mp_status?: string;
+  video_url?: string;
+  daily_room_url?: string;
 };
 
 const TIPO_CONFIG: Record<string, { label: string; icon: typeof Stethoscope; color: string }> = {
@@ -63,16 +65,19 @@ export default function BuscandoScreen() {
   const fetchEstado = useCallback(async () => {
     if (!consultaId) return;
     try {
-      const res = await fetch(`${API}/consultas/${consultaId}/estado`);
+      // Para teleconsultas usamos el endpoint específico que devuelve video_url
+      const url = tipo === "teleconsulta"
+        ? `${API}/teleconsultas/${consultaId}`
+        : `${API}/consultas/${consultaId}/estado`;
+      const res = await fetch(url);
       if (!res.ok) return;
       const d = await res.json();
       setData(d);
-      // Detener polling cuando la consulta terminó
-      if (["finalizada", "cancelada"].includes(d.estado)) {
+      if (["finalizada", "cancelada", "cancelada_paciente"].includes(d.estado)) {
         if (pollRef.current) clearInterval(pollRef.current);
       }
     } catch (_) {}
-  }, [consultaId]);
+  }, [consultaId, tipo]);
 
   useEffect(() => {
     fetchEstado();
@@ -188,6 +193,22 @@ export default function BuscandoScreen() {
             <CheckCircle2 size={40} color="#4ade80" style={{ margin: "0 auto 12px" }} />
             <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>¡Consulta completada!</p>
             <p style={{ color: muted, fontSize: 14, lineHeight: 1.5 }}>Gracias por usar DocYa. Esperamos que te hayas recuperado pronto.</p>
+          </div>
+        )}
+
+        {/* BOTÓN UNIRSE A VIDEO (teleconsulta) */}
+        {tipo === "teleconsulta" && ["asignada", "en_videollamada"].includes(estado) && (data?.video_url || data?.daily_room_url) && (
+          <div style={{ marginBottom: 20 }}>
+            <Link
+              href={`/pedir/videollamada?consulta_id=${consultaId}&video_url=${encodeURIComponent(data.video_url || data.daily_room_url || "")}&medico=${encodeURIComponent(data?.medico_nombre ?? "")}`}
+              style={{ width: "100%", padding: "18px", borderRadius: 18, background: "linear-gradient(90deg, #818cf8, #a78bfa)", color: "#fff", fontSize: 17, fontWeight: 800, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, boxShadow: "0 8px 28px rgba(129,140,248,0.4)" }}
+            >
+              <Video size={22} />
+              Unirse a la videollamada
+            </Link>
+            <p style={{ fontSize: 12, color: muted, textAlign: "center", marginTop: 10 }}>
+              La sala ya está lista — podés entrar cuando quieras
+            </p>
           </div>
         )}
 
