@@ -468,11 +468,11 @@ export default function RegistroPacienteGoogleFlow() {
             </div>
 
             {/* Términos compartidos */}
-            <div className="rounded-2xl border bg-background/70 p-5">
-              <div className="mb-3 max-h-40 overflow-auto rounded-xl border p-3">
+            <div className="w-full overflow-hidden rounded-2xl border bg-background/70 p-4">
+              <div className="mb-3 max-h-40 w-full overflow-y-auto overflow-x-hidden rounded-xl border p-3">
                 <TermsPaciente />
               </div>
-              <div className="flex min-w-0 items-start gap-3">
+              <div className="flex w-full min-w-0 items-start gap-3">
                 <input
                   id="aceptaTerminosGeneral"
                   type="checkbox"
@@ -480,13 +480,16 @@ export default function RegistroPacienteGoogleFlow() {
                   checked={aceptaTerminosGeneral}
                   onChange={(e) => setAceptaTerminosGeneral(e.target.checked)}
                 />
-                <label htmlFor="aceptaTerminosGeneral" className="min-w-0 cursor-pointer break-words text-sm leading-snug text-muted-foreground">
+                <label
+                  htmlFor="aceptaTerminosGeneral"
+                  className="min-w-0 flex-1 cursor-pointer text-sm leading-relaxed text-muted-foreground"
+                >
                   Acepto los{" "}
-                  <Link href="/legal/pacientes/terminos" className="link-primary">
+                  <Link href="/legal/pacientes/terminos" className="link-primary whitespace-nowrap">
                     Términos y Condiciones
                   </Link>{" "}
                   y la{" "}
-                  <Link href="/legal/pacientes/privacidad" className="link-primary">
+                  <Link href="/legal/pacientes/privacidad" className="link-primary whitespace-nowrap">
                     Política de Privacidad
                   </Link>
                   .
