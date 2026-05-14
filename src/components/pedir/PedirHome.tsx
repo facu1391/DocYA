@@ -337,7 +337,7 @@ export default function PedirHome() {
                 {SERVICIOS.map((s) => (
                   <button
                     key={s.id}
-                    onClick={() => router.push(`/pedir/solicitar?tipo=${s.id}`)}
+                    onClick={() => router.push(`/pedir/filtro?tipo=${s.id}`)}
                     style={{ background: surface, border: `1px solid ${border}`, borderRadius: 24, padding: "28px 24px", textAlign: "left", cursor: "pointer", transition: "transform 0.15s, box-shadow 0.15s", display: "flex", flexDirection: "column", gap: 0 }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLElement).style.boxShadow = dark ? "0 16px 48px rgba(0,0,0,0.35)" : "0 8px 32px rgba(0,0,0,0.12)"; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
