@@ -1,12 +1,12 @@
 // src/components/landing-public/nueva-landing/ResolucionSection.tsx
-import { FileCheck2, HeartPulse, Check } from "lucide-react";
+import { FileCheck2, HeartPulse, Check, Video } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
 
 export default function ResolucionSection() {
   return (
     <section className="dark-section py-32">
       <div className="mx-auto w-full max-w-[1200px] px-6">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           <ScrollReveal>
             <div className="glass-card flex h-full flex-col">
               <div
@@ -31,6 +31,32 @@ export default function ResolucionSection() {
           </ScrollReveal>
 
           <ScrollReveal delay={0.15}>
+            <div className="glass-card flex h-full flex-col">
+              <div
+                className="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl"
+                style={{ background: "rgba(10, 230, 199, 0.1)", color: "var(--primary)" }}
+              >
+                <Video size={32} />
+              </div>
+
+              <h3 className="mb-3 text-2xl font-bold">Teleconsulta por video</h3>
+
+              <p className="text-text-muted mb-6 text-lg">
+                Consultá con un médico desde tu celular o computadora, sin salir de casa.
+              </p>
+
+              <ul className="flex flex-col gap-4">
+                {["Receta digital al instante", "Disponible 24/7", "Sin esperas"].map((item) => (
+                  <li key={item} className="flex items-center gap-3 text-lg font-medium">
+                    <Check size={20} style={{ color: "var(--accent)" }} className="shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal delay={0.3}>
             <div className="glass-card flex h-full flex-col">
               <div
                 className="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl"

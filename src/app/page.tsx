@@ -3,6 +3,7 @@ import Hero from "@/components/landing-public/nueva-landing/Hero";
 import IASection from "@/components/landing-public/nueva-landing/IASection";
 import GeoSection from "@/components/landing-public/nueva-landing/GeoSection";
 import DomicilioSection from "@/components/landing-public/nueva-landing/DomicilioSection";
+import TeleconsultaSection from "@/components/landing-public/nueva-landing/TeleconsultaSection";
 import ResolucionSection from "@/components/landing-public/nueva-landing/ResolucionSection";
 import PastilleroSection from "@/components/landing-public/nueva-landing/PastilleroSection";
 import BeneficiosSection from "@/components/landing-public/nueva-landing/BeneficiosSection";
@@ -20,6 +21,7 @@ export default function Home() {
       <IASection />
       <GeoSection />
       <DomicilioSection />
+      <TeleconsultaSection />
       <ResolucionSection />
       <PastilleroSection />
       <BeneficiosSection />
