@@ -23,8 +23,11 @@ import {
   clearReferidosSession,
   getStoredReferente,
   getStoredToken,
+  setStoredReferente,
   initials,
 } from "@/lib/referidos";
+
+const API = process.env.NEXT_PUBLIC_API_BASE!;
 
 const NAV = [
   { icon: BarChart3, label: "Mi Panel", href: "/referidos/panel" },
@@ -125,6 +128,28 @@ export default function DashboardShell({
     }
 
     setReferente(stored);
+
+    // Sincronizar código y link con el backend (puede haber cambiado desde admin)
+    fetch(`${API}/referidos/${stored.id}/stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (!data) return;
+        if (
+          data.codigo_referido !== stored.codigo_referido ||
+          data.link_referido !== stored.link_referido
+        ) {
+          const updated: Referente = {
+            ...stored,
+            codigo_referido: data.codigo_referido,
+            link_referido: data.link_referido,
+          };
+          setStoredReferente(updated);
+          setReferente(updated);
+        }
+      })
+      .catch(() => {});
   }, [router]);
 
   const handleLogout = () => {

@@ -98,6 +98,11 @@ export function getStoredReferente(): Referente | null {
   }
 }
 
+export function setStoredReferente(referente: Referente): void {
+  if (typeof window === "undefined") return
+  localStorage.setItem("docya_referente", JSON.stringify(referente))
+}
+
 export function getStoredToken(): string | null {
   if (typeof window === "undefined") return null
   return localStorage.getItem("docya_token")
