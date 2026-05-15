@@ -55,9 +55,10 @@ export default function BuscandoScreen() {
   const countRef    = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const dark   = true;
-  const bg     = "#071b22";
-  const surface = "rgba(255,255,255,0.05)";
-  const border = "rgba(255,255,255,0.10)";
+  const bg     = "#0b1a22";
+  const surface = "linear-gradient(135deg, rgba(0,179,166,0.08) 0%, rgba(11,26,34,0.97) 60%)";
+  const border = "rgba(0,179,166,0.22)";
+  const borderSubtle = "rgba(0,179,166,0.14)";
   const text   = "#e2f0f0";
   const muted  = "rgba(255,255,255,0.55)";
 
@@ -128,7 +129,7 @@ export default function BuscandoScreen() {
     <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
       {/* HEADER */}
-      <header style={{ borderBottom: `1px solid ${border}`, background: "rgba(7,27,34,0.92)", backdropFilter: "blur(12px)", padding: "0 20px" }}>
+      <header style={{ borderBottom: `1px solid ${border}`, background: "rgba(11,26,34,0.95)", backdropFilter: "blur(14px)", padding: "0 20px" }}>
         <div style={{ maxWidth: 720, margin: "0 auto", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
           <Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png" alt="DocYa" width={80} height={26} style={{ height: 26, width: "auto" }} />
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, background: `${tipoCfg.color}18`, border: `1px solid ${tipoCfg.color}40`, borderRadius: 999, padding: "4px 12px 4px 8px" }}>
@@ -149,7 +150,7 @@ export default function BuscandoScreen() {
               <EstadoIcon size={40} color={estadoCfg.color} />
             )}
           </div>
-          <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: 800, marginBottom: 10 }}>
+          <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: 900, marginBottom: 10, background: `linear-gradient(90deg, #e2f0f0, ${estadoCfg.color})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             {estadoCfg.titulo}{esPendiente ? dots : ""}
           </h1>
           <p style={{ color: muted, fontSize: 16 }}>{estadoCfg.sub}</p>
@@ -157,7 +158,7 @@ export default function BuscandoScreen() {
 
         {/* INFO PROFESIONAL */}
         {data?.medico_nombre && !esCancelado && (
-          <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: "22px 20px", marginBottom: 20 }}>
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px", marginBottom: 20 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{ width: 56, height: 56, borderRadius: 999, background: `${tipoCfg.color}20`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <Icon size={26} color={tipoCfg.color} />
@@ -184,7 +185,7 @@ export default function BuscandoScreen() {
 
         {/* COUNTDOWN (solo en pendiente) */}
         {esPendiente && (
-          <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: "20px", marginBottom: 20, textAlign: "center" }}>
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "20px", marginBottom: 20, textAlign: "center" }}>
             {countdown > 0 ? (
               <>
                 <p style={{ fontSize: 13, color: muted, marginBottom: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>
@@ -227,7 +228,7 @@ export default function BuscandoScreen() {
 
         {/* PASOS (solo en pendiente) */}
         {esPendiente && (
-          <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: "22px 20px", marginBottom: 20 }}>
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px", marginBottom: 20 }}>
             <p style={{ fontWeight: 700, fontSize: 14, color: muted, marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.5px" }}>¿Qué pasa ahora?</p>
             {[
               { icon: MapPin,      color: "#fbbf24", text: "Buscamos el profesional más cercano disponible" },

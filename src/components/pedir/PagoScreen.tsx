@@ -28,8 +28,8 @@ export default function PagoScreen() {
   const doneRef = useRef(false);
 
   const dark   = true;
-  const bg     = "#071b22";
-  const border = "rgba(255,255,255,0.10)";
+  const bg     = "#0b1a22";
+  const border = "rgba(0,179,166,0.22)";
   const text   = "#e2f0f0";
   const muted  = "rgba(255,255,255,0.55)";
 
@@ -97,7 +97,7 @@ export default function PagoScreen() {
     <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
 
       {/* HEADER */}
-      <header style={{ borderBottom: `1px solid ${border}`, background: "rgba(7,27,34,0.95)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px", flexShrink: 0 }}>
+      <header style={{ borderBottom: `1px solid ${border}`, background: "rgba(11,26,34,0.95)", backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px", flexShrink: 0 }}>
         <div style={{ maxWidth: 720, margin: "0 auto", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
           <Link href={`/pedir/solicitar?tipo=${tipo}`} style={{ color: muted, display: "flex", alignItems: "center" }}>
             <ArrowLeft size={22} />
@@ -121,7 +121,7 @@ export default function PagoScreen() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 720, margin: "0 auto", width: "100%", padding: "20px 20px 40px" }}>
 
           <div style={{ marginBottom: 16 }}>
-            <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 6 }}>Autorizá el pago</h1>
+            <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 6, background: "linear-gradient(90deg, #e2f0f0, #2dd4bf)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Autorizá el pago</h1>
             <p style={{ color: muted, fontSize: 14 }}>
               El cobro se realiza <strong style={{ color: text }}>solo cuando un profesional acepta</strong> tu consulta.
             </p>
@@ -137,7 +137,7 @@ export default function PagoScreen() {
           )}
 
           {/* Iframe MP */}
-          <div style={{ flex: 1, borderRadius: 20, overflow: "hidden", border: `1px solid ${border}`, position: "relative", minHeight: 520 }}>
+          <div style={{ flex: 1, borderRadius: 20, overflow: "hidden", border: `1.5px solid ${border}`, position: "relative", minHeight: 520, boxShadow: "0 0 40px rgba(0,179,166,0.08)" }}>
             {!iframeLoaded && (
               <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(7,27,34,0.9)" }}>
                 <Loader2 size={32} color="#2dd4bf" className="animate-spin" />

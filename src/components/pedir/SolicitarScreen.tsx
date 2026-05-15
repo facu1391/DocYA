@@ -181,7 +181,7 @@ export default function SolicitarScreen() {
       <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
         {/* HEADER */}
-        <header style={{ borderBottom: `1px solid ${border}`, background: dark ? "rgba(7,27,34,0.92)" : "rgba(245,247,250,0.92)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px" }}>
+        <header style={{ borderBottom: "1px solid rgba(0,179,166,0.2)", background: "rgba(11,26,34,0.95)", backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px" }}>
           <div style={{ maxWidth: 720, margin: "0 auto", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
             <Link href="/pedir" style={{ color: muted, display: "flex", alignItems: "center" }}>
               <ArrowLeft size={22} />
@@ -195,18 +195,18 @@ export default function SolicitarScreen() {
         </header>
 
         <main style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 80px" }}>
-          <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: 800, marginBottom: 8 }}>
+          <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: 900, marginBottom: 8, background: "linear-gradient(90deg, #e2f0f0, #2dd4bf)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             Solicitá tu {cfg.label.toLowerCase()}
           </h1>
           <p style={{ color: muted, fontSize: 15, marginBottom: 32 }}>
-            Hola {user.full_name.split(" ")[0]}, completá los datos para buscar un profesional.
+            Hola <strong style={{ color: "#e2f0f0" }}>{user.full_name.split(" ")[0]}</strong>, completá los datos para buscar un profesional.
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
             {/* MOTIVO */}
             <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
-              <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>
+              <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
                 Motivo de la consulta
               </label>
               <textarea
@@ -223,7 +223,7 @@ export default function SolicitarScreen() {
 
             {/* DIRECCIÓN */}
             <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
-              <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>
+              <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
                 {tipo === "teleconsulta" ? "Tu ubicación (para asignar profesional cercano)" : "Dirección de atención"}
               </label>
               <AddressInput

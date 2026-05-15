@@ -25,7 +25,7 @@ export default function VideoLlamadaScreen() {
   const pollRef  = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const dark    = true;
-  const bg      = "#03101a";
+  const bg      = "#0b1a22";
   const border  = "rgba(255,255,255,0.10)";
   const text    = "#e2f0f0";
   const muted   = "rgba(255,255,255,0.55)";

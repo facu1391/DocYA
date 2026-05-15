@@ -30,12 +30,12 @@ export default function PerfilScreen() {
   const [user, setUser] = useState<PedirUser | null>(null);
 
   const dark    = true;
-  const bg      = "#071b22";
-  const surface = "rgba(255,255,255,0.05)";
-  const border  = "rgba(255,255,255,0.10)";
+  const bg      = "#0b1a22";
+  const surface = "linear-gradient(135deg, rgba(0,179,166,0.08) 0%, rgba(11,26,34,0.97) 60%)";
+  const border  = "rgba(0,179,166,0.22)";
   const text    = "#e2f0f0";
   const muted   = "rgba(255,255,255,0.55)";
-  const inputBg = "rgba(255,255,255,0.06)";
+  const inputBg = "rgba(0,179,166,0.06)";
 
   const [tipoDoc,     setTipoDoc]     = useState("dni");
   const [nroDoc,      setNroDoc]      = useState("");
@@ -110,7 +110,7 @@ export default function PerfilScreen() {
     <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
       {/* HEADER */}
-      <header style={{ borderBottom: `1px solid ${border}`, background: "rgba(7,27,34,0.92)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px" }}>
+      <header style={{ borderBottom: `1px solid ${border}`, background: "rgba(11,26,34,0.95)", backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px" }}>
         <div style={{ maxWidth: 720, margin: "0 auto", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
           <Link href="/pedir" style={{ color: muted, display: "flex" }}><ArrowLeft size={22} /></Link>
           <Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png" alt="DocYa" width={80} height={26} style={{ height: 26, width: "auto" }} />
@@ -122,7 +122,7 @@ export default function PerfilScreen() {
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,179,166,0.12)", border: "1px solid rgba(0,179,166,0.25)", borderRadius: 999, padding: "6px 14px", fontSize: 13, fontWeight: 600, color: "#00b3a6", marginBottom: 16 }}>
             <CheckCircle2 size={14} /> Un paso más
           </div>
-          <h1 style={{ fontSize: "clamp(22px, 4vw, 28px)", fontWeight: 800, marginBottom: 8 }}>
+          <h1 style={{ fontSize: "clamp(22px, 4vw, 28px)", fontWeight: 900, marginBottom: 8, background: "linear-gradient(90deg, #e2f0f0, #2dd4bf)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             Completá tu perfil
           </h1>
           <p style={{ color: muted, fontSize: 15, lineHeight: 1.6 }}>
@@ -133,7 +133,7 @@ export default function PerfilScreen() {
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
           {/* Datos personales */}
-          <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
             <Label icon={<CreditCard size={15} />} text="Documento" muted={muted} />
             <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: 12 }}>
               <div style={{ position: "relative" }}>
@@ -158,7 +158,7 @@ export default function PerfilScreen() {
           </div>
 
           {/* Teléfono */}
-          <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
             <Label icon={<Phone size={15} />} text="Teléfono (sin 0 ni 15)" muted={muted} />
             <div style={{ display: "grid", gridTemplateColumns: "72px 1fr", gap: 12 }}>
               <div style={{ ...inputStyle, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: muted }}>{COUNTRY_CODE}</div>
@@ -174,7 +174,7 @@ export default function PerfilScreen() {
           </div>
 
           {/* Dirección — usa el componente reutilizable */}
-          <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
             <Label icon={<CheckCircle2 size={15} />} text="Dirección habitual" muted={muted} />
             <AddressInput
               value={direccion}
@@ -189,7 +189,7 @@ export default function PerfilScreen() {
           </div>
 
           {/* Fecha y sexo */}
-          <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div>
                 <Label icon={<Calendar size={15} />} text="Fecha de nacimiento" muted={muted} />
@@ -215,7 +215,7 @@ export default function PerfilScreen() {
           </div>
 
           {/* Términos */}
-          <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: "18px 20px" }}>
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "18px 20px" }}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
               <input
                 id="acepta-perfil"
@@ -247,9 +247,9 @@ export default function PerfilScreen() {
   );
 }
 
-function Label({ icon, text, muted }: { icon: React.ReactNode; text: string; muted: string }) {
+function Label({ icon, text }: { icon: React.ReactNode; text: string; muted?: string }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
       {icon} {text}
     </div>
   );
