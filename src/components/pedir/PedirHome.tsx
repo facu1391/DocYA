@@ -221,7 +221,7 @@ export default function PedirHome() {
             /* ── LOGUEADO ─────────────────────────────────────── */
             <>
               {/* HERO */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 24, alignItems: "center", padding: "40px 0 36px" }}>
+              <div className="pedir-hero">
                 <div>
                   <h1 style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 900, marginBottom: 6, letterSpacing: "-0.5px" }}>
                     Hola, {user.full_name.split(" ")[0]} 👋
@@ -232,7 +232,8 @@ export default function PedirHome() {
                 <a
                   href="https://wa.me/5491168700607"
                   target="_blank" rel="noreferrer"
-                  style={{ display: "flex", alignItems: "center", gap: 16, background: "rgba(37,211,102,0.12)", border: "1px solid rgba(37,211,102,0.25)", borderRadius: 20, padding: "16px 20px", textDecoration: "none", color: text, minWidth: 240, transition: "all 0.15s" }}
+                  className="wa-card"
+                  style={{ display: "flex", alignItems: "center", gap: 16, background: "rgba(37,211,102,0.12)", border: "1px solid rgba(37,211,102,0.25)", borderRadius: 20, padding: "16px 20px", textDecoration: "none", color: text, transition: "all 0.15s" }}
                 >
                   <div style={{ width: 44, height: 44, borderRadius: 999, background: "rgba(37,211,102,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <MessageCircle size={22} color="#25d366" />
@@ -246,7 +247,7 @@ export default function PedirHome() {
               </div>
 
               {/* CARDS */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginBottom: 40 }}>
+              <div className="pedir-cards">
                 {SERVICIOS.map(s => (
                   <div
                     key={s.id}
@@ -281,7 +282,7 @@ export default function PedirHome() {
               </div>
 
               {/* TRUST STRIP */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 32 }}>
+              <div className="pedir-trust">
                 {TRUST_STRIP.map(({ icon: TIcon, label, sub }) => (
                   <div key={label} style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: 18, padding: "20px 18px", display: "flex", gap: 14, alignItems: "flex-start" }}>
                     <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(0,179,166,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -311,7 +312,7 @@ export default function PedirHome() {
             </>
           ) : (
             /* ── LOGIN ────────────────────────────────────────── */
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, paddingTop: 64, alignItems: "center", minHeight: "calc(100vh - 64px)" }}>
+            <div className="pedir-login">
               {/* Left */}
               <div>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,179,166,0.12)", border: "1px solid rgba(0,179,166,0.25)", borderRadius: 999, padding: "6px 16px", fontSize: 13, fontWeight: 600, color: "#00b3a6", marginBottom: 24 }}>
@@ -390,7 +391,24 @@ export default function PedirHome() {
         </footer>
       </div>
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg) } }
+        .pedir-hero { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; padding: 40px 0 36px; }
+        .pedir-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+        .pedir-trust { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+        .pedir-login { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding-top: 64px; align-items: center; min-height: calc(100vh - 64px); }
+        .wa-card { min-width: 220px; }
+        @media (max-width: 900px) {
+          .pedir-cards { grid-template-columns: 1fr; }
+          .pedir-trust { grid-template-columns: repeat(2, 1fr); }
+          .pedir-login { grid-template-columns: 1fr; gap: 32px; min-height: auto; padding-top: 40px; padding-bottom: 40px; }
+        }
+        @media (max-width: 640px) {
+          .pedir-hero { grid-template-columns: 1fr; gap: 16px; padding: 24px 0 28px; }
+          .wa-card { min-width: auto; width: 100%; }
+          .pedir-trust { grid-template-columns: 1fr; }
+        }
+      `}</style>
     </>
   );
 }
