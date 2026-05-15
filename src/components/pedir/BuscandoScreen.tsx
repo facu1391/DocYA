@@ -7,96 +7,130 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   Stethoscope, Video, HeartPulse, Clock, MapPin,
   CheckCircle2, XCircle, PhoneCall, X, Loader2,
-  UserCheck, Navigation,
+  UserCheck, Navigation, Star, RotateCcw, Home,
+  AlertCircle, Activity,
 } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
-type Estado = "pendiente" | "aceptada" | "en_camino" | "en_domicilio" | "en_curso" | "finalizada" | "cancelada" | string;
+type Estado =
+  | "pendiente" | "aceptada" | "en_camino" | "en_domicilio"
+  | "en_curso" | "en_videollamada" | "finalizada" | "cancelada"
+  | "cancelada_paciente" | "pago_no_autorizado" | string;
+
 type ConsultaData = {
   estado: Estado;
   medico_id?: number;
   medico_nombre?: string;
   medico_matricula?: string;
-  eta?: number;
+  medico_foto_perfil?: string;
+  tiempo_estimado_min?: number;
+  distancia_km?: number;
+  medico_lat?: number;
+  medico_lng?: number;
   mp_status?: string;
+  mp_preautorizado?: boolean;
   video_url?: string;
   daily_room_url?: string;
+  motivo?: string;
+  direccion?: string;
+  tipo?: string;
 };
 
-const TIPO_CONFIG: Record<string, { label: string; icon: typeof Stethoscope; color: string }> = {
-  medico:       { label: "Médico a domicilio",    icon: Stethoscope, color: "#00b3a6" },
-  teleconsulta: { label: "Teleconsulta",           icon: Video,       color: "#818cf8" },
-  enfermero:    { label: "Enfermería a domicilio", icon: HeartPulse,  color: "#f472b6" },
+const TIPO_CONFIG: Record<string, { label: string; icon: typeof Stethoscope; color: string; colorLight: string }> = {
+  medico:       { label: "Médico a domicilio",    icon: Stethoscope, color: "#00b3a6", colorLight: "rgba(0,179,166,0.14)" },
+  teleconsulta: { label: "Teleconsulta",           icon: Video,       color: "#818cf8", colorLight: "rgba(129,140,248,0.14)" },
+  enfermero:    { label: "Enfermería a domicilio", icon: HeartPulse,  color: "#f472b6", colorLight: "rgba(244,114,182,0.14)" },
 };
 
-const ESTADO_CONFIG: Record<string, { titulo: string; sub: string; color: string; icono: typeof CheckCircle2 }> = {
-  pendiente:    { titulo: "Buscando profesional...",    sub: "Estamos encontrando el más cercano para vos",  color: "#fbbf24", icono: Clock },
-  aceptada:     { titulo: "Profesional asignado",       sub: "Ya confirmó y está en camino",                 color: "#00b3a6", icono: UserCheck },
-  en_camino:    { titulo: "Profesional en camino",      sub: "Ya está yendo hacia tu domicilio",             color: "#00b3a6", icono: Navigation },
-  en_domicilio: { titulo: "El profesional llegó",       sub: "Está en la puerta de tu domicilio",            color: "#2dd4bf", icono: CheckCircle2 },
-  en_curso:     { titulo: "Consulta en curso",          sub: "El profesional está atendiendo",               color: "#818cf8", icono: Stethoscope },
-  finalizada:   { titulo: "Consulta finalizada",        sub: "Esperamos que te hayas sentido mejor",         color: "#4ade80", icono: CheckCircle2 },
-  cancelada:    { titulo: "Consulta cancelada",         sub: "No se realizó ningún cobro",                   color: "#f87171", icono: XCircle },
-};
+// Pasos del flujo para domicilio (médico / enfermero)
+const PASOS_DOMICILIO = [
+  { key: "pendiente",    label: "Buscando",    icon: Clock },
+  { key: "aceptada",     label: "Asignado",    icon: UserCheck },
+  { key: "en_camino",    label: "En camino",   icon: Navigation },
+  { key: "en_domicilio", label: "Llegó",       icon: Home },
+  { key: "en_curso",     label: "Atendiendo",  icon: Activity },
+  { key: "finalizada",   label: "Finalizada",  icon: CheckCircle2 },
+];
+
+// Pasos para teleconsulta
+const PASOS_TELECONSULTA = [
+  { key: "pendiente",       label: "Buscando",    icon: Clock },
+  { key: "aceptada",        label: "Asignado",    icon: UserCheck },
+  { key: "en_videollamada", label: "En sala",     icon: Video },
+  { key: "finalizada",      label: "Finalizada",  icon: CheckCircle2 },
+];
+
+function pasoIndex(estado: string, esTeleconsulta: boolean): number {
+  const pasos = esTeleconsulta ? PASOS_TELECONSULTA : PASOS_DOMICILIO;
+  const idx = pasos.findIndex(p => p.key === estado);
+  if (idx !== -1) return idx;
+  if (estado === "en_curso") return esTeleconsulta ? 2 : 4;
+  return 0;
+}
 
 export default function BuscandoScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const consultaId = params.get("consulta_id") ?? "";
   const tipo       = params.get("tipo") ?? "medico";
+  const metodo     = params.get("metodo") ?? "";
 
-  const [data, setData]               = useState<ConsultaData | null>(null);
-  const [cancelando, setCancelando]   = useState(false);
-  const [dots, setDots]               = useState(".");
-  const [countdown, setCountdown]     = useState(300); // 5 minutos
-  const pollRef     = useRef<ReturnType<typeof setInterval> | null>(null);
-  const dotsRef     = useRef<ReturnType<typeof setInterval> | null>(null);
-  const countRef    = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [data, setData]             = useState<ConsultaData | null>(null);
+  const [cancelando, setCancelando] = useState(false);
+  const [dots, setDots]             = useState(".");
+  const [countdown, setCountdown]   = useState(300);
+  const [rating, setRating]         = useState(0);
+  const [ratingEnviado, setRatingEnviado] = useState(false);
 
-  const dark   = true;
-  const bg     = "#0b1a22";
+  const pollRef   = useRef<ReturnType<typeof setInterval> | null>(null);
+  const dotsRef   = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countRef  = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const bg      = "#0b1a22";
   const surface = "linear-gradient(135deg, rgba(0,179,166,0.08) 0%, rgba(11,26,34,0.97) 60%)";
-  const border = "rgba(0,179,166,0.22)";
-  const borderSubtle = "rgba(0,179,166,0.14)";
-  const text   = "#e2f0f0";
-  const muted  = "rgba(255,255,255,0.55)";
+  const border  = "rgba(0,179,166,0.22)";
+  const text    = "#e2f0f0";
+  const muted   = "rgba(255,255,255,0.55)";
 
-  const tipoCfg = TIPO_CONFIG[tipo] ?? TIPO_CONFIG.medico;
-  const Icon = tipoCfg.icon;
+  const tipoCfg        = TIPO_CONFIG[tipo] ?? TIPO_CONFIG.medico;
+  const Icon           = tipoCfg.icon;
+  const esTeleconsulta = tipo === "teleconsulta";
+  const pasos          = esTeleconsulta ? PASOS_TELECONSULTA : PASOS_DOMICILIO;
 
   const fetchEstado = useCallback(async () => {
     if (!consultaId) return;
     try {
-      // Para teleconsultas usamos el endpoint específico que devuelve video_url
-      const url = tipo === "teleconsulta"
+      // Teleconsulta usa su endpoint específico (devuelve daily_room_url, video_url)
+      // Médico/enfermero usan el endpoint general (devuelve foto_perfil, distancia_km, eta)
+      const url = esTeleconsulta
         ? `${API}/teleconsultas/${consultaId}`
-        : `${API}/consultas/${consultaId}/estado`;
+        : `${API}/consultas/${consultaId}`;
       const res = await fetch(url);
       if (!res.ok) return;
       const d = await res.json();
       setData(d);
-      if (["finalizada", "cancelada", "cancelada_paciente"].includes(d.estado)) {
+      if (["finalizada", "cancelada", "cancelada_paciente", "pago_no_autorizado"].includes(d.estado)) {
         if (pollRef.current) clearInterval(pollRef.current);
+        if (countRef.current) clearInterval(countRef.current);
+      }
+      // Detener countdown si ya no está pendiente
+      if (d.estado !== "pendiente" && countRef.current) {
+        clearInterval(countRef.current);
       }
     } catch (_) {}
-  }, [consultaId, tipo]);
+  }, [consultaId]);
 
   useEffect(() => {
     fetchEstado();
     pollRef.current = setInterval(fetchEstado, 3000);
     dotsRef.current = setInterval(() => setDots(d => d.length >= 3 ? "." : d + "."), 600);
-    // Countdown solo en pendiente
     countRef.current = setInterval(() => {
       setCountdown(c => {
-        if (c <= 1) {
-          if (countRef.current) clearInterval(countRef.current);
-          return 0;
-        }
+        if (c <= 1) { if (countRef.current) clearInterval(countRef.current); return 0; }
         return c - 1;
       });
     }, 1000);
-
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
       if (dotsRef.current) clearInterval(dotsRef.current);
@@ -118,151 +152,309 @@ export default function BuscandoScreen() {
     setCancelando(false);
   }, [consultaId, fetchEstado]);
 
-  const estado = data?.estado ?? "pendiente";
-  const estadoCfg = ESTADO_CONFIG[estado] ?? ESTADO_CONFIG.pendiente;
-  const EstadoIcon = estadoCfg.icono;
-  const esFinalizado = estado === "finalizada";
-  const esCancelado  = estado === "cancelada";
-  const esPendiente  = estado === "pendiente";
+  const enviarRating = useCallback(async (stars: number) => {
+    if (!consultaId || ratingEnviado) return;
+    setRating(stars);
+    setRatingEnviado(true);
+    try {
+      await fetch(`${API}/consultas/${consultaId}/valorar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estrellas: stars }),
+      });
+    } catch (_) {}
+  }, [consultaId, ratingEnviado]);
+
+  const estado    = data?.estado ?? "pendiente";
+  const stepIdx   = pasoIndex(estado, esTeleconsulta);
+  const esFin     = estado === "finalizada";
+  const esCancelado = ["cancelada", "cancelada_paciente", "pago_no_autorizado"].includes(estado);
+  const esPendiente = estado === "pendiente";
+  const hasProf   = !!data?.medico_nombre && !esCancelado;
+
+  // Colores por estado
+  const estadoColor = (() => {
+    if (esFin) return "#4ade80";
+    if (esCancelado) return "#f87171";
+    if (estado === "en_domicilio") return "#2dd4bf";
+    return tipoCfg.color;
+  })();
+
+  // Titulo por estado
+  const estadoTitulo = (() => {
+    if (esPendiente)              return `Buscando profesional${dots}`;
+    if (estado === "aceptada")    return "¡Profesional asignado!";
+    if (estado === "en_camino")   return "Profesional en camino";
+    if (estado === "en_domicilio") return "¡El profesional llegó!";
+    if (estado === "en_curso")    return "Consulta en curso";
+    if (estado === "en_videollamada") return "Sala de video lista";
+    if (esFin)                   return "Consulta finalizada";
+    if (estado === "pago_no_autorizado") return "Pago no autorizado";
+    if (esCancelado)             return "Consulta cancelada";
+    return "Procesando...";
+  })();
+
+  const estadoSub = (() => {
+    if (esPendiente)              return "Estamos encontrando el profesional más cercano para vos";
+    if (estado === "aceptada")    return "Confirmó la consulta y se está preparando";
+    if (estado === "en_camino")   return "Ya está yendo hacia tu domicilio";
+    if (estado === "en_domicilio") return "Está en la puerta de tu domicilio";
+    if (estado === "en_curso")    return "El profesional está atendiendo en este momento";
+    if (estado === "en_videollamada") return "Podés unirte a la videollamada ahora";
+    if (esFin)                   return "Esperamos que te hayas sentido mejor";
+    if (estado === "pago_no_autorizado") return "El pago con tu tarjeta no fue autorizado";
+    if (esCancelado)             return "No se realizó ningún cobro";
+    return "";
+  })();
 
   return (
     <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
       {/* HEADER */}
-      <header style={{ borderBottom: `1px solid ${border}`, background: "rgba(11,26,34,0.95)", backdropFilter: "blur(14px)", padding: "0 20px" }}>
+      <header style={{ borderBottom: `1px solid ${border}`, background: "rgba(11,26,34,0.95)", backdropFilter: "blur(14px)", padding: "0 20px", position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ maxWidth: 720, margin: "0 auto", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
-          <Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png" alt="DocYa" width={80} height={26} style={{ height: 26, width: "auto" }} />
-          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, background: `${tipoCfg.color}18`, border: `1px solid ${tipoCfg.color}40`, borderRadius: 999, padding: "4px 12px 4px 8px" }}>
+          <Image
+            src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png"
+            alt="DocYa" width={80} height={26} style={{ height: 26, width: "auto" }}
+          />
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, background: tipoCfg.colorLight, border: `1px solid ${tipoCfg.color}40`, borderRadius: 999, padding: "4px 12px 4px 8px" }}>
             <Icon size={14} color={tipoCfg.color} />
             <span style={{ fontSize: 13, fontWeight: 600, color: tipoCfg.color }}>{tipoCfg.label}</span>
           </div>
         </div>
       </header>
 
-      <main style={{ maxWidth: 720, margin: "0 auto", padding: "40px 20px 80px" }}>
+      <main style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 80px" }}>
 
-        {/* ESTADO PRINCIPAL */}
-        <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <div style={{ width: 88, height: 88, borderRadius: 999, background: `${estadoCfg.color}15`, border: `2px solid ${estadoCfg.color}40`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-            {esPendiente ? (
-              <Loader2 size={40} color={estadoCfg.color} className="animate-spin" />
-            ) : (
-              <EstadoIcon size={40} color={estadoCfg.color} />
-            )}
+        {/* ── STEPPER ── */}
+        {!esCancelado && (
+          <div style={{ marginBottom: 36, overflowX: "auto" }}>
+            <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", margin: "0 auto", padding: "0 4px" }}>
+              {pasos.map((paso, i) => {
+                const done    = i < stepIdx;
+                const active  = i === stepIdx;
+                const PasoIcon = paso.icon;
+                const color   = done || active ? tipoCfg.color : "rgba(255,255,255,0.2)";
+                return (
+                  <div key={paso.key} style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                      <div style={{
+                        width: 36, height: 36, borderRadius: 999,
+                        background: active ? `${tipoCfg.color}25` : done ? `${tipoCfg.color}15` : "rgba(255,255,255,0.05)",
+                        border: `2px solid ${active ? tipoCfg.color : done ? `${tipoCfg.color}60` : "rgba(255,255,255,0.12)"}`,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        transition: "all 0.3s",
+                      }}>
+                        {active && esPendiente && i === 0
+                          ? <Loader2 size={16} color={tipoCfg.color} className="animate-spin" />
+                          : <PasoIcon size={16} color={color} />
+                        }
+                      </div>
+                      <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, color: active ? tipoCfg.color : done ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.25)", whiteSpace: "nowrap" }}>
+                        {paso.label}
+                      </span>
+                    </div>
+                    {i < pasos.length - 1 && (
+                      <div style={{ width: 40, height: 2, background: done ? tipoCfg.color : "rgba(255,255,255,0.1)", margin: "0 4px", marginBottom: 20, transition: "background 0.3s", flexShrink: 0 }} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: 900, marginBottom: 10, background: `linear-gradient(90deg, #e2f0f0, ${estadoCfg.color})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-            {estadoCfg.titulo}{esPendiente ? dots : ""}
+        )}
+
+        {/* ── ESTADO PRINCIPAL ── */}
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{
+            width: 96, height: 96, borderRadius: 999,
+            background: `${estadoColor}15`,
+            border: `2px solid ${estadoColor}40`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 20px",
+            boxShadow: `0 0 32px ${estadoColor}20`,
+          }}>
+            {esPendiente
+              ? <Loader2 size={44} color={estadoColor} className="animate-spin" />
+              : esFin
+                ? <CheckCircle2 size={44} color={estadoColor} />
+                : esCancelado
+                  ? <XCircle size={44} color={estadoColor} />
+                  : estado === "en_domicilio"
+                    ? <Home size={44} color={estadoColor} />
+                    : estado === "en_videollamada"
+                      ? <Video size={44} color={estadoColor} />
+                      : estado === "en_curso"
+                        ? <Activity size={44} color={estadoColor} />
+                        : estado === "en_camino"
+                          ? <Navigation size={44} color={estadoColor} />
+                          : <UserCheck size={44} color={estadoColor} />
+            }
+          </div>
+          <h1 style={{ fontSize: "clamp(22px, 4vw, 28px)", fontWeight: 900, marginBottom: 10, background: `linear-gradient(90deg, #e2f0f0, ${estadoColor})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            {estadoTitulo}
           </h1>
-          <p style={{ color: muted, fontSize: 16 }}>{estadoCfg.sub}</p>
+          <p style={{ color: muted, fontSize: 15, lineHeight: 1.5 }}>{estadoSub}</p>
         </div>
 
-        {/* INFO PROFESIONAL */}
-        {data?.medico_nombre && !esCancelado && (
-          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px", marginBottom: 20 }}>
+        {/* ── CARD PROFESIONAL (cuando fue asignado) ── */}
+        {hasProf && (
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "20px", marginBottom: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div style={{ width: 56, height: 56, borderRadius: 999, background: `${tipoCfg.color}20`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Icon size={26} color={tipoCfg.color} />
+              {/* Avatar */}
+              <div style={{ width: 64, height: 64, borderRadius: 999, background: `${tipoCfg.color}20`, border: `2px solid ${tipoCfg.color}40`, overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {data?.medico_foto_perfil
+                  ? <img src={data.medico_foto_perfil} alt={data.medico_nombre} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  : <Icon size={28} color={tipoCfg.color} />
+                }
               </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontWeight: 700, fontSize: 17, marginBottom: 2 }}>{data.medico_nombre}</p>
-                {data.medico_matricula && (
-                  <p style={{ fontSize: 13, color: muted }}>Mat. {data.medico_matricula}</p>
+              {/* Info */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+                  <p style={{ fontWeight: 800, fontSize: 17, margin: 0 }}>{data?.medico_nombre}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4, background: `${tipoCfg.color}15`, border: `1px solid ${tipoCfg.color}30`, borderRadius: 8, padding: "2px 8px" }}>
+                    <CheckCircle2 size={12} color={tipoCfg.color} />
+                    <span style={{ fontSize: 11, fontWeight: 700, color: tipoCfg.color }}>Verificado</span>
+                  </div>
+                </div>
+                {data?.medico_matricula && (
+                  <p style={{ fontSize: 13, color: muted, margin: 0 }}>Mat. {data.medico_matricula}</p>
                 )}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, background: `${tipoCfg.color}15`, border: `1px solid ${tipoCfg.color}30`, borderRadius: 10, padding: "6px 10px" }}>
-                <CheckCircle2 size={14} color={tipoCfg.color} />
-                <span style={{ fontSize: 12, fontWeight: 600, color: tipoCfg.color }}>Verificado</span>
-              </div>
             </div>
-            {data.eta && (
-              <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: muted }}>
-                <Navigation size={15} color={tipoCfg.color} />
-                <span>ETA estimado: <strong style={{ color: text }}>{data.eta} min</strong></span>
+
+            {/* ETA + distancia */}
+            {(data?.tiempo_estimado_min || data?.distancia_km) && (
+              <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
+                {!!data.tiempo_estimado_min && data.tiempo_estimado_min > 0 && (
+                  <div style={{ flex: 1, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                    <Clock size={16} color={tipoCfg.color} />
+                    <div>
+                      <p style={{ fontSize: 11, color: muted, margin: 0, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Tiempo estimado</p>
+                      <p style={{ fontSize: 18, fontWeight: 800, margin: 0, color: text }}>{data.tiempo_estimado_min} min</p>
+                    </div>
+                  </div>
+                )}
+                {!!data.distancia_km && data.distancia_km > 0 && (
+                  <div style={{ flex: 1, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                    <MapPin size={16} color={tipoCfg.color} />
+                    <div>
+                      <p style={{ fontSize: 11, color: muted, margin: 0, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Distancia</p>
+                      <p style={{ fontSize: 18, fontWeight: 800, margin: 0, color: text }}>{data.distancia_km.toFixed(1)} km</p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
 
-        {/* COUNTDOWN (solo en pendiente) */}
+        {/* ── COUNTDOWN / PENDIENTE ── */}
         {esPendiente && (
-          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "20px", marginBottom: 20, textAlign: "center" }}>
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "24px 20px", marginBottom: 16 }}>
             {countdown > 0 ? (
-              <>
-                <p style={{ fontSize: 13, color: muted, marginBottom: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              <div style={{ textAlign: "center" }}>
+                <p style={{ fontSize: 12, color: muted, marginBottom: 16, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.6px" }}>
                   Tiempo de búsqueda restante
                 </p>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                  {/* Barra de progreso circular */}
-                  <svg width="72" height="72" viewBox="0 0 72 72" style={{ transform: "rotate(-90deg)" }}>
-                    <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
+                  <svg width="80" height="80" viewBox="0 0 80 80" style={{ transform: "rotate(-90deg)", flexShrink: 0 }}>
+                    <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="6" />
                     <circle
-                      cx="36" cy="36" r="30" fill="none"
+                      cx="40" cy="40" r="34" fill="none"
                       stroke={tipoCfg.color}
-                      strokeWidth="5"
-                      strokeDasharray={`${2 * Math.PI * 30}`}
-                      strokeDashoffset={`${2 * Math.PI * 30 * (1 - countdown / 300)}`}
+                      strokeWidth="6"
+                      strokeDasharray={`${2 * Math.PI * 34}`}
+                      strokeDashoffset={`${2 * Math.PI * 34 * (1 - countdown / 300)}`}
                       strokeLinecap="round"
                       style={{ transition: "stroke-dashoffset 1s linear" }}
                     />
                   </svg>
                   <div>
-                    <p style={{ fontSize: 36, fontWeight: 800, fontVariantNumeric: "tabular-nums", margin: 0, color: text }}>
+                    <p style={{ fontSize: 42, fontWeight: 900, fontVariantNumeric: "tabular-nums", margin: 0, lineHeight: 1, color: text }}>
                       {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}
                     </p>
-                    <p style={{ fontSize: 12, color: muted, margin: 0 }}>minutos</p>
+                    <p style={{ fontSize: 13, color: muted, margin: "6px 0 0" }}>minutos</p>
                   </div>
                 </div>
-              </>
+              </div>
             ) : (
-              <div style={{ padding: "8px 0" }}>
-                <p style={{ fontWeight: 700, fontSize: 15, color: "#fbbf24", marginBottom: 6 }}>
+              <div style={{ textAlign: "center", padding: "8px 0" }}>
+                <AlertCircle size={32} color="#fbbf24" style={{ margin: "0 auto 12px" }} />
+                <p style={{ fontWeight: 700, fontSize: 16, color: "#fbbf24", marginBottom: 8 }}>
                   No encontramos profesionales disponibles
                 </p>
-                <p style={{ fontSize: 13, color: muted, lineHeight: 1.5 }}>
-                  No hay profesionales disponibles en este momento. Intentá de nuevo en unos minutos o elegí otra modalidad.
+                <p style={{ fontSize: 14, color: muted, lineHeight: 1.6 }}>
+                  No hay profesionales disponibles en este momento.<br />Intentá de nuevo en unos minutos.
                 </p>
               </div>
             )}
           </div>
         )}
 
-        {/* PASOS (solo en pendiente) */}
+        {/* ── PASOS (mientras pendiente) ── */}
         {esPendiente && (
-          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px", marginBottom: 20 }}>
-            <p style={{ fontWeight: 700, fontSize: 14, color: muted, marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.5px" }}>¿Qué pasa ahora?</p>
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px", marginBottom: 16 }}>
+            <p style={{ fontWeight: 700, fontSize: 11, color: muted, marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.8px" }}>¿Qué pasa ahora?</p>
             {[
-              { icon: MapPin,      color: "#fbbf24", text: "Buscamos el profesional más cercano disponible" },
-              { icon: PhoneCall,   color: "#00b3a6", text: "El profesional acepta y te lo notificamos" },
-              { icon: Navigation,  color: "#818cf8", text: "Va en camino y te informamos el tiempo estimado" },
+              { icon: MapPin,    color: "#fbbf24", text: "Buscamos el profesional más cercano disponible" },
+              { icon: PhoneCall, color: tipoCfg.color, text: "El profesional acepta y te lo notificamos al instante" },
+              { icon: Navigation, color: "#818cf8", text: esTeleconsulta ? "El profesional inicia la videollamada y podés unirte" : "Va en camino y te informamos el tiempo estimado" },
             ].map(({ icon: SIcon, color, text: t }) => (
               <div key={t} style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${color}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 12, background: `${color}15`, border: `1px solid ${color}25`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <SIcon size={18} color={color} />
                 </div>
-                <p style={{ fontSize: 14, color: muted, lineHeight: 1.4, flex: 1 }}>{t}</p>
+                <p style={{ fontSize: 14, color: muted, lineHeight: 1.4, flex: 1, margin: 0 }}>{t}</p>
               </div>
             ))}
           </div>
         )}
 
-        {/* FINALIZADO */}
-        {esFinalizado && (
-          <div style={{ background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.25)", borderRadius: 20, padding: "24px 20px", marginBottom: 20, textAlign: "center" }}>
-            <CheckCircle2 size={40} color="#4ade80" style={{ margin: "0 auto 12px" }} />
-            <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>¡Consulta completada!</p>
-            <p style={{ color: muted, fontSize: 14, lineHeight: 1.5 }}>Gracias por usar DocYa. Esperamos que te hayas recuperado pronto.</p>
+        {/* ── CARD CUANDO LLEGÓ ── */}
+        {estado === "en_domicilio" && (
+          <div style={{ background: "rgba(45,212,191,0.08)", border: "1.5px solid rgba(45,212,191,0.30)", borderRadius: 20, padding: "24px 20px", marginBottom: 16, textAlign: "center" }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>🔔</div>
+            <p style={{ fontWeight: 800, fontSize: 17, color: "#2dd4bf", marginBottom: 8 }}>
+              El profesional está en la puerta
+            </p>
+            <p style={{ fontSize: 14, color: muted, lineHeight: 1.6 }}>
+              Abrí la puerta — el profesional llegó a tu domicilio y está listo para atenderte.
+            </p>
           </div>
         )}
 
-        {/* BOTÓN UNIRSE A VIDEO (teleconsulta) */}
-        {tipo === "teleconsulta" && ["asignada", "en_videollamada"].includes(estado) && (data?.video_url || data?.daily_room_url) && (
-          <div style={{ marginBottom: 20 }}>
+        {/* ── CARD EN CURSO ── */}
+        {estado === "en_curso" && !esTeleconsulta && (
+          <div style={{ background: "rgba(129,140,248,0.08)", border: "1.5px solid rgba(129,140,248,0.25)", borderRadius: 20, padding: "20px", marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ width: 48, height: 48, borderRadius: 999, background: "rgba(129,140,248,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Activity size={24} color="#818cf8" />
+              </div>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: 15, margin: 0, color: "#a5b4fc" }}>Consulta en curso</p>
+                <p style={{ fontSize: 13, color: muted, margin: "4px 0 0" }}>El profesional está atendiendo en tu domicilio</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── BOTÓN UNIRSE A VIDEO (teleconsulta) ── */}
+        {esTeleconsulta && ["aceptada", "en_videollamada", "en_curso"].includes(estado) && (data?.video_url || data?.daily_room_url) && (
+          <div style={{ marginBottom: 16 }}>
             <Link
-              href={`/pedir/videollamada?consulta_id=${consultaId}&video_url=${encodeURIComponent(data.video_url || data.daily_room_url || "")}&medico=${encodeURIComponent(data?.medico_nombre ?? "")}`}
-              style={{ width: "100%", padding: "18px", borderRadius: 18, background: "linear-gradient(90deg, #818cf8, #a78bfa)", color: "#fff", fontSize: 17, fontWeight: 800, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, boxShadow: "0 8px 28px rgba(129,140,248,0.4)" }}
+              href={`/pedir/videollamada?consulta_id=${consultaId}&video_url=${encodeURIComponent(data?.video_url || data?.daily_room_url || "")}&medico=${encodeURIComponent(data?.medico_nombre ?? "")}`}
+              style={{
+                width: "100%", padding: "18px", borderRadius: 18,
+                background: "linear-gradient(90deg, #818cf8, #a78bfa)",
+                color: "#fff", fontSize: 17, fontWeight: 800,
+                textAlign: "center", textDecoration: "none",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+                boxShadow: "0 8px 28px rgba(129,140,248,0.40)",
+              }}
             >
               <Video size={22} />
-              Unirse a la videollamada
+              Unirme a la videollamada
             </Link>
             <p style={{ fontSize: 12, color: muted, textAlign: "center", marginTop: 10 }}>
               La sala ya está lista — podés entrar cuando quieras
@@ -270,27 +462,92 @@ export default function BuscandoScreen() {
           </div>
         )}
 
-        {/* BOTONES */}
+        {/* ── VALORACIÓN (cuando finaliza) ── */}
+        {esFin && (
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "24px 20px", marginBottom: 16, textAlign: "center" }}>
+            <CheckCircle2 size={40} color="#4ade80" style={{ margin: "0 auto 14px" }} />
+            <p style={{ fontWeight: 800, fontSize: 17, marginBottom: 6 }}>¡Consulta completada!</p>
+            <p style={{ color: muted, fontSize: 14, lineHeight: 1.5, marginBottom: 20 }}>
+              Gracias por usar DocYa. Tu médico puede haberte enviado recetas o indicaciones.
+            </p>
+            {!ratingEnviado ? (
+              <>
+                <p style={{ fontSize: 13, color: muted, marginBottom: 12, fontWeight: 600 }}>¿Cómo fue la atención?</p>
+                <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <button
+                      key={s}
+                      onClick={() => enviarRating(s)}
+                      style={{ background: "none", border: "none", cursor: "pointer", padding: 4, fontSize: 32, filter: s <= rating ? "none" : "grayscale(1) opacity(0.4)", transition: "filter 0.15s" }}
+                    >
+                      ⭐
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, color: "#fbbf24", fontWeight: 700 }}>
+                <Star size={18} fill="#fbbf24" color="#fbbf24" />
+                ¡Gracias por tu valoración!
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── CANCELADA / PAGO NO AUTORIZADO ── */}
+        {esCancelado && (
+          <div style={{ background: "rgba(239,68,68,0.08)", border: "1.5px solid rgba(239,68,68,0.25)", borderRadius: 20, padding: "20px", marginBottom: 16 }}>
+            <div style={{ display: "flex", gap: 14 }}>
+              <XCircle size={24} color="#f87171" style={{ flexShrink: 0, marginTop: 2 }} />
+              <div>
+                <p style={{ fontWeight: 700, fontSize: 15, color: "#f87171", marginBottom: 6 }}>
+                  {estado === "pago_no_autorizado" ? "Pago no autorizado" : "Consulta cancelada"}
+                </p>
+                <p style={{ fontSize: 13, color: muted, lineHeight: 1.5 }}>
+                  {estado === "pago_no_autorizado"
+                    ? "Tu tarjeta no fue autorizada por Mercado Pago. No se realizó ningún cobro. Podés intentar con otra tarjeta o usar saldo en cuenta MP."
+                    : "La consulta fue cancelada. No se realizó ningún cobro a tu cuenta."
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── BOTONES DE ACCIÓN ── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {esPendiente && (
             <button
               onClick={cancelar}
               disabled={cancelando}
-              style={{ width: "100%", padding: "15px", borderRadius: 16, border: "1px solid rgba(239,68,68,0.35)", background: "rgba(239,68,68,0.08)", color: "#f87171", fontSize: 15, fontWeight: 600, cursor: cancelando ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: "15px", borderRadius: 16, border: "1px solid rgba(239,68,68,0.35)", background: "rgba(239,68,68,0.08)", color: "#f87171", fontSize: 15, fontWeight: 600, cursor: cancelando ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", opacity: cancelando ? 0.6 : 1 }}
             >
               {cancelando ? <Loader2 size={18} className="animate-spin" /> : <X size={18} />}
               Cancelar búsqueda
             </button>
           )}
-          {(esFinalizado || esCancelado) && (
+
+          {(esFin || esCancelado) && (
             <Link
               href="/pedir"
-              style={{ width: "100%", padding: "15px", borderRadius: 16, background: "linear-gradient(90deg, #00b3a6, #2dd4bf)", color: "#fff", fontSize: 15, fontWeight: 700, textAlign: "center", textDecoration: "none", display: "block" }}
+              style={{ width: "100%", padding: "16px", borderRadius: 16, background: "linear-gradient(90deg, #00b3a6, #2dd4bf)", color: "#fff", fontSize: 15, fontWeight: 700, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
             >
+              <Home size={18} />
               Volver al inicio
             </Link>
           )}
+
+          {esCancelado && (
+            <Link
+              href="/pedir"
+              style={{ width: "100%", padding: "15px", borderRadius: 16, border: `1px solid ${border}`, background: "rgba(255,255,255,0.04)", color: text, fontSize: 15, fontWeight: 600, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+            >
+              <RotateCcw size={18} />
+              Intentar de nuevo
+            </Link>
+          )}
         </div>
+
       </main>
     </div>
   );
