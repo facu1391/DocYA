@@ -5,10 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft, User, Phone, CreditCard,
+  ArrowLeft, Phone, CreditCard,
   Calendar, Users, CheckCircle2, Loader2, ChevronDown,
 } from "lucide-react";
 import AddressInput from "./AddressInput";
+import { usePedirTheme } from "./theme";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -28,14 +29,7 @@ const notify = (msg: string, ok = true) => {
 export default function PerfilScreen() {
   const router = useRouter();
   const [user, setUser] = useState<PedirUser | null>(null);
-
-  const dark    = true;
-  const bg      = "#0b1a22";
-  const surface = "linear-gradient(135deg, rgba(0,179,166,0.08) 0%, rgba(11,26,34,0.97) 60%)";
-  const border  = "rgba(0,179,166,0.22)";
-  const text    = "#e2f0f0";
-  const muted   = "rgba(255,255,255,0.55)";
-  const inputBg = "rgba(0,179,166,0.06)";
+  const { dark, bg, surface, brandBorder: border, text, muted, inputBg, headerBg, logo, titleStart } = usePedirTheme();
 
   const [tipoDoc,     setTipoDoc]     = useState("dni");
   const [nroDoc,      setNroDoc]      = useState("");
@@ -53,7 +47,7 @@ export default function PerfilScreen() {
       const u = JSON.parse(raw) as PedirUser;
       if (u.perfil_completo) { router.replace("/pedir"); return; }
       setUser(u);
-    } catch (_) { router.replace("/pedir"); }
+    } catch { router.replace("/pedir"); }
   }, [router]);
 
   const guardar = useCallback(async () => {
@@ -110,10 +104,10 @@ export default function PerfilScreen() {
     <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
       {/* HEADER */}
-      <header style={{ borderBottom: `1px solid ${border}`, background: "rgba(11,26,34,0.95)", backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px" }}>
+      <header style={{ borderBottom: `1px solid ${border}`, background: headerBg, backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px" }}>
         <div style={{ maxWidth: 720, margin: "0 auto", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
           <Link href="/pedir" style={{ color: muted, display: "flex" }}><ArrowLeft size={22} /></Link>
-          <Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png" alt="DocYa" width={80} height={26} style={{ height: 26, width: "auto" }} />
+          <Image src={logo} alt="DocYa" width={80} height={26} style={{ width: 80, height: "auto", maxHeight: 26, objectFit: "contain", display: "block", flexShrink: 0 }} />
         </div>
       </header>
 
@@ -122,7 +116,7 @@ export default function PerfilScreen() {
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,179,166,0.12)", border: "1px solid rgba(0,179,166,0.25)", borderRadius: 999, padding: "6px 14px", fontSize: 13, fontWeight: 600, color: "#00b3a6", marginBottom: 16 }}>
             <CheckCircle2 size={14} /> Un paso más
           </div>
-          <h1 style={{ fontSize: "clamp(22px, 4vw, 28px)", fontWeight: 900, marginBottom: 8, background: "linear-gradient(90deg, #e2f0f0, #2dd4bf)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <h1 style={{ fontSize: "clamp(22px, 4vw, 28px)", fontWeight: 900, marginBottom: 8, background: `linear-gradient(90deg, ${titleStart}, #2dd4bf)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             Completá tu perfil
           </h1>
           <p style={{ color: muted, fontSize: 15, lineHeight: 1.6 }}>
@@ -197,7 +191,7 @@ export default function PerfilScreen() {
                   type="date"
                   value={fechaNac}
                   onChange={e => setFechaNac(e.target.value)}
-                  style={{ ...inputStyle, colorScheme: "dark" }}
+                  style={{ ...inputStyle, colorScheme: dark ? "dark" : "light" }}
                 />
               </div>
               <div>

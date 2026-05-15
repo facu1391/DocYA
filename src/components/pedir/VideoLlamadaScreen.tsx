@@ -4,9 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Video, Mic, MicOff, VideoOff, PhoneOff,
+  Video, PhoneOff,
   Maximize2, Minimize2, Shield, Clock, User,
 } from "lucide-react";
+import { usePedirTheme } from "./theme";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -24,11 +25,7 @@ export default function VideoLlamadaScreen() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollRef  = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const dark    = true;
-  const bg      = "#0b1a22";
-  const border  = "rgba(255,255,255,0.10)";
-  const text    = "#e2f0f0";
-  const muted   = "rgba(255,255,255,0.55)";
+  const { bg, border, text, muted, logo, videoChromeBg, videoBarBg, softPanel } = usePedirTheme();
 
   // Timer de duración
   useEffect(() => {
@@ -54,7 +51,7 @@ export default function VideoLlamadaScreen() {
         if (timerRef.current) clearInterval(timerRef.current);
         setFinalizado(true);
       }
-    } catch (_) {}
+    } catch {}
   }, [consultaId]);
 
   useEffect(() => {
@@ -70,7 +67,7 @@ export default function VideoLlamadaScreen() {
     return (
       <div style={{ minHeight: "100vh", background: bg, color: text, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
-          <Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png" alt="DocYa" width={100} height={32} style={{ height: 32, width: "auto", margin: "0 auto 32px", display: "block" }} />
+          <Image src={logo} alt="DocYa" width={100} height={32} style={{ width: 100, height: "auto", maxHeight: 32, objectFit: "contain", margin: "0 auto 32px", display: "block" }} />
           <div style={{ width: 80, height: 80, borderRadius: 999, background: "rgba(0,179,166,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
             <Video size={36} color="#2dd4bf" />
           </div>
@@ -95,9 +92,9 @@ export default function VideoLlamadaScreen() {
 
       {/* HEADER */}
       {!fullscreen && (
-        <header style={{ background: "rgba(3,16,26,0.95)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${border}`, padding: "0 20px", flexShrink: 0 }}>
+        <header style={{ background: videoChromeBg, backdropFilter: "blur(12px)", borderBottom: `1px solid ${border}`, padding: "0 20px", flexShrink: 0 }}>
           <div style={{ maxWidth: 900, margin: "0 auto", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png" alt="DocYa" width={80} height={26} style={{ height: 26, width: "auto" }} />
+            <Image src={logo} alt="DocYa" width={80} height={26} style={{ width: 80, height: "auto", maxHeight: 26, objectFit: "contain", display: "block", flexShrink: 0 }} />
 
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
               {/* Médico */}
@@ -134,7 +131,7 @@ export default function VideoLlamadaScreen() {
               <Video size={30} color="#818cf8" />
             </div>
             <p style={{ color: muted, fontSize: 15 }}>Conectando a la videollamada...</p>
-            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 13 }}>Puede pedir acceso a cámara y micrófono</p>
+            <p style={{ color: muted, opacity: 0.7, fontSize: 13 }}>Puede pedir acceso a cámara y micrófono</p>
           </div>
         )}
         <iframe
@@ -148,7 +145,7 @@ export default function VideoLlamadaScreen() {
 
       {/* BARRA INFERIOR */}
       {!fullscreen && (
-        <div style={{ background: "rgba(3,16,26,0.97)", backdropFilter: "blur(12px)", borderTop: `1px solid ${border}`, padding: "0 20px", flexShrink: 0 }}>
+        <div style={{ background: videoBarBg, backdropFilter: "blur(12px)", borderTop: `1px solid ${border}`, padding: "0 20px", flexShrink: 0 }}>
           <div style={{ maxWidth: 900, margin: "0 auto", height: 80, display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
 
             {/* Nota: los controles de mic/cam/video los maneja el propio SDK de Daily.co dentro del iframe */}
@@ -156,7 +153,7 @@ export default function VideoLlamadaScreen() {
 
             <button
               onClick={() => setFullscreen(f => !f)}
-              style={{ width: 52, height: 52, borderRadius: 999, border: `1px solid ${border}`, background: "rgba(255,255,255,0.06)", color: muted, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              style={{ width: 52, height: 52, borderRadius: 999, border: `1px solid ${border}`, background: softPanel, color: muted, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
               title={fullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
             >
               {fullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}

@@ -9,6 +9,7 @@ import {
   Thermometer, Baby, Bandage, AlertTriangle,
   Phone, CheckCircle2, ChevronRight, X,
 } from "lucide-react";
+import { usePedirTheme } from "./theme";
 
 const PREGUNTAS = [
   { id: 0, texto: "¿Tenés dificultad grave para respirar?",             icon: Wind,        color: "#38D7D2" },
@@ -31,11 +32,10 @@ export default function FiltroScreen() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [preguntaEmerg, setPreguntaEmerg] = useState<typeof PREGUNTAS[0] | null>(null);
 
-  const dark = true;
-  const bg      = "#0b1a22";
-  const border  = "rgba(0,179,166,0.2)";
-  const text    = "#e2f0f0";
-  const muted   = "rgba(255,255,255,0.55)";
+  const {
+    dark, bg, brandBorder: border, text, muted, headerBg, logo,
+    softPanel, softPanelBorder, titleStart,
+  } = usePedirTheme();
 
   const responder = (idx: number, valor: boolean) => {
     setRespuestas(prev => ({ ...prev, [idx]: valor }));
@@ -55,12 +55,12 @@ export default function FiltroScreen() {
       <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
         {/* HEADER */}
-        <header style={{ borderBottom: `1px solid ${border}`, background: "rgba(11,26,34,0.95)", backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px" }}>
+        <header style={{ borderBottom: `1px solid ${border}`, background: headerBg, backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px" }}>
           <div style={{ maxWidth: 720, margin: "0 auto", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
             <Link href="/pedir" style={{ color: muted, display: "flex", alignItems: "center" }}>
               <ArrowLeft size={22} />
             </Link>
-            <Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png" alt="DocYa" width={80} height={26} style={{ height: 26, width: "auto" }} />
+            <Image src={logo} alt="DocYa" width={80} height={26} style={{ width: 80, height: "auto", maxHeight: 26, objectFit: "contain", display: "block", flexShrink: 0 }} />
             <div style={{ marginLeft: "auto", background: "rgba(0,179,166,0.1)", border: "1px solid rgba(0,179,166,0.25)", borderRadius: 999, padding: "4px 12px", fontSize: 13, fontWeight: 600, color: "#2dd4bf" }}>
               {respondidas}/{PREGUNTAS.length} respondidas
             </div>
@@ -70,14 +70,14 @@ export default function FiltroScreen() {
         <main style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 80px" }}>
 
           {/* INTRO CARD */}
-          <div style={{ position: "relative", borderRadius: 24, padding: "28px 24px", background: "linear-gradient(135deg, rgba(251,191,36,0.12) 0%, rgba(11,26,34,0.97) 60%)", border: "1.5px solid rgba(251,191,36,0.3)", boxShadow: "0 0 40px rgba(251,191,36,0.08)", marginBottom: 28 }}>
+          <div style={{ position: "relative", borderRadius: 24, padding: "28px 24px", background: dark ? "linear-gradient(135deg, rgba(251,191,36,0.12) 0%, rgba(11,26,34,0.97) 60%)" : "linear-gradient(135deg, rgba(251,191,36,0.16) 0%, rgba(255,255,255,0.96) 60%)", border: "1.5px solid rgba(251,191,36,0.3)", boxShadow: "0 0 40px rgba(251,191,36,0.08)", marginBottom: 28 }}>
             <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "50%", height: 2.5, background: "linear-gradient(90deg, transparent, #fbbf24, transparent)", borderRadius: 999 }} />
             <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
               <div style={{ width: 48, height: 48, borderRadius: 16, background: "rgba(251,191,36,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <AlertTriangle size={24} color="#fbbf24" />
               </div>
               <div>
-                <h1 style={{ fontSize: "clamp(18px, 3.5vw, 24px)", fontWeight: 900, marginBottom: 8, background: "linear-gradient(90deg, #e2f0f0, #fbbf24)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                <h1 style={{ fontSize: "clamp(18px, 3.5vw, 24px)", fontWeight: 900, marginBottom: 8, background: `linear-gradient(90deg, ${titleStart}, #fbbf24)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                   Evaluación de seguridad
                 </h1>
                 <p style={{ color: muted, fontSize: 14, lineHeight: 1.6 }}>
@@ -95,8 +95,8 @@ export default function FiltroScreen() {
               return (
                 <div key={p.id} style={{
                   borderRadius: 18, padding: "18px",
-                  background: resp === true ? "rgba(239,68,68,0.08)" : resp === false ? "rgba(0,179,166,0.06)" : "rgba(255,255,255,0.04)",
-                  border: `1.5px solid ${resp === true ? "rgba(239,68,68,0.35)" : resp === false ? "rgba(0,179,166,0.25)" : "rgba(255,255,255,0.08)"}`,
+                  background: resp === true ? "rgba(239,68,68,0.08)" : resp === false ? "rgba(0,179,166,0.06)" : softPanel,
+                  border: `1.5px solid ${resp === true ? "rgba(239,68,68,0.35)" : resp === false ? "rgba(0,179,166,0.25)" : softPanelBorder}`,
                   transition: "all 0.15s",
                 }}>
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 14 }}>
@@ -108,11 +108,11 @@ export default function FiltroScreen() {
                   <div style={{ display: "flex", gap: 10 }}>
                     <button
                       onClick={() => responder(p.id, true)}
-                      style={{ flex: 1, padding: "11px 0", borderRadius: 12, border: `1.5px solid ${resp === true ? "#ef4444" : "rgba(255,255,255,0.1)"}`, background: resp === true ? "rgba(239,68,68,0.2)" : "transparent", color: resp === true ? "#f87171" : muted, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}
+                      style={{ flex: 1, padding: "11px 0", borderRadius: 12, border: `1.5px solid ${resp === true ? "#ef4444" : softPanelBorder}`, background: resp === true ? "rgba(239,68,68,0.2)" : "transparent", color: resp === true ? "#f87171" : muted, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}
                     >Sí</button>
                     <button
                       onClick={() => responder(p.id, false)}
-                      style={{ flex: 1, padding: "11px 0", borderRadius: 12, border: `1.5px solid ${resp === false ? "#00b3a6" : "rgba(255,255,255,0.1)"}`, background: resp === false ? "rgba(0,179,166,0.15)" : "transparent", color: resp === false ? "#2dd4bf" : muted, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}
+                      style={{ flex: 1, padding: "11px 0", borderRadius: 12, border: `1.5px solid ${resp === false ? "#00b3a6" : softPanelBorder}`, background: resp === false ? "rgba(0,179,166,0.15)" : "transparent", color: resp === false ? "#2dd4bf" : muted, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}
                     >No</button>
                   </div>
                 </div>
@@ -135,7 +135,7 @@ export default function FiltroScreen() {
             disabled={!todasNo}
             style={{
               width: "100%", padding: "17px", borderRadius: 18, border: "none",
-              background: todasNo ? "linear-gradient(90deg, #00b3a6, #2dd4bf)" : "rgba(255,255,255,0.06)",
+              background: todasNo ? "linear-gradient(90deg, #00b3a6, #2dd4bf)" : softPanel,
               color: todasNo ? "#fff" : muted, fontSize: 16, fontWeight: 800,
               cursor: todasNo ? "pointer" : "not-allowed",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
@@ -161,7 +161,7 @@ export default function FiltroScreen() {
         >
           <div
             onClick={e => e.stopPropagation()}
-            style={{ width: "100%", maxWidth: 440, borderRadius: 28, padding: "36px 32px", background: "linear-gradient(145deg, rgba(239,68,68,0.18) 0%, rgba(11,26,34,0.98) 50%)", border: "1.5px solid rgba(239,68,68,0.4)", boxShadow: "0 0 60px rgba(239,68,68,0.2), 0 32px 80px rgba(0,0,0,0.6)", position: "relative" }}
+            style={{ width: "100%", maxWidth: 440, borderRadius: 28, padding: "36px 32px", background: dark ? "linear-gradient(145deg, rgba(239,68,68,0.18) 0%, rgba(11,26,34,0.98) 50%)" : "linear-gradient(145deg, rgba(239,68,68,0.14) 0%, rgba(255,255,255,0.98) 50%)", border: "1.5px solid rgba(239,68,68,0.4)", boxShadow: dark ? "0 0 60px rgba(239,68,68,0.2), 0 32px 80px rgba(0,0,0,0.6)" : "0 0 40px rgba(239,68,68,0.12), 0 24px 70px rgba(15,23,42,0.18)", position: "relative" }}
           >
             {/* Línea superior */}
             <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "60%", height: 3, background: "linear-gradient(90deg, transparent, #ef4444, transparent)", borderRadius: 999 }} />
@@ -169,7 +169,7 @@ export default function FiltroScreen() {
             {/* Cerrar */}
             <button
               onClick={cerrarModal}
-              style={{ position: "absolute", top: 16, right: 16, background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 999, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: muted }}
+              style={{ position: "absolute", top: 16, right: 16, background: softPanel, border: "none", borderRadius: 999, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: muted }}
             >
               <X size={16} />
             </button>
@@ -179,7 +179,7 @@ export default function FiltroScreen() {
               <AlertTriangle size={32} color="#f87171" />
             </div>
 
-            <h2 style={{ fontSize: 22, fontWeight: 900, textAlign: "center", marginBottom: 10, background: "linear-gradient(90deg, #fff, #f87171)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            <h2 style={{ fontSize: 22, fontWeight: 900, textAlign: "center", marginBottom: 10, background: `linear-gradient(90deg, ${titleStart}, #f87171)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               Posible emergencia
             </h2>
 
@@ -187,11 +187,11 @@ export default function FiltroScreen() {
               Respondiste <strong style={{ color: "#f87171" }}>Sí</strong> a:
             </p>
             <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 14, padding: "12px 16px", marginBottom: 20, textAlign: "center" }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color: "#fca5a5" }}>"{preguntaEmerg.texto}"</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "#fca5a5" }}>&quot;{preguntaEmerg.texto}&quot;</p>
             </div>
 
             <p style={{ color: muted, fontSize: 14, lineHeight: 1.6, marginBottom: 24, textAlign: "center" }}>
-              Esto puede requerir atención inmediata. <strong style={{ color: "#e2f0f0" }}>DocYa no reemplaza los servicios de emergencia.</strong> Te recomendamos llamar ahora.
+              Esto puede requerir atención inmediata. <strong style={{ color: text }}>DocYa no reemplaza los servicios de emergencia.</strong> Te recomendamos llamar ahora.
             </p>
 
             <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
@@ -211,7 +211,7 @@ export default function FiltroScreen() {
 
             <button
               onClick={cerrarModal}
-              style={{ width: "100%", padding: "13px", borderRadius: 14, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: muted, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: "13px", borderRadius: 14, background: softPanel, border: `1px solid ${softPanelBorder}`, color: muted, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}
             >
               Continuar respondiendo el cuestionario
             </button>

@@ -1,16 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft, Stethoscope, Video, HeartPulse,
   CreditCard, Wallet, Banknote, Loader2, ChevronRight,
-  Navigation,
+  Navigation, ShieldCheck, CheckCircle2, RotateCcw,
 } from "lucide-react";
 import AddressInput from "./AddressInput";
 import MapView from "./MapView";
+import { usePedirTheme } from "./theme";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -28,6 +29,8 @@ const METODOS: { id: MetodoPago; icon: typeof CreditCard; label: string; sub: st
   { id: "saldo_mp", icon: Wallet,     label: "Saldo Mercado Pago",  sub: "Tu cuenta de MP" },
   { id: "efectivo", icon: Banknote,   label: "Efectivo",            sub: "Le pagás al profesional" },
 ];
+
+const METODOS_ONLINE = METODOS.filter(m => m.id !== "efectivo");
 
 const notify = (msg: string, ok = true) => {
   if (typeof document === "undefined") return;
@@ -53,13 +56,8 @@ export default function SolicitarScreen() {
   const [lng, setLng] = useState<number | null>(null);
   const [metodoPago, setMetodoPago] = useState<MetodoPago>("tarjeta");
   const [submitting, setSubmitting] = useState(false);
-  const [dark] = useState(true);
-
-  const bg = dark ? "#0b1a22" : "#f5f7fa";
-  const border = dark ? "rgba(0,179,166,0.18)" : "rgba(0,0,0,0.08)";
-  const text = dark ? "#e2f0f0" : "#0f172a";
-  const muted = dark ? "rgba(255,255,255,0.55)" : "#64748b";
-  const inputBg = dark ? "rgba(255,255,255,0.06)" : "#f8fafc";
+  const { dark, bg, brandBorder: border, text, muted, inputBg, headerBg, logo, titleStart } = usePedirTheme();
+  const permiteEfectivo = tipo !== "teleconsulta";
 
   // Auth check
   useEffect(() => {
@@ -67,7 +65,7 @@ export default function SolicitarScreen() {
       const raw = localStorage.getItem("pedir_user");
       if (!raw) { router.replace("/pedir"); return; }
       setUser(JSON.parse(raw));
-    } catch (_) { router.replace("/pedir"); }
+    } catch { router.replace("/pedir"); }
   }, [router]);
 
   // Geolocalización inicial
@@ -78,6 +76,10 @@ export default function SolicitarScreen() {
       () => {}
     );
   }, []);
+
+  useEffect(() => {
+    if (!permiteEfectivo && metodoPago === "efectivo") setMetodoPago("tarjeta");
+  }, [permiteEfectivo, metodoPago]);
 
 
   const PLACES_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyAcvJIlpOAkRzVaXlcnE8lJQfQGBqx-bKA";
@@ -95,7 +97,7 @@ export default function SolicitarScreen() {
           const data = await res.json();
           const addr = data.results?.[0]?.formatted_address;
           if (addr) setDireccion(addr);
-        } catch (_) {}
+        } catch {}
       },
       () => notify("No pudimos obtener tu ubicación", false)
     );
@@ -106,6 +108,7 @@ export default function SolicitarScreen() {
     if (!motivo.trim()) return notify("Describí el motivo de la consulta", false);
     if (!direccion.trim()) return notify("Ingresá tu dirección", false);
     if (lat === null || lng === null) return notify("Necesitamos tus coordenadas. Usá el botón de ubicación o buscá tu dirección.", false);
+    if (!permiteEfectivo && metodoPago === "efectivo") return notify("La teleconsulta no permite pago en efectivo", false);
 
     setSubmitting(true);
     try {
@@ -169,7 +172,7 @@ export default function SolicitarScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [user, motivo, direccion, lat, lng, metodoPago, tipo, router]);
+  }, [user, motivo, direccion, lat, lng, metodoPago, tipo, router, permiteEfectivo]);
 
   if (!user) return null;
 
@@ -181,12 +184,12 @@ export default function SolicitarScreen() {
       <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
         {/* HEADER */}
-        <header style={{ borderBottom: "1px solid rgba(0,179,166,0.2)", background: "rgba(11,26,34,0.95)", backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px" }}>
+        <header style={{ borderBottom: "1px solid rgba(0,179,166,0.2)", background: headerBg, backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px" }}>
           <div style={{ maxWidth: 720, margin: "0 auto", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
             <Link href="/pedir" style={{ color: muted, display: "flex", alignItems: "center" }}>
               <ArrowLeft size={22} />
             </Link>
-            <Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png" alt="DocYa" width={80} height={26} style={{ height: 26, width: "auto", filter: dark ? "none" : "invert(1)" }} />
+            <Image src={logo} alt="DocYa" width={80} height={26} style={{ width: 80, height: "auto", maxHeight: 26, objectFit: "contain", display: "block", flexShrink: 0 }} />
             <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, background: `${cfg.color}18`, border: `1px solid ${cfg.color}40`, borderRadius: 999, padding: "4px 12px 4px 8px" }}>
               <Icon size={14} color={cfg.color} />
               <span style={{ fontSize: 13, fontWeight: 600, color: cfg.color }}>{cfg.label}</span>
@@ -195,11 +198,11 @@ export default function SolicitarScreen() {
         </header>
 
         <main style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 80px" }}>
-          <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: 900, marginBottom: 8, background: "linear-gradient(90deg, #e2f0f0, #2dd4bf)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: 900, marginBottom: 8, background: `linear-gradient(90deg, ${titleStart}, #2dd4bf)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             Solicitá tu {cfg.label.toLowerCase()}
           </h1>
           <p style={{ color: muted, fontSize: 15, marginBottom: 32 }}>
-            Hola <strong style={{ color: "#e2f0f0" }}>{user.full_name.split(" ")[0]}</strong>, completá los datos para buscar un profesional.
+            Hola <strong style={{ color: text }}>{user.full_name.split(" ")[0]}</strong>, completá los datos para buscar un profesional.
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -256,37 +259,71 @@ export default function SolicitarScreen() {
               <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 14 }}>
                 Método de pago
               </label>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {METODOS.map(m => {
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, marginBottom: 18 }}>
+                {METODOS_ONLINE.map(m => {
                   const selected = metodoPago === m.id;
+                  const IconPago = m.icon;
                   return (
                     <button
                       key={m.id}
+                      type="button"
                       onClick={() => setMetodoPago(m.id)}
-                      style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderRadius: 14, border: `1.5px solid ${selected ? cfg.color : border}`, background: selected ? `${cfg.color}12` : inputBg, cursor: "pointer", textAlign: "left", transition: "all 0.15s", color: text, fontFamily: "inherit" }}
+                      style={{ minHeight: 54, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "12px 10px", borderRadius: 14, border: `1.5px solid ${selected ? cfg.color : border}`, background: selected ? `${cfg.color}16` : inputBg, cursor: "pointer", color: selected ? cfg.color : muted, fontSize: 13, fontWeight: 800, fontFamily: "inherit", transition: "all 0.15s" }}
                     >
-                      <div style={{ width: 38, height: 38, borderRadius: 12, background: selected ? `${cfg.color}20` : `${border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <m.icon size={18} color={selected ? cfg.color : muted} />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>{m.label}</p>
-                        <p style={{ fontSize: 12, color: muted, margin: 0 }}>{m.sub}</p>
-                      </div>
-                      <div style={{ width: 20, height: 20, borderRadius: 999, border: `2px solid ${selected ? cfg.color : border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        {selected && <div style={{ width: 10, height: 10, borderRadius: 999, background: cfg.color }} />}
-                      </div>
+                      <IconPago size={16} />
+                      {m.label}
                     </button>
                   );
                 })}
               </div>
-              {metodoPago === "tarjeta" && (
-                <p style={{ fontSize: 12, color: muted, marginTop: 12, lineHeight: 1.5, padding: "10px 14px", background: `${cfg.color}10`, borderRadius: 10 }}>
-                  💳 Solo aceptamos <strong style={{ color: text }}>tarjetas de crédito</strong> (Visa, Mastercard, Amex). El cobro se realiza solo cuando un profesional acepta tu consulta.
-                </p>
+              {metodoPago !== "efectivo" && (
+                <div style={{ borderRadius: 18, border: `1px solid ${border}`, background: inputBg, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <ShieldCheck size={22} color={cfg.color} />
+                    <div>
+                      <p style={{ fontSize: 17, fontWeight: 900, color: text, margin: 0 }}>Pago con preautorizacion</p>
+                      <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>
+                        {metodoPago === "tarjeta" ? "Reservamos el monto en tu tarjeta de credito." : "Generamos el pago desde tu cuenta de Mercado Pago."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {[
+                    { icon: CreditCard, strong: "No se cobra ahora.", text: metodoPago === "tarjeta" ? "El monto queda reservado en tu tarjeta pero no debitado." : "Mercado Pago prepara la operacion sin confirmar el cobro todavia." },
+                    { icon: CheckCircle2, strong: `Se cobra solo si un ${tipo === "enfermero" ? "enfermero" : "medico"} acepta.`, text: "En el momento exacto que alguien acepta tu consulta." },
+                    { icon: RotateCcw, strong: "Si nadie acepta o cancelas.", text: "La reserva se libera sola en menos de 5 minutos. No perdes nada." },
+                  ].map(({ icon: BulletIcon, strong, text: itemText }) => (
+                    <div key={strong} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                      <BulletIcon size={17} color={cfg.color} style={{ flexShrink: 0, marginTop: 2 }} />
+                      <p style={{ fontSize: 14, color: muted, lineHeight: 1.45, margin: 0 }}>
+                        <strong style={{ color: text }}>{strong}</strong> {itemText}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               )}
-              {metodoPago === "efectivo" && (
-                <p style={{ fontSize: 12, color: muted, marginTop: 12, lineHeight: 1.5, padding: "10px 14px", background: `${cfg.color}10`, borderRadius: 10 }}>
-                  💵 Le pagás directamente al profesional cuando llegue o por transferencia.
+              {permiteEfectivo && (
+                <button
+                  type="button"
+                  onClick={() => setMetodoPago("efectivo")}
+                  style={{ width: "100%", marginTop: 12, display: "flex", alignItems: "center", gap: 14, padding: "16px", borderRadius: 16, border: `1.5px solid ${metodoPago === "efectivo" ? cfg.color : border}`, background: metodoPago === "efectivo" ? `${cfg.color}14` : inputBg, color: text, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
+                >
+                  <div style={{ width: 42, height: 42, borderRadius: 14, background: metodoPago === "efectivo" ? `${cfg.color}20` : `${border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Banknote size={20} color={metodoPago === "efectivo" ? cfg.color : muted} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 15, fontWeight: 800, margin: 0 }}>Efectivo</p>
+                    <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>Le pagas al profesional cuando llega o por transferencia.</p>
+                  </div>
+                  <div style={{ width: 20, height: 20, borderRadius: 999, border: `2px solid ${metodoPago === "efectivo" ? cfg.color : border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    {metodoPago === "efectivo" && <div style={{ width: 10, height: 10, borderRadius: 999, background: cfg.color }} />}
+                  </div>
+                </button>
+              )}
+
+              {!permiteEfectivo && (
+                <p style={{ fontSize: 12, color: muted, marginTop: 12, lineHeight: 1.5 }}>
+                  En teleconsulta el pago en efectivo no esta disponible.
                 </p>
               )}
             </div>
@@ -300,7 +337,7 @@ export default function SolicitarScreen() {
               {submitting ? (
                 <><Loader2 size={20} className="animate-spin" /> Buscando profesional...</>
               ) : (
-                <>Solicitar {cfg.label} <ChevronRight size={20} /></>
+                <>{metodoPago === "efectivo" ? "Solicitar" : "Autorizar y pedir"} {cfg.label.toLowerCase()} <ChevronRight size={20} /></>
               )}
             </button>
 

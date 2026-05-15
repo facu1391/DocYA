@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   Stethoscope, Video, HeartPulse, Clock, MapPin,
   CheckCircle2, XCircle, PhoneCall, X, Loader2,
   UserCheck, Navigation, Star, RotateCcw, Home,
   AlertCircle, Activity,
 } from "lucide-react";
+import { usePedirTheme } from "./theme";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -70,11 +71,9 @@ function pasoIndex(estado: string, esTeleconsulta: boolean): number {
 }
 
 export default function BuscandoScreen() {
-  const router = useRouter();
   const params = useSearchParams();
   const consultaId = params.get("consulta_id") ?? "";
   const tipo       = params.get("tipo") ?? "medico";
-  const metodo     = params.get("metodo") ?? "";
 
   const [data, setData]             = useState<ConsultaData | null>(null);
   const [cancelando, setCancelando] = useState(false);
@@ -87,11 +86,11 @@ export default function BuscandoScreen() {
   const dotsRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const countRef  = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const bg      = "#0b1a22";
-  const surface = "linear-gradient(135deg, rgba(0,179,166,0.08) 0%, rgba(11,26,34,0.97) 60%)";
-  const border  = "rgba(0,179,166,0.22)";
-  const text    = "#e2f0f0";
-  const muted   = "rgba(255,255,255,0.55)";
+  const {
+    bg, surface, brandBorder: border, text, muted, headerBg, logo,
+    softPanel, softPanelBorder, inactiveStep, inactiveStepBg,
+    inactiveStepBorder, inactiveText, doneText, titleStart,
+  } = usePedirTheme();
 
   const tipoCfg        = TIPO_CONFIG[tipo] ?? TIPO_CONFIG.medico;
   const Icon           = tipoCfg.icon;
@@ -118,8 +117,8 @@ export default function BuscandoScreen() {
       if (d.estado !== "pendiente" && countRef.current) {
         clearInterval(countRef.current);
       }
-    } catch (_) {}
-  }, [consultaId]);
+    } catch {}
+  }, [consultaId, esTeleconsulta]);
 
   useEffect(() => {
     fetchEstado();
@@ -148,7 +147,7 @@ export default function BuscandoScreen() {
         body: JSON.stringify({ paciente_uuid: "" }),
       });
       fetchEstado();
-    } catch (_) {}
+    } catch {}
     setCancelando(false);
   }, [consultaId, fetchEstado]);
 
@@ -162,7 +161,7 @@ export default function BuscandoScreen() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ estrellas: stars }),
       });
-    } catch (_) {}
+    } catch {}
   }, [consultaId, ratingEnviado]);
 
   const estado    = data?.estado ?? "pendiente";
@@ -211,11 +210,11 @@ export default function BuscandoScreen() {
     <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
       {/* HEADER */}
-      <header style={{ borderBottom: `1px solid ${border}`, background: "rgba(11,26,34,0.95)", backdropFilter: "blur(14px)", padding: "0 20px", position: "sticky", top: 0, zIndex: 50 }}>
+      <header style={{ borderBottom: `1px solid ${border}`, background: headerBg, backdropFilter: "blur(14px)", padding: "0 20px", position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ maxWidth: 720, margin: "0 auto", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
           <Image
-            src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png"
-            alt="DocYa" width={80} height={26} style={{ height: 26, width: "auto" }}
+            src={logo}
+            alt="DocYa" width={80} height={26} style={{ width: 80, height: "auto", maxHeight: 26, objectFit: "contain", display: "block", flexShrink: 0 }}
           />
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, background: tipoCfg.colorLight, border: `1px solid ${tipoCfg.color}40`, borderRadius: 999, padding: "4px 12px 4px 8px" }}>
             <Icon size={14} color={tipoCfg.color} />
@@ -234,14 +233,14 @@ export default function BuscandoScreen() {
                 const done    = i < stepIdx;
                 const active  = i === stepIdx;
                 const PasoIcon = paso.icon;
-                const color   = done || active ? tipoCfg.color : "rgba(255,255,255,0.2)";
+                const color   = done || active ? tipoCfg.color : inactiveStep;
                 return (
                   <div key={paso.key} style={{ display: "flex", alignItems: "center" }}>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
                       <div style={{
                         width: 36, height: 36, borderRadius: 999,
-                        background: active ? `${tipoCfg.color}25` : done ? `${tipoCfg.color}15` : "rgba(255,255,255,0.05)",
-                        border: `2px solid ${active ? tipoCfg.color : done ? `${tipoCfg.color}60` : "rgba(255,255,255,0.12)"}`,
+                        background: active ? `${tipoCfg.color}25` : done ? `${tipoCfg.color}15` : inactiveStepBg,
+                        border: `2px solid ${active ? tipoCfg.color : done ? `${tipoCfg.color}60` : inactiveStepBorder}`,
                         display: "flex", alignItems: "center", justifyContent: "center",
                         transition: "all 0.3s",
                       }}>
@@ -250,12 +249,12 @@ export default function BuscandoScreen() {
                           : <PasoIcon size={16} color={color} />
                         }
                       </div>
-                      <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, color: active ? tipoCfg.color : done ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.25)", whiteSpace: "nowrap" }}>
+                      <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, color: active ? tipoCfg.color : done ? doneText : inactiveText, whiteSpace: "nowrap" }}>
                         {paso.label}
                       </span>
                     </div>
                     {i < pasos.length - 1 && (
-                      <div style={{ width: 40, height: 2, background: done ? tipoCfg.color : "rgba(255,255,255,0.1)", margin: "0 4px", marginBottom: 20, transition: "background 0.3s", flexShrink: 0 }} />
+                      <div style={{ width: 40, height: 2, background: done ? tipoCfg.color : inactiveStepBorder, margin: "0 4px", marginBottom: 20, transition: "background 0.3s", flexShrink: 0 }} />
                     )}
                   </div>
                 );
@@ -291,7 +290,7 @@ export default function BuscandoScreen() {
                           : <UserCheck size={44} color={estadoColor} />
             }
           </div>
-          <h1 style={{ fontSize: "clamp(22px, 4vw, 28px)", fontWeight: 900, marginBottom: 10, background: `linear-gradient(90deg, #e2f0f0, ${estadoColor})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <h1 style={{ fontSize: "clamp(22px, 4vw, 28px)", fontWeight: 900, marginBottom: 10, background: `linear-gradient(90deg, ${titleStart}, ${estadoColor})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             {estadoTitulo}
           </h1>
           <p style={{ color: muted, fontSize: 15, lineHeight: 1.5 }}>{estadoSub}</p>
@@ -327,7 +326,7 @@ export default function BuscandoScreen() {
             {(data?.tiempo_estimado_min || data?.distancia_km) && (
               <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
                 {!!data.tiempo_estimado_min && data.tiempo_estimado_min > 0 && (
-                  <div style={{ flex: 1, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ flex: 1, background: softPanel, border: `1px solid ${softPanelBorder}`, borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
                     <Clock size={16} color={tipoCfg.color} />
                     <div>
                       <p style={{ fontSize: 11, color: muted, margin: 0, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Tiempo estimado</p>
@@ -336,7 +335,7 @@ export default function BuscandoScreen() {
                   </div>
                 )}
                 {!!data.distancia_km && data.distancia_km > 0 && (
-                  <div style={{ flex: 1, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ flex: 1, background: softPanel, border: `1px solid ${softPanelBorder}`, borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
                     <MapPin size={16} color={tipoCfg.color} />
                     <div>
                       <p style={{ fontSize: 11, color: muted, margin: 0, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Distancia</p>
@@ -359,7 +358,7 @@ export default function BuscandoScreen() {
                 </p>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
                   <svg width="80" height="80" viewBox="0 0 80 80" style={{ transform: "rotate(-90deg)", flexShrink: 0 }}>
-                    <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="6" />
+                    <circle cx="40" cy="40" r="34" fill="none" stroke={softPanelBorder} strokeWidth="6" />
                     <circle
                       cx="40" cy="40" r="34" fill="none"
                       stroke={tipoCfg.color}
@@ -540,7 +539,7 @@ export default function BuscandoScreen() {
           {esCancelado && (
             <Link
               href="/pedir"
-              style={{ width: "100%", padding: "15px", borderRadius: 16, border: `1px solid ${border}`, background: "rgba(255,255,255,0.04)", color: text, fontSize: 15, fontWeight: 600, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+              style={{ width: "100%", padding: "15px", borderRadius: 16, border: `1px solid ${border}`, background: softPanel, color: text, fontSize: 15, fontWeight: 600, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
             >
               <RotateCcw size={18} />
               Intentar de nuevo

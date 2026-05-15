@@ -11,6 +11,7 @@ import {
   Phone, LogOut, User, ChevronDown, Sun, Moon,
   MessageCircle, AlertTriangle,
 } from "lucide-react";
+import { usePedirTheme } from "./theme";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 const GOOGLE_CLIENT_ID =
@@ -74,24 +75,14 @@ export default function PedirHome() {
   const [googleBusy, setGoogleBusy]     = useState(false);
   const [appleBusy, setAppleBusy]       = useState(false);
   const [user, setUser]                 = useState<PedirUser | null>(null);
-  const [dark, setDark]                 = useState(true);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-
-  const bg      = dark ? "#0b1a22" : "#f0f4f8";
-  const cardBg  = dark ? "rgba(255,255,255,0.05)" : "#ffffff";
-  const border  = dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
-  const text    = dark ? "#e2f0f0" : "#0f172a";
-  const muted   = dark ? "rgba(255,255,255,0.55)" : "#64748b";
-  const headerBg = dark ? "rgba(11,26,34,0.95)" : "rgba(240,244,248,0.95)";
-  const logo    = dark
-    ? "https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png"
-    : "https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logo_1_svfdye.png";
+  const { dark, setTheme, homeBg: bg, cardBg, border, text, muted, headerBg, logo, titleStart } = usePedirTheme();
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem("pedir_user");
       if (raw) setUser(JSON.parse(raw));
-    } catch (_) {}
+    } catch {}
   }, []);
 
   const saveUser = (u: PedirUser) => {
@@ -178,14 +169,14 @@ export default function PedirHome() {
       <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
         {/* HEADER */}
-        <header style={{ borderBottom: `1px solid ${border}`, background: headerBg, backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 24px" }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto", height: 64, display: "flex", alignItems: "center", gap: 16 }}>
-            <Link href="/">
-              <Image src={logo} alt="DocYa" width={100} height={32} style={{ height: 32, width: "auto" }} />
+        <header style={{ borderBottom: `1px solid ${border}`, background: headerBg, backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 16px" }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto", height: 64, display: "flex", alignItems: "center", gap: 10 }}>
+            <Link href="/" style={{ display: "flex", alignItems: "center", flex: "0 0 auto", minWidth: 0 }}>
+              <Image src={logo} alt="DocYa" width={100} height={32} style={{ width: "clamp(76px, 22vw, 100px)", height: "auto", maxHeight: 32, objectFit: "contain", display: "block", flexShrink: 0 }} />
             </Link>
             <div style={{ flex: 1 }} />
             {user && (
-              <Link href="/pedir/consultas" style={{ fontSize: 14, fontWeight: 600, color: muted, textDecoration: "none", padding: "8px 16px", borderRadius: 999, border: `1px solid ${border}`, transition: "all 0.15s" }}>
+              <Link href="/pedir/consultas" style={{ fontSize: 13, fontWeight: 600, color: muted, textDecoration: "none", padding: "8px 12px", borderRadius: 999, border: `1px solid ${border}`, transition: "all 0.15s", flexShrink: 0 }}>
                 Mis consultas
               </Link>
             )}
@@ -193,7 +184,7 @@ export default function PedirHome() {
               <div style={{ position: "relative" }}>
                 <button
                   onClick={() => setUserMenuOpen(o => !o)}
-                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 999, border: `1px solid ${border}`, background: "transparent", color: text, cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}
+                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 999, border: `1px solid ${border}`, background: "transparent", color: text, cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit", flexShrink: 0 }}
                 >
                   <User size={16} />
                   {user.full_name.split(" ")[0]}
@@ -209,7 +200,7 @@ export default function PedirHome() {
                 )}
               </div>
             ) : null}
-            <button onClick={() => setDark(d => !d)} style={{ background: "none", cursor: "pointer", color: muted, padding: 8, borderRadius: 999, display: "flex", alignItems: "center", border: `1px solid ${border}` }}>
+            <button onClick={() => setTheme(dark ? "light" : "dark")} style={{ background: "none", cursor: "pointer", color: muted, padding: 8, borderRadius: 999, display: "flex", alignItems: "center", border: `1px solid ${border}` }}>
               {dark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
           </div>
@@ -352,8 +343,8 @@ export default function PedirHome() {
 
                 {/* Mini hero visible solo en mobile */}
                 <div className="pedir-mobile-hero" style={{ marginBottom: 28, paddingBottom: 22, borderBottom: "1px solid rgba(0,179,166,0.2)" }}>
-                  <Image src={logo} alt="DocYa" width={90} height={28} style={{ height: 28, width: "auto", marginBottom: 16 }} />
-                  <p style={{ fontSize: 22, fontWeight: 900, marginBottom: 6, lineHeight: 1.2, background: "linear-gradient(90deg, #fff, #2dd4bf)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Atención médica sin esperas</p>
+                  <Image src={logo} alt="DocYa" width={90} height={28} style={{ width: 90, height: "auto", maxHeight: 28, objectFit: "contain", marginBottom: 16, display: "block" }} />
+                  <p style={{ fontSize: 22, fontWeight: 900, marginBottom: 6, lineHeight: 1.2, background: `linear-gradient(90deg, ${titleStart}, #2dd4bf)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Atención médica sin esperas</p>
                   <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>Médico, teleconsulta o enfermería desde el navegador.</p>
                 </div>
 
@@ -362,7 +353,7 @@ export default function PedirHome() {
                   <div style={{ width: 52, height: 52, borderRadius: 18, background: "linear-gradient(135deg, #00b3a6, #2dd4bf)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 8px 24px rgba(0,179,166,0.4)" }}>
                     <ShieldCheck size={26} color="#fff" />
                   </div>
-                  <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 8, background: "linear-gradient(90deg, #e2f0f0, #2dd4bf)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                  <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 8, background: `linear-gradient(90deg, ${titleStart}, #2dd4bf)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                     Ingresá para continuar
                   </h2>
                   <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, ShieldCheck, Loader2, RefreshCw } from "lucide-react";
+import { usePedirTheme } from "./theme";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean };
@@ -27,18 +28,14 @@ export default function PagoScreen() {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneRef = useRef(false);
 
-  const dark   = true;
-  const bg     = "#0b1a22";
-  const border = "rgba(0,179,166,0.22)";
-  const text   = "#e2f0f0";
-  const muted  = "rgba(255,255,255,0.55)";
+  const { bg, brandBorder: border, text, muted, headerBg, logo, overlayBg, titleStart } = usePedirTheme();
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem("pedir_user");
       if (!raw) { router.replace("/pedir"); return; }
       setUser(JSON.parse(raw));
-    } catch (_) { router.replace("/pedir"); }
+    } catch { router.replace("/pedir"); }
   }, [router]);
 
   const confirmarYSolicitar = useCallback(async (paymentId?: string) => {
@@ -86,7 +83,7 @@ export default function PagoScreen() {
         if (data.mp_preautorizado === true || data.mp_status === "approved") {
           confirmarYSolicitar(data.payment_id ?? undefined);
         }
-      } catch (_) {}
+      } catch {}
     }, 3000);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [consultaId, user, confirmarYSolicitar]);
@@ -97,12 +94,12 @@ export default function PagoScreen() {
     <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
 
       {/* HEADER */}
-      <header style={{ borderBottom: `1px solid ${border}`, background: "rgba(11,26,34,0.95)", backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px", flexShrink: 0 }}>
+      <header style={{ borderBottom: `1px solid ${border}`, background: headerBg, backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 20px", flexShrink: 0 }}>
         <div style={{ maxWidth: 720, margin: "0 auto", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
           <Link href={`/pedir/solicitar?tipo=${tipo}`} style={{ color: muted, display: "flex", alignItems: "center" }}>
             <ArrowLeft size={22} />
           </Link>
-          <Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png" alt="DocYa" width={80} height={26} style={{ height: 26, width: "auto" }} />
+          <Image src={logo} alt="DocYa" width={80} height={26} style={{ width: 80, height: "auto", maxHeight: 26, objectFit: "contain", display: "block", flexShrink: 0 }} />
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#2dd4bf", fontWeight: 600 }}>
             <ShieldCheck size={15} /> Pago seguro
           </div>
@@ -121,7 +118,7 @@ export default function PagoScreen() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 720, margin: "0 auto", width: "100%", padding: "20px 20px 40px" }}>
 
           <div style={{ marginBottom: 16 }}>
-            <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 6, background: "linear-gradient(90deg, #e2f0f0, #2dd4bf)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Autorizá el pago</h1>
+            <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 6, background: `linear-gradient(90deg, ${titleStart}, #2dd4bf)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Autorizá el pago</h1>
             <p style={{ color: muted, fontSize: 14 }}>
               El cobro se realiza <strong style={{ color: text }}>solo cuando un profesional acepta</strong> tu consulta.
             </p>
@@ -139,7 +136,7 @@ export default function PagoScreen() {
           {/* Iframe MP */}
           <div style={{ flex: 1, borderRadius: 20, overflow: "hidden", border: `1.5px solid ${border}`, position: "relative", minHeight: 520, boxShadow: "0 0 40px rgba(0,179,166,0.08)" }}>
             {!iframeLoaded && (
-              <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(7,27,34,0.9)" }}>
+              <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: overlayBg }}>
                 <Loader2 size={32} color="#2dd4bf" className="animate-spin" />
                 <p style={{ color: muted, fontSize: 14 }}>Cargando formulario de pago...</p>
               </div>
