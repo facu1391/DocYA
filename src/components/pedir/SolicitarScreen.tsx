@@ -17,6 +17,7 @@ const API = process.env.NEXT_PUBLIC_API_BASE!;
 
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean };
 type MetodoPago = "tarjeta" | "saldo_mp" | "efectivo";
+type Tarifa = { tipo?: string; monto: number; descripcion?: string };
 
 const TIPO_CONFIG = {
   medico:       { label: "Médico a domicilio",     icon: Stethoscope, color: "#00b3a6" },
@@ -31,6 +32,22 @@ const METODOS: { id: MetodoPago; icon: typeof CreditCard; label: string; sub: st
 ];
 
 const METODOS_ONLINE = METODOS.filter(m => m.id !== "efectivo");
+
+function tarifaEndpoint(tipo: keyof typeof TIPO_CONFIG) {
+  if (tipo === "teleconsulta") return "teleconsulta";
+  if (tipo === "enfermero") return "consulta-enfermero";
+  return "consulta-medico";
+}
+
+function parseMonto(value: unknown) {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+}
+
+function formatPesos(value?: number | null) {
+  if (!value) return "Cargando...";
+  return `$${value.toLocaleString("es-AR")}`;
+}
 
 const notify = (msg: string, ok = true) => {
   if (typeof document === "undefined") return;
@@ -56,6 +73,9 @@ export default function SolicitarScreen() {
   const [lng, setLng] = useState<number | null>(null);
   const [metodoPago, setMetodoPago] = useState<MetodoPago>("tarjeta");
   const [submitting, setSubmitting] = useState(false);
+  const [tarifa, setTarifa] = useState<Tarifa | null>(null);
+  const [tarifaLoading, setTarifaLoading] = useState(true);
+  const [tarifaError, setTarifaError] = useState("");
   const { dark, bg, brandBorder: border, text, muted, inputBg, headerBg, logo, titleStart } = usePedirTheme();
   const permiteEfectivo = tipo !== "teleconsulta";
 
@@ -80,6 +100,30 @@ export default function SolicitarScreen() {
   useEffect(() => {
     if (!permiteEfectivo && metodoPago === "efectivo") setMetodoPago("tarjeta");
   }, [permiteEfectivo, metodoPago]);
+
+  useEffect(() => {
+    let alive = true;
+    setTarifaLoading(true);
+    setTarifaError("");
+    setTarifa(null);
+
+    fetch(`${API}/tarifas/${tarifaEndpoint(tipo)}`, { cache: "no-store" })
+      .then(async res => {
+        if (!res.ok) throw new Error("No se pudo cargar el precio");
+        const data = await res.json();
+        const monto = parseMonto(data?.monto);
+        if (!monto) throw new Error("No se pudo cargar el precio");
+        if (alive) setTarifa({ tipo: data?.tipo, monto, descripcion: data?.descripcion });
+      })
+      .catch(e => {
+        if (alive) setTarifaError(e instanceof Error ? e.message : "No se pudo cargar el precio");
+      })
+      .finally(() => {
+        if (alive) setTarifaLoading(false);
+      });
+
+    return () => { alive = false; };
+  }, [tipo]);
 
 
   const PLACES_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyAcvJIlpOAkRzVaXlcnE8lJQfQGBqx-bKA";
@@ -109,9 +153,12 @@ export default function SolicitarScreen() {
     if (!direccion.trim()) return notify("Ingresá tu dirección", false);
     if (lat === null || lng === null) return notify("Necesitamos tus coordenadas. Usá el botón de ubicación o buscá tu dirección.", false);
     if (!permiteEfectivo && metodoPago === "efectivo") return notify("La teleconsulta no permite pago en efectivo", false);
+    if (!tarifa?.monto) return notify("No pudimos cargar el precio desde DocYa. Intentá de nuevo.", false);
 
     setSubmitting(true);
     try {
+      const monto = tarifa.monto;
+
       if (metodoPago === "tarjeta") {
         // Crear previa y abrir formulario MP en modal
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
@@ -122,12 +169,8 @@ export default function SolicitarScreen() {
         if (!previaRes.ok) throw new Error("No se pudo preparar la consulta");
         const { consulta_id } = await previaRes.json();
 
-        const tarifaRes = await fetch(`${API}/tarifas/consulta-${tipo === "enfermero" ? "enfermero" : "medico"}`);
-        const tarifaData = await tarifaRes.json();
-        const monto = tarifaData.monto ?? 30000;
-
         const mpUrl = `${API}/pagos/embebido/formulario?paciente_uuid=${user.id}&consulta_id=${consulta_id}&monto=${monto}&tipo=${tipo}&motivo=${encodeURIComponent(motivo.trim())}`;
-        router.push(`/pedir/pago?url=${encodeURIComponent(mpUrl)}&consulta_id=${consulta_id}&motivo=${encodeURIComponent(motivo.trim())}&direccion=${encodeURIComponent(direccion.trim())}&lat=${lat}&lng=${lng}&tipo=${tipo}`);
+        router.push(`/pedir/pago?url=${encodeURIComponent(mpUrl)}&consulta_id=${consulta_id}&motivo=${encodeURIComponent(motivo.trim())}&direccion=${encodeURIComponent(direccion.trim())}&lat=${lat}&lng=${lng}&tipo=${tipo}&metodo=tarjeta&monto=${monto}`);
         return;
       }
 
@@ -140,10 +183,6 @@ export default function SolicitarScreen() {
         if (!previaRes.ok) throw new Error("No se pudo preparar la consulta");
         const { consulta_id } = await previaRes.json();
 
-        const tarifaRes = await fetch(`${API}/tarifas/consulta-${tipo === "enfermero" ? "enfermero" : "medico"}`);
-        const tarifaData = await tarifaRes.json();
-        const monto = tarifaData.monto ?? 30000;
-
         const prefRes = await fetch(`${API}/pagos/saldo-mp/preferencia`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -151,7 +190,7 @@ export default function SolicitarScreen() {
         });
         if (!prefRes.ok) throw new Error("No se pudo crear la preferencia");
         const { init_point } = await prefRes.json();
-        router.push(`/pedir/pago?url=${encodeURIComponent(init_point)}&consulta_id=${consulta_id}&motivo=${encodeURIComponent(motivo.trim())}&direccion=${encodeURIComponent(direccion.trim())}&lat=${lat}&lng=${lng}&tipo=${tipo}`);
+        router.push(`/pedir/pago?url=${encodeURIComponent(init_point)}&consulta_id=${consulta_id}&motivo=${encodeURIComponent(motivo.trim())}&direccion=${encodeURIComponent(direccion.trim())}&lat=${lat}&lng=${lng}&tipo=${tipo}&metodo=saldo_mp&monto=${monto}`);
         return;
       }
 
@@ -172,7 +211,7 @@ export default function SolicitarScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [user, motivo, direccion, lat, lng, metodoPago, tipo, router, permiteEfectivo]);
+  }, [user, motivo, direccion, lat, lng, metodoPago, tipo, router, permiteEfectivo, tarifa]);
 
   if (!user) return null;
 
@@ -254,6 +293,21 @@ export default function SolicitarScreen() {
               )}
             </div>
 
+            <div style={{ background: inputBg, border: `1.5px solid ${tarifaError ? "rgba(239,68,68,0.35)" : border}`, borderRadius: 20, padding: "18px 20px", display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: `${cfg.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <CreditCard size={21} color={cfg.color} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 12, color: muted, margin: "0 0 4px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.6px" }}>Precio del servicio</p>
+                <p style={{ fontSize: 26, fontWeight: 950, color: tarifaError ? "#f87171" : text, margin: 0, lineHeight: 1.1 }}>
+                  {tarifaError ? "No disponible" : tarifaLoading ? "Cargando..." : formatPesos(tarifa?.monto)}
+                </p>
+                <p style={{ fontSize: 12, color: muted, margin: "6px 0 0", lineHeight: 1.4 }}>
+                  {tarifaError || tarifa?.descripcion || "Monto actualizado desde DocYa."}
+                </p>
+              </div>
+            </div>
+
             {/* MÉTODO DE PAGO */}
             <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
               <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 14 }}>
@@ -283,7 +337,7 @@ export default function SolicitarScreen() {
                     <div>
                       <p style={{ fontSize: 17, fontWeight: 900, color: text, margin: 0 }}>Pago con preautorizacion</p>
                       <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>
-                        {metodoPago === "tarjeta" ? "Reservamos el monto en tu tarjeta de credito." : "Generamos el pago desde tu cuenta de Mercado Pago."}
+                        {metodoPago === "tarjeta" ? `Reservamos ${formatPesos(tarifa?.monto)} en tu tarjeta de credito.` : `Generamos el pago por ${formatPesos(tarifa?.monto)} desde tu cuenta de Mercado Pago.`}
                       </p>
                     </div>
                   </div>
@@ -331,13 +385,15 @@ export default function SolicitarScreen() {
             {/* BOTÓN SUBMIT */}
             <button
               onClick={handleSubmit}
-              disabled={submitting}
-              style={{ width: "100%", padding: "17px 20px", borderRadius: 18, border: "none", background: submitting ? "rgba(0,179,166,0.5)" : `linear-gradient(90deg, ${cfg.color}, #2dd4bf)`, color: "#fff", fontSize: 16, fontWeight: 700, cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontFamily: "inherit", boxShadow: submitting ? "none" : `0 8px 24px ${cfg.color}44` }}
+              disabled={submitting || tarifaLoading || !!tarifaError}
+              style={{ width: "100%", padding: "17px 20px", borderRadius: 18, border: "none", background: (submitting || tarifaLoading || tarifaError) ? "rgba(0,179,166,0.5)" : `linear-gradient(90deg, ${cfg.color}, #2dd4bf)`, color: "#fff", fontSize: 16, fontWeight: 700, cursor: (submitting || tarifaLoading || tarifaError) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontFamily: "inherit", boxShadow: submitting ? "none" : `0 8px 24px ${cfg.color}44` }}
             >
               {submitting ? (
                 <><Loader2 size={20} className="animate-spin" /> Buscando profesional...</>
+              ) : tarifaLoading ? (
+                <><Loader2 size={20} className="animate-spin" /> Cargando precio...</>
               ) : (
-                <>{metodoPago === "efectivo" ? "Solicitar" : "Autorizar y pedir"} {cfg.label.toLowerCase()} <ChevronRight size={20} /></>
+                <>{metodoPago === "efectivo" ? "Solicitar" : "Autorizar y pedir"} {cfg.label.toLowerCase()} - {formatPesos(tarifa?.monto)} <ChevronRight size={20} /></>
               )}
             </button>
 

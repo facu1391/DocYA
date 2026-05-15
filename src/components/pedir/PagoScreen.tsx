@@ -10,6 +10,11 @@ import { usePedirTheme } from "./theme";
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean };
 
+function formatPesos(value?: number | null) {
+  if (!value) return "";
+  return `$${value.toLocaleString("es-AR")}`;
+}
+
 export default function PagoScreen() {
   const router = useRouter();
   const params = useSearchParams();
@@ -20,6 +25,8 @@ export default function PagoScreen() {
   const lat         = parseFloat(params.get("lat") ?? "0");
   const lng         = parseFloat(params.get("lng") ?? "0");
   const tipo        = params.get("tipo") ?? "medico";
+  const metodo      = params.get("metodo") === "saldo_mp" ? "saldo_mp" : "tarjeta";
+  const monto       = Number(params.get("monto") ?? "0");
 
   const [user, setUser] = useState<PedirUser | null>(null);
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -47,7 +54,7 @@ export default function PagoScreen() {
       const body: Record<string, unknown> = {
         paciente_uuid: user?.id,
         motivo, direccion, lat, lng,
-        metodo_pago: "tarjeta",
+        metodo_pago: metodo,
         consulta_id: parseInt(consultaId),
         tipo,
       };
@@ -63,13 +70,13 @@ export default function PagoScreen() {
         throw new Error(err.detail?.mensaje || err.detail || "No se pudo iniciar la consulta");
       }
       const data = await res.json();
-      router.push(`/pedir/buscando?consulta_id=${data.consulta_id}&tipo=${tipo}&metodo=tarjeta`);
+      router.push(`/pedir/buscando?consulta_id=${data.consulta_id}&tipo=${tipo}&metodo=${metodo}`);
     } catch (e) {
       setProcesando(false);
       doneRef.current = false;
       setError(e instanceof Error ? e.message : "Error al iniciar la consulta");
     }
-  }, [user, motivo, direccion, lat, lng, consultaId, tipo, router]);
+  }, [user, motivo, direccion, lat, lng, consultaId, tipo, metodo, router]);
 
   // Polling: detectar cuando el pago fue autorizado
   useEffect(() => {
@@ -122,6 +129,12 @@ export default function PagoScreen() {
             <p style={{ color: muted, fontSize: 14 }}>
               El cobro se realiza <strong style={{ color: text }}>solo cuando un profesional acepta</strong> tu consulta.
             </p>
+            {monto > 0 && (
+              <div style={{ marginTop: 12, borderRadius: 16, border: `1px solid ${border}`, background: "rgba(0,179,166,0.08)", padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <span style={{ color: muted, fontSize: 13, fontWeight: 800 }}>Monto a autorizar</span>
+                <strong style={{ color: "#2dd4bf", fontSize: 22, lineHeight: 1 }}>{formatPesos(monto)}</strong>
+              </div>
+            )}
           </div>
 
           {error && (
