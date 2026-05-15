@@ -23,10 +23,10 @@ import {
   Sun,
   TrendingUp,
   User,
-  Wallet,
   XCircle,
   Zap,
 } from "lucide-react";
+import ProIncomeSimulator from "@/components/landing/ProIncomeSimulator";
 
 export const metadata = {
   title: "Profesionales",
@@ -205,19 +205,7 @@ export default function Page() {
               Con DocYa podés generar ingresos altos trabajando menos horas, con mayor flexibilidad
               y sin el desgaste de los sistemas tradicionales.
             </p>
-            <GlassCard className="mt-8 p-6">
-              <h3 className="mb-4 flex items-center gap-2 text-xl font-bold text-[#4fdbc8]">
-                <Wallet className="h-5 w-5" /> Ejemplo de ingresos
-              </h3>
-              <ul className="space-y-3 text-[#d3e5ef]">
-                {["$30.000 por consulta cobrada", "$24.000 netos para vos por visita", "10 consultas = $240.000 netos"].map((item) => (
-                  <li key={item} className="flex items-start gap-3">
-                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-[#14b8a6]" />
-                    <span className={item.startsWith("10") ? "font-bold" : ""}>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </GlassCard>
+            <ProIncomeSimulator />
           </div>
         </div>
       </section>
