@@ -206,7 +206,7 @@ export default function SolicitarScreen() {
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
             {/* MOTIVO */}
-            <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
+            <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
               <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>
                 Motivo de la consulta
               </label>
@@ -223,7 +223,7 @@ export default function SolicitarScreen() {
             </div>
 
             {/* DIRECCIÓN */}
-            <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
+            <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
               <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>
                 {tipo === "teleconsulta" ? "Tu ubicación (para asignar profesional cercano)" : "Dirección de atención"}
               </label>
@@ -253,7 +253,7 @@ export default function SolicitarScreen() {
             </div>
 
             {/* MÉTODO DE PAGO */}
-            <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
+            <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
               <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 14 }}>
                 Método de pago
               </label>
