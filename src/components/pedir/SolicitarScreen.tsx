@@ -247,11 +247,15 @@ export default function SolicitarScreen() {
 
               {/* Mini mapa */}
               {lat !== null && lng !== null && (
-                <div style={{ marginTop: 14, borderRadius: 14, overflow: "hidden", border: `1px solid ${border}` }}>
-                  <img
-                    src={`https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=640x200&scale=2&markers=color:0x00b3a6|${lat},${lng}&style=element:geometry|color:0x0a2027&style=element:labels.text.fill|color:0x8ec3b9&style=element:labels.text.stroke|color:0x0a2027&style=feature:road|element:geometry|color:0x155e63&style=feature:road.highway|element:geometry|color:0x18a999&style=feature:water|color:0x0c2f3a&style=feature:poi|visibility:off&key=${PLACES_KEY}`}
-                    alt="Mapa de la dirección"
-                    style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }}
+                <div style={{ marginTop: 14, borderRadius: 14, overflow: "hidden", border: `1px solid ${border}`, height: 180 }}>
+                  <iframe
+                    src={`https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`}
+                    width="100%"
+                    height="180"
+                    style={{ border: "none", display: "block", filter: dark ? "invert(90%) hue-rotate(180deg)" : "none" }}
+                    loading="lazy"
+                    title="Mapa de la dirección"
+                    referrerPolicy="no-referrer-when-downgrade"
                   />
                 </div>
               )}
