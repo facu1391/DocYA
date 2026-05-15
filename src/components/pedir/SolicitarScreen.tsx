@@ -55,9 +55,8 @@ export default function SolicitarScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [dark] = useState(true);
 
-  const bg = dark ? "#071b22" : "#f5f7fa";
-  const surface = dark ? "rgba(255,255,255,0.05)" : "#ffffff";
-  const border = dark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.08)";
+  const bg = dark ? "#0b1a22" : "#f5f7fa";
+  const border = dark ? "rgba(0,179,166,0.18)" : "rgba(0,0,0,0.08)";
   const text = dark ? "#e2f0f0" : "#0f172a";
   const muted = dark ? "rgba(255,255,255,0.55)" : "#64748b";
   const inputBg = dark ? "rgba(255,255,255,0.06)" : "#f8fafc";
