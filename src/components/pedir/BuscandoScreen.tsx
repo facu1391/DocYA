@@ -49,8 +49,10 @@ export default function BuscandoScreen() {
   const [data, setData]               = useState<ConsultaData | null>(null);
   const [cancelando, setCancelando]   = useState(false);
   const [dots, setDots]               = useState(".");
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const dotsRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [countdown, setCountdown]     = useState(300); // 5 minutos
+  const pollRef     = useRef<ReturnType<typeof setInterval> | null>(null);
+  const dotsRef     = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countRef    = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const dark   = true;
   const bg     = "#071b22";
@@ -83,9 +85,21 @@ export default function BuscandoScreen() {
     fetchEstado();
     pollRef.current = setInterval(fetchEstado, 3000);
     dotsRef.current = setInterval(() => setDots(d => d.length >= 3 ? "." : d + "."), 600);
+    // Countdown solo en pendiente
+    countRef.current = setInterval(() => {
+      setCountdown(c => {
+        if (c <= 1) {
+          if (countRef.current) clearInterval(countRef.current);
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
+
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
       if (dotsRef.current) clearInterval(dotsRef.current);
+      if (countRef.current) clearInterval(countRef.current);
     };
   }, [fetchEstado]);
 
@@ -163,6 +177,49 @@ export default function BuscandoScreen() {
               <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: muted }}>
                 <Navigation size={15} color={tipoCfg.color} />
                 <span>ETA estimado: <strong style={{ color: text }}>{data.eta} min</strong></span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* COUNTDOWN (solo en pendiente) */}
+        {esPendiente && (
+          <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: "20px", marginBottom: 20, textAlign: "center" }}>
+            {countdown > 0 ? (
+              <>
+                <p style={{ fontSize: 13, color: muted, marginBottom: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  Tiempo de búsqueda restante
+                </p>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                  {/* Barra de progreso circular */}
+                  <svg width="72" height="72" viewBox="0 0 72 72" style={{ transform: "rotate(-90deg)" }}>
+                    <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
+                    <circle
+                      cx="36" cy="36" r="30" fill="none"
+                      stroke={tipoCfg.color}
+                      strokeWidth="5"
+                      strokeDasharray={`${2 * Math.PI * 30}`}
+                      strokeDashoffset={`${2 * Math.PI * 30 * (1 - countdown / 300)}`}
+                      strokeLinecap="round"
+                      style={{ transition: "stroke-dashoffset 1s linear" }}
+                    />
+                  </svg>
+                  <div>
+                    <p style={{ fontSize: 36, fontWeight: 800, fontVariantNumeric: "tabular-nums", margin: 0, color: text }}>
+                      {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}
+                    </p>
+                    <p style={{ fontSize: 12, color: muted, margin: 0 }}>minutos</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div style={{ padding: "8px 0" }}>
+                <p style={{ fontWeight: 700, fontSize: 15, color: "#fbbf24", marginBottom: 6 }}>
+                  No encontramos profesionales disponibles
+                </p>
+                <p style={{ fontSize: 13, color: muted, lineHeight: 1.5 }}>
+                  No hay profesionales disponibles en este momento. Intentá de nuevo en unos minutos o elegí otra modalidad.
+                </p>
               </div>
             )}
           </div>

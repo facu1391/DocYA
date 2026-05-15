@@ -244,10 +244,16 @@ export default function SolicitarScreen() {
                 <Navigation size={14} />
                 Usar mi ubicación actual
               </button>
-              {lat !== null && (
-                <p style={{ fontSize: 12, color: muted, marginTop: 6 }}>
-                  ✓ Coordenadas obtenidas
-                </p>
+
+              {/* Mini mapa */}
+              {lat !== null && lng !== null && (
+                <div style={{ marginTop: 14, borderRadius: 14, overflow: "hidden", border: `1px solid ${border}` }}>
+                  <img
+                    src={`https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=640x200&scale=2&markers=color:0x00b3a6|${lat},${lng}&style=element:geometry|color:0x0a2027&style=element:labels.text.fill|color:0x8ec3b9&style=element:labels.text.stroke|color:0x0a2027&style=feature:road|element:geometry|color:0x155e63&style=feature:road.highway|element:geometry|color:0x18a999&style=feature:water|color:0x0c2f3a&style=feature:poi|visibility:off&key=${PLACES_KEY}`}
+                    alt="Mapa de la dirección"
+                    style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }}
+                  />
+                </div>
               )}
             </div>
 
