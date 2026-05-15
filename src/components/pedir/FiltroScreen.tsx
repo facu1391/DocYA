@@ -77,7 +77,21 @@ export default function FiltroScreen() {
                 <AlertTriangle size={24} color="#fbbf24" />
               </div>
               <div>
-                <h1 style={{ fontSize: "clamp(18px, 3.5vw, 24px)", fontWeight: 900, marginBottom: 8, background: `linear-gradient(90deg, ${titleStart}, #fbbf24)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                <h1 style={{
+                  display: "block",
+                  width: "fit-content",
+                  maxWidth: "100%",
+                  fontSize: "clamp(18px, 3.5vw, 24px)",
+                  fontWeight: 900,
+                  lineHeight: 1.15,
+                  marginBottom: 8,
+                  color: "#fbbf24",
+                  background: `linear-gradient(90deg, ${titleStart}, #fbbf24)`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  overflowWrap: "anywhere",
+                  userSelect: "none",
+                }}>
                   Evaluación de seguridad
                 </h1>
                 <p style={{ color: muted, fontSize: 14, lineHeight: 1.6 }}>
@@ -179,7 +193,22 @@ export default function FiltroScreen() {
               <AlertTriangle size={32} color="#f87171" />
             </div>
 
-            <h2 style={{ fontSize: 22, fontWeight: 900, textAlign: "center", marginBottom: 10, background: `linear-gradient(90deg, ${titleStart}, #f87171)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            <h2 style={{
+              display: "block",
+              width: "fit-content",
+              maxWidth: "100%",
+              fontSize: 22,
+              fontWeight: 900,
+              lineHeight: 1.15,
+              textAlign: "center",
+              margin: "0 auto 10px",
+              color: "#f87171",
+              background: `linear-gradient(90deg, ${titleStart}, #f87171)`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              overflowWrap: "anywhere",
+              userSelect: "none",
+            }}>
               Posible emergencia
             </h2>
 
