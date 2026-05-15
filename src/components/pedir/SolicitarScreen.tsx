@@ -10,6 +10,7 @@ import {
   Navigation,
 } from "lucide-react";
 import AddressInput from "./AddressInput";
+import MapView from "./MapView";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -245,19 +246,9 @@ export default function SolicitarScreen() {
                 Usar mi ubicación actual
               </button>
 
-              {/* Mini mapa */}
+              {/* Mini mapa Leaflet */}
               {lat !== null && lng !== null && (
-                <div style={{ marginTop: 14, borderRadius: 14, overflow: "hidden", border: `1px solid ${border}`, height: 180 }}>
-                  <iframe
-                    src={`https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`}
-                    width="100%"
-                    height="180"
-                    style={{ border: "none", display: "block", filter: dark ? "invert(90%) hue-rotate(180deg)" : "none" }}
-                    loading="lazy"
-                    title="Mapa de la dirección"
-                    referrerPolicy="no-referrer-when-downgrade"
-                  />
-                </div>
+                <MapView lat={lat} lng={lng} height={180} />
               )}
             </div>
 

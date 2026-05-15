@@ -60,12 +60,22 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.45 }}
           >
-            <a
-              href="#descargar"
-              className="btn-primary inline-flex items-center justify-center px-10 py-4 text-lg font-bold rounded-full w-fit"
-            >
-              Descargar App
-            </a>
+            <div className="flex flex-wrap gap-4 items-center">
+              <a
+                href="/pedir"
+                className="inline-flex items-center justify-center gap-2 px-10 py-4 text-lg font-bold rounded-full w-fit"
+                style={{ background: "linear-gradient(90deg, #00b3a6, #2dd4bf)", color: "#fff", textDecoration: "none", boxShadow: "0 8px 24px rgba(0,179,166,0.4)" }}
+              >
+                Solicitar ahora
+              </a>
+              <a
+                href="#descargar"
+                className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full w-fit"
+                style={{ border: "1.5px solid rgba(255,255,255,0.2)", color: "inherit", textDecoration: "none", backdropFilter: "blur(4px)" }}
+              >
+                Descargar App
+              </a>
+            </div>
             <div className="flex gap-4 flex-wrap">
               <a href="#" className="inline-block hover:-translate-y-0.5 transition-transform">
                 <Image
