@@ -22,6 +22,8 @@ const APPLE_SERVICE_ID = process.env.NEXT_PUBLIC_APPLE_SERVICE_ID || "com.docya.
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean };
 type AppleWin = Window & { AppleID?: { auth?: { init: (c: object) => void; signIn: () => Promise<{ authorization: { id_token: string }; user?: { name?: { firstName?: string; lastName?: string }; email?: string } }> } } };
 type GoogleWin = Window & { google?: { accounts?: { id?: { initialize: (c: object) => void; renderButton: (el: HTMLElement, opts: object) => void } } } };
+type ServicioId = "medico" | "teleconsulta" | "enfermero";
+type PrecioServicio = { monto: number; descripcion?: string };
 
 const SERVICIOS = [
   {
@@ -57,6 +59,22 @@ const TRUST_STRIP = [
   { icon: Star,        label: "Calificá tu experiencia",   sub: "Tu opinión nos ayuda a seguir mejorando." },
 ];
 
+const TARIFA_ENDPOINTS: Record<ServicioId, string> = {
+  medico: "consulta-medico",
+  teleconsulta: "teleconsulta",
+  enfermero: "consulta-enfermero",
+};
+
+function parseMonto(value: unknown) {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+}
+
+function formatPesos(value?: number | null) {
+  if (!value) return "Consultando";
+  return `$${value.toLocaleString("es-AR")}`;
+}
+
 const notify = (msg: string, ok = true) => {
   if (typeof document === "undefined") return;
   const el = document.createElement("div");
@@ -76,6 +94,7 @@ export default function PedirHome() {
   const [appleBusy, setAppleBusy]       = useState(false);
   const [user, setUser]                 = useState<PedirUser | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [precios, setPrecios]           = useState<Partial<Record<ServicioId, PrecioServicio>>>({});
   const { dark, setTheme, homeBg: bg, cardBg, border, text, muted, headerBg, logo, titleStart } = usePedirTheme();
 
   useEffect(() => {
@@ -83,6 +102,28 @@ export default function PedirHome() {
       const raw = localStorage.getItem("pedir_user");
       if (raw) setUser(JSON.parse(raw));
     } catch {}
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    Promise.all(
+      (Object.entries(TARIFA_ENDPOINTS) as [ServicioId, string][]).map(async ([id, endpoint]) => {
+        try {
+          const res = await fetch(`${API}/tarifas/${endpoint}`, { cache: "no-store" });
+          if (!res.ok) return null;
+          const data = await res.json();
+          const monto = parseMonto(data?.monto);
+          if (!monto) return null;
+          return [id, { monto, descripcion: data?.descripcion }] as const;
+        } catch {
+          return null;
+        }
+      })
+    ).then(items => {
+      if (!alive) return;
+      setPrecios(Object.fromEntries(items.filter(Boolean) as [ServicioId, PrecioServicio][]));
+    });
+    return () => { alive = false; };
   }, []);
 
   const saveUser = (u: PedirUser) => {
@@ -239,37 +280,44 @@ export default function PedirHome() {
 
               {/* CARDS */}
               <div className="pedir-cards">
-                {SERVICIOS.map(s => (
-                  <div
-                    key={s.id}
-                    style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: 24, padding: "26px 24px", display: "flex", flexDirection: "column", gap: 0, transition: "transform 0.15s, box-shadow 0.15s" }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)"; (e.currentTarget as HTMLElement).style.boxShadow = dark ? "0 20px 50px rgba(0,0,0,0.4)" : "0 12px 40px rgba(0,0,0,0.12)"; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-                      <div style={{ width: 56, height: 56, borderRadius: 18, background: s.bgColor, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <s.icon size={28} color={s.color} />
-                      </div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: s.badgeColor, background: s.badgeBg, padding: "5px 12px", borderRadius: 999 }}>{s.badge}</span>
-                    </div>
-                    <h3 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4, color: text }}>{s.title}</h3>
-                    <p style={{ fontSize: 14, color: muted, fontWeight: 500, marginBottom: 8 }}>{s.sub}</p>
-                    <p style={{ fontSize: 14, color: muted, lineHeight: 1.55, marginBottom: 20, flex: 1 }}>{s.desc}</p>
-                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
-                      {s.trust.map(({ icon: TIcon, label }) => (
-                        <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: muted }}>
-                          <TIcon size={13} color={s.color} /> {label}
-                        </div>
-                      ))}
-                    </div>
-                    <button
-                      onClick={() => router.push(s.id === "enfermero" ? `/pedir/solicitar?tipo=enfermero` : `/pedir/filtro?tipo=${s.id}`)}
-                      style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: s.color, color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", boxShadow: `0 6px 20px ${s.color}40` }}
+                {SERVICIOS.map(s => {
+                  const precio = precios[s.id as ServicioId];
+                  return (
+                    <div
+                      key={s.id}
+                      style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: 24, padding: "26px 24px", display: "flex", flexDirection: "column", gap: 0, transition: "transform 0.15s, box-shadow 0.15s" }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)"; (e.currentTarget as HTMLElement).style.boxShadow = dark ? "0 20px 50px rgba(0,0,0,0.4)" : "0 12px 40px rgba(0,0,0,0.12)"; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
                     >
-                      {s.btn} <ChevronRight size={18} />
-                    </button>
-                  </div>
-                ))}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+                        <div style={{ width: 56, height: 56, borderRadius: 18, background: s.bgColor, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <s.icon size={28} color={s.color} />
+                        </div>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: s.badgeColor, background: s.badgeBg, padding: "5px 12px", borderRadius: 999 }}>{s.badge}</span>
+                      </div>
+                      <h3 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4, color: text }}>{s.title}</h3>
+                      <p style={{ fontSize: 14, color: muted, fontWeight: 500, marginBottom: 8 }}>{s.sub}</p>
+                      <div style={{ border: `1px solid ${s.color}30`, background: `${s.color}12`, borderRadius: 14, padding: "10px 12px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                        <span style={{ fontSize: 12, color: muted, fontWeight: 800 }}>Precio</span>
+                        <strong style={{ fontSize: 18, color: s.color, lineHeight: 1 }}>{formatPesos(precio?.monto)}</strong>
+                      </div>
+                      <p style={{ fontSize: 14, color: muted, lineHeight: 1.55, marginBottom: 20, flex: 1 }}>{s.desc}</p>
+                      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
+                        {s.trust.map(({ icon: TIcon, label }) => (
+                          <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: muted }}>
+                            <TIcon size={13} color={s.color} /> {label}
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        onClick={() => router.push(s.id === "enfermero" ? `/pedir/solicitar?tipo=enfermero` : `/pedir/filtro?tipo=${s.id}`)}
+                        style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: s.color, color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", boxShadow: `0 6px 20px ${s.color}40` }}
+                      >
+                        {s.btn} <ChevronRight size={18} />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
 
               {/* TRUST STRIP */}
@@ -320,7 +368,8 @@ export default function PedirHome() {
                     <div style={{ width: 36, height: 36, borderRadius: 10, background: s.bgColor, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <s.icon size={18} color={s.color} />
                     </div>
-                    <p style={{ fontSize: 15, fontWeight: 500, color: text }}>{s.title}</p>
+                    <p style={{ fontSize: 15, fontWeight: 500, color: text, flex: 1 }}>{s.title}</p>
+                    <span style={{ color: s.color, fontSize: 13, fontWeight: 850 }}>{formatPesos(precios[s.id as ServicioId]?.monto)}</span>
                   </div>
                 ))}
               </div>
