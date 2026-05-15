@@ -63,6 +63,21 @@ type GoogleWindow = Window & {
   };
 };
 
+type AppleWindow = Window & {
+  AppleID?: {
+    auth?: {
+      init: (config: object) => void;
+      signIn: () => Promise<{
+        authorization?: { id_token?: string };
+        user?: {
+          name?: { firstName?: string; lastName?: string };
+          email?: string;
+        };
+      }>;
+    };
+  };
+};
+
 type GooglePlacesPlace = {
   formatted_address?: string;
 };
@@ -100,6 +115,13 @@ type CountryOption = {
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   "327572770521-tom99oocat1tcp9pahlejsar4iu62lhg.apps.googleusercontent.com";
+const APPLE_SERVICE_ID =
+  process.env.NEXT_PUBLIC_APPLE_PRO_SERVICE_ID ||
+  process.env.NEXT_PUBLIC_APPLE_SERVICE_ID ||
+  "com.docya.pro";
+const APPLE_REDIRECT_URI =
+  process.env.NEXT_PUBLIC_APPLE_PRO_REDIRECT_URI ||
+  "https://www.docya.com.ar/registro";
 
 const PLACES_API_KEY =
   process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyDVv_barlVwHJTgLF66dP4ESUffCBuS3uA";
@@ -147,7 +169,9 @@ export default function RegistroProGoogleFlow() {
   const selfieRef = useRef<HTMLInputElement | null>(null);
   const [googleLoaded, setGoogleLoaded] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
-  const [stage, setStage] = useState<"google" | "profile">("google");
+  const [appleLoaded, setAppleLoaded] = useState(false);
+  const [appleBusy, setAppleBusy] = useState(false);
+  const [stage, setStage] = useState<"auth" | "profile">("auth");
   const [loadingSplash, setLoadingSplash] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [medicoId, setMedicoId] = useState("");
@@ -172,6 +196,31 @@ export default function RegistroProGoogleFlow() {
     return `+${selectedCountry.phoneCode}${digits}`;
   }, [telefono, selectedCountry]);
 
+  const continueWithAuthData = useCallback((data: GoogleAuthMedicoResponse, provider: "Google" | "Apple") => {
+    const nextMedicoId = String(data.medico_id ?? data.medico?.id ?? "");
+    if (!nextMedicoId) {
+      throw new Error(`No se recibio el profesional de ${provider}`);
+    }
+
+    setMedicoId(nextMedicoId);
+    setPrefillName(data.medico?.full_name || data.full_name || "");
+    setPrefillEmail(data.medico?.email || "");
+    setTipo(data.medico?.tipo || "medico");
+
+    if (data.access_token) {
+      localStorage.setItem("auth_token_medico", data.access_token);
+    }
+
+    if (data.perfil_completo || data.medico?.perfil_completo) {
+      toast.success("Tu cuenta profesional ya esta registrada.");
+      setLoadingSplash(true);
+      return;
+    }
+
+    setStage("profile");
+    toast.success(`Validamos ${provider}. Completa los datos profesionales.`);
+  }, []);
+
   const handleGoogleCredential = useCallback(async (credential: string) => {
     setGoogleBusy(true);
     setStatusMessage("");
@@ -188,30 +237,67 @@ export default function RegistroProGoogleFlow() {
         throw new Error(data?.detail || "No se pudo validar Google");
       }
 
-      const nextMedicoId = String(data.medico_id ?? data.medico?.id ?? "");
-      if (!nextMedicoId) {
-        throw new Error("No se recibio el profesional de Google");
-      }
-
-      setMedicoId(nextMedicoId);
-      setPrefillName(data.medico?.full_name || data.full_name || "");
-      setPrefillEmail(data.medico?.email || "");
-      setTipo(data.medico?.tipo || "medico");
-
-      if (data.perfil_completo || data.medico?.perfil_completo) {
-        toast.success("Tu cuenta profesional ya esta registrada.");
-        setLoadingSplash(true);
-        return;
-      }
-
-      setStage("profile");
-      toast.success("Validamos Google. Completa los datos profesionales.");
+      continueWithAuthData(data, "Google");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo iniciar con Google");
     } finally {
       setGoogleBusy(false);
     }
-  }, []);
+  }, [continueWithAuthData]);
+
+  const handleApple = useCallback(async () => {
+    setAppleBusy(true);
+    setStatusMessage("");
+
+    try {
+      const appleAuth = (window as AppleWindow).AppleID?.auth;
+      if (!appleAuth) throw new Error("Apple no esta disponible en este navegador.");
+
+      appleAuth.init({
+        clientId: APPLE_SERVICE_ID,
+        scope: "name email",
+        redirectURI: APPLE_REDIRECT_URI,
+        usePopup: true,
+      });
+
+      const response = await appleAuth.signIn();
+      const identityToken = response.authorization?.id_token;
+      if (!identityToken) throw new Error("Apple no devolvio un token valido.");
+
+      const firstName = response.user?.name?.firstName ?? "";
+      const lastName = response.user?.name?.lastName ?? "";
+      const fullName = [firstName, lastName].filter(Boolean).join(" ");
+
+      const res = await fetch("/api/auth_apple_medico", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          identity_token: identityToken,
+          full_name: fullName || undefined,
+          email: response.user?.email,
+        }),
+      });
+      const data: GoogleAuthMedicoResponse = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.detail || "No se pudo validar Apple");
+      }
+
+      continueWithAuthData(data, "Apple");
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "error" in error &&
+        (error as { error?: string }).error === "popup_closed_by_user"
+      ) {
+        return;
+      }
+      toast.error(error instanceof Error ? error.message : "No se pudo iniciar con Apple");
+    } finally {
+      setAppleBusy(false);
+    }
+  }, [continueWithAuthData]);
 
   useEffect(() => {
     if (!loadingSplash) return;
@@ -290,7 +376,7 @@ export default function RegistroProGoogleFlow() {
     const telefonoValido = /^\+[1-9]\d{7,14}$/.test(telefonoCompleto);
 
     if (!medicoId) {
-      toast.error("Primero valida tu cuenta con Google.");
+      toast.error("Primero valida tu cuenta con Google o Apple.");
       return;
     }
     if (!numeroDocumento.trim() || !matricula.trim() || !direccion.trim()) {
@@ -403,24 +489,30 @@ export default function RegistroProGoogleFlow() {
         onReady={() => setGoogleLoaded(true)}
       />
       <Script
+        src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"
+        strategy="afterInteractive"
+        onLoad={() => setAppleLoaded(true)}
+        onReady={() => setAppleLoaded(true)}
+      />
+      <Script
         src={`https://maps.googleapis.com/maps/api/js?key=${PLACES_API_KEY}&libraries=places&loading=async&language=es&region=AR`}
         strategy="afterInteractive"
       />
 
       <div className="surface rounded-3xl border p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] sm:p-6 md:p-8">
         <div className="mb-6">
-          <span className="badge">Google</span>
+          <span className="badge">Google o Apple</span>
           <h2 className="mt-3 text-xl font-semibold md:text-2xl">
-            {stage === "google" ? "Registrate con Google" : "Completa tu perfil profesional"}
+            {stage === "auth" ? "Registrate con Google o Apple" : "Completa tu perfil profesional"}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground md:text-base">
-            {stage === "google"
-              ? "Usa tu cuenta Google y despues completa la documentacion profesional obligatoria."
+            {stage === "auth"
+              ? "Usa tu cuenta Google o Apple y despues completa la documentacion profesional obligatoria."
               : "Te pedimos los mismos datos y documentos que en el registro de la app DocYa Pro."}
           </p>
         </div>
 
-        {stage === "google" ? (
+        {stage === "auth" ? (
           <div className="grid gap-5">
             <div className="rounded-2xl border bg-background/70 p-5">
               <div className="flex items-start gap-3">
@@ -430,7 +522,7 @@ export default function RegistroProGoogleFlow() {
                 <div>
                   <p className="text-sm font-semibold">Primero validamos tu identidad</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Google crea o recupera tu cuenta profesional. Luego cargamos matricula,
+                    Google o Apple crea o recupera tu cuenta profesional. Luego cargamos matricula,
                     documento, telefono, direccion y fotos.
                   </p>
                 </div>
@@ -453,6 +545,25 @@ export default function RegistroProGoogleFlow() {
                 )}
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={handleApple}
+              disabled={appleBusy || !appleLoaded}
+              className="flex h-12 w-full items-center justify-center gap-3 rounded-full border bg-[#111827] px-5 text-sm font-semibold text-white shadow-sm transition hover:border-[color-mix(in_srgb,var(--brand)_45%,transparent)] hover:bg-[#0b1220] disabled:cursor-not-allowed disabled:opacity-55"
+            >
+              <svg width="18" height="18" viewBox="0 0 814 1000" fill="currentColor" aria-hidden="true">
+                <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-42.3-150.9-103.2c-46-60.9-85.5-159-85.5-252.9 0-73.4 13.1-145.8 41.1-207.8 40.2-91.5 105-150 165.9-150 62.5 0 101.6 39.5 165.9 39.5 62.5 0 100.2-39.5 165.9-39.5 62.5 0 126.2 58.4 165.9 150zm-114.3-258.8c27.6-31.7 47.6-75.7 47.6-119.8 0-6.1-.5-12.2-1.6-17.3-45.1 1.6-98.8 30.3-130.5 63.2-27.6 29.9-51.2 73.9-51.2 118.5 0 6.7 1.1 13.4 1.6 15.5 2.7.5 7.1 1.1 11.6 1.1 41.9 0 91.5-28.1 122.5-61.2z" />
+              </svg>
+              {appleBusy ? (
+                <>
+                  Validando Apple
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </>
+              ) : (
+                "Registrarme con Apple"
+              )}
+            </button>
           </div>
         ) : (
           <form onSubmit={submitProfile} className="grid gap-5">

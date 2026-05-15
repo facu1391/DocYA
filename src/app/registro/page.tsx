@@ -1,7 +1,6 @@
 // src/app/registro/page.tsx
 import { Suspense } from "react";
 import RegistroHero from "@/components/registro/RegistroHero";
-import RegistroForm from "@/components/registro/RegistroForm";
 import RegistroProGoogleFlow from "@/components/registro/RegistroProGoogleFlow";
 
 export const metadata = {
@@ -24,10 +23,7 @@ export default function Page() {
         <div className="mx-auto w-full max-w-6xl px-4">
           <div className="mx-auto w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
             <Suspense fallback={null}>
-              <div className="grid gap-6">
-                <RegistroProGoogleFlow />
-                <RegistroForm mode="pro" />
-              </div>
+              <RegistroProGoogleFlow />
             </Suspense>
           </div>
         </div>
