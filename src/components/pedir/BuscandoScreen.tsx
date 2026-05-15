@@ -290,7 +290,20 @@ export default function BuscandoScreen() {
                           : <UserCheck size={44} color={estadoColor} />
             }
           </div>
-          <h1 style={{ fontSize: "clamp(22px, 4vw, 28px)", fontWeight: 900, marginBottom: 10, background: `linear-gradient(90deg, ${titleStart}, ${estadoColor})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <h1 style={{
+            display: "inline-block",
+            maxWidth: "100%",
+            fontSize: "clamp(22px, 4vw, 28px)",
+            fontWeight: 900,
+            lineHeight: 1.15,
+            marginBottom: 10,
+            color: estadoColor,
+            background: `linear-gradient(90deg, ${titleStart}, ${estadoColor})`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            overflowWrap: "anywhere",
+            userSelect: "none",
+          }}>
             {estadoTitulo}
           </h1>
           <p style={{ color: muted, fontSize: 15, lineHeight: 1.5 }}>{estadoSub}</p>
