@@ -369,12 +369,45 @@ export default function PedirHome() {
                   {appleBusy ? "Verificando..." : "Continuar con Apple"}
                 </button>
 
-                <p style={{ fontSize: 12, color: muted, textAlign: "center", marginTop: 20, lineHeight: 1.5 }}>
+                <p style={{ fontSize: 12, color: muted, textAlign: "center", marginTop: 16, lineHeight: 1.5 }}>
                   Al ingresar aceptás los{" "}
                   <Link href="/legal/pacientes/terminos" style={{ color: "#00b3a6", textDecoration: "none" }}>Términos</Link>
                   {" "}y la{" "}
                   <Link href="/legal/pacientes/privacidad" style={{ color: "#00b3a6", textDecoration: "none" }}>Política de privacidad</Link>.
                 </p>
+
+                {/* Descarga la app */}
+                <div style={{ margin: "24px 0 0", padding: "20px 0 0", borderTop: `1px solid ${border}` }}>
+                  <p style={{ fontSize: 13, color: muted, textAlign: "center", marginBottom: 14, lineHeight: 1.5 }}>
+                    ¿Preferís la app? Descargala para una <strong style={{ color: text }}>mejor experiencia</strong> con notificaciones en tiempo real.
+                  </p>
+                  <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                    <a href="https://apps.apple.com/ar/app/docya/id6476587938" target="_blank" rel="noreferrer"
+                      style={{ display: "inline-block", transition: "transform 0.15s" }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.transform = ""}
+                    >
+                      <Image
+                        src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774467671/Download_on_the_App_Store_Badge_ES_RGB_blk_100217_p2sw34.svg"
+                        alt="Descargar en App Store"
+                        width={140} height={42}
+                        style={{ height: 40, width: "auto", filter: dark ? "invert(1)" : "none" }}
+                      />
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=com.docya.pacienteandroid" target="_blank" rel="noreferrer"
+                      style={{ display: "inline-block", transition: "transform 0.15s" }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.transform = ""}
+                    >
+                      <Image
+                        src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774467963/GetItOnGooglePlay_Badge_Web_color_Spanish-LATAM_cbr148.svg"
+                        alt="Disponible en Google Play"
+                        width={140} height={42}
+                        style={{ height: 40, width: "auto" }}
+                      />
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           )}
