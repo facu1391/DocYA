@@ -10,6 +10,8 @@ import {
   Calendar,
   CheckCircle2,
   ClipboardList,
+  Download,
+  ExternalLink,
   FileText,
   HeartPulse,
   Home,
@@ -54,6 +56,16 @@ type ConsultaActiva = {
   canal_atencion?: string;
   video_url?: string | null;
   daily_room_url?: string | null;
+};
+
+type ArchivoPaciente = {
+  tipo?: string;
+  id?: number | string;
+  consulta_id?: number | string | null;
+  fecha?: string;
+  doctor?: string;
+  especialidad?: string | null;
+  url?: string;
 };
 
 function estadoMeta(estado?: string) {
@@ -104,6 +116,7 @@ export default function ConsultasScreen() {
   const [user, setUser] = useState<PedirUser | null>(null);
   const [historial, setHistorial] = useState<HistoriaConsulta[]>([]);
   const [activa, setActiva] = useState<ConsultaActiva | null>(null);
+  const [archivos, setArchivos] = useState<ArchivoPaciente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -124,9 +137,10 @@ export default function ConsultasScreen() {
     setLoading(true);
     setError("");
     try {
-      const [histRes, activaRes] = await Promise.all([
+      const [histRes, activaRes, archivosRes] = await Promise.all([
         fetch(`${API}/pacientes/${pacienteId}/historia_clinica`, { cache: "no-store" }),
         fetch(`${API}/pacientes/${pacienteId}/consulta_activa`, { cache: "no-store" }).catch(() => null),
+        fetch(`${API}/pacientes/${pacienteId}/archivos`, { cache: "no-store" }).catch(() => null),
       ]);
 
       if (!histRes.ok) throw new Error(`No se pudo cargar el historial (${histRes.status})`);
@@ -138,6 +152,13 @@ export default function ConsultasScreen() {
         setActiva(activaData?.activa ? activaData : null);
       } else {
         setActiva(null);
+      }
+
+      if (archivosRes?.ok) {
+        const archivosData = await archivosRes.json();
+        setArchivos(Array.isArray(archivosData) ? archivosData : []);
+      } else {
+        setArchivos([]);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo cargar el historial");
@@ -152,8 +173,8 @@ export default function ConsultasScreen() {
 
   const stats = useMemo(() => {
     const finalizadas = historial.filter(c => (c.estado || "").toLowerCase() === "finalizada").length;
-    return { total: historial.length, finalizadas };
-  }, [historial]);
+    return { total: historial.length, finalizadas, documentos: archivos.length };
+  }, [historial, archivos.length]);
 
   if (!user) return null;
 
@@ -192,11 +213,14 @@ export default function ConsultasScreen() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}>
             <InfoChip label="Consultas" value={String(stats.total)} icon={<FileText size={15} />} color="#2dd4bf" theme={theme} />
             <InfoChip label="Finalizadas" value={String(stats.finalizadas)} icon={<CheckCircle2 size={15} />} color="#22c55e" theme={theme} />
+            <InfoChip label="Documentos" value={String(stats.documentos)} icon={<Download size={15} />} color="#38bdf8" theme={theme} />
             <InfoChip label="Paciente" value={user.full_name.split(" ")[0] || "Activo"} icon={<UserCheck size={15} />} color="#38bdf8" theme={theme} />
           </div>
         </section>
 
         {activa && <ActivaCard activa={activa} theme={theme} />}
+
+        {!loading && !error && <DocumentosSection archivos={archivos} theme={theme} />}
 
         {loading ? (
           <div style={{ padding: "60px 0", display: "flex", justifyContent: "center", color: "#2dd4bf" }}>
@@ -215,6 +239,100 @@ export default function ConsultasScreen() {
         )}
       </main>
     </div>
+  );
+}
+
+function DocumentosSection({ archivos, theme }: { archivos: ArchivoPaciente[]; theme: ReturnType<typeof usePedirTheme> }) {
+  const [tab, setTab] = useState<"recetas" | "certificados">("recetas");
+  const recetas = archivos.filter(archivo => (archivo.tipo || "").toLowerCase().includes("receta"));
+  const certificados = archivos.filter(archivo => (archivo.tipo || "").toLowerCase().includes("certificado"));
+  const visibles = tab === "recetas" ? recetas : certificados;
+
+  return (
+    <section style={{ borderRadius: 24, border: `1px solid ${theme.border}`, background: theme.cardBg, padding: "18px", marginBottom: 20, boxShadow: "0 14px 40px rgba(0,0,0,0.08)" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
+        <div>
+          <p style={{ color: "#2dd4bf", fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 6 }}>Documentos</p>
+          <h2 style={{ color: theme.text, fontSize: 20, fontWeight: 950, marginBottom: 5 }}>Recetas y certificados</h2>
+          <p style={{ color: theme.muted, fontSize: 14, lineHeight: 1.5 }}>Aca podes ver los documentos digitales que emitio tu profesional.</p>
+        </div>
+        <div style={{ display: "flex", gap: 8, padding: 4, borderRadius: 16, border: `1px solid ${theme.border}`, background: theme.inputBg }}>
+          <DocTab active={tab === "recetas"} onClick={() => setTab("recetas")} label={`Recetas (${recetas.length})`} theme={theme} />
+          <DocTab active={tab === "certificados"} onClick={() => setTab("certificados")} label={`Certificados (${certificados.length})`} theme={theme} />
+        </div>
+      </div>
+
+      {visibles.length === 0 ? (
+        <div style={{ borderRadius: 18, border: `1px dashed ${theme.border}`, background: theme.inputBg, padding: "22px 16px", textAlign: "center" }}>
+          <FileText size={34} color={theme.muted} style={{ margin: "0 auto 10px" }} />
+          <p style={{ color: theme.text, fontSize: 15, fontWeight: 850, marginBottom: 5 }}>
+            Sin {tab === "recetas" ? "recetas" : "certificados"} emitidos
+          </p>
+          <p style={{ color: theme.muted, fontSize: 13, lineHeight: 1.45 }}>Cuando tu profesional emita un documento, va a aparecer aca.</p>
+        </div>
+      ) : (
+        <div style={{ display: "grid", gap: 12 }}>
+          {visibles.map((archivo, index) => (
+            <DocumentoCard key={`${archivo.tipo}-${archivo.id ?? index}-${archivo.fecha ?? ""}`} archivo={archivo} theme={theme} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function DocTab({ active, onClick, label, theme }: { active: boolean; onClick: () => void; label: string; theme: ReturnType<typeof usePedirTheme> }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        border: `1px solid ${active ? "#2dd4bf" : "transparent"}`,
+        background: active ? "rgba(45, 212, 191, 0.14)" : "transparent",
+        color: active ? "#2dd4bf" : theme.muted,
+        borderRadius: 12,
+        padding: "9px 12px",
+        fontSize: 13,
+        fontWeight: 900,
+        cursor: "pointer",
+        fontFamily: "inherit",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function DocumentoCard({ archivo, theme }: { archivo: ArchivoPaciente; theme: ReturnType<typeof usePedirTheme> }) {
+  const tipo = (archivo.tipo || "").toLowerCase();
+  const esReceta = tipo.includes("receta");
+  const color = esReceta ? "#818cf8" : "#22c55e";
+  const titulo = esReceta ? "Receta digital" : "Certificado medico";
+  const detalle = [archivo.doctor, archivo.especialidad].filter(Boolean).join(" - ") || "Profesional DocYa";
+
+  return (
+    <article style={{ borderRadius: 18, border: `1px solid ${theme.border}`, background: theme.inputBg, padding: "14px", display: "flex", alignItems: "center", gap: 13 }}>
+      <div style={{ width: 44, height: 44, borderRadius: 15, background: `${color}18`, border: `1px solid ${color}40`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <FileText size={23} color={color} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
+          <h3 style={{ color: theme.text, fontSize: 16, fontWeight: 900 }}>{titulo}</h3>
+          {archivo.id != null && <span style={{ color, background: `${color}14`, borderRadius: 999, padding: "4px 8px", fontSize: 11, fontWeight: 900 }}>#{archivo.id}</span>}
+        </div>
+        <p style={{ color: theme.muted, fontSize: 13, lineHeight: 1.4 }}>{detalle}</p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+          <InfoChip label="Fecha" value={fechaCorta(archivo.fecha)} icon={<Calendar size={15} />} color="#2dd4bf" theme={theme} />
+          {archivo.consulta_id != null && <InfoChip label="Consulta" value={String(archivo.consulta_id)} icon={<ClipboardList size={15} />} color="#38bdf8" theme={theme} />}
+        </div>
+      </div>
+      {archivo.url && (
+        <a href={archivo.url} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, borderRadius: 14, background: "linear-gradient(90deg,#00b3a6,#2dd4bf)", color: "#fff", padding: "11px 13px", fontSize: 13, fontWeight: 900, textDecoration: "none", flexShrink: 0 }}>
+          Ver
+          <ExternalLink size={15} />
+        </a>
+      )}
+    </article>
   );
 }
 
