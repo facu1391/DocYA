@@ -164,22 +164,22 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[560px]">
+          <div className="relative mx-auto w-full max-w-[430px]">
             <div className="absolute inset-8 rounded-full bg-[#14b8a6]/20 blur-3xl" />
-            <GlassCard className="relative mx-auto overflow-hidden rounded-[2rem] border-[#14b8a6]/25 p-2">
+            <GlassCard className="relative mx-auto w-[72%] max-w-[310px] overflow-hidden rounded-[2.2rem] border-[#14b8a6]/25 p-2">
               <Image
-                src="/profesionales/medicacion-preview.png"
-                alt="Seguimiento de medicación en DocYa"
-                width={1294}
-                height={816}
-                className="h-auto w-full rounded-[1.45rem] object-cover"
+                src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774994567/WhatsApp_Image_2026-03-31_at_7.00.47_PM-portrait_si8jph.png"
+                alt="App DocYa Pro"
+                width={420}
+                height={820}
+                className="h-auto w-full rounded-[1.65rem] object-cover"
                 priority
               />
             </GlassCard>
-            <div className="absolute -left-4 top-1/4 rounded-2xl border border-[#14b8a6]/30 bg-[#0d1e25]/85 px-4 py-3 text-sm font-semibold shadow-2xl backdrop-blur-xl">
+            <div className="absolute left-0 top-1/4 rounded-2xl border border-[#14b8a6]/30 bg-[#0d1e25]/85 px-4 py-3 text-sm font-semibold shadow-2xl backdrop-blur-xl">
               <DollarSign className="mr-2 inline h-4 w-4 text-[#4fdbc8]" /> Pagos semanales
             </div>
-            <div className="absolute -bottom-4 right-4 rounded-2xl border border-[#14b8a6]/30 bg-[#0d1e25]/85 px-4 py-3 text-sm font-semibold shadow-2xl backdrop-blur-xl">
+            <div className="absolute bottom-16 right-0 rounded-2xl border border-[#14b8a6]/30 bg-[#0d1e25]/85 px-4 py-3 text-sm font-semibold shadow-2xl backdrop-blur-xl">
               <Clock className="mr-2 inline h-4 w-4 text-[#4fdbc8]" /> Flexibilidad total
             </div>
           </div>
