@@ -499,7 +499,7 @@ export default function RegistroProGoogleFlow() {
         strategy="afterInteractive"
       />
 
-      <div className="surface rounded-3xl border p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] sm:p-6 md:p-8">
+      <div className="surface w-full overflow-hidden rounded-2xl border p-4 shadow-[0_10px_30px_rgba(0,0,0,0.08)] [overflow-wrap:anywhere] sm:rounded-3xl sm:p-6 md:p-8">
         <div className="mb-6">
           <span className="badge">Google o Apple</span>
           <h2 className="mt-3 text-xl font-semibold md:text-2xl">
@@ -514,7 +514,7 @@ export default function RegistroProGoogleFlow() {
 
         {stage === "auth" ? (
           <div className="grid gap-5">
-            <div className="rounded-2xl border bg-background/70 p-5">
+            <div className="rounded-2xl border bg-background/70 p-4 sm:p-5">
               <div className="flex items-start gap-3">
                 <div className="rounded-xl border border-[color-mix(in_srgb,var(--brand)_35%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] p-2 text-[var(--brand)]">
                   <ShieldCheck className="h-5 w-5" />
@@ -529,19 +529,19 @@ export default function RegistroProGoogleFlow() {
               </div>
             </div>
 
-            <div className="rounded-2xl border bg-background p-5">
+            <div className="rounded-2xl border bg-background p-4 sm:p-5">
               <div className="mb-4 flex items-center gap-2 text-sm font-medium">
                 <Mail className="h-4 w-4 text-[var(--brand)]" />
                 Registro con Google
               </div>
-              <div className="flex min-h-12 items-center justify-center">
+              <div className="flex min-h-12 w-full min-w-0 items-center justify-center overflow-hidden">
                 {googleBusy ? (
                   <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                     Validando tu cuenta
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </div>
                 ) : (
-                  <div ref={googleButtonRef} />
+                  <div ref={googleButtonRef} className="w-full max-w-[360px]" />
                 )}
               </div>
             </div>

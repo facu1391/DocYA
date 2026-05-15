@@ -16,18 +16,27 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <main className="bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
-      <RegistroHero mode="pro" />
+    <main className="min-h-screen overflow-x-hidden bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
+      <RegistroHero mode="pro" className="registro-pro-hero" />
 
-      <section className="relative py-10 md:py-14">
-        <div className="mx-auto w-full max-w-6xl px-4">
-          <div className="mx-auto w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
+      <section className="relative px-3 py-6 sm:px-4 md:py-14">
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="mx-auto w-full max-w-xl overflow-hidden md:max-w-2xl lg:max-w-3xl">
             <Suspense fallback={null}>
               <RegistroProGoogleFlow />
             </Suspense>
           </div>
         </div>
       </section>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .registro-pro-hero > div.relative {
+            padding-top: 1.75rem;
+            padding-bottom: 1.75rem;
+          }
+        }
+      `}</style>
     </main>
   );
 }
