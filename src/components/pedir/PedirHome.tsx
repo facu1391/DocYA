@@ -335,39 +335,69 @@ export default function PedirHome() {
               </div>
 
               {/* Right — login card */}
-              <div className="pedir-login-card" style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: 28, padding: "36px 32px", boxShadow: dark ? "0 24px 64px rgba(0,0,0,0.35)" : "0 12px 40px rgba(0,0,0,0.08)" }}>
+              <div className="pedir-login-card" style={{
+                position: "relative",
+                borderRadius: 32,
+                padding: "40px 36px",
+                background: dark
+                  ? "linear-gradient(145deg, rgba(0,179,166,0.14) 0%, rgba(11,26,34,0.97) 60%)"
+                  : "linear-gradient(145deg, rgba(0,179,166,0.08) 0%, #ffffff 60%)",
+                border: "1.5px solid rgba(0,179,166,0.35)",
+                boxShadow: dark
+                  ? "0 0 60px rgba(0,179,166,0.15), 0 32px 80px rgba(0,0,0,0.5)"
+                  : "0 0 40px rgba(0,179,166,0.10), 0 16px 48px rgba(0,0,0,0.10)",
+              }}>
+                {/* Glow top */}
+                <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "60%", height: 3, background: "linear-gradient(90deg, transparent, #00b3a6, #2dd4bf, transparent)", borderRadius: 999 }} />
+
                 {/* Mini hero visible solo en mobile */}
-                <div className="pedir-mobile-hero" style={{ marginBottom: 24, paddingBottom: 20, borderBottom: `1px solid ${border}` }}>
-                  <Image src={logo} alt="DocYa" width={90} height={28} style={{ height: 28, width: "auto", marginBottom: 14 }} />
-                  <p style={{ fontSize: 20, fontWeight: 800, marginBottom: 6, lineHeight: 1.2 }}>Atención médica sin esperas</p>
+                <div className="pedir-mobile-hero" style={{ marginBottom: 28, paddingBottom: 22, borderBottom: "1px solid rgba(0,179,166,0.2)" }}>
+                  <Image src={logo} alt="DocYa" width={90} height={28} style={{ height: 28, width: "auto", marginBottom: 16 }} />
+                  <p style={{ fontSize: 22, fontWeight: 900, marginBottom: 6, lineHeight: 1.2, background: "linear-gradient(90deg, #fff, #2dd4bf)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Atención médica sin esperas</p>
                   <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>Médico, teleconsulta o enfermería desde el navegador.</p>
                 </div>
-                <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 6, textAlign: "center" }}>Ingresá para continuar</h2>
-                <p style={{ fontSize: 14, color: muted, textAlign: "center", marginBottom: 24, lineHeight: 1.5 }}>
-                  Usá tu cuenta de Google o Apple para pedir atención.
-                </p>
 
-                <p style={{ fontSize: 11, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 10 }}>Con Google</p>
-                <div style={{ minHeight: 48, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-                  {googleBusy ? (
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, color: muted, fontSize: 14 }}>
-                      <span style={{ width: 18, height: 18, border: `2px solid ${muted}`, borderTopColor: "#00b3a6", borderRadius: 999, display: "inline-block", animation: "spin 0.8s linear infinite" }} /> Verificando...
-                    </div>
-                  ) : (
-                    <div ref={googleRef} style={{ width: "100%" }} />
-                  )}
+                {/* Título */}
+                <div style={{ textAlign: "center", marginBottom: 28 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 18, background: "linear-gradient(135deg, #00b3a6, #2dd4bf)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 8px 24px rgba(0,179,166,0.4)" }}>
+                    <ShieldCheck size={26} color="#fff" />
+                  </div>
+                  <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 8, background: "linear-gradient(90deg, #e2f0f0, #2dd4bf)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                    Ingresá para continuar
+                  </h2>
+                  <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>
+                    Usá tu cuenta de Google o Apple para pedir atención médica.
+                  </p>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "20px 0" }}>
-                  <div style={{ flex: 1, height: 1, background: border }} />
-                  <span style={{ fontSize: 12, color: muted }}>o</span>
-                  <div style={{ flex: 1, height: 1, background: border }} />
+                {/* Google */}
+                <div style={{ background: "rgba(0,179,166,0.06)", border: "1px solid rgba(0,179,166,0.18)", borderRadius: 18, padding: "16px", marginBottom: 12 }}>
+                  <p style={{ fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12, textAlign: "center" }}>Continuar con Google</p>
+                  <div style={{ minHeight: 48, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {googleBusy ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#2dd4bf", fontSize: 14 }}>
+                        <span style={{ width: 18, height: 18, border: "2px solid rgba(0,179,166,0.3)", borderTopColor: "#00b3a6", borderRadius: 999, display: "inline-block", animation: "spin 0.8s linear infinite" }} /> Verificando...
+                      </div>
+                    ) : (
+                      <div ref={googleRef} style={{ width: "100%" }} />
+                    )}
+                  </div>
                 </div>
 
+                {/* Divider */}
+                <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "16px 0" }}>
+                  <div style={{ flex: 1, height: 1, background: "rgba(0,179,166,0.15)" }} />
+                  <span style={{ fontSize: 12, color: muted, fontWeight: 600 }}>o</span>
+                  <div style={{ flex: 1, height: 1, background: "rgba(0,179,166,0.15)" }} />
+                </div>
+
+                {/* Apple */}
                 <button
                   onClick={handleApple}
                   disabled={appleBusy || !appleLoaded}
-                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "14px 20px", borderRadius: 999, background: dark ? "#fff" : "#000", color: dark ? "#000" : "#fff", border: "none", fontSize: 15, fontWeight: 700, cursor: appleBusy ? "not-allowed" : "pointer", opacity: (appleBusy || !appleLoaded) ? 0.5 : 1, fontFamily: "inherit" }}
+                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "15px 20px", borderRadius: 16, background: "linear-gradient(135deg, #1a1a2e, #0d1b2a)", color: "#fff", border: "1.5px solid rgba(255,255,255,0.18)", fontSize: 15, fontWeight: 700, cursor: appleBusy ? "not-allowed" : "pointer", opacity: (appleBusy || !appleLoaded) ? 0.5 : 1, fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.3)", transition: "all 0.2s" }}
+                  onMouseEnter={e => !appleBusy && ((e.currentTarget as HTMLElement).style.borderColor = "rgba(0,179,166,0.5)")}
+                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.18)")}
                 >
                   <svg width="18" height="18" viewBox="0 0 814 1000" fill="currentColor">
                     <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-42.3-150.9-103.2c-46-60.9-85.5-159-85.5-252.9 0-73.4 13.1-145.8 41.1-207.8 40.2-91.5 105-150 165.9-150 62.5 0 101.6 39.5 165.9 39.5 62.5 0 100.2-39.5 165.9-39.5 62.5 0 126.2 58.4 165.9 150zm-114.3-258.8c27.6-31.7 47.6-75.7 47.6-119.8 0-6.1-.5-12.2-1.6-17.3-45.1 1.6-98.8 30.3-130.5 63.2-27.6 29.9-51.2 73.9-51.2 118.5 0 6.7 1.1 13.4 1.6 15.5 2.7.5 7.1 1.1 11.6 1.1 41.9 0 91.5-28.1 122.5-61.2z" />
@@ -375,42 +405,32 @@ export default function PedirHome() {
                   {appleBusy ? "Verificando..." : "Continuar con Apple"}
                 </button>
 
-                <p style={{ fontSize: 12, color: muted, textAlign: "center", marginTop: 16, lineHeight: 1.5 }}>
+                <p style={{ fontSize: 11, color: muted, textAlign: "center", marginTop: 16, lineHeight: 1.5 }}>
                   Al ingresar aceptás los{" "}
-                  <Link href="/legal/pacientes/terminos" style={{ color: "#00b3a6", textDecoration: "none" }}>Términos</Link>
+                  <Link href="/legal/pacientes/terminos" style={{ color: "#2dd4bf", textDecoration: "none", fontWeight: 600 }}>Términos</Link>
                   {" "}y la{" "}
-                  <Link href="/legal/pacientes/privacidad" style={{ color: "#00b3a6", textDecoration: "none" }}>Política de privacidad</Link>.
+                  <Link href="/legal/pacientes/privacidad" style={{ color: "#2dd4bf", textDecoration: "none", fontWeight: 600 }}>Política de privacidad</Link>.
                 </p>
 
-                {/* Descarga la app */}
-                <div style={{ margin: "24px 0 0", padding: "20px 0 0", borderTop: `1px solid ${border}` }}>
-                  <p style={{ fontSize: 13, color: muted, textAlign: "center", marginBottom: 14, lineHeight: 1.5 }}>
-                    ¿Preferís la app? Descargala para una <strong style={{ color: text }}>mejor experiencia</strong> con notificaciones en tiempo real.
+                {/* Descarga */}
+                <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid rgba(0,179,166,0.15)" }}>
+                  <p style={{ fontSize: 12, color: muted, textAlign: "center", marginBottom: 14, lineHeight: 1.5 }}>
+                    ¿Preferís la app? Descargala para una <strong style={{ color: "#2dd4bf" }}>mejor experiencia</strong>.
                   </p>
                   <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-                    <a href="https://apps.apple.com/ar/app/docya/id6753604975" target="_blank" rel="noreferrer"
-                      style={{ display: "inline-block", transition: "transform 0.15s" }}
+                    <a href="https://apps.apple.com/ar/app/docya/id6753604975" target="_blank" rel="noreferrer" style={{ display: "inline-block", transition: "transform 0.15s" }}
                       onMouseEnter={e => (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"}
                       onMouseLeave={e => (e.currentTarget as HTMLElement).style.transform = ""}
                     >
-                      <Image
-                        src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774467671/Download_on_the_App_Store_Badge_ES_RGB_blk_100217_p2sw34.svg"
-                        alt="Descargar en App Store"
-                        width={140} height={42}
-                        style={{ height: 40, width: "auto", filter: dark ? "invert(1)" : "none" }}
-                      />
+                      <Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774467671/Download_on_the_App_Store_Badge_ES_RGB_blk_100217_p2sw34.svg"
+                        alt="App Store" width={130} height={40} style={{ height: 38, width: "auto", filter: "invert(1)" }} />
                     </a>
-                    <a href="https://play.google.com/store/apps/details?id=com.docya.paciente" target="_blank" rel="noreferrer"
-                      style={{ display: "inline-block", transition: "transform 0.15s" }}
+                    <a href="https://play.google.com/store/apps/details?id=com.docya.paciente" target="_blank" rel="noreferrer" style={{ display: "inline-block", transition: "transform 0.15s" }}
                       onMouseEnter={e => (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"}
                       onMouseLeave={e => (e.currentTarget as HTMLElement).style.transform = ""}
                     >
-                      <Image
-                        src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774467963/GetItOnGooglePlay_Badge_Web_color_Spanish-LATAM_cbr148.svg"
-                        alt="Disponible en Google Play"
-                        width={140} height={42}
-                        style={{ height: 40, width: "auto" }}
-                      />
+                      <Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774467963/GetItOnGooglePlay_Badge_Web_color_Spanish-LATAM_cbr148.svg"
+                        alt="Google Play" width={130} height={40} style={{ height: 38, width: "auto" }} />
                     </a>
                   </div>
                 </div>
