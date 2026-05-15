@@ -215,7 +215,7 @@ export default function PedirHome() {
           </div>
         </header>
 
-        <main style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px" }}>
+        <main style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px", overflowX: "hidden" }}>
 
           {user ? (
             /* ── LOGUEADO ─────────────────────────────────────── */
@@ -314,7 +314,7 @@ export default function PedirHome() {
             /* ── LOGIN ────────────────────────────────────────── */
             <div className="pedir-login">
               {/* Left */}
-              <div>
+              <div className="pedir-login-left">
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,179,166,0.12)", border: "1px solid rgba(0,179,166,0.25)", borderRadius: 999, padding: "6px 16px", fontSize: 13, fontWeight: 600, color: "#00b3a6", marginBottom: 24 }}>
                   <ShieldCheck size={14} /> Profesionales verificados · Pago seguro
                 </div>
@@ -335,10 +335,16 @@ export default function PedirHome() {
               </div>
 
               {/* Right — login card */}
-              <div style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: 28, padding: "36px 32px", boxShadow: dark ? "0 24px 64px rgba(0,0,0,0.35)" : "0 12px 40px rgba(0,0,0,0.08)" }}>
-                <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6, textAlign: "center" }}>Ingresá para continuar</h2>
-                <p style={{ fontSize: 14, color: muted, textAlign: "center", marginBottom: 28, lineHeight: 1.5 }}>
-                  Usá tu cuenta para pedir atención médica desde el navegador.
+              <div className="pedir-login-card" style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: 28, padding: "36px 32px", boxShadow: dark ? "0 24px 64px rgba(0,0,0,0.35)" : "0 12px 40px rgba(0,0,0,0.08)" }}>
+                {/* Mini hero visible solo en mobile */}
+                <div className="pedir-mobile-hero" style={{ marginBottom: 24, paddingBottom: 20, borderBottom: `1px solid ${border}` }}>
+                  <Image src={logo} alt="DocYa" width={90} height={28} style={{ height: 28, width: "auto", marginBottom: 14 }} />
+                  <p style={{ fontSize: 20, fontWeight: 800, marginBottom: 6, lineHeight: 1.2 }}>Atención médica sin esperas</p>
+                  <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>Médico, teleconsulta o enfermería desde el navegador.</p>
+                </div>
+                <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 6, textAlign: "center" }}>Ingresá para continuar</h2>
+                <p style={{ fontSize: 14, color: muted, textAlign: "center", marginBottom: 24, lineHeight: 1.5 }}>
+                  Usá tu cuenta de Google o Apple para pedir atención.
                 </p>
 
                 <p style={{ fontSize: 11, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 10 }}>Con Google</p>
@@ -382,7 +388,7 @@ export default function PedirHome() {
                     ¿Preferís la app? Descargala para una <strong style={{ color: text }}>mejor experiencia</strong> con notificaciones en tiempo real.
                   </p>
                   <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-                    <a href="https://apps.apple.com/ar/app/docya/id6476587938" target="_blank" rel="noreferrer"
+                    <a href="https://apps.apple.com/ar/app/docya/id6753604975" target="_blank" rel="noreferrer"
                       style={{ display: "inline-block", transition: "transform 0.15s" }}
                       onMouseEnter={e => (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"}
                       onMouseLeave={e => (e.currentTarget as HTMLElement).style.transform = ""}
@@ -394,7 +400,7 @@ export default function PedirHome() {
                         style={{ height: 40, width: "auto", filter: dark ? "invert(1)" : "none" }}
                       />
                     </a>
-                    <a href="https://play.google.com/store/apps/details?id=com.docya.pacienteandroid" target="_blank" rel="noreferrer"
+                    <a href="https://play.google.com/store/apps/details?id=com.docya.paciente" target="_blank" rel="noreferrer"
                       style={{ display: "inline-block", transition: "transform 0.15s" }}
                       onMouseEnter={e => (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"}
                       onMouseLeave={e => (e.currentTarget as HTMLElement).style.transform = ""}
@@ -430,6 +436,7 @@ export default function PedirHome() {
         .pedir-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
         .pedir-trust { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
         .pedir-login { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding-top: 64px; align-items: center; min-height: calc(100vh - 64px); }
+        .pedir-mobile-hero { display: none; }
         .wa-card { min-width: 220px; }
         @media (max-width: 900px) {
           .pedir-cards { grid-template-columns: 1fr; }
@@ -440,6 +447,10 @@ export default function PedirHome() {
           .pedir-hero { grid-template-columns: 1fr; gap: 16px; padding: 24px 0 28px; }
           .wa-card { min-width: auto; width: 100%; }
           .pedir-trust { grid-template-columns: 1fr; }
+          .pedir-login { padding-top: 20px; padding-bottom: 40px; }
+          .pedir-login-left { display: none; }
+          .pedir-login-card { width: 100%; }
+          .pedir-mobile-hero { display: block; }
         }
       `}</style>
     </>
