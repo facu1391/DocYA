@@ -32,7 +32,7 @@ export const TIPO_LABEL: Record<string, string> = {
   influencer: "Influencer",
   embajador: "Embajador",
   paciente: "Paciente Feliz",
-  partner: "Partner",
+  partner: "Partner DocYa",
 }
 
 export function getReferidosApiBase() {

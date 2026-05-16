@@ -1,4 +1,4 @@
-// src/components/referidos/landing/HowItWorks.tsx
+﻿// src/components/referidos/landing/HowItWorks.tsx
 import { UserPlus, Share2, DollarSign } from "lucide-react";
 import Reveal from "@/components/referidos/common/Reveal";
 
@@ -18,8 +18,8 @@ const steps = [
   {
     icon: DollarSign,
     number: "03",
-    title: "Ganás dinero",
-    desc: "Por cada consulta realizada usando tu enlace, recibís $1.000 asegurados.",
+    title: "Generás ingresos",
+    desc: "Por cada consulta válida generada desde tu link partner, recibís $1.000 asegurados.",
   },
 ];
 

@@ -170,14 +170,14 @@ export default function ReferidosLoginPage() {
             className="mx-auto mb-6 h-10 w-auto object-contain"
             unoptimized
           />
-          <h1 className="mb-2 text-3xl font-black">Panel de Embajadores</h1>
+          <h1 className="mb-2 text-3xl font-black">Panel Partner DocYa</h1>
           <p className="text-slate-400">Ingresá con tu cuenta para ver tus ganancias</p>
         </div>
 
         <div className="rounded-3xl border border-white/[0.07] bg-white/[0.03] p-8 backdrop-blur-xl">
           <div className="mb-6 rounded-2xl border border-white/[0.08] bg-black/20 p-5">
             <p className="mb-3 text-sm font-semibold text-slate-300">
-              Entrá con Google si ya registraste tu cuenta de embajador con ese mail
+              Entrá con Google si ya registraste tu cuenta partner con ese mail
             </p>
             <div className="flex min-h-12 items-center justify-center">
               {googleBusy ? (
@@ -257,7 +257,7 @@ export default function ReferidosLoginPage() {
                 href="/referidos#registro"
                 className="text-teal-500/70 underline underline-offset-2 transition-colors hover:text-teal-400"
               >
-                Registrate como embajador
+                Registrate como partner
               </a>
             </p>
 
@@ -267,7 +267,7 @@ export default function ReferidosLoginPage() {
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm font-semibold text-slate-300 transition-all hover:bg-white/[0.06] hover:text-white"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Volver a referidos
+                Volver a Partner DocYa
               </Link>
 
               <Link

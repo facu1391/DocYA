@@ -1,4 +1,4 @@
-// src/components/referidos/landing/TermsAndConditions.tsx
+﻿// src/components/referidos/landing/TermsAndConditions.tsx
 "use client";
 
 import { useState } from "react";
@@ -12,42 +12,42 @@ const sections = [
     title: "Objeto",
     icon: FileText,
     content:
-      "El presente documento regula la participación en el programa de referidos de DocYa, mediante el cual los usuarios podrán obtener recompensas económicas por referir nuevos pacientes a la plataforma.",
+      "El presente documento regula la participación en el programa Partner DocYa, mediante el cual los usuarios podrán obtener recompensas económicas por recomendar nuevos pacientes a la plataforma.",
   },
   {
     number: "2",
     title: "Definiciones",
     icon: FileText,
     content:
-      "Referente: usuario registrado que comparte su enlace o código de referido. Referido: nuevo usuario que se registra en DocYa a través del enlace o código del referente. Consulta válida: atención médica efectivamente realizada y abonada a través de la plataforma.",
+      "Partner: usuario registrado que comparte su link o código partner. Recomendado: nuevo usuario que se registra en DocYa a través del link o código del partner. Consulta válida: atención médica efectivamente realizada y abonada a través de la plataforma.",
   },
   {
     number: "3",
     title: "Condiciones del programa",
     icon: Shield,
     content:
-      "El referente recibirá una recompensa de $1.000 ARS por cada consulta válida realizada por un usuario referido, siempre que el registro, la consulta y el pago estén correctamente confirmados.",
+      "El partner recibirá una recompensa de $1.000 ARS por cada consulta válida realizada por un usuario recomendado, siempre que el registro, la consulta y el pago estén correctamente confirmados.",
   },
   {
     number: "4",
     title: "Duración del beneficio",
     icon: FileText,
     content:
-      "El referente percibirá la recompensa por las consultas realizadas por el referido durante un período de 12 meses contados desde la fecha de registro del referido.",
+      "El partner percibirá la recompensa por las consultas realizadas por el recomendado durante un período de 12 meses contados desde la fecha de registro del recomendado.",
   },
   {
     number: "5",
     title: "Liquidación y pagos",
     icon: FileText,
     content:
-      "Las recompensas se acumularán en la cuenta del referente y DocYa podrá realizar pagos mediante transferencia bancaria, billeteras virtuales u otros medios definidos operativamente.",
+      "Las recompensas se acumularán en la cuenta del partner y DocYa podrá realizar pagos mediante transferencia bancaria, billeteras virtuales u otros medios definidos operativamente.",
   },
   {
     number: "6",
     title: "Prohibiciones y uso indebido",
     icon: AlertTriangle,
     content:
-      "Queda prohibido autoreferirse, crear cuentas falsas, utilizar datos de terceros sin consentimiento o generar actividad fraudulenta para obtener beneficios. DocYa podrá retener recompensas y suspender cuentas.",
+      "Queda prohibido autorrecomendarse, crear cuentas falsas, utilizar datos de terceros sin consentimiento o generar actividad fraudulenta para obtener beneficios. DocYa podrá retener recompensas y suspender cuentas.",
   },
   {
     number: "7",
@@ -61,14 +61,14 @@ const sections = [
     title: "Responsabilidad",
     icon: Shield,
     content:
-      "DocYa no garantiza un nivel mínimo de ingresos ni una cantidad determinada de consultas por referido.",
+      "DocYa no garantiza un nivel mínimo de ingresos ni una cantidad determinada de consultas por recomendado.",
   },
   {
     number: "9",
     title: "Relación entre las partes",
     icon: FileText,
     content:
-      "La participación no implica relación laboral, societaria ni de representación entre DocYa y el referente.",
+      "La participación no implica relación laboral, societaria ni de representación entre DocYa y el partner.",
   },
   {
     number: "10",
@@ -89,7 +89,7 @@ const sections = [
     title: "Aceptación",
     icon: Shield,
     content:
-      "Al participar en el programa de referidos, el usuario declara haber leído, comprendido y aceptado los presentes términos y condiciones.",
+      "Al participar en el programa Partner DocYa, el usuario declara haber leído, comprendido y aceptado los presentes términos y condiciones.",
   },
   {
     number: "13",
@@ -111,7 +111,7 @@ export default function TermsAndConditions() {
             Términos y Condiciones
           </h2>
           <p className="text-slate-400 text-lg">
-            Información legal básica del programa de referidos.
+            Información legal básica del programa Partner DocYa.
           </p>
         </Reveal>
 

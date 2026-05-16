@@ -137,7 +137,7 @@ export default function CobrosPage() {
               </div>
               <p className="text-slate-400 text-sm leading-relaxed">
                 Tus cobros se calculan según las consultas válidas realizadas por
-                los pacientes que ingresaron con tu link o código. El área
+                los pacientes recomendados que ingresaron con tu link o código partner. El área
                 administrativa de DocYa procesa la acreditación según el
                 cronograma operativo vigente.
               </p>

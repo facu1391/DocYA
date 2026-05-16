@@ -1,4 +1,4 @@
-// src/components/referidos/landing/Hero.tsx
+﻿// src/components/referidos/landing/Hero.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -27,7 +27,7 @@ export default function Hero() {
           transition={{ delay: 0.1, duration: 0.6 }}
           className="inline-block mb-6 px-4 py-1.5 rounded-full text-xs font-bold tracking-[2px] uppercase bg-teal-500/10 border border-teal-500/25 text-teal-400"
         >
-          Nuevo Programa de Referidos
+          Programa Partner DocYa
         </motion.span>
 
         <motion.h1
@@ -36,7 +36,7 @@ export default function Hero() {
           transition={{ delay: 0.2, duration: 0.7 }}
           className="text-5xl md:text-7xl font-black leading-[1.05] tracking-tight mb-6"
         >
-          Ganá dinero
+          Generá ingresos
           <br />
           recomendando{" "}
           <span className="text-teal-400 relative">
@@ -68,7 +68,7 @@ export default function Hero() {
         >
           Sumate a la comunidad DocYa y ganá{" "}
           <strong className="text-white font-bold">$1.000</strong> por cada
-          consulta realizada por tus referidos.
+          consulta válida generada desde tu link partner.
         </motion.p>
 
         <motion.div
@@ -80,7 +80,7 @@ export default function Hero() {
             href="#registro"
             className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-teal-500 hover:bg-teal-600 text-white font-bold text-lg transition-all duration-300 hover:shadow-[0_0_40px_rgba(20,184,166,0.5)] hover:-translate-y-1 group"
           >
-            Quiero empezar a ganar
+            Quiero ser partner
             <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
           </a>
         </motion.div>

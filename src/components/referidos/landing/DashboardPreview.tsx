@@ -1,4 +1,4 @@
-// src/components/referidos/landing/DashboardPreview.tsx
+﻿// src/components/referidos/landing/DashboardPreview.tsx
 import Image from "next/image";
 import { CheckCircle2 } from "lucide-react";
 import Reveal from "@/components/referidos/common/Reveal";
@@ -33,7 +33,7 @@ export default function DashboardPreview() {
           <Reveal delay={0.1}>
             <div className="bg-white/[0.03] backdrop-blur-xl rounded-2xl p-6 text-center hover:-translate-y-1 transition-all border border-white/[0.07]">
               <CheckCircle2 className="mx-auto text-[#14B8A6] mb-3" />
-              <h3 className="font-bold text-lg mb-2">Referidos en tiempo real</h3>
+              <h3 className="font-bold text-lg mb-2">Recomendados en tiempo real</h3>
               <p className="text-slate-400 text-sm">
                 Visualizá cuántas personas se registraron con tu link.
               </p>
@@ -45,7 +45,7 @@ export default function DashboardPreview() {
               <CheckCircle2 className="mx-auto text-[#14B8A6] mb-3" />
               <h3 className="font-bold text-lg mb-2">Consultas generadas</h3>
               <p className="text-slate-400 text-sm">
-                Sabé cuántas consultas hicieron tus referidos.
+                Sabé cuántas consultas hicieron tus recomendados.
               </p>
             </div>
           </Reveal>

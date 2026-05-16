@@ -20,12 +20,12 @@ const items = [
   {
     icon: BarChart3,
     title: "Seguimiento real",
-    desc: "Visualizá tus referidos, consultas realizadas y ganancias acumuladas.",
+    desc: "Visualizá tus recomendados, consultas realizadas y ganancias acumuladas.",
   },
   {
     icon: Gift,
     title: "Ganancias por consulta",
-    desc: "Recibí beneficios por cada consulta válida generada desde tu enlace.",
+    desc: "Recibí beneficios por cada consulta válida generada desde tu link partner.",
   },
 ];
 
@@ -62,11 +62,11 @@ export default function ReferidosPromoSection() {
               <div className="max-w-2xl">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--brand)_35%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[var(--brand)]">
                   <Sparkles className="h-4 w-4" />
-                  Programa de referidos
+                  Programa Partner DocYa
                 </div>
 
                 <h2 className="mt-5 text-3xl font-extrabold leading-tight text-slate-900 md:text-4xl lg:text-5xl dark:text-white">
-                  Ganá dinero
+                  Generá ingresos
                   <br className="hidden sm:block" /> recomendando{" "}
                   <span className="highlight-text">DocYa</span>
                 </h2>
@@ -74,7 +74,7 @@ export default function ReferidosPromoSection() {
                 <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-600 md:text-lg dark:text-white/75">
                   Si conocés personas que puedan necesitar atención médica a
                   domicilio, ahora también podés compartir DocYa y obtener
-                  beneficios por cada consulta válida generada desde tu enlace.
+                  beneficios por cada consulta válida generada desde tu link partner.
                 </p>
 
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -90,7 +90,7 @@ export default function ReferidosPromoSection() {
                     href="/referidos#registro"
                     className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-6 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
                   >
-                    Quiero sumarme
+                    Quiero ser partner
                   </Link>
                 </div>
 

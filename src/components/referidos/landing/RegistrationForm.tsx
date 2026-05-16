@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Script from "next/script";
@@ -192,8 +192,8 @@ export default function RegistrationForm() {
           <h2 className="mb-3 text-4xl font-black md:text-5xl">Empezá hoy mismo</h2>
           <p className="text-lg text-slate-400">
             {isGoogleMode
-              ? "Completá los datos finales para activar tu cuenta de embajador con Google."
-              : "Completá tus datos para obtener tu link de referidos"}
+              ? "Completá los datos finales para activar tu cuenta Partner con Google."
+              : "Completá tus datos para obtener tu link partner"}
           </p>
         </Reveal>
 
@@ -307,12 +307,12 @@ export default function RegistrationForm() {
                 <select
                   name="tipo"
                   required
-                  defaultValue="embajador"
+                  defaultValue="partner"
                   className="w-full rounded-xl border border-white/[0.08] bg-black/30 px-4 py-3 text-white transition-all focus:bg-black/50 focus:outline-none focus:border-teal-500/60"
                 >
-                  <option value="embajador">Embajador</option>
+                  <option value="partner">Partner DocYa</option>
                   <option value="influencer">Influencer</option>
-                  <option value="partner">Partner</option>
+                  <option value="embajador">Embajador</option>
                   <option value="paciente">Paciente Feliz</option>
                 </select>
               </div>

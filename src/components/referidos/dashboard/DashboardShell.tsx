@@ -1,4 +1,4 @@
-// src/components/referidos/dashboard/DashboardShell.tsx
+﻿// src/components/referidos/dashboard/DashboardShell.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -31,9 +31,9 @@ const API = process.env.NEXT_PUBLIC_API_BASE!;
 
 const NAV = [
   { icon: BarChart3, label: "Mi Panel", href: "/referidos/panel" },
-  { icon: Users, label: "Mis Referidos", href: "/referidos/mis-referidos" },
+  { icon: Users, label: "Mis Recomendados", href: "/referidos/mis-referidos" },
   { icon: DollarSign, label: "Cobros", href: "/referidos/cobros" },
-  { icon: LinkIcon, label: "Mi Link", href: "/referidos/link" },
+  { icon: LinkIcon, label: "Link Partner", href: "/referidos/link" },
 ];
 
 function ConfirmLogoutModal({
@@ -76,7 +76,7 @@ function ConfirmLogoutModal({
                     ¿Cerrar sesión?
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-slate-400">
-                    Vas a salir del panel de referidos y tendrás que volver a
+                    Vas a salir del panel Partner DocYa y tendrás que volver a
                     iniciar sesión para ingresar nuevamente.
                   </p>
                 </div>

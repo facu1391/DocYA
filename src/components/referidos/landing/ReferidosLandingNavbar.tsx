@@ -27,10 +27,10 @@ export default function ReferidosLandingNavbar() {
       }`}
     >
       <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
-        <Link href="/referidos" aria-label="Ir a Referidos">
+        <Link href="/referidos" aria-label="Ir a Partner DocYa">
           <Image
             src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png"
-            alt="DocYa Referidos"
+            alt="Partner DocYa"
             width={100}
             height={32}
             className="h-8 w-auto object-contain"
@@ -50,7 +50,7 @@ export default function ReferidosLandingNavbar() {
             href="#registro"
             className="text-sm font-semibold px-5 py-2.5 rounded-full bg-teal-500 hover:bg-teal-600 text-white transition-all duration-300 hover:shadow-[0_0_20px_rgba(20,184,166,0.4)] hover:-translate-y-px"
           >
-            Sumarme
+            Ser partner
           </a>
         </div>
       </div>
