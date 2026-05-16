@@ -8,6 +8,7 @@ type ProType = "medico" | "enfermero";
 type TarifaState = {
   gross: number;
   net: number;
+  commission: number;
   fromBackend: boolean;
 };
 
@@ -22,8 +23,8 @@ const ENDPOINTS: Record<ProType, string> = {
 };
 
 const FALLBACK_TARIFAS: Record<ProType, TarifaState> = {
-  medico: { gross: 30000, net: 24000, fromBackend: false },
-  enfermero: { gross: 20000, net: 16000, fromBackend: false },
+  medico: { gross: 30000, net: 24000, commission: 20, fromBackend: false },
+  enfermero: { gross: 20000, net: 16000, commission: 20, fromBackend: false },
 };
 
 function parseMoney(value: unknown) {
@@ -44,10 +45,15 @@ function extractTarifa(data: Record<string, unknown>, fallback: TarifaState): Ta
     parseMoney(data.monto_neto_profesional) ||
     parseMoney(data.profesional_monto) ||
     parseMoney(data.monto_neto);
+  const commission = Number(data.comision_porcentaje ?? fallback.commission);
+  const safeCommission = Number.isFinite(commission) && commission >= 0 && commission <= 100
+    ? commission
+    : fallback.commission;
 
   return {
     gross,
-    net: explicitNet || Math.round(gross * 0.8),
+    net: explicitNet || Math.round(gross * (1 - safeCommission / 100)),
+    commission: safeCommission,
     fromBackend: true,
   };
 }
@@ -185,7 +191,7 @@ export default function ProIncomeSimulator() {
       <p className="mt-4 flex gap-2 text-xs leading-5 text-[#8fb6b2]">
         <Wallet className="mt-0.5 h-4 w-4 shrink-0 text-[#4fdbc8]" />
         Cálculo orientativo con el valor neto por consulta. Si el backend no informa neto profesional,
-        se estima el 80% del precio publicado.
+        se estima segun la comision DocYa vigente ({activeTarifa.commission.toLocaleString("es-AR")}%) sobre el precio publicado.
       </p>
     </div>
   );

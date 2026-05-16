@@ -1,7 +1,7 @@
 // src/components/sections/EarningsCalculator.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
@@ -14,6 +14,11 @@ const ARS = (n: number) =>
     maximumFractionDigits: 0,
   });
 
+const API =
+  process.env.NEXT_PUBLIC_API_BASE ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://docya-railway-production.up.railway.app";
+
 export default function EarningsCalculator() {
   const [precio, setPrecio] = useState(30000);
   const [comision, setComision] = useState(20);
@@ -21,6 +26,21 @@ export default function EarningsCalculator() {
   const [costoVar, setCostoVar] = useState(0);
   const [costoFijo, setCostoFijo] = useState(0);
   const [retencion, setRetencion] = useState(0);
+
+  useEffect(() => {
+    let alive = true;
+    fetch(`${API.replace(/\/$/, "")}/configuracion/comision-docya`, { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!alive || !data) return;
+        const porcentaje = Number(data.comision_porcentaje);
+        if (Number.isFinite(porcentaje)) setComision(porcentaje);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const netoPorConsultaBruto = useMemo(
     () => precio * (1 - comision / 100),

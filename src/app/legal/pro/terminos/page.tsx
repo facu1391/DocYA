@@ -136,10 +136,10 @@ export default function Terminos() {
                   El paciente abona <strong>$30.000 ARS</strong> por consulta.
                 </li>
                 <li>
-                  Comisión DocYa: <strong>20%</strong>.
+                  Comisión DocYa: <strong>según la comisión vigente informada por la plataforma</strong>.
                 </li>
                 <li>
-                  Ingreso neto del profesional: <strong>$24.000 ARS</strong> por consulta.
+                  Ingreso neto del profesional: <strong>precio de la consulta menos la comisión DocYa vigente</strong>.
                 </li>
                 <li>Acreditación semanal en la cuenta informada por el profesional.</li>
               </ul>
