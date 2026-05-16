@@ -16,10 +16,10 @@ const PACIENTE_PLAY_STORE_URL =
 
 /* 👇 reemplazá estas URLs por las reales de la app profesional */
 const PRO_APP_STORE_URL =
-  "https://apps.apple.com/ar/app/docya/id6753604975";
+  "https://apps.apple.com/ar/app/docyapro/id6753040185";
 
 const PRO_PLAY_STORE_URL =
-  "https://play.google.com/store/apps/details?id=com.docya.medico";
+  "https://play.google.com/store/apps/details?id=com.docya.pro";
 
 export default function FinalCTA({ mode = "paciente" }: Props) {
   const isPro = mode === "pro";
