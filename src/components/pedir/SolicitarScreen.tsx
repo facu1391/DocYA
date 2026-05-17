@@ -183,14 +183,26 @@ export default function SolicitarScreen() {
         if (!previaRes.ok) throw new Error("No se pudo preparar la consulta");
         const { consulta_id } = await previaRes.json();
 
+        const return_base_url = window.location.origin;
         const prefRes = await fetch(`${API}/pagos/saldo-mp/preferencia`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paciente_uuid: user.id, consulta_id, monto, motivo: motivo.trim() }),
+          body: JSON.stringify({ paciente_uuid: user.id, consulta_id, monto, motivo: motivo.trim(), return_base_url }),
         });
         if (!prefRes.ok) throw new Error("No se pudo crear la preferencia");
         const { init_point } = await prefRes.json();
-        router.push(`/pedir/pago?url=${encodeURIComponent(init_point)}&consulta_id=${consulta_id}&motivo=${encodeURIComponent(motivo.trim())}&direccion=${encodeURIComponent(direccion.trim())}&lat=${lat}&lng=${lng}&tipo=${tipo}&metodo=saldo_mp&monto=${monto}`);
+
+        // Guardar datos en localStorage para recuperarlos al volver de MP
+        localStorage.setItem("docya_saldo_mp_pending", JSON.stringify({
+          consulta_id, tipo,
+          motivo: motivo.trim(),
+          direccion: direccion.trim(),
+          lat, lng,
+          paciente_uuid: user.id,
+        }));
+
+        // Redirect full-page a MP (no iframe — MP bloquea embedding)
+        window.location.href = init_point;
         return;
       }
 
