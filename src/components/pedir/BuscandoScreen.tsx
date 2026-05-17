@@ -97,11 +97,33 @@ export default function BuscandoScreen() {
   const esTeleconsulta = tipo === "teleconsulta";
   const pasos          = esTeleconsulta ? PASOS_TELECONSULTA : PASOS_DOMICILIO;
 
+  const ESTADOS_TERMINADOS = ["finalizada", "cancelada", "cancelada_paciente", "pago_no_autorizado"];
+  const ESTADOS_CRITICOS   = ["aceptada", "en_camino", "en_domicilio", "en_curso", "en_videollamada"];
+
+  // Guardar consulta activa en localStorage para recuperación si el paciente navega atrás
+  useEffect(() => {
+    if (!consultaId) return;
+    localStorage.setItem("docya_consulta_activa", JSON.stringify({ consulta_id: consultaId, tipo }));
+    return () => {
+      // No limpiamos al desmontar — lo limpia fetchEstado cuando la consulta termina
+    };
+  }, [consultaId, tipo]);
+
+  // Advertencia al intentar salir en estados críticos
+  useEffect(() => {
+    const estado = data?.estado ?? "";
+    if (!ESTADOS_CRITICOS.includes(estado)) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [data?.estado]);
+
   const fetchEstado = useCallback(async () => {
     if (!consultaId) return;
     try {
-      // Teleconsulta usa su endpoint específico (devuelve daily_room_url, video_url)
-      // Médico/enfermero usan el endpoint general (devuelve foto_perfil, distancia_km, eta)
       const url = esTeleconsulta
         ? `${API}/teleconsultas/${consultaId}`
         : `${API}/consultas/${consultaId}`;
@@ -109,11 +131,12 @@ export default function BuscandoScreen() {
       if (!res.ok) return;
       const d = await res.json();
       setData(d);
-      if (["finalizada", "cancelada", "cancelada_paciente", "pago_no_autorizado"].includes(d.estado)) {
+      if (ESTADOS_TERMINADOS.includes(d.estado)) {
         if (pollRef.current) clearInterval(pollRef.current);
         if (countRef.current) clearInterval(countRef.current);
+        // Limpiar localStorage al finalizar o cancelar
+        localStorage.removeItem("docya_consulta_activa");
       }
-      // Detener countdown si ya no está pendiente
       if (d.estado !== "pendiente" && countRef.current) {
         clearInterval(countRef.current);
       }
@@ -146,6 +169,7 @@ export default function BuscandoScreen() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ paciente_uuid: "" }),
       });
+      localStorage.removeItem("docya_consulta_activa");
       fetchEstado();
     } catch {}
     setCancelando(false);

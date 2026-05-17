@@ -104,6 +104,17 @@ export default function PedirHome() {
     } catch {}
   }, []);
 
+  // Recuperar consulta activa si el paciente navegó atrás accidentalmente
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("docya_consulta_activa");
+      if (!raw) return;
+      const { consulta_id, tipo } = JSON.parse(raw) as { consulta_id: string; tipo: string };
+      if (!consulta_id) return;
+      router.replace(`/pedir/buscando?consulta_id=${consulta_id}&tipo=${tipo}`);
+    } catch {}
+  }, [router]);
+
   useEffect(() => {
     let alive = true;
     Promise.all(
