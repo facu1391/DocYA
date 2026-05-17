@@ -119,6 +119,7 @@ export default function ConsultasScreen() {
   const [archivos, setArchivos] = useState<ArchivoPaciente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [tab, setTab] = useState<"historial" | "documentos">("historial");
 
   useEffect(() => {
     try {
@@ -220,22 +221,72 @@ export default function ConsultasScreen() {
 
         {activa && <ActivaCard activa={activa} theme={theme} />}
 
-        {!loading && !error && <DocumentosSection archivos={archivos} theme={theme} />}
+        {/* Tabs */}
+        <div
+          style={{
+            display: "flex",
+            gap: 4,
+            padding: 4,
+            borderRadius: 18,
+            border: `1px solid ${border}`,
+            background: theme.inputBg,
+            marginBottom: 20,
+          }}
+        >
+          {([
+            { key: "historial", label: `Historial (${historial.length})` },
+            { key: "documentos", label: `Documentos (${archivos.length})` },
+          ] as const).map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              style={{
+                flex: 1,
+                border: tab === key ? "1px solid #2dd4bf" : "1px solid transparent",
+                background: tab === key ? "rgba(45,212,191,0.14)" : "transparent",
+                color: tab === key ? "#2dd4bf" : muted,
+                borderRadius: 14,
+                padding: "10px 14px",
+                fontSize: 13,
+                fontWeight: 900,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                transition: "all 0.15s",
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
-        {loading ? (
-          <div style={{ padding: "60px 0", display: "flex", justifyContent: "center", color: "#2dd4bf" }}>
-            <Loader2 size={34} className="animate-spin" />
-          </div>
-        ) : error ? (
-          <EmptyState theme={theme} title="No pudimos cargar tus consultas" text={error} action={<button onClick={() => void cargar(user.id)} style={{ border: "none", borderRadius: 14, background: "linear-gradient(90deg,#00b3a6,#2dd4bf)", color: "#fff", padding: "12px 18px", fontWeight: 800, cursor: "pointer" }}>Reintentar</button>} />
-        ) : historial.length === 0 ? (
-          <EmptyState theme={theme} title="No hay consultas registradas" text="Cuando tengas atenciones medicas en DocYa, aca vas a ver tu historia clinica en orden cronologico." />
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {historial.map((consulta, index) => (
-              <ConsultaCard key={`${consulta.consulta_id ?? consulta.id ?? index}`} consulta={consulta} theme={theme} />
-            ))}
-          </div>
+        {/* Tab: Historial */}
+        {tab === "historial" && (
+          loading ? (
+            <div style={{ padding: "60px 0", display: "flex", justifyContent: "center", color: "#2dd4bf" }}>
+              <Loader2 size={34} className="animate-spin" />
+            </div>
+          ) : error ? (
+            <EmptyState theme={theme} title="No pudimos cargar tus consultas" text={error} action={<button onClick={() => void cargar(user.id)} style={{ border: "none", borderRadius: 14, background: "linear-gradient(90deg,#00b3a6,#2dd4bf)", color: "#fff", padding: "12px 18px", fontWeight: 800, cursor: "pointer" }}>Reintentar</button>} />
+          ) : historial.length === 0 ? (
+            <EmptyState theme={theme} title="No hay consultas registradas" text="Cuando tengas atenciones medicas en DocYa, aca vas a ver tu historia clinica en orden cronologico." />
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {historial.map((consulta, index) => (
+                <ConsultaCard key={`${consulta.consulta_id ?? consulta.id ?? index}`} consulta={consulta} theme={theme} />
+              ))}
+            </div>
+          )
+        )}
+
+        {/* Tab: Documentos */}
+        {tab === "documentos" && (
+          loading ? (
+            <div style={{ padding: "60px 0", display: "flex", justifyContent: "center", color: "#2dd4bf" }}>
+              <Loader2 size={34} className="animate-spin" />
+            </div>
+          ) : (
+            <DocumentosSection archivos={archivos} theme={theme} />
+          )
         )}
       </main>
     </div>
