@@ -81,6 +81,13 @@ export const metadata: Metadata = {
     ],
     locale: "es_AR",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "DocYa — Atención médica a domicilio",
+    description: "Pedí un médico o enfermero/a a tu hogar, sin esperas. Profesionales verificados y pagos seguros.",
+    images: [OG_IMAGE],
+    site: "@docya_ar",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -119,6 +126,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="es-AR" suppressHydrationWarning>
+      <head>
+        {/* Smart App Banner iOS — muestra "Abrir en DocYa" cuando se abre desde Instagram/Safari */}
+        <meta name="apple-itunes-app" content="app-id=6753604975, app-argument=https://www.docya.com.ar/pedir" />
+      </head>
       <body className={`${poppins.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AppShell>{children}</AppShell>
