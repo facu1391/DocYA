@@ -50,14 +50,7 @@ type GoogleWindow = Window & {
     };
     maps?: {
       places?: {
-        Autocomplete?: new (
-          input: HTMLInputElement,
-          options: {
-            fields: string[];
-            componentRestrictions?: { country: string };
-            types?: string[];
-          },
-        ) => GooglePlacesAutocomplete;
+        AutocompleteService?: new () => GooglePlacesAutocompleteService;
       };
     };
   };
@@ -78,13 +71,20 @@ type AppleWindow = Window & {
   };
 };
 
-type GooglePlacesPlace = {
-  formatted_address?: string;
+type GooglePlacesPrediction = {
+  description: string;
+  place_id?: string;
 };
 
-type GooglePlacesAutocomplete = {
-  addListener: (eventName: "place_changed", handler: () => void) => void;
-  getPlace: () => GooglePlacesPlace;
+type GooglePlacesAutocompleteService = {
+  getPlacePredictions: (
+    request: {
+      input: string;
+      componentRestrictions?: { country: string };
+      types?: string[];
+    },
+    callback: (predictions: GooglePlacesPrediction[] | null, status: string) => void,
+  ) => void;
 };
 
 type GoogleAuthMedicoResponse = {
@@ -162,7 +162,7 @@ export default function RegistroProGoogleFlow() {
   const router = useRouter();
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
   const addressInputRef = useRef<HTMLInputElement | null>(null);
-  const autocompleteRef = useRef<GooglePlacesAutocomplete | null>(null);
+  const autocompleteServiceRef = useRef<GooglePlacesAutocompleteService | null>(null);
   const googleRenderedRef = useRef(false);
   const dniFrenteRef = useRef<HTMLInputElement | null>(null);
   const dniDorsoRef = useRef<HTMLInputElement | null>(null);
@@ -184,6 +184,7 @@ export default function RegistroProGoogleFlow() {
   const [especialidad, setEspecialidad] = useState("");
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
+  const [addressPredictions, setAddressPredictions] = useState<GooglePlacesPrediction[]>([]);
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<CountryOption>(COUNTRIES[0]);
   const [dniFrente, setDniFrente] = useState<File | undefined>();
@@ -337,39 +338,77 @@ export default function RegistroProGoogleFlow() {
   }, [googleLoaded, handleGoogleCredential]);
 
   useEffect(() => {
-    if (stage !== "profile" || !googleLoaded || !addressInputRef.current) return;
+    if (stage !== "profile" || !googleLoaded) return;
 
     let attempts = 0;
     const maxAttempts = 20;
 
-    const bindAutocomplete = () => {
-      const Autocomplete = (window as GoogleWindow).google?.maps?.places?.Autocomplete;
-      if (!Autocomplete || !addressInputRef.current) {
+    const initAutocompleteService = () => {
+      const AutocompleteService = (window as GoogleWindow).google?.maps?.places?.AutocompleteService;
+      if (!AutocompleteService) {
         attempts += 1;
         if (attempts < maxAttempts) {
-          window.setTimeout(bindAutocomplete, 300);
+          window.setTimeout(initAutocompleteService, 300);
         } else {
-          setStatusMessage("Google Places no termino de inicializar.");
+          setStatusMessage("Google Places no termino de inicializar. Escribi la direccion manualmente.");
         }
         return;
       }
 
+      autocompleteServiceRef.current = new AutocompleteService();
       setStatusMessage("");
-      autocompleteRef.current = new Autocomplete(addressInputRef.current, {
-        fields: ["formatted_address"],
-        componentRestrictions: { country: "ar" },
-        types: ["address"],
-      });
-
-      autocompleteRef.current.addListener("place_changed", () => {
-        const place = autocompleteRef.current?.getPlace?.();
-        const value = place?.formatted_address || addressInputRef.current?.value || "";
-        setDireccion(value);
-      });
     };
 
-    bindAutocomplete();
+    initAutocompleteService();
   }, [googleLoaded, stage]);
+
+  useEffect(() => {
+    if (stage !== "profile") return;
+
+    const query = direccion.trim();
+    if (query.length < 3 || !autocompleteServiceRef.current) {
+      setAddressPredictions([]);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      autocompleteServiceRef.current?.getPlacePredictions(
+        {
+          input: query,
+          componentRestrictions: { country: selectedCountry.code.toLowerCase() },
+          types: ["address"],
+        },
+        (predictions, status) => {
+          if (status !== "OK" || !predictions?.length) {
+            setAddressPredictions([]);
+            return;
+          }
+          setAddressPredictions(predictions.slice(0, 5));
+        },
+      );
+    }, 350);
+
+    return () => window.clearTimeout(timer);
+  }, [direccion, selectedCountry.code, stage]);
+
+  useEffect(() => {
+    if (stage !== "profile") return;
+
+    const handleMapsError = (event: ErrorEvent) => {
+      const message = `${event.message || ""} ${event.error?.message || ""}`;
+      if (!message.includes("ApiTargetBlockedMapError") && !message.includes("Google Maps")) return;
+      if (addressInputRef.current) {
+        addressInputRef.current.disabled = false;
+        addressInputRef.current.removeAttribute("disabled");
+      }
+      autocompleteServiceRef.current = null;
+      setAddressPredictions([]);
+      setStatusMessage("Google Maps no esta disponible. Escribi la direccion manualmente.");
+    };
+
+    window.addEventListener("error", handleMapsError);
+    return () => window.removeEventListener("error", handleMapsError);
+  }, [stage]);
 
   const submitProfile = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -711,8 +750,29 @@ export default function RegistroProGoogleFlow() {
                   className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-11 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 pl-9 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] md:h-12 md:text-sm"
                   value={direccion}
                   onChange={(event) => setDireccion(event.target.value)}
+                  onBlur={() => window.setTimeout(() => setAddressPredictions([]), 180)}
                   placeholder="Empeza a escribir tu direccion"
                 />
+                {addressPredictions.length > 0 ? (
+                  <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-30 overflow-hidden rounded-xl border bg-background shadow-xl">
+                    {addressPredictions.map((prediction) => (
+                      <button
+                        key={prediction.place_id || prediction.description}
+                        type="button"
+                        className="flex w-full items-start gap-2 px-3 py-2 text-left text-sm transition hover:bg-[color-mix(in_srgb,var(--brand)_10%,transparent)]"
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                          setDireccion(prediction.description);
+                          setAddressPredictions([]);
+                          addressInputRef.current?.focus();
+                        }}
+                      >
+                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[var(--brand)]" />
+                        <span>{prediction.description}</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
               </div>
               {statusMessage ? <p className="mt-1 text-xs text-amber-600">{statusMessage}</p> : null}
             </div>
