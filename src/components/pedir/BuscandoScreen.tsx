@@ -89,7 +89,7 @@ export default function BuscandoScreen() {
   const {
     bg, surface, brandBorder: border, text, muted, headerBg, logo,
     softPanel, softPanelBorder, inactiveStep, inactiveStepBg,
-    inactiveStepBorder, inactiveText, doneText, titleStart,
+    inactiveStepBorder, inactiveText, doneText,
   } = usePedirTheme();
 
   const tipoCfg        = TIPO_CONFIG[tipo] ?? TIPO_CONFIG.medico;
@@ -315,16 +315,13 @@ export default function BuscandoScreen() {
             }
           </div>
           <h1 style={{
-            display: "inline-block",
+            display: "block",
             maxWidth: "100%",
             fontSize: "clamp(22px, 4vw, 28px)",
             fontWeight: 900,
-            lineHeight: 1.15,
+            lineHeight: 1.2,
             marginBottom: 10,
             color: estadoColor,
-            background: `linear-gradient(90deg, ${titleStart}, ${estadoColor})`,
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
             overflowWrap: "anywhere",
             userSelect: "none",
           }}>

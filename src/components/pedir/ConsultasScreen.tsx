@@ -111,7 +111,7 @@ function fechaCorta(value?: string | null) {
 export default function ConsultasScreen() {
   const router = useRouter();
   const theme = usePedirTheme();
-  const { bg, text, muted, border, brandBorder, surface, headerBg, logo, titleStart } = theme;
+  const { bg, text, muted, border, brandBorder, surface, headerBg, logo } = theme;
 
   const [user, setUser] = useState<PedirUser | null>(null);
   const [historial, setHistorial] = useState<HistoriaConsulta[]>([]);
@@ -203,7 +203,7 @@ export default function ConsultasScreen() {
             </div>
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 12, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 8 }}>Historia clinica</p>
-              <h1 style={{ fontSize: "clamp(26px, 5vw, 38px)", fontWeight: 950, lineHeight: 1.08, marginBottom: 10, background: `linear-gradient(90deg, ${titleStart}, #2dd4bf)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              <h1 style={{ fontSize: "clamp(26px, 5vw, 38px)", fontWeight: 950, lineHeight: 1.1, marginBottom: 10, color: "#2dd4bf" }}>
                 Mis consultas
               </h1>
               <p style={{ color: muted, fontSize: 15, lineHeight: 1.55 }}>

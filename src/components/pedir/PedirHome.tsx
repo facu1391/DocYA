@@ -95,7 +95,7 @@ export default function PedirHome() {
   const [user, setUser]                 = useState<PedirUser | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [precios, setPrecios]           = useState<Partial<Record<ServicioId, PrecioServicio>>>({});
-  const { dark, setTheme, homeBg: bg, cardBg, border, text, muted, headerBg, logo, titleStart } = usePedirTheme();
+  const { dark, setTheme, homeBg: bg, cardBg, border, text, muted, headerBg, logo } = usePedirTheme();
 
   useEffect(() => {
     try {
@@ -404,7 +404,7 @@ export default function PedirHome() {
                 {/* Mini hero visible solo en mobile */}
                 <div className="pedir-mobile-hero" style={{ marginBottom: 28, paddingBottom: 22, borderBottom: "1px solid rgba(0,179,166,0.2)" }}>
                   <Image src={logo} alt="DocYa" width={90} height={28} style={{ width: 90, height: "auto", maxHeight: 28, objectFit: "contain", marginBottom: 16, display: "block" }} />
-                  <p style={{ fontSize: 22, fontWeight: 900, marginBottom: 6, lineHeight: 1.2, background: `linear-gradient(90deg, ${titleStart}, #2dd4bf)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Atención médica sin esperas</p>
+                  <p style={{ fontSize: 22, fontWeight: 900, marginBottom: 6, lineHeight: 1.2, color: "#2dd4bf" }}>Atención médica sin esperas</p>
                   <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>Médico, teleconsulta o enfermería desde el navegador.</p>
                 </div>
 
@@ -413,7 +413,7 @@ export default function PedirHome() {
                   <div style={{ width: 52, height: 52, borderRadius: 18, background: "linear-gradient(135deg, #00b3a6, #2dd4bf)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 8px 24px rgba(0,179,166,0.4)" }}>
                     <ShieldCheck size={26} color="#fff" />
                   </div>
-                  <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 8, background: `linear-gradient(90deg, ${titleStart}, #2dd4bf)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                  <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 8, color: "#2dd4bf" }}>
                     Ingresá para continuar
                   </h2>
                   <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>

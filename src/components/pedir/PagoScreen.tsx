@@ -35,7 +35,7 @@ export default function PagoScreen() {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneRef = useRef(false);
 
-  const { bg, brandBorder: border, text, muted, headerBg, logo, overlayBg, titleStart } = usePedirTheme();
+  const { bg, brandBorder: border, text, muted, headerBg, logo, overlayBg } = usePedirTheme();
 
   useEffect(() => {
     try {
@@ -125,7 +125,7 @@ export default function PagoScreen() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 720, margin: "0 auto", width: "100%", padding: "20px 20px 40px" }}>
 
           <div style={{ marginBottom: 16 }}>
-            <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 6, background: `linear-gradient(90deg, ${titleStart}, #2dd4bf)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Autorizá el pago</h1>
+            <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 6, color: "#2dd4bf" }}>Autorizá el pago</h1>
             <p style={{ color: muted, fontSize: 14 }}>
               El cobro se realiza <strong style={{ color: text }}>solo cuando un profesional acepta</strong> tu consulta.
             </p>

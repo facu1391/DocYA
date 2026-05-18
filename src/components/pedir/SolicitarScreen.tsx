@@ -76,7 +76,7 @@ export default function SolicitarScreen() {
   const [tarifa, setTarifa] = useState<Tarifa | null>(null);
   const [tarifaLoading, setTarifaLoading] = useState(true);
   const [tarifaError, setTarifaError] = useState("");
-  const { dark, bg, brandBorder: border, text, muted, inputBg, headerBg, logo, titleStart } = usePedirTheme();
+  const { dark, bg, brandBorder: border, text, muted, inputBg, headerBg, logo } = usePedirTheme();
   const permiteEfectivo = tipo !== "teleconsulta";
 
   // Auth check
@@ -249,7 +249,7 @@ export default function SolicitarScreen() {
         </header>
 
         <main style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 80px" }}>
-          <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: 900, marginBottom: 8, background: `linear-gradient(90deg, ${titleStart}, #2dd4bf)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: 900, marginBottom: 8, color: "#2dd4bf" }}>
             Solicitá tu {cfg.label.toLowerCase()}
           </h1>
           <p style={{ color: muted, fontSize: 15, marginBottom: 32 }}>

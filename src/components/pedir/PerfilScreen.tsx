@@ -29,7 +29,7 @@ const notify = (msg: string, ok = true) => {
 export default function PerfilScreen() {
   const router = useRouter();
   const [user, setUser] = useState<PedirUser | null>(null);
-  const { dark, bg, surface, brandBorder: border, text, muted, inputBg, headerBg, logo, titleStart } = usePedirTheme();
+  const { dark, bg, surface, brandBorder: border, text, muted, inputBg, headerBg, logo } = usePedirTheme();
 
   const [tipoDoc,     setTipoDoc]     = useState("dni");
   const [nroDoc,      setNroDoc]      = useState("");
@@ -116,7 +116,7 @@ export default function PerfilScreen() {
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,179,166,0.12)", border: "1px solid rgba(0,179,166,0.25)", borderRadius: 999, padding: "6px 14px", fontSize: 13, fontWeight: 600, color: "#00b3a6", marginBottom: 16 }}>
             <CheckCircle2 size={14} /> Un paso más
           </div>
-          <h1 style={{ fontSize: "clamp(22px, 4vw, 28px)", fontWeight: 900, marginBottom: 8, background: `linear-gradient(90deg, ${titleStart}, #2dd4bf)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <h1 style={{ fontSize: "clamp(22px, 4vw, 28px)", fontWeight: 900, marginBottom: 8, color: "#2dd4bf" }}>
             Completá tu perfil
           </h1>
           <p style={{ color: muted, fontSize: 15, lineHeight: 1.6 }}>

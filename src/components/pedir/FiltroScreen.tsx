@@ -34,7 +34,7 @@ export default function FiltroScreen() {
 
   const {
     dark, bg, brandBorder: border, text, muted, headerBg, logo,
-    softPanel, softPanelBorder, titleStart,
+    softPanel, softPanelBorder,
   } = usePedirTheme();
 
   const responder = (idx: number, valor: boolean) => {
@@ -79,16 +79,12 @@ export default function FiltroScreen() {
               <div>
                 <h1 style={{
                   display: "block",
-                  width: "fit-content",
                   maxWidth: "100%",
                   fontSize: "clamp(18px, 3.5vw, 24px)",
                   fontWeight: 900,
-                  lineHeight: 1.15,
+                  lineHeight: 1.2,
                   marginBottom: 8,
                   color: "#fbbf24",
-                  background: `linear-gradient(90deg, ${titleStart}, #fbbf24)`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
                   overflowWrap: "anywhere",
                   userSelect: "none",
                 }}>
@@ -195,17 +191,13 @@ export default function FiltroScreen() {
 
             <h2 style={{
               display: "block",
-              width: "fit-content",
               maxWidth: "100%",
               fontSize: 22,
               fontWeight: 900,
-              lineHeight: 1.15,
+              lineHeight: 1.2,
               textAlign: "center",
               margin: "0 auto 10px",
               color: "#f87171",
-              background: `linear-gradient(90deg, ${titleStart}, #f87171)`,
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
               overflowWrap: "anywhere",
               userSelect: "none",
             }}>
