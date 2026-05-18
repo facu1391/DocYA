@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { HeartPulse, Minus, Plus, SlidersHorizontal, Stethoscope, Wallet } from "lucide-react";
+import { HeartPulse, Minus, Plus, SlidersHorizontal, Stethoscope, Video, Wallet } from "lucide-react";
 
-type ProType = "medico" | "enfermero";
+type ProType = "medico" | "enfermero" | "teleconsulta";
 
 type TarifaState = {
   gross: number;
@@ -20,11 +20,13 @@ const API =
 const ENDPOINTS: Record<ProType, string> = {
   medico: "consulta-medico",
   enfermero: "consulta-enfermero",
+  teleconsulta: "teleconsulta",
 };
 
 const FALLBACK_TARIFAS: Record<ProType, TarifaState> = {
-  medico: { gross: 30000, net: 24000, commission: 20, fromBackend: false },
-  enfermero: { gross: 20000, net: 16000, commission: 20, fromBackend: false },
+  medico:       { gross: 30000, net: 24000, commission: 20, fromBackend: false },
+  enfermero:    { gross: 20000, net: 16000, commission: 20, fromBackend: false },
+  teleconsulta: { gross: 15000, net: 12000, commission: 20, fromBackend: false },
 };
 
 function parseMoney(value: unknown) {
@@ -116,6 +118,12 @@ export default function ProIncomeSimulator() {
       accent: "from-[#f472b6] to-[#ec4899]",
       glow: "shadow-[0_16px_40px_rgba(236,72,153,0.22)]",
     },
+    teleconsulta: {
+      label: "Teleconsulta",
+      icon: Video,
+      accent: "from-[#a78bfa] to-[#818cf8]",
+      glow: "shadow-[0_16px_40px_rgba(129,140,248,0.22)]",
+    },
   } as const;
 
   const ActiveIcon = typeConfig[type].icon;
@@ -131,7 +139,7 @@ export default function ProIncomeSimulator() {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         {(Object.keys(typeConfig) as ProType[]).map((key) => {
           const Icon = typeConfig[key].icon;
           const active = key === type;
@@ -190,8 +198,8 @@ export default function ProIncomeSimulator() {
 
       <p className="mt-4 flex gap-2 text-xs leading-5 text-[#8fb6b2]">
         <Wallet className="mt-0.5 h-4 w-4 shrink-0 text-[#4fdbc8]" />
-        Cálculo orientativo con el valor neto por consulta. Si el backend no informa neto profesional,
-        se estima segun la comision DocYa vigente ({activeTarifa.commission.toLocaleString("es-AR")}%) sobre el precio publicado.
+        Cálculo orientativo con el valor neto por consulta. Comisión DocYa vigente: {activeTarifa.commission.toLocaleString("es-AR")}%.{" "}
+        {type === "teleconsulta" && "Las teleconsultas se atienden desde cualquier lugar, sin traslados."}
       </p>
     </div>
   );
