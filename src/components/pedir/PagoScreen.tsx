@@ -78,7 +78,20 @@ export default function PagoScreen() {
     }
   }, [user, motivo, direccion, lat, lng, consultaId, tipo, metodo, router]);
 
-  // Polling: detectar cuando el pago fue autorizado
+  // Mensaje desde el iframe del formulario MP (web context)
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type === "docya_payment_success") {
+        confirmarYSolicitar(e.data.payment_id?.toString());
+      } else if (e.data?.type === "docya_payment_error") {
+        setError(e.data.message || "No se pudo procesar el pago.");
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, [confirmarYSolicitar]);
+
+  // Polling: fallback para detectar cuando el pago fue autorizado (app nativa / WebView)
   useEffect(() => {
     if (!consultaId || !user) return;
     pollRef.current = setInterval(async () => {
