@@ -3,39 +3,39 @@ import Link from "next/link";
 import { Stethoscope, Video, Syringe, Clock, Home, ShieldCheck, FileText, ChevronRight } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
 
-type TarifaResponse = { monto: number; tipo: string };
+type TarifaResponse = { monto: number; tipo: string; activa?: boolean };
 
-async function getTarifa(endpoint: string): Promise<TarifaResponse | null> {
+async function getTarifas(): Promise<Record<string, TarifaResponse>> {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API_URL || "";
-  if (!baseUrl) return null;
+  if (!baseUrl) return {};
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 5000);
   try {
-    const res = await fetch(`${baseUrl.replace(/\/$/, "")}${endpoint}`, {
+    const res = await fetch(`${baseUrl.replace(/\/$/, "")}/admin/tarifas`, {
       next: { revalidate: 300 },
       signal: controller.signal,
     });
-    if (!res.ok) return null;
-    const data = (await res.json()) as TarifaResponse;
-    if (typeof data?.monto !== "number") return null;
-    return data;
+    if (!res.ok) return {};
+    const data = (await res.json()) as TarifaResponse[];
+    return data.reduce<Record<string, TarifaResponse>>((acc, tarifa) => {
+      if (tarifa?.tipo && typeof tarifa.monto === "number" && tarifa.activa !== false) {
+        acc[tarifa.tipo] = tarifa;
+      }
+      return acc;
+    }, {});
   } catch {
-    return null;
+    return {};
   } finally {
     clearTimeout(timeout);
   }
 }
 
-function formatPrecio(tarifa: TarifaResponse | null, fallback: string) {
+function formatPrecio(tarifa: TarifaResponse | undefined, fallback: string) {
   return tarifa ? `$${Number(tarifa.monto).toLocaleString("es-AR")}` : fallback;
 }
 
 export default async function PreciosSection() {
-  const [tarifaMedico, tarifaEnfermero, tarifaTeleconsulta] = await Promise.all([
-    getTarifa("/tarifas/consulta-medico"),
-    getTarifa("/tarifas/consulta-enfermero"),
-    getTarifa("/tarifas/teleconsulta"),
-  ]);
+  const tarifas = await getTarifas();
 
   const servicios = [
     {
@@ -43,7 +43,10 @@ export default async function PreciosSection() {
       badge: "Disponible ahora",
       titulo: "Médico a domicilio",
       subtitulo: "Un profesional va a tu casa.",
-      precio: formatPrecio(tarifaMedico, "desde $30.000"),
+      precios: [
+        { label: "Diurna", value: formatPrecio(tarifas.diurna, "$40.000") },
+        { label: "Nocturna", value: formatPrecio(tarifas.nocturna, "$55.000") },
+      ],
       descripcion: "Diagnóstico, recetas y tratamiento en el momento. Sin esperas en guardias.",
       chips: [
         { icon: Clock, label: "En minutos" },
@@ -63,7 +66,10 @@ export default async function PreciosSection() {
       badge: "Sin espera",
       titulo: "Teleconsulta",
       subtitulo: "Consulta por videollamada.",
-      precio: formatPrecio(tarifaTeleconsulta, "desde $15.000"),
+      precios: [
+        { label: "Diurna", value: formatPrecio(tarifas.teleconsulta_diurna, "$20.000") },
+        { label: "Nocturna", value: formatPrecio(tarifas.teleconsulta_nocturna, "$20.000") },
+      ],
       descripcion: "Hablá con un médico desde tu computadora o celular, sin salir de casa. Recetas y certificados.",
       chips: [
         { icon: Clock, label: "En minutos" },
@@ -83,7 +89,10 @@ export default async function PreciosSection() {
       badge: "Profesionales verificados",
       titulo: "Enfermería a domicilio",
       subtitulo: "Atención profesional en tu hogar.",
-      precio: formatPrecio(tarifaEnfermero, "desde $20.000"),
+      precios: [
+        { label: "Diurna", value: formatPrecio(tarifas.diurna_enfermero, "$30.000") },
+        { label: "Nocturna", value: formatPrecio(tarifas.nocturna_enfermero, "$30.000") },
+      ],
       descripcion: "Inyectables, curaciones, controles y más. Profesionales certificados.",
       chips: [
         { icon: Clock, label: "En minutos" },
@@ -119,7 +128,7 @@ export default async function PreciosSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {servicios.map(
             (
-              { icon: Icon, badge, titulo, subtitulo, precio, descripcion, chips, cta, href,
+              { icon: Icon, badge, titulo, subtitulo, precios, descripcion, chips, cta, href,
                 color, btnGradient, iconBg, badgeBg, badgeColor },
               i
             ) => (
@@ -156,15 +165,19 @@ export default async function PreciosSection() {
 
                   {/* Fila de precio */}
                   <div
-                    className="flex items-center justify-between rounded-2xl px-4 py-3 mb-4"
+                    className="rounded-2xl px-4 py-3 mb-4 space-y-2"
                     style={{ background: "rgba(255,255,255,0.05)" }}
                   >
-                    <span className="text-xs font-bold uppercase tracking-wider text-white/60">
-                      Precio
-                    </span>
-                    <span className="text-2xl font-black" style={{ color }}>
-                      {precio}
-                    </span>
+                    {precios.map(({ label, value }) => (
+                      <div key={label} className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-bold uppercase tracking-wider text-white/60">
+                          {label}
+                        </span>
+                        <span className="text-xl font-black" style={{ color }}>
+                          {value}
+                        </span>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Descripción */}
