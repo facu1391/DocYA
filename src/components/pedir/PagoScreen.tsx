@@ -10,6 +10,36 @@ import { usePedirTheme } from "./theme";
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean };
 
+async function solicitarConsulta(body: Record<string, unknown>) {
+  const tipo = String(body.tipo ?? "");
+  const endpoint = tipo === "teleconsulta" ? "/teleconsultas" : "/consultas/solicitar";
+  const payload = tipo === "teleconsulta"
+    ? {
+        consulta_id: body.consulta_id,
+        paciente_uuid: body.paciente_uuid,
+        motivo: body.motivo,
+        direccion: body.direccion,
+        provincia: "Argentina",
+        localidad: body.direccion || "Argentina",
+        necesita_certificado: false,
+        consentimiento_teleconsulta: true,
+        metodo_pago: body.metodo_pago,
+        payment_id: body.payment_id,
+      }
+    : body;
+
+  const res = await fetch(`${API}${endpoint}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail?.mensaje || err.detail || "No se pudo iniciar la consulta");
+  }
+  return res.json();
+}
+
 function formatPesos(value?: number | null) {
   if (!value) return "";
   return `$${value.toLocaleString("es-AR")}`;
@@ -60,16 +90,7 @@ export default function PagoScreen() {
       };
       if (paymentId) body.payment_id = paymentId;
 
-      const res = await fetch(`${API}/consultas/solicitar`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail?.mensaje || err.detail || "No se pudo iniciar la consulta");
-      }
-      const data = await res.json();
+      const data = await solicitarConsulta(body);
       router.push(`/pedir/buscando?consulta_id=${data.consulta_id}&tipo=${tipo}&metodo=${metodo}`);
     } catch (e) {
       setProcesando(false);

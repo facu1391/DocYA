@@ -9,6 +9,36 @@ import { usePedirTheme } from "./theme";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
+async function solicitarConsulta(body: Record<string, unknown>) {
+  const tipo = String(body.tipo ?? "");
+  const endpoint = tipo === "teleconsulta" ? "/teleconsultas" : "/consultas/solicitar";
+  const payload = tipo === "teleconsulta"
+    ? {
+        consulta_id: body.consulta_id,
+        paciente_uuid: body.paciente_uuid,
+        motivo: body.motivo,
+        direccion: body.direccion,
+        provincia: "Argentina",
+        localidad: body.direccion || "Argentina",
+        necesita_certificado: false,
+        consentimiento_teleconsulta: true,
+        metodo_pago: body.metodo_pago,
+        payment_id: body.payment_id,
+      }
+    : body;
+
+  const res = await fetch(`${API}${endpoint}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail?.mensaje || err.detail || "No se pudo iniciar la consulta");
+  }
+  return res.json();
+}
+
 export default function PagoResultadoScreen() {
   const router = useRouter();
   const params = useSearchParams();
@@ -54,28 +84,19 @@ export default function PagoResultadoScreen() {
 
     const solicitar = async () => {
       try {
-        const res = await fetch(`${API}/consultas/solicitar`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            paciente_uuid: pending!.paciente_uuid,
-            motivo:        pending!.motivo,
-            direccion:     pending!.direccion,
-            lat:           pending!.lat,
-            lng:           pending!.lng,
-            metodo_pago:   "saldo_mp",
-            tipo:          pending!.tipo,
-            consulta_id:   pending!.consulta_id,
-          }),
+        const data = await solicitarConsulta({
+          paciente_uuid: pending!.paciente_uuid,
+          motivo:        pending!.motivo,
+          direccion:     pending!.direccion,
+          lat:           pending!.lat,
+          lng:           pending!.lng,
+          metodo_pago:   "saldo_mp",
+          tipo:          pending!.tipo,
+          consulta_id:   pending!.consulta_id,
         });
 
         localStorage.removeItem("docya_saldo_mp_pending");
 
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.detail?.mensaje || err.detail || "No se pudo iniciar la consulta");
-        }
-        const data = await res.json();
         setFase("ok");
         setTimeout(() => {
           router.replace(`/pedir/buscando?consulta_id=${data.consulta_id}&tipo=${pending!.tipo}&metodo=saldo_mp`);
