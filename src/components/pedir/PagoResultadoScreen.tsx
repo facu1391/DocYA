@@ -12,6 +12,7 @@ const API = process.env.NEXT_PUBLIC_API_BASE!;
 async function solicitarConsulta(body: Record<string, unknown>) {
   const tipo = String(body.tipo ?? "");
   const endpoint = tipo === "teleconsulta" ? "/teleconsultas" : "/consultas/solicitar";
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
   const payload = tipo === "teleconsulta"
     ? {
         consulta_id: body.consulta_id,
@@ -27,9 +28,15 @@ async function solicitarConsulta(body: Record<string, unknown>) {
       }
     : body;
 
+  if (tipo === "teleconsulta") {
+    const token = String(body.access_token ?? "");
+    if (!token) throw new Error("Token requerido. Cerrá sesión e ingresá nuevamente.");
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API}${endpoint}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
@@ -93,6 +100,7 @@ export default function PagoResultadoScreen() {
           metodo_pago:   "saldo_mp",
           tipo:          pending!.tipo,
           consulta_id:   pending!.consulta_id,
+          access_token:  pending!.access_token,
         });
 
         localStorage.removeItem("docya_saldo_mp_pending");

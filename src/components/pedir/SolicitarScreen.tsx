@@ -15,7 +15,7 @@ import { usePedirTheme } from "./theme";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
-type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean };
+type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean; access_token?: string };
 type MetodoPago = "tarjeta" | "saldo_mp" | "efectivo";
 type Tarifa = { tipo?: string; monto: number; descripcion?: string };
 
@@ -199,6 +199,7 @@ export default function SolicitarScreen() {
           direccion: direccion.trim(),
           lat, lng,
           paciente_uuid: user.id,
+          access_token: user.access_token,
         }));
 
         // Redirect full-page a MP (no iframe — MP bloquea embedding)

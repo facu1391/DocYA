@@ -19,7 +19,7 @@ const GOOGLE_CLIENT_ID =
   "327572770521-tom99oocat1tcp9pahlejsar4iu62lhg.apps.googleusercontent.com";
 const APPLE_SERVICE_ID = process.env.NEXT_PUBLIC_APPLE_SERVICE_ID || "com.docya.web";
 
-type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean };
+type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean; access_token?: string };
 type AppleWin = Window & { AppleID?: { auth?: { init: (c: object) => void; signIn: () => Promise<{ authorization: { id_token: string }; user?: { name?: { firstName?: string; lastName?: string }; email?: string } }> } } };
 type GoogleWin = Window & { google?: { accounts?: { id?: { initialize: (c: object) => void; renderButton: (el: HTMLElement, opts: object) => void } } } };
 type ServicioId = "medico" | "teleconsulta" | "enfermero";
@@ -161,6 +161,7 @@ export default function PedirHome() {
       const u: PedirUser = {
         id: String(data.user?.id ?? ""), full_name: data.user?.full_name ?? "Usuario",
         email: data.user?.email ?? "", perfil_completo: data.perfil_completo ?? data.user?.perfil_completo ?? false,
+        access_token: data.access_token,
       };
       saveUser(u);
       notify("¡Bienvenido a DocYa!");
@@ -203,6 +204,7 @@ export default function PedirHome() {
       const u: PedirUser = {
         id: String(data.user?.id ?? ""), full_name: data.user?.full_name ?? fullName ?? "Usuario",
         email: data.user?.email ?? "", perfil_completo: data.perfil_completo ?? data.user?.perfil_completo ?? false,
+        access_token: data.access_token,
       };
       saveUser(u);
       notify("¡Bienvenido a DocYa!");
