@@ -169,7 +169,7 @@ export default function SolicitarScreen() {
         if (!previaRes.ok) throw new Error("No se pudo preparar la consulta");
         const { consulta_id } = await previaRes.json();
 
-        const mpUrl = `${API}/pagos/embebido/formulario?paciente_uuid=${user.id}&consulta_id=${consulta_id}&monto=${monto}&tipo=${tipo}&motivo=${encodeURIComponent(motivo.trim())}`;
+        const mpUrl = `${API}/pagos/embebido/formulario/${consulta_id}`;
         router.push(`/pedir/pago?url=${encodeURIComponent(mpUrl)}&consulta_id=${consulta_id}&motivo=${encodeURIComponent(motivo.trim())}&direccion=${encodeURIComponent(direccion.trim())}&lat=${lat}&lng=${lng}&tipo=${tipo}&metodo=tarjeta&monto=${monto}`);
         return;
       }
