@@ -16,8 +16,9 @@ const API = process.env.NEXT_PUBLIC_API_BASE!;
 
 type Estado =
   | "pendiente" | "aceptada" | "en_camino" | "en_domicilio"
-  | "en_curso" | "en_videollamada" | "finalizada" | "cancelada"
-  | "cancelada_paciente" | "pago_no_autorizado" | string;
+  | "en_curso" | "en_videollamada" | "asignada" | "buscando_medico"
+  | "finalizada" | "cancelada" | "cancelada_paciente" | "cancelada_sin_medico"
+  | "pago_no_autorizado" | string;
 
 type ConsultaData = {
   estado: Estado;
@@ -37,6 +38,8 @@ type ConsultaData = {
   direccion?: string;
   tipo?: string;
 };
+
+type PedirUser = { id: string; access_token?: string };
 
 const TIPO_CONFIG: Record<string, { label: string; icon: typeof Stethoscope; color: string; colorLight: string }> = {
   medico:       { label: "Médico a domicilio",    icon: Stethoscope, color: "#00b3a6", colorLight: "rgba(0,179,166,0.14)" },
@@ -66,9 +69,14 @@ function pasoIndex(estado: string, esTeleconsulta: boolean): number {
   const pasos = esTeleconsulta ? PASOS_TELECONSULTA : PASOS_DOMICILIO;
   const idx = pasos.findIndex(p => p.key === estado);
   if (idx !== -1) return idx;
+  if (estado === "buscando_medico") return 0;
+  if (estado === "asignada") return esTeleconsulta ? 1 : 0;
   if (estado === "en_curso") return esTeleconsulta ? 2 : 4;
   return 0;
 }
+
+const ESTADOS_TERMINADOS = ["finalizada", "cancelada", "cancelada_paciente", "cancelada_sin_medico", "pago_no_autorizado"];
+const ESTADOS_CRITICOS = ["aceptada", "asignada", "en_camino", "en_domicilio", "en_curso", "en_videollamada"];
 
 export default function BuscandoScreen() {
   const params = useSearchParams();
@@ -81,6 +89,7 @@ export default function BuscandoScreen() {
   const [countdown, setCountdown]   = useState(300);
   const [rating, setRating]         = useState(0);
   const [ratingEnviado, setRatingEnviado] = useState(false);
+  const [user, setUser]             = useState<PedirUser | null>(null);
 
   const pollRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const dotsRef   = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -97,8 +106,12 @@ export default function BuscandoScreen() {
   const esTeleconsulta = tipo === "teleconsulta";
   const pasos          = esTeleconsulta ? PASOS_TELECONSULTA : PASOS_DOMICILIO;
 
-  const ESTADOS_TERMINADOS = ["finalizada", "cancelada", "cancelada_paciente", "pago_no_autorizado"];
-  const ESTADOS_CRITICOS   = ["aceptada", "en_camino", "en_domicilio", "en_curso", "en_videollamada"];
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("pedir_user");
+      if (raw) setUser(JSON.parse(raw));
+    } catch {}
+  }, []);
 
   // Guardar consulta activa en localStorage para recuperación si el paciente navega atrás
   useEffect(() => {
@@ -123,11 +136,16 @@ export default function BuscandoScreen() {
 
   const fetchEstado = useCallback(async () => {
     if (!consultaId) return;
+    if (esTeleconsulta && (!user?.id || !user.access_token)) return;
     try {
       const url = esTeleconsulta
-        ? `${API}/teleconsultas/${consultaId}`
+        ? `${API}/teleconsultas/${consultaId}?paciente_uuid=${encodeURIComponent(user!.id)}`
         : `${API}/consultas/${consultaId}`;
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        headers: esTeleconsulta
+          ? { Authorization: `Bearer ${user!.access_token}` }
+          : undefined,
+      });
       if (!res.ok) return;
       const d = await res.json();
       setData(d);
@@ -141,7 +159,7 @@ export default function BuscandoScreen() {
         clearInterval(countRef.current);
       }
     } catch {}
-  }, [consultaId, esTeleconsulta]);
+  }, [consultaId, esTeleconsulta, user]);
 
   useEffect(() => {
     fetchEstado();
@@ -162,18 +180,25 @@ export default function BuscandoScreen() {
 
   const cancelar = useCallback(async () => {
     if (!consultaId) return;
+    if (esTeleconsulta && (!user?.id || !user.access_token)) return;
     setCancelando(true);
     try {
-      await fetch(`${API}/consultas/${consultaId}/cancelar_busqueda`, {
+      const url = esTeleconsulta
+        ? `${API}/teleconsultas/${consultaId}/cancelar`
+        : `${API}/consultas/${consultaId}/cancelar_busqueda`;
+      await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paciente_uuid: "" }),
+        headers: {
+          "Content-Type": "application/json",
+          ...(esTeleconsulta ? { Authorization: `Bearer ${user!.access_token}` } : {}),
+        },
+        body: JSON.stringify({ paciente_uuid: esTeleconsulta ? user!.id : "" }),
       });
       localStorage.removeItem("docya_consulta_activa");
       fetchEstado();
     } catch {}
     setCancelando(false);
-  }, [consultaId, fetchEstado]);
+  }, [consultaId, esTeleconsulta, fetchEstado, user]);
 
   const enviarRating = useCallback(async (stars: number) => {
     if (!consultaId || ratingEnviado) return;
@@ -191,8 +216,8 @@ export default function BuscandoScreen() {
   const estado    = data?.estado ?? "pendiente";
   const stepIdx   = pasoIndex(estado, esTeleconsulta);
   const esFin     = estado === "finalizada";
-  const esCancelado = ["cancelada", "cancelada_paciente", "pago_no_autorizado"].includes(estado);
-  const esPendiente = estado === "pendiente";
+  const esCancelado = ["cancelada", "cancelada_paciente", "cancelada_sin_medico", "pago_no_autorizado"].includes(estado);
+  const esPendiente = estado === "pendiente" || estado === "buscando_medico";
   const hasProf   = !!data?.medico_nombre && !esCancelado;
 
   // Colores por estado
@@ -206,7 +231,7 @@ export default function BuscandoScreen() {
   // Titulo por estado
   const estadoTitulo = (() => {
     if (esPendiente)              return `Buscando profesional${dots}`;
-    if (estado === "aceptada")    return "¡Profesional asignado!";
+    if (estado === "aceptada" || estado === "asignada") return "¡Profesional asignado!";
     if (estado === "en_camino")   return "Profesional en camino";
     if (estado === "en_domicilio") return "¡El profesional llegó!";
     if (estado === "en_curso")    return "Consulta en curso";
@@ -219,7 +244,7 @@ export default function BuscandoScreen() {
 
   const estadoSub = (() => {
     if (esPendiente)              return "Estamos encontrando el profesional más cercano para vos";
-    if (estado === "aceptada")    return "Confirmó la consulta y se está preparando";
+    if (estado === "aceptada" || estado === "asignada") return "Confirmó la consulta y se está preparando";
     if (estado === "en_camino")   return "Ya está yendo hacia tu domicilio";
     if (estado === "en_domicilio") return "Está en la puerta de tu domicilio";
     if (estado === "en_curso")    return "El profesional está atendiendo en este momento";
@@ -473,7 +498,7 @@ export default function BuscandoScreen() {
         )}
 
         {/* ── BOTÓN UNIRSE A VIDEO (teleconsulta) ── */}
-        {esTeleconsulta && ["aceptada", "en_videollamada", "en_curso"].includes(estado) && (data?.video_url || data?.daily_room_url) && (
+        {esTeleconsulta && ["aceptada", "asignada", "en_videollamada", "en_curso"].includes(estado) && (data?.video_url || data?.daily_room_url) && (
           <div style={{ marginBottom: 16 }}>
             <Link
               href={`/pedir/videollamada?consulta_id=${consultaId}&video_url=${encodeURIComponent(data?.video_url || data?.daily_room_url || "")}&medico=${encodeURIComponent(data?.medico_nombre ?? "")}`}

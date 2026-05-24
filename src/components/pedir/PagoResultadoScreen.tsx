@@ -9,6 +9,10 @@ import { usePedirTheme } from "./theme";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
+function getConsultaId(data: Record<string, unknown>) {
+  return data.id ?? data.consulta_id;
+}
+
 async function solicitarConsulta(body: Record<string, unknown>) {
   const tipo = String(body.tipo ?? "");
   const endpoint = tipo === "teleconsulta" ? "/teleconsultas" : "/consultas/solicitar";
@@ -105,9 +109,12 @@ export default function PagoResultadoScreen() {
 
         localStorage.removeItem("docya_saldo_mp_pending");
 
+        const nuevaConsultaId = getConsultaId(data);
+        if (!nuevaConsultaId) throw new Error("No se pudo obtener la teleconsulta creada");
+
         setFase("ok");
         setTimeout(() => {
-          router.replace(`/pedir/buscando?consulta_id=${data.consulta_id}&tipo=${pending!.tipo}&metodo=saldo_mp`);
+          router.replace(`/pedir/buscando?consulta_id=${nuevaConsultaId}&tipo=${pending!.tipo}&metodo=saldo_mp`);
         }, 1200);
       } catch (e) {
         setFase("error");

@@ -10,6 +10,10 @@ import { usePedirTheme } from "./theme";
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean; access_token?: string };
 
+function getConsultaId(data: Record<string, unknown>) {
+  return data.id ?? data.consulta_id;
+}
+
 async function solicitarConsulta(body: Record<string, unknown>) {
   const tipo = String(body.tipo ?? "");
   const endpoint = tipo === "teleconsulta" ? "/teleconsultas" : "/consultas/solicitar";
@@ -99,7 +103,9 @@ export default function PagoScreen() {
       if (paymentId) body.payment_id = paymentId;
 
       const data = await solicitarConsulta(body);
-      router.push(`/pedir/buscando?consulta_id=${data.consulta_id}&tipo=${tipo}&metodo=${metodo}`);
+      const nuevaConsultaId = getConsultaId(data);
+      if (!nuevaConsultaId) throw new Error("No se pudo obtener la teleconsulta creada");
+      router.push(`/pedir/buscando?consulta_id=${nuevaConsultaId}&tipo=${tipo}&metodo=${metodo}`);
     } catch (e) {
       setProcesando(false);
       doneRef.current = false;
