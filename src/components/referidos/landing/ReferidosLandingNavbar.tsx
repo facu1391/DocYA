@@ -27,7 +27,7 @@ export default function ReferidosLandingNavbar() {
       }`}
     >
       <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
-        <Link href="/referidos" aria-label="Ir a Partner DocYa">
+        <Link href="https://www.docya.com.ar/" aria-label="Ir a DocYa">
           <Image
             src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png"
             alt="Partner DocYa"

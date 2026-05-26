@@ -133,6 +133,13 @@ const SOCIAL_ASSETS = [
     url: "https://res.cloudinary.com/dqsacd9ez/image/upload/v1774749989/Necesitas_certificado_m%C3%A9dico_YA_exl8bk.png",
     filename: "docya-certificado-medico.png",
   },
+  {
+    id: "farmacias",
+    label: "Material para farmacias",
+    hint: "Pieza lista para imprimir o compartir en mostrador",
+    url: "https://res.cloudinary.com/dqsacd9ez/image/upload/v1779805518/TU_QR_AQUI_xpkrfh.png",
+    filename: "docya-material-farmacias.png",
+  },
 ];
 
 async function downloadAsset(url: string, filename: string) {
