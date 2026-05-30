@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft, Wind, Heart, Brain, Droplets,
-  Thermometer, Baby, Bandage, AlertTriangle,
+  Bandage, AlertTriangle,
   Phone, CheckCircle2, ChevronRight, X,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
@@ -16,9 +16,7 @@ const PREGUNTAS = [
   { id: 1, texto: "¿Tenés dolor intenso en el pecho?",                  icon: Heart,       color: "#FF4F70" },
   { id: 2, texto: "¿Tenés pérdida de conocimiento o convulsiones?",     icon: Brain,       color: "#A78BFA" },
   { id: 3, texto: "¿Tenés sangrado abundante o que no se detiene?",     icon: Droplets,    color: "#FF344E" },
-  { id: 4, texto: "¿Tenés fiebre muy alta (+39.5 °C) con mal estado?", icon: Thermometer, color: "#FF9B45" },
-  { id: 5, texto: "¿Es un menor de 12 años con fiebre persistente?",    icon: Baby,        color: "#2DD4BF" },
-  { id: 6, texto: "¿Tuviste un accidente grave, fractura o quemadura?", icon: Bandage,     color: "#FFB84D" },
+  { id: 4, texto: "¿Tuviste un accidente grave, fractura o quemadura?", icon: Bandage,     color: "#FFB84D" },
 ];
 
 type Resp = Record<number, boolean>;
