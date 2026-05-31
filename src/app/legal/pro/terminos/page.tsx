@@ -147,7 +147,7 @@ export default function Terminos() {
                   La comisión del <strong>20%</strong> corresponde al servicio de intermediación digital prestado por <strong>DocYa SAS (CUIT 30-71921300-2)</strong>.
                 </li>
                 <li>
-                  El <strong>80% restante</strong> corresponde íntegramente al profesional médico por los servicios de salud prestados.
+                  El profesional recibirá el <strong>80% del valor total abonado por el paciente</strong>. La comisión de procesamiento de pagos es absorbida íntegramente por <strong>DocYa SAS</strong>.
                 </li>
                 <li>Acreditación semanal en la cuenta informada por el profesional.</li>
                 <li>
