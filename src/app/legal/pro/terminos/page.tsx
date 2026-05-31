@@ -19,7 +19,7 @@ export default function Terminos() {
           <div className="mx-auto w-full max-w-6xl px-4">
             <div className="mx-auto max-w-3xl text-center">
               <div className="flex justify-center">
-                <span className="badge">Última actualización: 27/09/2025</span>
+                <span className="badge">Última actualización: 30/05/2026</span>
               </div>
               <h1 className="mt-4 text-2xl md:text-4xl font-semibold">
                 Términos y Condiciones — DocYa Pro
@@ -60,28 +60,33 @@ export default function Terminos() {
                     </a>
                   </li>
                   <li>
+                    <a className="link-primary hover:underline" href="#naturaleza">
+                      4. Naturaleza de la relación
+                    </a>
+                  </li>
+                  <li>
                     <a className="link-primary hover:underline" href="#responsabilidad">
-                      4. Responsabilidad
+                      5. Responsabilidad
                     </a>
                   </li>
                   <li>
                     <a className="link-primary hover:underline" href="#conducta">
-                      5. Conducta y suspensión
+                      6. Conducta y suspensión
                     </a>
                   </li>
                   <li>
                     <a className="link-primary hover:underline" href="#modificaciones">
-                      6. Modificaciones
+                      7. Modificaciones
                     </a>
                   </li>
                   <li>
                     <a className="link-primary hover:underline" href="#jurisdiccion">
-                      7. Jurisdicción y ley aplicable
+                      8. Jurisdicción y ley aplicable
                     </a>
                   </li>
                   <li>
                     <a className="link-primary hover:underline" href="#contacto">
-                      8. Contacto
+                      9. Contacto
                     </a>
                   </li>
                 </ul>
@@ -133,15 +138,24 @@ export default function Terminos() {
               </h2>
               <ul>
                 <li>
+                  DocYa actúa exclusivamente como <strong>intermediario tecnológico digital</strong> entre el profesional y el paciente.
+                </li>
+                <li>
                   El paciente abona <strong>$30.000 ARS</strong> por consulta.
                 </li>
                 <li>
-                  Comisión DocYa: <strong>según la comisión vigente informada por la plataforma</strong>.
+                  La comisión del <strong>20%</strong> corresponde al servicio de intermediación digital prestado por <strong>DocYa SAS (CUIT 30-71921300-2)</strong>.
                 </li>
                 <li>
-                  Ingreso neto del profesional: <strong>precio de la consulta menos la comisión DocYa vigente</strong>.
+                  El <strong>80% restante</strong> corresponde íntegramente al profesional médico por los servicios de salud prestados.
                 </li>
                 <li>Acreditación semanal en la cuenta informada por el profesional.</li>
+                <li>
+                  El profesional es <strong>responsable exclusivo</strong> de sus obligaciones fiscales ante <strong>ARCA</strong> como prestador de servicios independiente.
+                </li>
+                <li>
+                  DocYa emitirá al profesional el <strong>comprobante fiscal correspondiente a su comisión del 20%</strong>.
+                </li>
               </ul>
 
               {/* Nota de importes */}
@@ -153,8 +167,23 @@ export default function Terminos() {
                 </p>
               </div>
 
+              <h2 id="naturaleza" className="scroll-mt-24">
+                4. Naturaleza de la relación
+              </h2>
+              <ul>
+                <li>
+                  El presente acuerdo <strong>no implica relación laboral, de dependencia ni societaria</strong> entre DocYa y el profesional.
+                </li>
+                <li>
+                  El profesional actúa como <strong>independiente con total autonomía</strong> en el ejercicio de su actividad médica.
+                </li>
+                <li>
+                  Al usar la plataforma, el profesional acepta el <strong>Acuerdo de Provisión de Servicios de Intermediación Digital de DocYa SAS</strong>.
+                </li>
+              </ul>
+
               <h2 id="responsabilidad" className="scroll-mt-24">
-                4. Responsabilidad
+                5. Responsabilidad
               </h2>
               <p>
                 El/la profesional es responsable exclusivo/a de la atención brindada. DocYa Pro no
@@ -178,7 +207,7 @@ export default function Terminos() {
               </div>
 
               <h2 id="conducta" className="scroll-mt-24">
-                5. Conducta y suspensión
+                6. Conducta y suspensión
               </h2>
               <p>
                 DocYa Pro podrá suspender o dar de baja cuentas por incumplimientos, fraudes, uso
@@ -186,15 +215,22 @@ export default function Terminos() {
               </p>
 
               <h2 id="modificaciones" className="scroll-mt-24">
-                6. Modificaciones
+                7. Modificaciones
               </h2>
               <p>
-                Podemos actualizar estos términos. El uso continuado de la plataforma implica la
-                aceptación de las nuevas condiciones.
+                Podemos actualizar estos términos en cualquier momento.
               </p>
+              <ul>
+                <li>
+                  El uso continuado de la plataforma luego de notificada cualquier actualización implica <strong>aceptación plena de los nuevos términos</strong>.
+                </li>
+                <li>
+                  Las notificaciones de cambios se realizarán por <strong>email al correo registrado</strong> y/o mediante <strong>aviso en la aplicación</strong>.
+                </li>
+              </ul>
 
               <h2 id="jurisdiccion" className="scroll-mt-24">
-                7. Jurisdicción y ley aplicable
+                8. Jurisdicción y ley aplicable
               </h2>
               <p>
                 Estos términos se rigen por las leyes de la República Argentina. Para cualquier
@@ -203,7 +239,7 @@ export default function Terminos() {
               </p>
 
               <h2 id="contacto" className="scroll-mt-24">
-                8. Contacto
+                9. Contacto
               </h2>
               <p>
                 Consultas legales:{" "}
