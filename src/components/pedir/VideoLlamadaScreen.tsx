@@ -11,6 +11,8 @@ import { usePedirTheme } from "./theme";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
+type PedirUser = { id: string; access_token?: string };
+
 export default function VideoLlamadaScreen() {
   const router = useRouter();
   const params = useSearchParams();
@@ -22,6 +24,7 @@ export default function VideoLlamadaScreen() {
   const [fullscreen,  setFullscreen]  = useState(false);
   const [elapsed,     setElapsed]     = useState(0);
   const [finalizado,  setFinalizado]  = useState(false);
+  const [user,        setUser]        = useState<PedirUser | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollRef  = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -39,11 +42,22 @@ export default function VideoLlamadaScreen() {
     return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
   };
 
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("pedir_user");
+      if (raw) setUser(JSON.parse(raw));
+    } catch {}
+  }, []);
+
   // Polling para detectar fin de la consulta
   const checkEstado = useCallback(async () => {
     if (!consultaId) return;
+    if (!user?.id || !user.access_token) return;
     try {
-      const res = await fetch(`${API}/teleconsultas/${consultaId}`);
+      const url = `${API}/teleconsultas/${consultaId}?paciente_uuid=${encodeURIComponent(user.id)}`;
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${user.access_token}` },
+      });
       if (!res.ok) return;
       const d = await res.json();
       if (d.estado === "finalizada" || d.estado === "cancelada") {
@@ -52,7 +66,7 @@ export default function VideoLlamadaScreen() {
         setFinalizado(true);
       }
     } catch {}
-  }, [consultaId]);
+  }, [consultaId, user]);
 
   useEffect(() => {
     pollRef.current = setInterval(checkEstado, 5000);
