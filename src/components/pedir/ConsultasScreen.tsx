@@ -294,22 +294,27 @@ export default function ConsultasScreen() {
 }
 
 function DocumentosSection({ archivos, theme }: { archivos: ArchivoPaciente[]; theme: ReturnType<typeof usePedirTheme> }) {
-  const [tab, setTab] = useState<"recetas" | "certificados">("recetas");
+  const [tab, setTab] = useState<"recetas" | "certificados" | "ordenes">("recetas");
   const recetas = archivos.filter(archivo => (archivo.tipo || "").toLowerCase().includes("receta"));
   const certificados = archivos.filter(archivo => (archivo.tipo || "").toLowerCase().includes("certificado"));
-  const visibles = tab === "recetas" ? recetas : certificados;
+  const ordenes = archivos.filter(archivo => {
+    const tipo = (archivo.tipo || "").toLowerCase();
+    return tipo.includes("orden") || tipo.includes("laboratorio") || tipo.includes("imagen") || tipo.includes("derivacion") || tipo.includes("derivación");
+  });
+  const visibles = tab === "recetas" ? recetas : tab === "certificados" ? certificados : ordenes;
 
   return (
     <section style={{ borderRadius: 24, border: `1px solid ${theme.border}`, background: theme.cardBg, padding: "18px", marginBottom: 20, boxShadow: "0 14px 40px rgba(0,0,0,0.08)" }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
         <div>
           <p style={{ color: "#2dd4bf", fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 6 }}>Documentos</p>
-          <h2 style={{ color: theme.text, fontSize: 20, fontWeight: 950, marginBottom: 5 }}>Recetas y certificados</h2>
+          <h2 style={{ color: theme.text, fontSize: 20, fontWeight: 950, marginBottom: 5 }}>Recetas, certificados y órdenes</h2>
           <p style={{ color: theme.muted, fontSize: 14, lineHeight: 1.5 }}>Aca podes ver los documentos digitales que emitio tu profesional.</p>
         </div>
-        <div style={{ display: "flex", gap: 8, padding: 4, borderRadius: 16, border: `1px solid ${theme.border}`, background: theme.inputBg }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", padding: 4, borderRadius: 16, border: `1px solid ${theme.border}`, background: theme.inputBg }}>
           <DocTab active={tab === "recetas"} onClick={() => setTab("recetas")} label={`Recetas (${recetas.length})`} theme={theme} />
           <DocTab active={tab === "certificados"} onClick={() => setTab("certificados")} label={`Certificados (${certificados.length})`} theme={theme} />
+          <DocTab active={tab === "ordenes"} onClick={() => setTab("ordenes")} label={`Órdenes (${ordenes.length})`} theme={theme} />
         </div>
       </div>
 
@@ -317,7 +322,7 @@ function DocumentosSection({ archivos, theme }: { archivos: ArchivoPaciente[]; t
         <div style={{ borderRadius: 18, border: `1px dashed ${theme.border}`, background: theme.inputBg, padding: "22px 16px", textAlign: "center" }}>
           <FileText size={34} color={theme.muted} style={{ margin: "0 auto 10px" }} />
           <p style={{ color: theme.text, fontSize: 15, fontWeight: 850, marginBottom: 5 }}>
-            Sin {tab === "recetas" ? "recetas" : "certificados"} emitidos
+            Sin {tab === "recetas" ? "recetas" : tab === "certificados" ? "certificados" : "órdenes"} emitidos
           </p>
           <p style={{ color: theme.muted, fontSize: 13, lineHeight: 1.45 }}>Cuando tu profesional emita un documento, va a aparecer aca.</p>
         </div>
@@ -357,8 +362,9 @@ function DocTab({ active, onClick, label, theme }: { active: boolean; onClick: (
 function DocumentoCard({ archivo, theme }: { archivo: ArchivoPaciente; theme: ReturnType<typeof usePedirTheme> }) {
   const tipo = (archivo.tipo || "").toLowerCase();
   const esReceta = tipo.includes("receta");
-  const color = esReceta ? "#818cf8" : "#22c55e";
-  const titulo = esReceta ? "Receta digital" : "Certificado medico";
+  const esOrden = tipo.includes("orden") || tipo.includes("laboratorio") || tipo.includes("imagen") || tipo.includes("derivacion") || tipo.includes("derivación");
+  const color = esReceta ? "#818cf8" : esOrden ? "#38bdf8" : "#22c55e";
+  const titulo = esReceta ? "Receta digital" : esOrden ? "Orden médica" : "Certificado medico";
   const detalle = [archivo.doctor, archivo.especialidad].filter(Boolean).join(" - ") || "Profesional DocYa";
 
   return (
