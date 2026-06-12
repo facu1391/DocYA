@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowLeft, Stethoscope, Video, HeartPulse,
+  ArrowLeft, Stethoscope, Video, HeartPulse, Baby,
   CreditCard, Wallet, Banknote, Loader2, ChevronRight,
   Navigation, ShieldCheck, CheckCircle2, RotateCcw,
 } from "lucide-react";
@@ -71,6 +71,8 @@ export default function SolicitarScreen() {
   const [direccion, setDireccion] = useState("");
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
+  const [provincia, setProvincia] = useState<string | null>(null);
+  const [esPediatria, setEsPediatria] = useState(false);
   const [metodoPago, setMetodoPago] = useState<MetodoPago>("tarjeta");
   const [submitting, setSubmitting] = useState(false);
   const [tarifa, setTarifa] = useState<Tarifa | null>(null);
@@ -78,6 +80,8 @@ export default function SolicitarScreen() {
   const [tarifaError, setTarifaError] = useState("");
   const { dark, bg, brandBorder: border, text, muted, inputBg, headerBg, logo } = usePedirTheme();
   const permiteEfectivo = tipo !== "teleconsulta";
+  const permitePediatria = tipo !== "enfermero";
+  const categoriaConsulta = esPediatria ? "pediatria" : "adultos";
 
   // Auth check
   useEffect(() => {
@@ -141,6 +145,10 @@ export default function SolicitarScreen() {
           const data = await res.json();
           const addr = data.results?.[0]?.formatted_address;
           if (addr) setDireccion(addr);
+          const provinciaComp = data.results?.[0]?.address_components?.find(
+            (c: { types: string[] }) => c.types.includes("administrative_area_level_1")
+          );
+          if (provinciaComp?.long_name) setProvincia(provinciaComp.long_name);
         } catch {}
       },
       () => notify("No pudimos obtener tu ubicación", false)
@@ -164,7 +172,7 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia }),
         });
         if (!previaRes.ok) throw new Error("No se pudo preparar la consulta");
         const { consulta_id } = await previaRes.json();
@@ -178,7 +186,7 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia }),
         });
         if (!previaRes.ok) throw new Error("No se pudo preparar la consulta");
         const { consulta_id } = await previaRes.json();
@@ -211,7 +219,7 @@ export default function SolicitarScreen() {
       const res = await fetch(`${API}/consultas/solicitar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, metodo_pago: "efectivo", tipo }),
+        body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, metodo_pago: "efectivo", tipo, categoria_consulta: categoriaConsulta, provincia }),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -224,7 +232,7 @@ export default function SolicitarScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [user, motivo, direccion, lat, lng, metodoPago, tipo, router, permiteEfectivo, tarifa]);
+  }, [user, motivo, direccion, lat, lng, metodoPago, tipo, router, permiteEfectivo, tarifa, categoriaConsulta, provincia]);
 
   if (!user) return null;
 
@@ -284,10 +292,11 @@ export default function SolicitarScreen() {
               <AddressInput
                 value={direccion}
                 onChange={setDireccion}
-                onPlaceSelect={(addr, lat, lng) => {
+                onPlaceSelect={(addr, lat, lng, provincia) => {
                   setDireccion(addr);
                   if (lat !== undefined) setLat(lat);
                   if (lng !== undefined) setLng(lng);
+                  if (provincia) setProvincia(provincia);
                 }}
                 placeholder="Empezá a escribir tu dirección..."
                 dark={dark}
@@ -305,6 +314,26 @@ export default function SolicitarScreen() {
                 <MapView lat={lat} lng={lng} height={180} />
               )}
             </div>
+
+            {/* PEDIATRÍA */}
+            {permitePediatria && (
+              <button
+                type="button"
+                onClick={() => setEsPediatria(v => !v)}
+                style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, padding: "18px 20px", borderRadius: 20, border: `1.5px solid ${esPediatria ? cfg.color : "rgba(0,179,166,0.18)"}`, background: esPediatria ? `${cfg.color}14` : "rgba(0,179,166,0.05)", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
+              >
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: `${cfg.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Baby size={21} color={cfg.color} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: text }}>Consulta pediátrica</p>
+                  <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>Activá esto si la consulta es para un niño/a.</p>
+                </div>
+                <div style={{ width: 44, height: 26, borderRadius: 999, background: esPediatria ? cfg.color : border, position: "relative", flexShrink: 0, transition: "background 0.15s" }}>
+                  <div style={{ position: "absolute", top: 3, left: esPediatria ? 21 : 3, width: 20, height: 20, borderRadius: 999, background: "#fff", transition: "left 0.15s" }} />
+                </div>
+              </button>
+            )}
 
             <div style={{ background: inputBg, border: `1.5px solid ${tarifaError ? "rgba(239,68,68,0.35)" : border}`, borderRadius: 20, padding: "18px 20px", display: "flex", alignItems: "center", gap: 14 }}>
               <div style={{ width: 44, height: 44, borderRadius: 14, background: `${cfg.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>

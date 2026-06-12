@@ -12,6 +12,7 @@ type PlaceResult = {
   geometry?: {
     location?: { lat: () => number; lng: () => number };
   };
+  address_components?: { long_name: string; types: string[] }[];
 };
 
 type AutocompleteInstance = {
@@ -35,7 +36,7 @@ type GWin = Window & {
 type Props = {
   value: string;
   onChange: (val: string) => void;
-  onPlaceSelect?: (direccion: string, lat?: number, lng?: number) => void;
+  onPlaceSelect?: (direccion: string, lat?: number, lng?: number, provincia?: string) => void;
   placeholder?: string;
   dark?: boolean;
   style?: React.CSSProperties;
@@ -72,7 +73,7 @@ export default function AddressInput({
       }
 
       acRef.current = new Autocomplete(inputRef.current, {
-        fields: ["formatted_address", "geometry"],
+        fields: ["formatted_address", "geometry", "address_components"],
         componentRestrictions: { country: "ar" },
         types: ["address"],
       });
@@ -82,8 +83,9 @@ export default function AddressInput({
         const addr  = place?.formatted_address ?? inputRef.current?.value ?? "";
         const lat   = place?.geometry?.location?.lat();
         const lng   = place?.geometry?.location?.lng();
+        const provincia = place?.address_components?.find(c => c.types.includes("administrative_area_level_1"))?.long_name;
         onChange(addr);
-        onPlaceSelect?.(addr, lat, lng);
+        onPlaceSelect?.(addr, lat, lng, provincia);
       });
 
       bound.current = true;
