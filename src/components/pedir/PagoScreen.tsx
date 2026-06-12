@@ -24,8 +24,14 @@ async function solicitarConsulta(body: Record<string, unknown>) {
         paciente_uuid: body.paciente_uuid,
         motivo: body.motivo,
         direccion: body.direccion,
-        provincia: "Argentina",
+        provincia: body.provincia || "Argentina",
         localidad: body.direccion || "Argentina",
+        categoria_consulta: body.categoria_consulta,
+        paciente_menor_nombre: body.paciente_menor_nombre,
+        paciente_menor_dni: body.paciente_menor_dni,
+        paciente_menor_fecha_nacimiento: body.paciente_menor_fecha_nacimiento,
+        paciente_menor_sexo: body.paciente_menor_sexo,
+        responsable_vinculo: body.responsable_vinculo,
         necesita_certificado: false,
         consentimiento_teleconsulta: true,
         metodo_pago: body.metodo_pago,
@@ -68,6 +74,13 @@ export default function PagoScreen() {
   const tipo        = params.get("tipo") ?? "medico";
   const metodo      = params.get("metodo") === "saldo_mp" ? "saldo_mp" : "tarjeta";
   const monto       = Number(params.get("monto") ?? "0");
+  const categoriaConsulta = params.get("categoria_consulta") ?? "adultos";
+  const provincia = params.get("provincia") ?? undefined;
+  const pacienteMenorNombre = params.get("paciente_menor_nombre") ?? undefined;
+  const pacienteMenorDni = params.get("paciente_menor_dni") ?? undefined;
+  const pacienteMenorFechaNacimiento = params.get("paciente_menor_fecha_nacimiento") ?? undefined;
+  const pacienteMenorSexo = params.get("paciente_menor_sexo") ?? undefined;
+  const responsableVinculo = params.get("responsable_vinculo") ?? undefined;
 
   const [user, setUser] = useState<PedirUser | null>(null);
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -99,6 +112,13 @@ export default function PagoScreen() {
         consulta_id: parseInt(consultaId),
         tipo,
         access_token: user?.access_token,
+        categoria_consulta: categoriaConsulta,
+        provincia,
+        paciente_menor_nombre: pacienteMenorNombre,
+        paciente_menor_dni: pacienteMenorDni,
+        paciente_menor_fecha_nacimiento: pacienteMenorFechaNacimiento,
+        paciente_menor_sexo: pacienteMenorSexo,
+        responsable_vinculo: responsableVinculo,
       };
       if (paymentId) body.payment_id = paymentId;
 
@@ -111,7 +131,7 @@ export default function PagoScreen() {
       doneRef.current = false;
       setError(e instanceof Error ? e.message : "Error al iniciar la consulta");
     }
-  }, [user, motivo, direccion, lat, lng, consultaId, tipo, metodo, router]);
+  }, [user, motivo, direccion, lat, lng, consultaId, tipo, metodo, router, categoriaConsulta, provincia, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo]);
 
   // Mensaje desde el iframe del formulario MP (web context)
   useEffect(() => {

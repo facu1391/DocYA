@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -73,6 +73,11 @@ export default function SolicitarScreen() {
   const [lng, setLng] = useState<number | null>(null);
   const [provincia, setProvincia] = useState<string | null>(null);
   const [esPediatria, setEsPediatria] = useState(false);
+  const [pacienteMenorNombre, setPacienteMenorNombre] = useState("");
+  const [pacienteMenorDni, setPacienteMenorDni] = useState("");
+  const [pacienteMenorFechaNacimiento, setPacienteMenorFechaNacimiento] = useState("");
+  const [pacienteMenorSexo, setPacienteMenorSexo] = useState("");
+  const [responsableVinculo, setResponsableVinculo] = useState("");
   const [metodoPago, setMetodoPago] = useState<MetodoPago>("tarjeta");
   const [submitting, setSubmitting] = useState(false);
   const [tarifa, setTarifa] = useState<Tarifa | null>(null);
@@ -82,6 +87,15 @@ export default function SolicitarScreen() {
   const permiteEfectivo = tipo !== "teleconsulta";
   const permitePediatria = tipo !== "enfermero";
   const categoriaConsulta = esPediatria ? "pediatria" : "adultos";
+  const datosPediatricos = useMemo(() => esPediatria
+    ? {
+        paciente_menor_nombre: pacienteMenorNombre.trim(),
+        paciente_menor_dni: pacienteMenorDni.trim(),
+        paciente_menor_fecha_nacimiento: pacienteMenorFechaNacimiento.trim() || undefined,
+        paciente_menor_sexo: pacienteMenorSexo.trim() || undefined,
+        responsable_vinculo: responsableVinculo.trim() || undefined,
+      }
+    : {}, [esPediatria, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo]);
 
   // Auth check
   useEffect(() => {
@@ -162,6 +176,14 @@ export default function SolicitarScreen() {
     if (lat === null || lng === null) return notify("Necesitamos tus coordenadas. Usá el botón de ubicación o buscá tu dirección.", false);
     if (!permiteEfectivo && metodoPago === "efectivo") return notify("La teleconsulta no permite pago en efectivo", false);
     if (!tarifa?.monto) return notify("No pudimos cargar el precio desde DocYa. Intentá de nuevo.", false);
+    if (esPediatria) {
+      if (!pacienteMenorNombre.trim()) return notify("Ingresá el nombre del niño/a", false);
+      if (!pacienteMenorDni.trim()) return notify("Ingresá el DNI del niño/a", false);
+      const fecha = pacienteMenorFechaNacimiento.trim();
+      if (fecha && (!/^\d{4}-\d{2}-\d{2}$/.test(fecha) || Number.isNaN(Date.parse(fecha)))) {
+        return notify("La fecha de nacimiento debe tener formato AAAA-MM-DD", false);
+      }
+    }
 
     setSubmitting(true);
     try {
@@ -172,13 +194,29 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error("No se pudo preparar la consulta");
         const { consulta_id } = await previaRes.json();
 
         const mpUrl = `${API}/pagos/embebido/formulario/${consulta_id}`;
-        router.push(`/pedir/pago?url=${encodeURIComponent(mpUrl)}&consulta_id=${consulta_id}&motivo=${encodeURIComponent(motivo.trim())}&direccion=${encodeURIComponent(direccion.trim())}&lat=${lat}&lng=${lng}&tipo=${tipo}&metodo=tarjeta&monto=${monto}`);
+        const pagoParams = new URLSearchParams({
+          url: mpUrl,
+          consulta_id: String(consulta_id),
+          motivo: motivo.trim(),
+          direccion: direccion.trim(),
+          lat: String(lat),
+          lng: String(lng),
+          tipo,
+          metodo: "tarjeta",
+          monto: String(monto),
+          categoria_consulta: categoriaConsulta,
+        });
+        if (provincia) pagoParams.set("provincia", provincia);
+        Object.entries(datosPediatricos).forEach(([key, value]) => {
+          if (value) pagoParams.set(key, String(value));
+        });
+        router.push(`/pedir/pago?${pagoParams.toString()}`);
         return;
       }
 
@@ -186,7 +224,7 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error("No se pudo preparar la consulta");
         const { consulta_id } = await previaRes.json();
@@ -208,6 +246,9 @@ export default function SolicitarScreen() {
           lat, lng,
           paciente_uuid: user.id,
           access_token: user.access_token,
+          categoria_consulta: categoriaConsulta,
+          provincia,
+          ...datosPediatricos,
         }));
 
         // Redirect full-page a MP (no iframe — MP bloquea embedding)
@@ -219,7 +260,7 @@ export default function SolicitarScreen() {
       const res = await fetch(`${API}/consultas/solicitar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, metodo_pago: "efectivo", tipo, categoria_consulta: categoriaConsulta, provincia }),
+        body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, metodo_pago: "efectivo", tipo, categoria_consulta: categoriaConsulta, provincia, ...datosPediatricos }),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -232,7 +273,7 @@ export default function SolicitarScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [user, motivo, direccion, lat, lng, metodoPago, tipo, router, permiteEfectivo, tarifa, categoriaConsulta, provincia]);
+  }, [user, motivo, direccion, lat, lng, metodoPago, tipo, router, permiteEfectivo, tarifa, esPediatria, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, categoriaConsulta, provincia, datosPediatricos]);
 
   if (!user) return null;
 
@@ -316,7 +357,7 @@ export default function SolicitarScreen() {
             </div>
 
             {/* PEDIATRÍA */}
-            {permitePediatria && (
+            {permitePediatria && (<>
               <button
                 type="button"
                 onClick={() => setEsPediatria(v => !v)}
@@ -333,6 +374,22 @@ export default function SolicitarScreen() {
                   <div style={{ position: "absolute", top: 3, left: esPediatria ? 21 : 3, width: 20, height: 20, borderRadius: 999, background: "#fff", transition: "left 0.15s" }} />
                 </div>
               </button>
+
+              {esPediatria && (
+                <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
+                    Datos del niño/a
+                  </label>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+                    <input value={pacienteMenorNombre} onChange={e => setPacienteMenorNombre(e.target.value)} placeholder="Nombre y apellido" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={pacienteMenorDni} onChange={e => setPacienteMenorDni(e.target.value)} placeholder="DNI del niño/a" inputMode="numeric" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={pacienteMenorFechaNacimiento} onChange={e => setPacienteMenorFechaNacimiento(e.target.value)} placeholder="Fecha nacimiento AAAA-MM-DD" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={pacienteMenorSexo} onChange={e => setPacienteMenorSexo(e.target.value)} placeholder="Sexo" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={responsableVinculo} onChange={e => setResponsableVinculo(e.target.value)} placeholder="Vínculo del responsable" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                  </div>
+                </div>
+              )}
+              </>
             )}
 
             <div style={{ background: inputBg, border: `1.5px solid ${tarifaError ? "rgba(239,68,68,0.35)" : border}`, borderRadius: 20, padding: "18px 20px", display: "flex", alignItems: "center", gap: 14 }}>
