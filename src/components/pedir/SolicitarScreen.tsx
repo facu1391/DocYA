@@ -238,8 +238,9 @@ export default function SolicitarScreen() {
         if (!prefRes.ok) throw new Error("No se pudo crear la preferencia");
         const { init_point } = await prefRes.json();
 
-        // Guardar datos en localStorage para recuperarlos al volver de MP
-        localStorage.setItem("docya_saldo_mp_pending", JSON.stringify({
+        // Guardar datos para recuperarlos al volver de MP. En iOS/Safari el
+        // redirect externo puede perder una de las dos copias.
+        const pendingPayload = JSON.stringify({
           consulta_id, tipo,
           motivo: motivo.trim(),
           direccion: direccion.trim(),
@@ -249,7 +250,9 @@ export default function SolicitarScreen() {
           categoria_consulta: categoriaConsulta,
           provincia,
           ...datosPediatricos,
-        }));
+        });
+        localStorage.setItem("docya_saldo_mp_pending", pendingPayload);
+        sessionStorage.setItem("docya_saldo_mp_pending", pendingPayload);
 
         // Redirect full-page a MP (no iframe — MP bloquea embedding)
         window.location.href = init_point;
