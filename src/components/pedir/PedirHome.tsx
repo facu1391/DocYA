@@ -9,7 +9,7 @@ import {
   Stethoscope, Video, HeartPulse, ShieldCheck, Clock,
   Home, FileText, Star, CreditCard, ChevronRight,
   Phone, LogOut, User, ChevronDown, Sun, Moon,
-  MessageCircle, AlertTriangle,
+  MessageCircle, AlertTriangle, Globe,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
@@ -71,7 +71,7 @@ export default function PedirHome() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [precios, setPrecios]           = useState<Partial<Record<ServicioId, PrecioServicio>>>({});
   const { dark, setTheme, homeBg: bg, cardBg, border, text, muted, headerBg, logo } = usePedirTheme();
-  const { t } = useI18n();
+  const { t, locale, setLocale } = useI18n();
 
   const SERVICIOS = SERVICIOS_ICONS.map((s, i) => ({
     ...s,
@@ -246,6 +246,10 @@ export default function PedirHome() {
                 )}
               </div>
             ) : null}
+            <button onClick={() => setLocale(locale === "es" ? "en" : "es")} aria-label={locale === "es" ? "Switch to English" : "Cambiar a Español"} title={locale === "es" ? "English" : "Español"} style={{ background: "none", cursor: "pointer", color: muted, padding: 8, borderRadius: 999, display: "flex", alignItems: "center", gap: 4, border: `1px solid ${border}`, position: "relative" }}>
+              <Globe size={18} />
+              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase" }}>{locale === "es" ? "EN" : "ES"}</span>
+            </button>
             <button onClick={() => setTheme(dark ? "light" : "dark")} style={{ background: "none", cursor: "pointer", color: muted, padding: 8, borderRadius: 999, display: "flex", alignItems: "center", border: `1px solid ${border}` }}>
               {dark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
