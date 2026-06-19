@@ -1,7 +1,11 @@
 // src/components/landing-public/nueva-landing/PreciosSection.tsx
+"use client";
+
+import React from "react";
 import Link from "next/link";
 import { Stethoscope, Video, Syringe, Clock, Home, ShieldCheck, FileText, ChevronRight } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
+import { useI18n } from "@/lib/i18n/context";
 
 type TarifaResponse = { monto: number; tipo: string; activa?: boolean };
 
@@ -12,7 +16,6 @@ async function getTarifas(): Promise<Record<string, TarifaResponse>> {
   const timeout = setTimeout(() => controller.abort(), 5000);
   try {
     const res = await fetch(`${baseUrl.replace(/\/$/, "")}/admin/tarifas`, {
-      next: { revalidate: 300 },
       signal: controller.signal,
     });
     if (!res.ok) return {};
@@ -34,26 +37,36 @@ function formatPrecio(tarifa: TarifaResponse | undefined, fallback: string) {
   return tarifa ? `$${Number(tarifa.monto).toLocaleString("es-AR")}` : fallback;
 }
 
-export default async function PreciosSection() {
-  const tarifas = await getTarifas();
+export default function PreciosSection() {
+  const { t } = useI18n();
+  const [tarifas, setTarifas] = React.useState<Record<string, TarifaResponse>>({});
+
+  React.useEffect(() => {
+    getTarifas().then(setTarifas);
+  }, []);
+
+  const chipIcons = [
+    [Clock, Home, ShieldCheck],
+    [Clock, ShieldCheck, FileText],
+    [Clock, Home, ShieldCheck],
+  ];
 
   const servicios = [
     {
       icon: Stethoscope,
-      badge: "Disponible ahora",
-      titulo: "Médico a domicilio",
-      subtitulo: "Un profesional va a tu casa.",
+      badge: t.precios.services[0].badge,
+      titulo: t.precios.services[0].title,
+      subtitulo: t.precios.services[0].subtitle,
       precios: [
-        { label: "Diurna", value: formatPrecio(tarifas.diurna, "$40.000") },
-        { label: "Nocturna", value: formatPrecio(tarifas.nocturna, "$55.000") },
+        { label: t.precios.diurna, value: formatPrecio(tarifas.diurna, "$40.000") },
+        { label: t.precios.nocturna, value: formatPrecio(tarifas.nocturna, "$55.000") },
       ],
-      descripcion: "Diagnóstico, recetas y tratamiento en el momento. Sin esperas en guardias.",
-      chips: [
-        { icon: Clock, label: "En minutos" },
-        { icon: Home, label: "En tu casa" },
-        { icon: ShieldCheck, label: "Profesionales verificados" },
-      ],
-      cta: "Solicitar médico",
+      descripcion: t.precios.services[0].description,
+      chips: t.precios.services[0].chips.map((label: string, ci: number) => ({
+        icon: chipIcons[0][ci],
+        label,
+      })),
+      cta: t.precios.services[0].cta,
       href: "/pedir",
       color: "#00b3a6",
       btnGradient: "linear-gradient(90deg, #00b3a6, #00d4c2)",
@@ -63,20 +76,19 @@ export default async function PreciosSection() {
     },
     {
       icon: Video,
-      badge: "Sin espera",
-      titulo: "Teleconsulta",
-      subtitulo: "Consulta por videollamada.",
+      badge: t.precios.services[1].badge,
+      titulo: t.precios.services[1].title,
+      subtitulo: t.precios.services[1].subtitle,
       precios: [
-        { label: "Diurna", value: formatPrecio(tarifas.teleconsulta_diurna, "$20.000") },
-        { label: "Nocturna", value: formatPrecio(tarifas.teleconsulta_nocturna, "$20.000") },
+        { label: t.precios.diurna, value: formatPrecio(tarifas.teleconsulta_diurna, "$20.000") },
+        { label: t.precios.nocturna, value: formatPrecio(tarifas.teleconsulta_nocturna, "$20.000") },
       ],
-      descripcion: "Hablá con un médico desde tu computadora o celular, sin salir de casa. Recetas y certificados.",
-      chips: [
-        { icon: Clock, label: "En minutos" },
-        { icon: ShieldCheck, label: "100% segura" },
-        { icon: FileText, label: "Recetas y certificados" },
-      ],
-      cta: "Solicitar teleconsulta",
+      descripcion: t.precios.services[1].description,
+      chips: t.precios.services[1].chips.map((label: string, ci: number) => ({
+        icon: chipIcons[1][ci],
+        label,
+      })),
+      cta: t.precios.services[1].cta,
       href: "/pedir?tipo=teleconsulta",
       color: "#818cf8",
       btnGradient: "linear-gradient(90deg, #6366f1, #818cf8)",
@@ -86,20 +98,19 @@ export default async function PreciosSection() {
     },
     {
       icon: Syringe,
-      badge: "Profesionales verificados",
-      titulo: "Enfermería a domicilio",
-      subtitulo: "Atención profesional en tu hogar.",
+      badge: t.precios.services[2].badge,
+      titulo: t.precios.services[2].title,
+      subtitulo: t.precios.services[2].subtitle,
       precios: [
-        { label: "Diurna", value: formatPrecio(tarifas.diurna_enfermero, "$30.000") },
-        { label: "Nocturna", value: formatPrecio(tarifas.nocturna_enfermero, "$30.000") },
+        { label: t.precios.diurna, value: formatPrecio(tarifas.diurna_enfermero, "$30.000") },
+        { label: t.precios.nocturna, value: formatPrecio(tarifas.nocturna_enfermero, "$30.000") },
       ],
-      descripcion: "Inyectables, curaciones, controles y más. Profesionales certificados.",
-      chips: [
-        { icon: Clock, label: "En minutos" },
-        { icon: Home, label: "En tu casa" },
-        { icon: ShieldCheck, label: "Seguridad y confianza" },
-      ],
-      cta: "Solicitar enfermero",
+      descripcion: t.precios.services[2].description,
+      chips: t.precios.services[2].chips.map((label: string, ci: number) => ({
+        icon: chipIcons[2][ci],
+        label,
+      })),
+      cta: t.precios.services[2].cta,
       href: "/pedir?tipo=enfermero",
       color: "#f472b6",
       btnGradient: "linear-gradient(90deg, #ec4899, #f472b6)",
@@ -115,12 +126,12 @@ export default async function PreciosSection() {
 
         <ScrollReveal>
           <div className="text-center mb-16">
-            <span className="badge mb-4 inline-flex">Precios transparentes</span>
+            <span className="badge mb-4 inline-flex">{t.precios.badge}</span>
             <h2 className="section-title text-white mb-4">
-              Elegí cómo querés ser <span className="highlight-text">atendido</span>
+              {t.precios.title}<span className="highlight-text">{t.precios.titleHighlight}</span>
             </h2>
             <p className="text-text-muted text-lg max-w-xl mx-auto">
-              Sin sorpresas. El precio que ves es el que pagás.
+              {t.precios.subtitle}
             </p>
           </div>
         </ScrollReveal>

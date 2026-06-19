@@ -1,16 +1,16 @@
 // src/components/landing-public/nueva-landing/IASection.tsx
+"use client";
+
 import Image from "next/image";
 import { CheckCircle2, Clock, AlertTriangle, Map } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
+import { useI18n } from "@/lib/i18n/context";
 
-const features = [
-  { icon: CheckCircle2, label: "Triage Inteligente Inicial" },
-  { icon: AlertTriangle, label: "Detección de Signos de Alarma" },
-  { icon: Clock, label: "Asistencia Continua 24/7" },
-  { icon: Map, label: "Derivación Segura a Domicilio" },
-];
+const featureIcons = [CheckCircle2, AlertTriangle, Clock, Map];
 
 export default function IASection() {
+  const { t } = useI18n();
+  const features = featureIcons.map((icon, i) => ({ icon, label: t.ia.badges[i] }));
   return (
     <section id="ia" className="relative overflow-hidden py-32">
       <div className="pointer-events-none absolute left-0 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--brand)]/5 blur-[100px]" />
@@ -22,7 +22,7 @@ export default function IASection() {
           >
             <Image
               src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1776467625/Green_Minimalist_Q_A_Phone_Chatting_Instagram_Story_1_cjt2p0.png"
-              alt="Atención médica a domicilio"
+              alt={t.ia.altImage}
               fill
               className="object-cover"
             />
@@ -32,18 +32,16 @@ export default function IASection() {
         <ScrollReveal delay={0.15}>
           <div className="badge-trusted mb-4 w-fit">
             <span className="flex h-2 w-2 animate-pulse rounded-full bg-[var(--brand)]"></span>
-            Asistente Médico Virtual
+            {t.ia.badges[4]}
           </div>
 
           <h2 className="section-title mb-4">
-            Evaluación preliminar con{" "}
-            <span className="highlight-text">IA Médica</span>
+            {t.ia.title}{" "}
+            <span className="highlight-text">{t.ia.titleHighlight}</span>
           </h2>
 
           <p className="text-text-muted mb-8 max-w-lg text-xl leading-relaxed">
-            Nuestro sistema de validación inteligente analiza tus síntomas
-            mediante protocolos clínicos comprobados, orientándote de manera
-            segura y sin costo alguno.
+            {t.ia.description}
           </p>
 
           <div className="mb-10 flex flex-col gap-6">
@@ -55,7 +53,7 @@ export default function IASection() {
                 <div>
                   <h4 className="text-lg font-bold text-foreground">{label}</h4>
                   <p className="text-sm text-text-muted">
-                    Paso validado por profesionales de la salud.
+                    {t.ia.pasoValidado}
                   </p>
                 </div>
               </div>
@@ -64,10 +62,10 @@ export default function IASection() {
 
           <div className="rounded-r-2xl border-l-4 border-[var(--brand)] bg-[var(--brand)]/10 px-6 py-5">
             <strong className="mb-1 block text-lg text-[var(--brand)]">
-              Pre-diagnóstico confidencial
+              {t.ia.calloutTitle}
             </strong>
             <span className="text-sm font-medium text-foreground">
-              100% gratuito. Sin compromisos. En segundos.
+              {t.ia.calloutDescription}
             </span>
           </div>
         </ScrollReveal>

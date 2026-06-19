@@ -10,26 +10,18 @@ import {
   ArrowRight,
   Sparkles,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n/context";
 
-const items = [
-  {
-    icon: QrCode,
-    title: "Link y QR propio",
-    desc: "Compartí DocYa de forma simple con tus contactos, redes o WhatsApp.",
-  },
-  {
-    icon: BarChart3,
-    title: "Seguimiento real",
-    desc: "Visualizá tus recomendados, consultas realizadas y ganancias acumuladas.",
-  },
-  {
-    icon: Gift,
-    title: "Ganancias por consulta",
-    desc: "Recibí beneficios por cada consulta válida generada desde tu link partner.",
-  },
-];
+const itemIcons = [QrCode, BarChart3, Gift];
 
 export default function ReferidosPromoSection() {
+  const { t } = useI18n();
+
+  const items = t.referidos.cards.map((card: { title: string; description: string }, i: number) => ({
+    icon: itemIcons[i],
+    title: card.title,
+    desc: card.description,
+  }));
   return (
     <section className="relative overflow-hidden bg-[var(--hero-bg)] py-16 md:py-20 dark:bg-[var(--hero-bg-dark)]">
       <div className="pointer-events-none absolute inset-0 brand-glow" />
@@ -62,19 +54,17 @@ export default function ReferidosPromoSection() {
               <div className="max-w-2xl">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--brand)_35%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[var(--brand)]">
                   <Sparkles className="h-4 w-4" />
-                  Programa Partner DocYa
+                  {t.referidos.badge}
                 </div>
 
                 <h2 className="mt-5 text-3xl font-extrabold leading-tight text-slate-900 md:text-4xl lg:text-5xl dark:text-white">
-                  Generá ingresos
-                  <br className="hidden sm:block" /> recomendando{" "}
-                  <span className="highlight-text">DocYa</span>
+                  {t.referidos.titleStart}
+                  <br className="hidden sm:block" />{t.referidos.titleMid}
+                  <span className="highlight-text">{t.referidos.titleHighlight}</span>
                 </h2>
 
                 <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-600 md:text-lg dark:text-white/75">
-                  Si conocés personas que puedan necesitar atención médica a
-                  domicilio, ahora también podés compartir DocYa y obtener
-                  beneficios por cada consulta válida generada desde tu link partner.
+                  {t.referidos.description}
                 </p>
 
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -82,7 +72,7 @@ export default function ReferidosPromoSection() {
                     href="/referidos"
                     className="btn-primary inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold"
                   >
-                    Más información
+                    {t.referidos.cta1}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
 
@@ -90,14 +80,14 @@ export default function ReferidosPromoSection() {
                     href="/referidos#registro"
                     className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-6 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
                   >
-                    Quiero ser partner
+                    {t.referidos.cta2}
                   </Link>
                 </div>
 
                 <div className="mt-6 flex flex-wrap gap-2.5">
-                  <span className="badge">Panel propio</span>
-                  <span className="badge">Consultas válidas</span>
-                  <span className="badge">Seguimiento claro</span>
+                  {t.referidos.chips.map((chip: string) => (
+                    <span key={chip} className="badge">{chip}</span>
+                  ))}
                 </div>
               </div>
 
@@ -150,11 +140,10 @@ export default function ReferidosPromoSection() {
                   className="mt-5 rounded-2xl border border-[color-mix(in_srgb,var(--brand)_18%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] p-5"
                 >
                   <p className="text-xs font-bold uppercase tracking-[0.20em] text-[var(--brand)]">
-                    Oportunidad
+                    {t.referidos.oportunidadLabel}
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-white/80">
-                    Compartí una solución de salud real, con una experiencia
-                    clara y un panel donde podés ver tus resultados.
+                    {t.referidos.oportunidadText}
                   </p>
                 </motion.div>
               </div>

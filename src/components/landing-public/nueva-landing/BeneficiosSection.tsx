@@ -1,24 +1,22 @@
 // src/components/landing-public/nueva-landing/BeneficiosSection.tsx
+"use client";
+
 import { Bot, Home, Map, Zap, ShieldCheck, Star } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
+import { useI18n } from "@/lib/i18n/context";
 
-const items = [
-  { icon: Bot, label: "IA médica GRATIS integrada" },
-  { icon: Home, label: "Atención domiciliaria real" },
-  { icon: Map, label: "Geolocalización inteligente" },
-  { icon: Zap, label: "Asignación automática del profesional más cercano" },
-  { icon: ShieldCheck, label: "Profesionales verificados" },
-  { icon: Star, label: "Sistema de calificación" },
-];
+const itemIcons = [Bot, Home, Map, Zap, ShieldCheck, Star];
 
 export default function BeneficiosSection() {
+  const { t } = useI18n();
+  const items = itemIcons.map((icon, i) => ({ icon, label: t.beneficios.items[i] }));
   return (
     <section id="beneficios" className="py-32 text-center">
       <div className="mx-auto w-full max-w-[1200px] px-6">
         <ScrollReveal>
           <h2 className="section-title mb-16 text-center">
-            ¿Por qué DocYa es{" "}
-            <span className="highlight-text">diferente</span>?
+            {t.beneficios.titleStart}{" "}
+            <span className="highlight-text">{t.beneficios.titleHighlight}</span>{t.beneficios.titleEnd}
           </h2>
         </ScrollReveal>
 

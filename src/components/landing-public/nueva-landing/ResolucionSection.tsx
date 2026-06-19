@@ -1,8 +1,12 @@
 // src/components/landing-public/nueva-landing/ResolucionSection.tsx
+"use client";
+
 import { FileCheck2, HeartPulse, Check, Video } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
+import { useI18n } from "@/lib/i18n/context";
 
 export default function ResolucionSection() {
+  const { t } = useI18n();
   return (
     <section className="dark-section py-32">
       <div className="mx-auto w-full max-w-[1200px] px-6">
@@ -16,10 +20,10 @@ export default function ResolucionSection() {
                 <FileCheck2 size={32} />
               </div>
 
-              <h3 className="mb-4 text-2xl font-bold">Resolvé todo en una sola consulta</h3>
+              <h3 className="mb-4 text-2xl font-bold">{t.resolucion.card1Title}</h3>
 
               <ul className="mb-6 flex flex-col gap-4">
-                {["Diagnóstico", "Receta médica", "Certificado laboral", "Tratamiento en el momento"].map((item) => (
+                {t.resolucion.card1Items.map((item) => (
                   <li key={item} className="flex items-center gap-3 text-lg font-medium">
                     <Check size={20} style={{ color: "var(--accent)" }} className="shrink-0" />
                     {item}
@@ -39,14 +43,14 @@ export default function ResolucionSection() {
                 <Video size={32} />
               </div>
 
-              <h3 className="mb-3 text-2xl font-bold">Teleconsulta por video</h3>
+              <h3 className="mb-3 text-2xl font-bold">{t.resolucion.card2Title}</h3>
 
               <p className="text-text-muted mb-6 text-lg">
-                Consultá con un médico desde tu celular o computadora, sin salir de casa.
+                {t.resolucion.card2Description}
               </p>
 
               <ul className="flex flex-col gap-4">
-                {["Receta digital al instante", "Disponible 24/7", "Sin esperas"].map((item) => (
+                {t.resolucion.card2Items.map((item) => (
                   <li key={item} className="flex items-center gap-3 text-lg font-medium">
                     <Check size={20} style={{ color: "var(--accent)" }} className="shrink-0" />
                     {item}
@@ -65,14 +69,14 @@ export default function ResolucionSection() {
                 <HeartPulse size={32} />
               </div>
 
-              <h3 className="mb-3 text-2xl font-bold">También enfermería a domicilio</h3>
+              <h3 className="mb-3 text-2xl font-bold">{t.resolucion.card3Title}</h3>
 
               <p className="text-text-muted mb-6 text-lg">
-                Servicios profesionales en la comodidad de tu hogar.
+                {t.resolucion.card3Description}
               </p>
 
               <ul className="flex flex-col gap-4">
-                {["Inyectables", "Curaciones", "Controles"].map((item) => (
+                {t.resolucion.card3Items.map((item) => (
                   <li key={item} className="flex items-center gap-3 text-lg font-medium">
                     <Check size={20} style={{ color: "var(--accent)" }} className="shrink-0" />
                     {item}

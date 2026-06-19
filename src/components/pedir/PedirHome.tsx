@@ -12,6 +12,7 @@ import {
   MessageCircle, AlertTriangle,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
+import { useI18n } from "@/lib/i18n/context";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 const GOOGLE_CLIENT_ID =
@@ -25,39 +26,13 @@ type GoogleWin = Window & { google?: { accounts?: { id?: { initialize: (c: objec
 type ServicioId = "medico" | "teleconsulta" | "enfermero";
 type PrecioServicio = { monto: number; descripcion?: string };
 
-const SERVICIOS = [
-  {
-    id: "medico", icon: Stethoscope, color: "#00b3a6", bgColor: "rgba(0,179,166,0.12)",
-    badge: "Disponible ahora", badgeBg: "rgba(0,179,166,0.15)", badgeColor: "#00b3a6",
-    title: "Médico a domicilio", sub: "Un profesional va a tu casa.",
-    desc: "Diagnóstico, recetas y tratamiento en el momento. Sin esperas en guardias.",
-    trust: [{ icon: Clock, label: "En minutos" }, { icon: Home, label: "En tu casa" }, { icon: ShieldCheck, label: "Profesionales verificados" }],
-    btn: "Solicitar médico",
-  },
-  {
-    id: "teleconsulta", icon: Video, color: "#818cf8", bgColor: "rgba(129,140,248,0.12)",
-    badge: "Sin espera", badgeBg: "rgba(129,140,248,0.15)", badgeColor: "#818cf8",
-    title: "Teleconsulta", sub: "Consulta por videollamada.",
-    desc: "Hablá con un médico desde tu computadora o celular, sin salir de casa.",
-    trust: [{ icon: Clock, label: "En minutos" }, { icon: ShieldCheck, label: "100% segura" }, { icon: FileText, label: "Recetas y certificados" }],
-    btn: "Solicitar teleconsulta",
-  },
-  {
-    id: "enfermero", icon: HeartPulse, color: "#f472b6", bgColor: "rgba(244,114,182,0.12)",
-    badge: "Profesionales verificados", badgeBg: "rgba(244,114,182,0.15)", badgeColor: "#f472b6",
-    title: "Enfermería a domicilio", sub: "Atención profesional en tu hogar.",
-    desc: "Inyectables, curaciones, controles y más. Profesionales certificados.",
-    trust: [{ icon: Clock, label: "En minutos" }, { icon: Home, label: "En tu casa" }, { icon: Star, label: "Seguridad y confianza" }],
-    btn: "Solicitar enfermero",
-  },
+const SERVICIOS_ICONS = [
+  { id: "medico" as const, icon: Stethoscope, color: "#00b3a6", bgColor: "rgba(0,179,166,0.12)", badgeBg: "rgba(0,179,166,0.15)", badgeColor: "#00b3a6", trustIcons: [Clock, Home, ShieldCheck] },
+  { id: "teleconsulta" as const, icon: Video, color: "#818cf8", bgColor: "rgba(129,140,248,0.12)", badgeBg: "rgba(129,140,248,0.15)", badgeColor: "#818cf8", trustIcons: [Clock, ShieldCheck, FileText] },
+  { id: "enfermero" as const, icon: HeartPulse, color: "#f472b6", bgColor: "rgba(244,114,182,0.12)", badgeBg: "rgba(244,114,182,0.15)", badgeColor: "#f472b6", trustIcons: [Clock, Home, Star] },
 ];
 
-const TRUST_STRIP = [
-  { icon: ShieldCheck, label: "Profesionales verificados", sub: "Todos nuestros profesionales están matriculados." },
-  { icon: Clock,       label: "Atención en minutos",       sub: "Te asignamos al profesional más cercano disponible." },
-  { icon: CreditCard,  label: "Pagos seguros",             sub: "Tarjetas, MercadoPago o efectivo." },
-  { icon: Star,        label: "Calificá tu experiencia",   sub: "Tu opinión nos ayuda a seguir mejorando." },
-];
+const TRUST_ICONS = [ShieldCheck, Clock, CreditCard, Star];
 
 const TARIFA_ENDPOINTS: Record<ServicioId, string> = {
   medico: "consulta-medico",
@@ -70,8 +45,8 @@ function parseMonto(value: unknown) {
   return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
 }
 
-function formatPesos(value?: number | null) {
-  if (!value) return "Consultando";
+function formatPesos(value?: number | null, fallback = "Consultando") {
+  if (!value) return fallback;
   return `$${value.toLocaleString("es-AR")}`;
 }
 
@@ -96,6 +71,23 @@ export default function PedirHome() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [precios, setPrecios]           = useState<Partial<Record<ServicioId, PrecioServicio>>>({});
   const { dark, setTheme, homeBg: bg, cardBg, border, text, muted, headerBg, logo } = usePedirTheme();
+  const { t } = useI18n();
+
+  const SERVICIOS = SERVICIOS_ICONS.map((s, i) => ({
+    ...s,
+    badge: t.pedir.services[i].badge,
+    title: t.pedir.services[i].title,
+    sub: t.pedir.services[i].subtitle,
+    desc: t.pedir.services[i].description,
+    trust: s.trustIcons.map((TIcon, j) => ({ icon: TIcon, label: t.pedir.services[i].chips[j] })),
+    btn: t.pedir.services[i].cta,
+  }));
+
+  const TRUST_STRIP = TRUST_ICONS.map((icon, i) => ({
+    icon,
+    label: t.pedir.trustStrip[i].title,
+    sub: t.pedir.trustStrip[i].description,
+  }));
 
   useEffect(() => {
     try {
@@ -164,12 +156,12 @@ export default function PedirHome() {
         access_token: data.access_token,
       };
       saveUser(u);
-      notify("¡Bienvenido a DocYa!");
+      notify(t.pedir.bienvenido);
       if (!u.perfil_completo) router.push("/pedir/perfil");
     } catch (e) {
-      notify(e instanceof Error ? e.message : "No se pudo iniciar sesión", false);
+      notify(e instanceof Error ? e.message : t.pedir.errorLogin, false);
     } finally { setGoogleBusy(false); }
-  }, [router]);
+  }, [router, t]);
 
   useEffect(() => {
     if (!googleLoaded || googleRendered.current || !googleRef.current || user) return;
@@ -207,13 +199,13 @@ export default function PedirHome() {
         access_token: data.access_token,
       };
       saveUser(u);
-      notify("¡Bienvenido a DocYa!");
+      notify(t.pedir.bienvenido);
       if (!u.perfil_completo) router.push("/pedir/perfil");
     } catch (e: unknown) {
       if (e && typeof e === "object" && "error" in e && (e as { error: string }).error === "popup_closed_by_user") return;
-      notify(e instanceof Error ? e.message : "No se pudo iniciar con Apple", false);
+      notify(e instanceof Error ? e.message : t.pedir.errorApple, false);
     } finally { setAppleBusy(false); }
-  }, [router]);
+  }, [router, t]);
 
   return (
     <>
@@ -231,7 +223,7 @@ export default function PedirHome() {
             <div style={{ flex: 1 }} />
             {user && (
               <Link href="/pedir/consultas" style={{ fontSize: 13, fontWeight: 600, color: muted, textDecoration: "none", padding: "8px 12px", borderRadius: 999, border: `1px solid ${border}`, transition: "all 0.15s", flexShrink: 0 }}>
-                Mis consultas
+                {t.pedir.misConsultas}
               </Link>
             )}
             {user ? (
@@ -248,7 +240,7 @@ export default function PedirHome() {
                   <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", background: dark ? "#0f2a35" : "#fff", border: `1px solid ${border}`, borderRadius: 14, padding: "8px", minWidth: 180, boxShadow: "0 12px 40px rgba(0,0,0,0.25)", zIndex: 100 }}>
                     <p style={{ fontSize: 12, color: muted, padding: "4px 12px 8px" }}>{user.email}</p>
                     <button onClick={logout} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px", borderRadius: 10, background: "none", border: "none", color: "#f87171", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>
-                      <LogOut size={15} /> Salir
+                      <LogOut size={15} /> {t.pedir.salir}
                     </button>
                   </div>
                 )}
@@ -269,10 +261,10 @@ export default function PedirHome() {
               <div className="pedir-hero">
                 <div>
                   <h1 style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 900, marginBottom: 6, letterSpacing: "-0.5px" }}>
-                    Hola, {user.full_name.split(" ")[0]} 👋
+                    {t.pedir.holaUser.replace("{name}", user.full_name.split(" ")[0])}
                   </h1>
-                  <p style={{ fontSize: 18, fontWeight: 700, color: "#00b3a6", marginBottom: 8 }}>¿Qué necesitás hoy?</p>
-                  <p style={{ color: muted, fontSize: 15 }}>Te conectamos con profesionales de confianza en minutos.</p>
+                  <p style={{ fontSize: 18, fontWeight: 700, color: "#00b3a6", marginBottom: 8 }}>{t.pedir.queNecesitas}</p>
+                  <p style={{ color: muted, fontSize: 15 }}>{t.pedir.conectamos}</p>
                 </div>
                 <a
                   href="https://wa.me/5491168700607"
@@ -284,8 +276,8 @@ export default function PedirHome() {
                     <MessageCircle size={22} color="#25d366" />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>¿Necesitás ayuda?</p>
-                    <p style={{ fontSize: 13, color: muted, margin: 0 }}>Escribinos por WhatsApp</p>
+                    <p style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>{t.pedir.ayuda}</p>
+                    <p style={{ fontSize: 13, color: muted, margin: 0 }}>{t.pedir.ayudaWa}</p>
                   </div>
                   <ChevronRight size={18} color={muted} />
                 </a>
@@ -311,8 +303,8 @@ export default function PedirHome() {
                       <h3 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4, color: text }}>{s.title}</h3>
                       <p style={{ fontSize: 14, color: muted, fontWeight: 500, marginBottom: 8 }}>{s.sub}</p>
                       <div style={{ border: `1px solid ${s.color}30`, background: `${s.color}12`, borderRadius: 14, padding: "10px 12px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                        <span style={{ fontSize: 12, color: muted, fontWeight: 800 }}>Precio</span>
-                        <strong style={{ fontSize: 18, color: s.color, lineHeight: 1 }}>{formatPesos(precio?.monto)}</strong>
+                        <span style={{ fontSize: 12, color: muted, fontWeight: 800 }}>{t.pedir.precio}</span>
+                        <strong style={{ fontSize: 18, color: s.color, lineHeight: 1 }}>{formatPesos(precio?.monto, t.pedir.consultando)}</strong>
                       </div>
                       <p style={{ fontSize: 14, color: muted, lineHeight: 1.55, marginBottom: 20, flex: 1 }}>{s.desc}</p>
                       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
@@ -353,12 +345,12 @@ export default function PedirHome() {
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <AlertTriangle size={22} color="#f87171" />
                   <div>
-                    <p style={{ fontWeight: 700, color: "#f87171", fontSize: 14, margin: 0 }}>DocYa no reemplaza servicios de emergencia.</p>
-                    <p style={{ color: muted, fontSize: 13, margin: 0 }}>Ante una urgencia, llamá al 107 o al 911.</p>
+                    <p style={{ fontWeight: 700, color: "#f87171", fontSize: 14, margin: 0 }}>{t.pedir.emergencia}</p>
+                    <p style={{ color: muted, fontSize: 13, margin: 0 }}>{t.pedir.emergenciaDetalle}</p>
                   </div>
                 </div>
                 <a href="tel:107" style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 12, background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#f87171", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
-                  <Phone size={16} /> Llamar al 107 / 911
+                  <Phone size={16} /> {t.pedir.llamar107}
                 </a>
               </div>
             </>
@@ -368,13 +360,13 @@ export default function PedirHome() {
               {/* Left */}
               <div className="pedir-login-left">
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,179,166,0.12)", border: "1px solid rgba(0,179,166,0.25)", borderRadius: 999, padding: "6px 16px", fontSize: 13, fontWeight: 600, color: "#00b3a6", marginBottom: 24 }}>
-                  <ShieldCheck size={14} /> Profesionales verificados · Pago seguro
+                  <ShieldCheck size={14} /> {t.pedir.loginBadge}
                 </div>
                 <h1 style={{ fontSize: "clamp(32px, 5vw, 52px)", fontWeight: 900, lineHeight: 1.1, marginBottom: 20, letterSpacing: "-1px" }}>
-                  Atención médica cuando la necesitás
+                  {t.pedir.loginTitle}
                 </h1>
                 <p style={{ fontSize: 18, color: muted, lineHeight: 1.65, marginBottom: 36 }}>
-                  Médico a domicilio, teleconsulta o enfermería. Sin descargar ninguna app, desde el navegador.
+                  {t.pedir.loginDescription}
                 </p>
                 {SERVICIOS.map(s => (
                   <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
@@ -382,7 +374,7 @@ export default function PedirHome() {
                       <s.icon size={18} color={s.color} />
                     </div>
                     <p style={{ fontSize: 15, fontWeight: 500, color: text, flex: 1 }}>{s.title}</p>
-                    <span style={{ color: s.color, fontSize: 13, fontWeight: 850 }}>{formatPesos(precios[s.id as ServicioId]?.monto)}</span>
+                    <span style={{ color: s.color, fontSize: 13, fontWeight: 850 }}>{formatPesos(precios[s.id as ServicioId]?.monto, t.pedir.consultando)}</span>
                   </div>
                 ))}
               </div>
@@ -406,8 +398,8 @@ export default function PedirHome() {
                 {/* Mini hero visible solo en mobile */}
                 <div className="pedir-mobile-hero" style={{ marginBottom: 28, paddingBottom: 22, borderBottom: "1px solid rgba(0,179,166,0.2)" }}>
                   <Image src={logo} alt="DocYa" width={90} height={28} style={{ width: 90, height: "auto", maxHeight: 28, objectFit: "contain", marginBottom: 16, display: "block" }} />
-                  <p style={{ fontSize: 22, fontWeight: 900, marginBottom: 6, lineHeight: 1.2, color: "#2dd4bf" }}>Atención médica sin esperas</p>
-                  <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>Médico, teleconsulta o enfermería desde el navegador.</p>
+                  <p style={{ fontSize: 22, fontWeight: 900, marginBottom: 6, lineHeight: 1.2, color: "#2dd4bf" }}>{t.pedir.loginMobileTitle}</p>
+                  <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>{t.pedir.loginMobileDescription}</p>
                 </div>
 
                 {/* Título */}
@@ -416,20 +408,20 @@ export default function PedirHome() {
                     <ShieldCheck size={26} color="#fff" />
                   </div>
                   <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 8, color: "#2dd4bf" }}>
-                    Ingresá para continuar
+                    {t.pedir.loginCardTitle}
                   </h2>
                   <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>
-                    Usá tu cuenta de Google o Apple para pedir atención médica.
+                    {t.pedir.loginCardDescription}
                   </p>
                 </div>
 
                 {/* Google */}
                 <div style={{ background: "rgba(0,179,166,0.06)", border: "1px solid rgba(0,179,166,0.18)", borderRadius: 18, padding: "16px", marginBottom: 12 }}>
-                  <p style={{ fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12, textAlign: "center" }}>Continuar con Google</p>
+                  <p style={{ fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12, textAlign: "center" }}>{t.pedir.continuarGoogle}</p>
                   <div style={{ minHeight: 48, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {googleBusy ? (
                       <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#2dd4bf", fontSize: 14 }}>
-                        <span style={{ width: 18, height: 18, border: "2px solid rgba(0,179,166,0.3)", borderTopColor: "#00b3a6", borderRadius: 999, display: "inline-block", animation: "spin 0.8s linear infinite" }} /> Verificando...
+                        <span style={{ width: 18, height: 18, border: "2px solid rgba(0,179,166,0.3)", borderTopColor: "#00b3a6", borderRadius: 999, display: "inline-block", animation: "spin 0.8s linear infinite" }} /> {t.pedir.verificando}
                       </div>
                     ) : (
                       <div ref={googleRef} style={{ width: "100%" }} />
@@ -440,7 +432,7 @@ export default function PedirHome() {
                 {/* Divider */}
                 <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "16px 0" }}>
                   <div style={{ flex: 1, height: 1, background: "rgba(0,179,166,0.15)" }} />
-                  <span style={{ fontSize: 12, color: muted, fontWeight: 600 }}>o</span>
+                  <span style={{ fontSize: 12, color: muted, fontWeight: 600 }}>{t.pedir.o}</span>
                   <div style={{ flex: 1, height: 1, background: "rgba(0,179,166,0.15)" }} />
                 </div>
 
@@ -455,20 +447,20 @@ export default function PedirHome() {
                   <svg width="18" height="18" viewBox="0 0 814 1000" fill="currentColor">
                     <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-42.3-150.9-103.2c-46-60.9-85.5-159-85.5-252.9 0-73.4 13.1-145.8 41.1-207.8 40.2-91.5 105-150 165.9-150 62.5 0 101.6 39.5 165.9 39.5 62.5 0 100.2-39.5 165.9-39.5 62.5 0 126.2 58.4 165.9 150zm-114.3-258.8c27.6-31.7 47.6-75.7 47.6-119.8 0-6.1-.5-12.2-1.6-17.3-45.1 1.6-98.8 30.3-130.5 63.2-27.6 29.9-51.2 73.9-51.2 118.5 0 6.7 1.1 13.4 1.6 15.5 2.7.5 7.1 1.1 11.6 1.1 41.9 0 91.5-28.1 122.5-61.2z" />
                   </svg>
-                  {appleBusy ? "Verificando..." : "Continuar con Apple"}
+                  {appleBusy ? t.pedir.verificando : t.pedir.continuarApple}
                 </button>
 
                 <p style={{ fontSize: 11, color: muted, textAlign: "center", marginTop: 16, lineHeight: 1.5 }}>
-                  Al ingresar aceptás los{" "}
-                  <Link href="/legal/pacientes/terminos" style={{ color: "#2dd4bf", textDecoration: "none", fontWeight: 600 }}>Términos</Link>
-                  {" "}y la{" "}
-                  <Link href="/legal/pacientes/privacidad" style={{ color: "#2dd4bf", textDecoration: "none", fontWeight: 600 }}>Política de privacidad</Link>.
+                  {t.pedir.terminosInicio}
+                  <Link href="/legal/pacientes/terminos" style={{ color: "#2dd4bf", textDecoration: "none", fontWeight: 600 }}>{t.pedir.terminos}</Link>
+                  {t.pedir.y}
+                  <Link href="/legal/pacientes/privacidad" style={{ color: "#2dd4bf", textDecoration: "none", fontWeight: 600 }}>{t.pedir.privacidad}</Link>.
                 </p>
 
                 {/* Descarga */}
                 <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid rgba(0,179,166,0.15)" }}>
                   <p style={{ fontSize: 12, color: muted, textAlign: "center", marginBottom: 14, lineHeight: 1.5 }}>
-                    ¿Preferís la app? Descargala para una <strong style={{ color: "#2dd4bf" }}>mejor experiencia</strong>.
+                    {t.pedir.prefiereApp}<strong style={{ color: "#2dd4bf" }}>{t.pedir.mejorExperiencia}</strong>.
                   </p>
                   <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
                     <a href="https://apps.apple.com/ar/app/docya/id6753604975" target="_blank" rel="noreferrer" style={{ display: "inline-block", transition: "transform 0.15s" }}
@@ -495,10 +487,10 @@ export default function PedirHome() {
         {/* FOOTER */}
         <footer style={{ borderTop: `1px solid ${border}`, padding: "24px 24px", textAlign: "center" }}>
           <p style={{ fontSize: 13, color: muted }}>
-            DocYa · Atención médica a domicilio ·{" "}
-            <Link href="/legal/pacientes/terminos" style={{ color: muted, textDecoration: "underline" }}>Términos</Link>
+            {t.pedir.footerText}
+            <Link href="/legal/pacientes/terminos" style={{ color: muted, textDecoration: "underline" }}>{t.pedir.terminos}</Link>
             {" · "}
-            <Link href="/legal/pacientes/privacidad" style={{ color: muted, textDecoration: "underline" }}>Privacidad</Link>
+            <Link href="/legal/pacientes/privacidad" style={{ color: muted, textDecoration: "underline" }}>{t.pedir.privacidad}</Link>
           </p>
         </footer>
       </div>

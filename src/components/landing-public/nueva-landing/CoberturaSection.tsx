@@ -1,7 +1,11 @@
 // src/components/landing-public/nueva-landing/CoberturaSection.tsx
+"use client";
+
+import React from "react";
 import Image from "next/image";
 import ScrollReveal from "./ScrollReveal";
 import CoberturaDynamic from "./CoberturaDynamic";
+import { useI18n } from "@/lib/i18n/context";
 
 type Zona = {
   id: number;
@@ -32,7 +36,6 @@ async function getZonas(): Promise<ZonasResponse> {
     const res = await fetch(
       `${baseUrl.replace(/\/$/, "")}/zonas-cobertura`,
       {
-        next: { revalidate: 300 },
         signal: controller.signal,
       }
     );
@@ -61,8 +64,17 @@ async function getZonas(): Promise<ZonasResponse> {
   }
 }
 
-export default async function CoberturaSection() {
-  const { activas, proximas } = await getZonas();
+export default function CoberturaSection() {
+  const { t } = useI18n();
+  const [activas, setActivas] = React.useState<Zona[]>([]);
+  const [proximas, setProximas] = React.useState<Zona[]>([]);
+
+  React.useEffect(() => {
+    getZonas().then(({ activas, proximas }) => {
+      setActivas(activas);
+      setProximas(proximas);
+    });
+  }, []);
 
   return (
     <section id="cobertura" className="py-32">
@@ -72,7 +84,7 @@ export default async function CoberturaSection() {
             <div className="glass-card rounded-3xl p-0" style={{ position: "relative" }}>
               <Image
                 src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774897108/Dise%C3%B1o_sin_t%C3%ADtulo_25_fyhkln.png"
-                alt="Mapa de Cobertura DocYa"
+                alt={t.cobertura.altMapa}
                 width={380}
                 height={520}
                 className="h-auto w-full rounded-3xl"
@@ -85,11 +97,11 @@ export default async function CoberturaSection() {
 
         <ScrollReveal delay={0.15}>
           <h2 className="section-title mb-4">
-            Dónde estamos <span className="highlight-text">disponibles</span>
+            {t.cobertura.title}<span className="highlight-text">{t.cobertura.titleHighlight}</span>
           </h2>
 
           <p className="text-text-muted mb-8 text-xl leading-relaxed">
-            Hoy operamos en Buenos Aires y alrededores. Estamos creciendo rápido.
+            {t.cobertura.description}
           </p>
 
           <div className="mb-4 flex items-center gap-2">
@@ -97,7 +109,7 @@ export default async function CoberturaSection() {
               className="h-2.5 w-2.5 rounded-full"
               style={{ background: "#0AE6C7", boxShadow: "0 0 10px #0AE6C7" }}
             />
-            <h4 className="text-lg font-bold">DISPONIBLE AHORA</h4>
+            <h4 className="text-lg font-bold">{t.cobertura.disponibleAhora}</h4>
           </div>
 
           <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -114,7 +126,7 @@ export default async function CoberturaSection() {
               ))
             ) : (
               <div className="text-text-muted text-sm">
-                Próximamente estaremos mostrando las zonas activas.
+                {t.cobertura.fallbackDisponible}
               </div>
             )}
           </div>
@@ -124,7 +136,7 @@ export default async function CoberturaSection() {
               className="h-2.5 w-2.5 rounded-full"
               style={{ background: "rgba(255,255,255,0.45)" }}
             />
-            <h4 className="text-text-muted text-lg font-bold">PRÓXIMAMENTE</h4>
+            <h4 className="text-text-muted text-lg font-bold">{t.cobertura.proximamente}</h4>
           </div>
 
           <div className="mb-8 flex flex-wrap gap-3 opacity-60">
@@ -136,7 +148,7 @@ export default async function CoberturaSection() {
               ))
             ) : (
               <span className="text-text-muted text-sm">
-                Sin nuevas zonas cargadas por el momento.
+                {t.cobertura.fallbackProximamente}
               </span>
             )}
           </div>
@@ -149,11 +161,11 @@ export default async function CoberturaSection() {
             }}
           >
             <p className="m-0 text-base leading-relaxed">
-              ¿Querés que lleguemos a tu ciudad?
+              {t.cobertura.ctaTitle}
               <br />
               <strong>
                 <a href="#" style={{ color: "var(--primary)" }} className="hover:underline">
-                  Sumate como embajador y ayudanos a expandir DocYa.
+                  {t.cobertura.ctaDescription}
                 </a>
               </strong>
             </p>

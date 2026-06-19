@@ -1,15 +1,12 @@
 // src/components/landing-public/nueva-landing/TeleconsultaSection.tsx
+"use client";
+
 import { CheckCircle2, Video } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
-
-const features = [
-  "Médicos verificados disponibles en minutos",
-  "Sin salir de casa ni manejar",
-  "Receta digital al instante",
-  "Consultas disponibles las 24 hs",
-];
+import { useI18n } from "@/lib/i18n/context";
 
 export default function TeleconsultaSection() {
+  const { t } = useI18n();
   return (
     <section
       id="teleconsulta"
@@ -20,19 +17,19 @@ export default function TeleconsultaSection() {
         <ScrollReveal className="order-2 md:order-1">
           <div className="badge-trusted mb-4 w-fit">
             <Video size={16} />
-            TELECONSULTA POR VIDEO
+            {t.teleconsulta.badge}
           </div>
           <h2 className="section-title mb-4">
-            Tu médico en pantalla,{" "}
-            <span className="highlight-text">donde estés</span>
+            {t.teleconsulta.title}{" "}
+            <span className="highlight-text">{t.teleconsulta.titleHighlight}</span>
           </h2>
 
           <p className="text-text-muted mb-8 text-xl leading-relaxed">
-            Consultá por videollamada con un profesional certificado desde tu celular o computadora. Ideal para consultas rápidas, seguimientos y cuando no podés recibir visita a domicilio.
+            {t.teleconsulta.description}
           </p>
 
           <ul className="flex flex-col gap-4">
-            {features.map((feature) => (
+            {t.teleconsulta.features.map((feature) => (
               <li key={feature} className="flex items-center gap-3">
                 <CheckCircle2
                   size={22}
@@ -67,9 +64,9 @@ export default function TeleconsultaSection() {
 
             <div className="text-center">
               <p className="text-2xl font-bold" style={{ color: "var(--primary)" }}>
-                Videollamada
+                {t.teleconsulta.cardTitle}
               </p>
-              <p className="mt-1 text-text-muted">Consulta médica online segura</p>
+              <p className="mt-1 text-text-muted">{t.teleconsulta.cardSubtitle}</p>
             </div>
 
             {/* Badge */}
@@ -78,8 +75,8 @@ export default function TeleconsultaSection() {
                 <Video size={18} />
               </div>
               <div>
-                <p className="m-0 text-sm font-bold leading-tight">Disponible 24/7</p>
-                <p className="m-0 text-xs text-text-muted">Médicos en minutos</p>
+                <p className="m-0 text-sm font-bold leading-tight">{t.teleconsulta.cardAvailable}</p>
+                <p className="m-0 text-xs text-text-muted">{t.teleconsulta.cardDoctors}</p>
               </div>
             </div>
           </div>

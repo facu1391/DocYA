@@ -6,8 +6,9 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Sun, Moon, Menu, X } from "lucide-react";
+import { Sun, Moon, Menu, X, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useI18n, Locale } from "@/lib/i18n/context";
 
 import ConfirmModal from "@/components/common/ConfirmModal";
 import LoadingSplash from "@/components/common/LoadingSplash";
@@ -24,6 +25,7 @@ export default function Navbar() {
 
   const [openExitModal, setOpenExitModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { locale, setLocale, t } = useI18n();
 
   const PUBLIC_PREFIXES = ["/", "/registro/paciente", "/legal/pacientes"];
 
@@ -105,35 +107,49 @@ export default function Navbar() {
             {isPublicAudience ? (
               <>
                 <a href="#inicio" className={publicSectionCls}>
-                  Inicio
+                  {t.nav.inicio}
                 </a>
                 <a href="#ia" className={publicSectionCls}>
-                  IA Médica
+                  {t.nav.iaMedica}
                 </a>
                 <a href="#como-funciona" className={publicSectionCls}>
-                  Cómo funciona
+                  {t.nav.comoFunciona}
                 </a>
                 <a href="#cobertura" className={publicSectionCls}>
-                  Cobertura
+                  {t.nav.cobertura}
                 </a>
                 <a href="#precios" className={publicSectionCls}>
-                  Precios
+                  {t.nav.precios}
                 </a>
 
                 <Link href="/profesionales" className={publicSectionCls}>
-                  Profesionales
+                  {t.nav.profesionales}
                 </Link>
 
                 <a href="#descargar" className="btn-primary h-9 px-4">
-                  Descargar app
+                  {t.nav.descargarApp}
                 </a>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setLocale(locale === "es" ? "en" : "es")}
+                  className="text-white hover:bg-white/10 cursor-pointer"
+                  aria-label={locale === "es" ? "Switch to English" : "Cambiar a Español"}
+                  title={locale === "es" ? "English" : "Español"}
+                >
+                  <Globe className="h-5 w-5" />
+                  <span className="absolute -bottom-0.5 -right-0.5 text-[9px] font-bold uppercase leading-none">
+                    {locale === "es" ? "EN" : "ES"}
+                  </span>
+                </Button>
 
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                   className="text-white hover:bg-white/10 cursor-pointer"
-                  aria-label="Cambiar tema"
+                  aria-label={t.nav.cambiarTema}
                 >
                   <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                   <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -190,9 +206,22 @@ export default function Navbar() {
             <Button
               variant="ghost"
               size="icon"
+              onClick={() => setLocale(locale === "es" ? "en" : "es")}
+              className="text-white hover:bg-white/10 relative"
+              aria-label={locale === "es" ? "Switch to English" : "Cambiar a Español"}
+            >
+              <Globe className="h-5 w-5" />
+              <span className="absolute -bottom-0.5 -right-0.5 text-[9px] font-bold uppercase leading-none">
+                {locale === "es" ? "EN" : "ES"}
+              </span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="text-white hover:bg-white/10"
-              aria-label="Cambiar tema"
+              aria-label={t.nav.cambiarTema}
             >
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -202,7 +231,7 @@ export default function Navbar() {
               variant="ghost"
               size="icon"
               className="text-white hover:bg-white/10"
-              aria-label="Abrir menú"
+              aria-label="Menu"
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
             >
@@ -264,25 +293,25 @@ export default function Navbar() {
           >
             <div className="container py-4 flex flex-col items-center text-center gap-3 text-sm font-medium">
               <a href="#inicio" className={publicMobileSectionCls}>
-                Inicio
+                {t.nav.inicio}
               </a>
               <a href="#ia" className={publicMobileSectionCls}>
-                IA Médica
+                {t.nav.iaMedica}
               </a>
               <a href="#como-funciona" className={publicMobileSectionCls}>
-                Cómo funciona
+                {t.nav.comoFunciona}
               </a>
               <a href="#cobertura" className={publicMobileSectionCls}>
-                Cobertura
+                {t.nav.cobertura}
               </a>
               <a href="#precios" className={publicMobileSectionCls}>
-                Precios
+                {t.nav.precios}
               </a>
               <Link href="/profesionales" className={publicMobileSectionCls}>
-                Profesionales
+                {t.nav.profesionales}
               </Link>
               <a href="#descargar" className="btn-primary h-10 w-full max-w-xs justify-center">
-                Descargar app
+                {t.nav.descargarApp}
               </a>
             </div>
           </div>

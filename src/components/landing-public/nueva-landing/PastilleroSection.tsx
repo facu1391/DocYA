@@ -10,16 +10,13 @@ import {
   ChevronRight,
 } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
+import { useI18n } from "@/lib/i18n/context";
 
-const features = [
-  { icon: Pill, text: "Agregá tus medicamentos fácilmente desde la app" },
-  { icon: Stethoscope, text: "El médico puede cargar tu tratamiento durante la consulta" },
-  { icon: Clock, text: "Recibí recordatorios automáticos en el momento exacto" },
-  { icon: CheckCircle, text: "Marcá cada dosis como tomada" },
-  { icon: History, text: "Historial completo de tu tratamiento" },
-];
+const featureIcons = [Pill, Stethoscope, Clock, CheckCircle, History];
 
 export default function PastilleroSection() {
+  const { t } = useI18n();
+  const features = featureIcons.map((icon, i) => ({ icon, text: t.pastillero.features[i] }));
   return (
     <section id="pastillero" className="relative overflow-hidden py-32 text-white">
       <div
@@ -38,19 +35,19 @@ export default function PastilleroSection() {
             <ScrollReveal>
               <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#14B8A6]/20 px-3 py-1.5 text-sm font-semibold text-[#14B8A6]">
                 <Pill size={16} />
-                <span>Pastillero Digital</span>
+                <span>{t.pastillero.badge}</span>
               </div>
             </ScrollReveal>
 
             <ScrollReveal delay={0.1}>
               <h2 className="mb-6 text-4xl font-extrabold leading-tight md:text-5xl">
-                No te olvides nunca más de <span className="text-[#14B8A6]">tu medicación</span>
+                {t.pastillero.title}<span className="text-[#14B8A6]">{t.pastillero.titleHighlight}</span>
               </h2>
             </ScrollReveal>
 
             <ScrollReveal delay={0.2}>
               <p className="mb-8 max-w-lg text-xl text-gray-300">
-                DocYa te acompaña en cada paso de tu tratamiento. Llevá un seguimiento simple, seguro y con recordatorios precisos.
+                {t.pastillero.description}
               </p>
             </ScrollReveal>
 
@@ -71,10 +68,10 @@ export default function PastilleroSection() {
               <div className="mb-10 rounded-2xl border border-[#14B8A6]/20 bg-gradient-to-r from-[#14B8A6]/10 to-transparent p-6 backdrop-blur-md">
                 <div className="mb-2 flex items-center gap-3">
                   <Stethoscope className="text-[#14B8A6]" size={24} />
-                  <h4 className="text-lg font-bold">También durante tu consulta</h4>
+                  <h4 className="text-lg font-bold">{t.pastillero.calloutTitle}</h4>
                 </div>
                 <p className="text-sm text-gray-300">
-                  El médico puede dejar indicada tu receta directamente en la app durante la consulta, y el sistema configurará los recordatorios automáticamente.
+                  {t.pastillero.calloutDescription}
                 </p>
               </div>
             </ScrollReveal>
@@ -85,14 +82,14 @@ export default function PastilleroSection() {
                   href="#descargar"
                   className="flex items-center justify-center gap-2 rounded-full bg-[#14B8A6] px-8 py-4 font-bold text-white transition-all hover:scale-105 hover:bg-[#119e8e] hover:shadow-[0_0_20px_rgba(20,184,166,0.4)]"
                 >
-                  Empezar a usar DocYa
+                  {t.pastillero.cta1}
                   <ChevronRight size={20} />
                 </a>
                 <a
                   href="#consulta"
                   className="flex items-center justify-center rounded-full border border-white/20 bg-white/10 px-8 py-4 font-bold text-white backdrop-blur-sm transition-all hover:bg-white/20"
                 >
-                  Solicitar médico
+                  {t.pastillero.cta2}
                 </a>
               </div>
             </ScrollReveal>
@@ -103,7 +100,7 @@ export default function PastilleroSection() {
               <div className="absolute inset-8 rounded-full bg-[#14B8A6]/20 blur-[80px]" />
               <Image
                 src="/landing/pastillero-preview.png"
-                alt="Pastillero digital DocYa"
+                alt={t.pastillero.altImage}
                 width={1294}
                 height={816}
                 className="relative h-auto w-full drop-shadow-[0_30px_70px_rgba(0,0,0,0.35)]"
@@ -114,9 +111,9 @@ export default function PastilleroSection() {
 
         <ScrollReveal delay={0.8} className="mt-28 border-t border-white/10 pt-16 text-center">
           <p className="text-3xl font-light italic text-gray-300">
-            &quot;DocYa no solo te atiende.{" "}
+            &quot;{t.pastillero.quote}{" "}
             <span className="relative inline-block font-bold text-white">
-              Te cuida todos los días.
+              {t.pastillero.quoteHighlight}
               <span className="absolute bottom-0 left-0 h-1 w-full rounded-full bg-[#14B8A6]/50" />
             </span>
             &quot;
