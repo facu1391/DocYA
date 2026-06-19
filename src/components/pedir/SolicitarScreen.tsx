@@ -12,6 +12,7 @@ import {
 import AddressInput from "./AddressInput";
 import MapView from "./MapView";
 import { usePedirTheme } from "./theme";
+import { useI18n } from "@/lib/i18n/context";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -19,21 +20,13 @@ type PedirUser = { id: string; full_name: string; email: string; perfil_completo
 type MetodoPago = "tarjeta" | "saldo_mp" | "efectivo";
 type Tarifa = { tipo?: string; monto: number; descripcion?: string };
 
-const TIPO_CONFIG = {
-  medico:       { label: "Médico a domicilio",     icon: Stethoscope, color: "#00b3a6" },
-  teleconsulta: { label: "Teleconsulta",            icon: Video,       color: "#818cf8" },
-  enfermero:    { label: "Enfermería a domicilio",  icon: HeartPulse,  color: "#f472b6" },
+const TIPO_ICONS = {
+  medico:       { icon: Stethoscope, color: "#00b3a6" },
+  teleconsulta: { icon: Video,       color: "#818cf8" },
+  enfermero:    { icon: HeartPulse,  color: "#f472b6" },
 } as const;
 
-const METODOS: { id: MetodoPago; icon: typeof CreditCard; label: string; sub: string }[] = [
-  { id: "tarjeta",  icon: CreditCard, label: "Tarjeta de crédito", sub: "Visa, Mastercard o Amex" },
-  { id: "saldo_mp", icon: Wallet,     label: "Saldo Mercado Pago",  sub: "Tu cuenta de MP" },
-  { id: "efectivo", icon: Banknote,   label: "Efectivo",            sub: "Le pagás al profesional" },
-];
-
-const METODOS_ONLINE = METODOS.filter(m => m.id !== "efectivo");
-
-function tarifaEndpoint(tipo: keyof typeof TIPO_CONFIG) {
+function tarifaEndpoint(tipo: keyof typeof TIPO_ICONS) {
   if (tipo === "teleconsulta") return "teleconsulta";
   if (tipo === "enfermero") return "consulta-enfermero";
   return "consulta-medico";
@@ -44,8 +37,8 @@ function parseMonto(value: unknown) {
   return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
 }
 
-function formatPesos(value?: number | null) {
-  if (!value) return "Cargando...";
+function formatPesos(value?: number | null, fallback = "...") {
+  if (!value) return fallback;
   return `$${value.toLocaleString("es-AR")}`;
 }
 
@@ -59,9 +52,26 @@ const notify = (msg: string, ok = true) => {
 };
 
 export default function SolicitarScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const params = useSearchParams();
-  const tipo = (params.get("tipo") ?? "medico") as keyof typeof TIPO_CONFIG;
+  const tipo = (params.get("tipo") ?? "medico") as keyof typeof TIPO_ICONS;
+  const tipoIcons = TIPO_ICONS[tipo] ?? TIPO_ICONS.medico;
+
+  const TIPO_CONFIG = {
+    medico:       { label: t.solicitar.tipos.medico,     ...TIPO_ICONS.medico },
+    teleconsulta: { label: t.solicitar.tipos.teleconsulta, ...TIPO_ICONS.teleconsulta },
+    enfermero:    { label: t.solicitar.tipos.enfermeria,  ...TIPO_ICONS.enfermero },
+  };
+
+  const METODOS: { id: MetodoPago; icon: typeof CreditCard; label: string; sub: string }[] = [
+    { id: "tarjeta",  icon: CreditCard, label: t.solicitar.metodos.tarjetaTitle, sub: t.solicitar.metodos.tarjetaSub },
+    { id: "saldo_mp", icon: Wallet,     label: t.solicitar.metodos.saldoTitle,   sub: t.solicitar.metodos.saldoSub },
+    { id: "efectivo", icon: Banknote,   label: t.solicitar.metodos.efectivoTitle, sub: t.solicitar.metodos.efectivoSub },
+  ];
+
+  const METODOS_ONLINE = METODOS.filter(m => m.id !== "efectivo");
+
   const cfg = TIPO_CONFIG[tipo] ?? TIPO_CONFIG.medico;
 
   // AddressInput component maneja el autocomplete internamente
@@ -127,27 +137,27 @@ export default function SolicitarScreen() {
 
     fetch(`${API}/tarifas/${tarifaEndpoint(tipo)}`, { cache: "no-store" })
       .then(async res => {
-        if (!res.ok) throw new Error("No se pudo cargar el precio");
+        if (!res.ok) throw new Error(t.solicitar.errorPrecio);
         const data = await res.json();
         const monto = parseMonto(data?.monto);
-        if (!monto) throw new Error("No se pudo cargar el precio");
+        if (!monto) throw new Error(t.solicitar.errorPrecio);
         if (alive) setTarifa({ tipo: data?.tipo, monto, descripcion: data?.descripcion });
       })
       .catch(e => {
-        if (alive) setTarifaError(e instanceof Error ? e.message : "No se pudo cargar el precio");
+        if (alive) setTarifaError(e instanceof Error ? e.message : t.solicitar.errorPrecio);
       })
       .finally(() => {
         if (alive) setTarifaLoading(false);
       });
 
     return () => { alive = false; };
-  }, [tipo]);
+  }, [tipo, t]);
 
 
   const PLACES_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyAcvJIlpOAkRzVaXlcnE8lJQfQGBqx-bKA";
 
   const usarUbicacionActual = useCallback(() => {
-    if (!navigator.geolocation) return notify("Geolocalización no disponible", false);
+    if (!navigator.geolocation) return notify(t.solicitar.geoNoDisponible, false);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         setLat(pos.coords.latitude);
@@ -165,23 +175,23 @@ export default function SolicitarScreen() {
           if (provinciaComp?.long_name) setProvincia(provinciaComp.long_name);
         } catch {}
       },
-      () => notify("No pudimos obtener tu ubicación", false)
+      () => notify(t.solicitar.geoError, false)
     );
-  }, [PLACES_KEY]);
+  }, [PLACES_KEY, t]);
 
   const handleSubmit = useCallback(async () => {
     if (!user) return;
-    if (!motivo.trim()) return notify("Describí el motivo de la consulta", false);
-    if (!direccion.trim()) return notify("Ingresá tu dirección", false);
-    if (lat === null || lng === null) return notify("Necesitamos tus coordenadas. Usá el botón de ubicación o buscá tu dirección.", false);
-    if (!permiteEfectivo && metodoPago === "efectivo") return notify("La teleconsulta no permite pago en efectivo", false);
-    if (!tarifa?.monto) return notify("No pudimos cargar el precio desde DocYa. Intentá de nuevo.", false);
+    if (!motivo.trim()) return notify(t.solicitar.motivoRequerido, false);
+    if (!direccion.trim()) return notify(t.solicitar.direccionRequerida, false);
+    if (lat === null || lng === null) return notify(t.solicitar.coordenadasRequeridas, false);
+    if (!permiteEfectivo && metodoPago === "efectivo") return notify(t.solicitar.teleconsultaEfectivo, false);
+    if (!tarifa?.monto) return notify(t.solicitar.errorPrecioRetry, false);
     if (esPediatria) {
-      if (!pacienteMenorNombre.trim()) return notify("Ingresá el nombre del niño/a", false);
-      if (!pacienteMenorDni.trim()) return notify("Ingresá el DNI del niño/a", false);
+      if (!pacienteMenorNombre.trim()) return notify(t.solicitar.nombreNinio, false);
+      if (!pacienteMenorDni.trim()) return notify(t.solicitar.dniNinio, false);
       const fecha = pacienteMenorFechaNacimiento.trim();
       if (fecha && (!/^\d{4}-\d{2}-\d{2}$/.test(fecha) || Number.isNaN(Date.parse(fecha)))) {
-        return notify("La fecha de nacimiento debe tener formato AAAA-MM-DD", false);
+        return notify(t.solicitar.fechaFormato, false);
       }
     }
 
@@ -196,7 +206,7 @@ export default function SolicitarScreen() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, ...datosPediatricos }),
         });
-        if (!previaRes.ok) throw new Error("No se pudo preparar la consulta");
+        if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
 
         const mpUrl = `${API}/pagos/embebido/formulario/${consulta_id}`;
@@ -226,7 +236,7 @@ export default function SolicitarScreen() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, ...datosPediatricos }),
         });
-        if (!previaRes.ok) throw new Error("No se pudo preparar la consulta");
+        if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
 
         const return_base_url = window.location.origin;
@@ -235,7 +245,7 @@ export default function SolicitarScreen() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ paciente_uuid: user.id, consulta_id, monto, motivo: motivo.trim(), return_base_url }),
         });
-        if (!prefRes.ok) throw new Error("No se pudo crear la preferencia");
+        if (!prefRes.ok) throw new Error(t.solicitar.errorPreferencia);
         const { init_point } = await prefRes.json();
 
         // Guardar datos para recuperarlos al volver de MP. En iOS/Safari el
@@ -267,16 +277,16 @@ export default function SolicitarScreen() {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.detail?.mensaje || err.detail || "No se pudo iniciar la consulta");
+        throw new Error(err.detail?.mensaje || err.detail || t.solicitar.errorIniciar);
       }
       const data = await res.json();
       router.push(`/pedir/buscando?consulta_id=${data.consulta_id}&tipo=${tipo}&metodo=efectivo`);
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Error al solicitar", false);
+      notify(e instanceof Error ? e.message : t.solicitar.errorSolicitar, false);
     } finally {
       setSubmitting(false);
     }
-  }, [user, motivo, direccion, lat, lng, metodoPago, tipo, router, permiteEfectivo, tarifa, esPediatria, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, categoriaConsulta, provincia, datosPediatricos]);
+  }, [user, motivo, direccion, lat, lng, metodoPago, tipo, router, permiteEfectivo, tarifa, esPediatria, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, categoriaConsulta, provincia, datosPediatricos, t]);
 
   if (!user) return null;
 
@@ -303,10 +313,10 @@ export default function SolicitarScreen() {
 
         <main style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 80px" }}>
           <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: 900, marginBottom: 8, color: "#2dd4bf" }}>
-            Solicitá tu {cfg.label.toLowerCase()}
+            {t.solicitar.pageTitle} {cfg.label.toLowerCase()}
           </h1>
           <p style={{ color: muted, fontSize: 15, marginBottom: 32 }}>
-            Hola <strong style={{ color: text }}>{user.full_name.split(" ")[0]}</strong>, completá los datos para buscar un profesional.
+            {t.solicitar.hola} <strong style={{ color: text }}>{user.full_name.split(" ")[0]}</strong>{t.solicitar.completaDatos}
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -314,24 +324,24 @@ export default function SolicitarScreen() {
             {/* MOTIVO */}
             <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
               <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
-                Motivo de la consulta
+                {t.solicitar.motivoLabel}
               </label>
               <textarea
                 value={motivo}
                 onChange={e => setMotivo(e.target.value)}
                 rows={3}
-                placeholder="Describí tus síntomas o el motivo de la consulta..."
+                placeholder={t.solicitar.motivoPlaceholder}
                 style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "14px 16px", color: text, fontSize: 15, resize: "none", outline: "none", boxSizing: "border-box", fontFamily: "inherit", lineHeight: 1.5 }}
               />
               <p style={{ fontSize: 12, color: muted, marginTop: 8 }}>
-                Sé específico: síntomas, duración, medicación actual.
+                {t.solicitar.motivoHint}
               </p>
             </div>
 
             {/* DIRECCIÓN */}
             <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
               <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
-                {tipo === "teleconsulta" ? "Tu ubicación (para asignar profesional cercano)" : "Dirección de atención"}
+                {tipo === "teleconsulta" ? t.solicitar.ubicacionTeleconsulta : t.solicitar.direccionLabel}
               </label>
               <AddressInput
                 value={direccion}
@@ -342,7 +352,7 @@ export default function SolicitarScreen() {
                   if (lng !== undefined) setLng(lng);
                   if (provincia) setProvincia(provincia);
                 }}
-                placeholder="Empezá a escribir tu dirección..."
+                placeholder={t.solicitar.direccionPlaceholder}
                 dark={dark}
               />
               <button
@@ -350,7 +360,7 @@ export default function SolicitarScreen() {
                 style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10, fontSize: 13, color: cfg.color, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}
               >
                 <Navigation size={14} />
-                Usar mi ubicación actual
+                {t.solicitar.usarUbicacion}
               </button>
 
               {/* Mini mapa Leaflet */}
@@ -370,8 +380,8 @@ export default function SolicitarScreen() {
                   <Baby size={21} color={cfg.color} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: text }}>Consulta pediátrica</p>
-                  <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>Activá esto si la consulta es para un niño/a.</p>
+                  <p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: text }}>{t.solicitar.pediatrica}</p>
+                  <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>{t.solicitar.pediatricaDesc}</p>
                 </div>
                 <div style={{ width: 44, height: 26, borderRadius: 999, background: esPediatria ? cfg.color : border, position: "relative", flexShrink: 0, transition: "background 0.15s" }}>
                   <div style={{ position: "absolute", top: 3, left: esPediatria ? 21 : 3, width: 20, height: 20, borderRadius: 999, background: "#fff", transition: "left 0.15s" }} />
@@ -381,14 +391,14 @@ export default function SolicitarScreen() {
               {esPediatria && (
                 <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
                   <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
-                    Datos del niño/a
+                    {t.solicitar.datosNinio}
                   </label>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-                    <input value={pacienteMenorNombre} onChange={e => setPacienteMenorNombre(e.target.value)} placeholder="Nombre y apellido" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    <input value={pacienteMenorDni} onChange={e => setPacienteMenorDni(e.target.value)} placeholder="DNI del niño/a" inputMode="numeric" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    <input value={pacienteMenorFechaNacimiento} onChange={e => setPacienteMenorFechaNacimiento(e.target.value)} placeholder="Fecha nacimiento AAAA-MM-DD" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    <input value={pacienteMenorSexo} onChange={e => setPacienteMenorSexo(e.target.value)} placeholder="Sexo" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    <input value={responsableVinculo} onChange={e => setResponsableVinculo(e.target.value)} placeholder="Vínculo del responsable" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={pacienteMenorNombre} onChange={e => setPacienteMenorNombre(e.target.value)} placeholder={t.solicitar.nombreApellido} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={pacienteMenorDni} onChange={e => setPacienteMenorDni(e.target.value)} placeholder={t.solicitar.dniPlaceholder} inputMode="numeric" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={pacienteMenorFechaNacimiento} onChange={e => setPacienteMenorFechaNacimiento(e.target.value)} placeholder={t.solicitar.fechaNacPlaceholder} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={pacienteMenorSexo} onChange={e => setPacienteMenorSexo(e.target.value)} placeholder={t.solicitar.sexo} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={responsableVinculo} onChange={e => setResponsableVinculo(e.target.value)} placeholder={t.solicitar.vinculo} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                   </div>
                 </div>
               )}
@@ -400,12 +410,12 @@ export default function SolicitarScreen() {
                 <CreditCard size={21} color={cfg.color} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 12, color: muted, margin: "0 0 4px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.6px" }}>Precio del servicio</p>
+                <p style={{ fontSize: 12, color: muted, margin: "0 0 4px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.6px" }}>{t.solicitar.precioServicio}</p>
                 <p style={{ fontSize: 26, fontWeight: 950, color: tarifaError ? "#f87171" : text, margin: 0, lineHeight: 1.1 }}>
-                  {tarifaError ? "No disponible" : tarifaLoading ? "Cargando..." : formatPesos(tarifa?.monto)}
+                  {tarifaError ? t.solicitar.noDisponible : tarifaLoading ? t.solicitar.cargando : formatPesos(tarifa?.monto, t.solicitar.cargando)}
                 </p>
                 <p style={{ fontSize: 12, color: muted, margin: "6px 0 0", lineHeight: 1.4 }}>
-                  {tarifaError || tarifa?.descripcion || "Monto actualizado desde DocYa."}
+                  {tarifaError || tarifa?.descripcion || t.solicitar.montoActualizado}
                 </p>
               </div>
             </div>
@@ -413,7 +423,7 @@ export default function SolicitarScreen() {
             {/* MÉTODO DE PAGO */}
             <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
               <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 14 }}>
-                Método de pago
+                {t.solicitar.metodoPago}
               </label>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, marginBottom: 18 }}>
                 {METODOS_ONLINE.map(m => {
@@ -437,17 +447,17 @@ export default function SolicitarScreen() {
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <ShieldCheck size={22} color={cfg.color} />
                     <div>
-                      <p style={{ fontSize: 17, fontWeight: 900, color: text, margin: 0 }}>Pago con preautorizacion</p>
+                      <p style={{ fontSize: 17, fontWeight: 900, color: text, margin: 0 }}>{t.solicitar.pagoPreautorizacion}</p>
                       <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>
-                        {metodoPago === "tarjeta" ? `Reservamos ${formatPesos(tarifa?.monto)} en tu tarjeta de credito.` : `Generamos el pago por ${formatPesos(tarifa?.monto)} desde tu cuenta de Mercado Pago.`}
+                        {metodoPago === "tarjeta" ? t.solicitar.reservamos.replace("{monto}", formatPesos(tarifa?.monto, t.solicitar.cargando)) : t.solicitar.generamosPago.replace("{monto}", formatPesos(tarifa?.monto, t.solicitar.cargando))}
                       </p>
                     </div>
                   </div>
 
                   {[
-                    { icon: CreditCard, strong: "No se cobra ahora.", text: metodoPago === "tarjeta" ? "El monto queda reservado en tu tarjeta pero no debitado." : "Mercado Pago prepara la operacion sin confirmar el cobro todavia." },
-                    { icon: CheckCircle2, strong: `Se cobra solo si un ${tipo === "enfermero" ? "enfermero" : "medico"} acepta.`, text: "En el momento exacto que alguien acepta tu consulta." },
-                    { icon: RotateCcw, strong: "Si nadie acepta o cancelas.", text: "La reserva se libera sola en menos de 5 minutos. No perdes nada." },
+                    { icon: CreditCard, strong: t.solicitar.noSeCobraAhora, text: metodoPago === "tarjeta" ? t.solicitar.montoReservado : t.solicitar.mpPreparaPago },
+                    { icon: CheckCircle2, strong: tipo === "enfermero" ? t.solicitar.seCobraEnfermero : t.solicitar.seCobraMedico, text: t.solicitar.enMomentoAcepta },
+                    { icon: RotateCcw, strong: t.solicitar.siNadieAcepta, text: t.solicitar.reservaLibera },
                   ].map(({ icon: BulletIcon, strong, text: itemText }) => (
                     <div key={strong} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                       <BulletIcon size={17} color={cfg.color} style={{ flexShrink: 0, marginTop: 2 }} />
@@ -468,8 +478,8 @@ export default function SolicitarScreen() {
                     <Banknote size={20} color={metodoPago === "efectivo" ? cfg.color : muted} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 15, fontWeight: 800, margin: 0 }}>Efectivo</p>
-                    <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>Le pagas al profesional cuando llega o por transferencia.</p>
+                    <p style={{ fontSize: 15, fontWeight: 800, margin: 0 }}>{t.solicitar.metodos.efectivoTitle}</p>
+                    <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>{t.solicitar.efectivoDesc}</p>
                   </div>
                   <div style={{ width: 20, height: 20, borderRadius: 999, border: `2px solid ${metodoPago === "efectivo" ? cfg.color : border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     {metodoPago === "efectivo" && <div style={{ width: 10, height: 10, borderRadius: 999, background: cfg.color }} />}
@@ -479,7 +489,7 @@ export default function SolicitarScreen() {
 
               {!permiteEfectivo && (
                 <p style={{ fontSize: 12, color: muted, marginTop: 12, lineHeight: 1.5 }}>
-                  En teleconsulta el pago en efectivo no esta disponible.
+                  {t.solicitar.teleconsultaEfectivoDisabled}
                 </p>
               )}
             </div>
@@ -491,11 +501,11 @@ export default function SolicitarScreen() {
               style={{ width: "100%", padding: "17px 20px", borderRadius: 18, border: "none", background: (submitting || tarifaLoading || tarifaError) ? "rgba(0,179,166,0.5)" : `linear-gradient(90deg, ${cfg.color}, #2dd4bf)`, color: "#fff", fontSize: 16, fontWeight: 700, cursor: (submitting || tarifaLoading || tarifaError) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontFamily: "inherit", boxShadow: submitting ? "none" : `0 8px 24px ${cfg.color}44` }}
             >
               {submitting ? (
-                <><Loader2 size={20} className="animate-spin" /> Buscando profesional...</>
+                <><Loader2 size={20} className="animate-spin" /> {t.solicitar.buscandoProfesional}</>
               ) : tarifaLoading ? (
-                <><Loader2 size={20} className="animate-spin" /> Cargando precio...</>
+                <><Loader2 size={20} className="animate-spin" /> {t.solicitar.cargandoPrecio}</>
               ) : (
-                <>{metodoPago === "efectivo" ? "Solicitar" : "Autorizar y pedir"} {cfg.label.toLowerCase()} - {formatPesos(tarifa?.monto)} <ChevronRight size={20} /></>
+                <>{metodoPago === "efectivo" ? t.solicitar.solicitarBtn : t.solicitar.autorizarPedir} {cfg.label.toLowerCase()} - {formatPesos(tarifa?.monto, t.solicitar.cargando)} <ChevronRight size={20} /></>
               )}
             </button>
 

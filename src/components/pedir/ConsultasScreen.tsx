@@ -24,8 +24,12 @@ import {
   XCircle,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
+import { useI18n } from "@/lib/i18n/context";
+import type { es } from "@/lib/i18n/translations/es";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
+
+type Translations = typeof es;
 
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean };
 
@@ -68,22 +72,22 @@ type ArchivoPaciente = {
   url?: string;
 };
 
-function estadoMeta(estado?: string) {
+function estadoMeta(estado: string | undefined, estados: Record<string, string>) {
   const key = (estado || "pendiente").toLowerCase();
-  if (key === "finalizada") return { label: "Finalizada", color: "#22c55e", Icon: CheckCircle2 };
-  if (key.includes("cancelada") || key === "pago_no_autorizado") return { label: key === "pago_no_autorizado" ? "Pago no autorizado" : "Cancelada", color: "#f87171", Icon: XCircle };
-  if (key === "aceptada") return { label: "Profesional asignado", color: "#38bdf8", Icon: UserCheck };
-  if (key === "en_camino") return { label: "En camino", color: "#2dd4bf", Icon: MapPin };
-  if (key === "en_domicilio") return { label: "En domicilio", color: "#14b8a6", Icon: Home };
-  if (key === "en_curso" || key === "en_videollamada") return { label: "En curso", color: "#818cf8", Icon: Activity };
-  return { label: "Pendiente", color: "#fbbf24", Icon: Loader2 };
+  if (key === "finalizada") return { label: estados.finalizada, color: "#22c55e", Icon: CheckCircle2 };
+  if (key.includes("cancelada") || key === "pago_no_autorizado") return { label: key === "pago_no_autorizado" ? estados.pagoNoAutorizado : estados.cancelada, color: "#f87171", Icon: XCircle };
+  if (key === "aceptada") return { label: estados.asignado, color: "#38bdf8", Icon: UserCheck };
+  if (key === "en_camino") return { label: estados.enCamino, color: "#2dd4bf", Icon: MapPin };
+  if (key === "en_domicilio") return { label: estados.enDomicilio, color: "#14b8a6", Icon: Home };
+  if (key === "en_curso" || key === "en_videollamada") return { label: estados.enCurso, color: "#818cf8", Icon: Activity };
+  return { label: estados.pendiente, color: "#fbbf24", Icon: Loader2 };
 }
 
-function tipoMeta(tipo?: string) {
+function tipoMeta(tipo: string | undefined, tipoLabels: Record<string, string>) {
   const key = (tipo || "").toLowerCase();
-  if (key === "teleconsulta") return { label: "Teleconsulta", Icon: Video, color: "#818cf8" };
-  if (key === "enfermero") return { label: "Enfermeria", Icon: HeartPulse, color: "#f472b6" };
-  return { label: "Medico a domicilio", Icon: Stethoscope, color: "#00b3a6" };
+  if (key === "teleconsulta") return { label: tipoLabels.teleconsulta, Icon: Video, color: "#818cf8" };
+  if (key === "enfermero") return { label: tipoLabels.enfermeria, Icon: HeartPulse, color: "#f472b6" };
+  return { label: tipoLabels.medico, Icon: Stethoscope, color: "#00b3a6" };
 }
 
 function parseHistoria(raw: HistoriaConsulta["historia_clinica"]) {
@@ -110,6 +114,7 @@ function fechaCorta(value?: string | null) {
 
 export default function ConsultasScreen() {
   const router = useRouter();
+  const { t } = useI18n();
   const theme = usePedirTheme();
   const { bg, text, muted, border, brandBorder, surface, headerBg, logo } = theme;
 
@@ -190,7 +195,7 @@ export default function ConsultasScreen() {
           <div style={{ flex: 1 }} />
           <button onClick={() => void cargar(user.id)} style={{ display: "flex", alignItems: "center", gap: 8, border: `1px solid ${border}`, background: "transparent", color: muted, borderRadius: 999, padding: "8px 12px", cursor: "pointer", fontWeight: 700, fontFamily: "inherit" }}>
             <RefreshCw size={15} />
-            Actualizar
+            {t.consultas.actualizar}
           </button>
         </div>
       </header>
@@ -202,24 +207,24 @@ export default function ConsultasScreen() {
               <ClipboardList size={28} color="#fff" />
             </div>
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 12, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 8 }}>Historia clinica</p>
+              <p style={{ fontSize: 12, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 8 }}>{t.consultas.historiaClinica}</p>
               <h1 style={{ fontSize: "clamp(26px, 5vw, 38px)", fontWeight: 950, lineHeight: 1.1, marginBottom: 10, color: "#2dd4bf" }}>
-                Mis consultas
+                {t.consultas.misConsultas}
               </h1>
               <p style={{ color: muted, fontSize: 15, lineHeight: 1.55 }}>
-                Aca ves tus atenciones finalizadas, el motivo informado, el profesional y la evolucion clinica registrada.
+                {t.consultas.misConsultasDesc}
               </p>
             </div>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}>
-            <InfoChip label="Consultas" value={String(stats.total)} icon={<FileText size={15} />} color="#2dd4bf" theme={theme} />
-            <InfoChip label="Finalizadas" value={String(stats.finalizadas)} icon={<CheckCircle2 size={15} />} color="#22c55e" theme={theme} />
-            <InfoChip label="Documentos" value={String(stats.documentos)} icon={<Download size={15} />} color="#38bdf8" theme={theme} />
-            <InfoChip label="Paciente" value={user.full_name.split(" ")[0] || "Activo"} icon={<UserCheck size={15} />} color="#38bdf8" theme={theme} />
+            <InfoChip label={t.consultas.consultas} value={String(stats.total)} icon={<FileText size={15} />} color="#2dd4bf" theme={theme} />
+            <InfoChip label={t.consultas.finalizadas} value={String(stats.finalizadas)} icon={<CheckCircle2 size={15} />} color="#22c55e" theme={theme} />
+            <InfoChip label={t.consultas.documentos} value={String(stats.documentos)} icon={<Download size={15} />} color="#38bdf8" theme={theme} />
+            <InfoChip label={t.consultas.paciente} value={user.full_name.split(" ")[0] || t.consultas.activo} icon={<UserCheck size={15} />} color="#38bdf8" theme={theme} />
           </div>
         </section>
 
-        {activa && <ActivaCard activa={activa} theme={theme} />}
+        {activa && <ActivaCard activa={activa} theme={theme} t={t} />}
 
         {/* Tabs */}
         <div
@@ -234,8 +239,8 @@ export default function ConsultasScreen() {
           }}
         >
           {([
-            { key: "historial", label: `Historial (${historial.length})` },
-            { key: "documentos", label: `Documentos (${archivos.length})` },
+            { key: "historial", label: `${t.consultas.historial} (${historial.length})` },
+            { key: "documentos", label: `${t.consultas.documentos} (${archivos.length})` },
           ] as const).map(({ key, label }) => (
             <button
               key={key}
@@ -266,13 +271,13 @@ export default function ConsultasScreen() {
               <Loader2 size={34} className="animate-spin" />
             </div>
           ) : error ? (
-            <EmptyState theme={theme} title="No pudimos cargar tus consultas" text={error} action={<button onClick={() => void cargar(user.id)} style={{ border: "none", borderRadius: 14, background: "linear-gradient(90deg,#00b3a6,#2dd4bf)", color: "#fff", padding: "12px 18px", fontWeight: 800, cursor: "pointer" }}>Reintentar</button>} />
+            <EmptyState theme={theme} title={t.consultas.errorCargar} text={error} action={<button onClick={() => void cargar(user.id)} style={{ border: "none", borderRadius: 14, background: "linear-gradient(90deg,#00b3a6,#2dd4bf)", color: "#fff", padding: "12px 18px", fontWeight: 800, cursor: "pointer" }}>{t.consultas.reintentar}</button>} />
           ) : historial.length === 0 ? (
-            <EmptyState theme={theme} title="No hay consultas registradas" text="Cuando tengas atenciones medicas en DocYa, aca vas a ver tu historia clinica en orden cronologico." />
+            <EmptyState theme={theme} title={t.consultas.sinConsultas} text={t.consultas.sinConsultasDesc} />
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {historial.map((consulta, index) => (
-                <ConsultaCard key={`${consulta.consulta_id ?? consulta.id ?? index}`} consulta={consulta} theme={theme} />
+                <ConsultaCard key={`${consulta.consulta_id ?? consulta.id ?? index}`} consulta={consulta} theme={theme} t={t} />
               ))}
             </div>
           )
@@ -285,7 +290,7 @@ export default function ConsultasScreen() {
               <Loader2 size={34} className="animate-spin" />
             </div>
           ) : (
-            <DocumentosSection archivos={archivos} theme={theme} />
+            <DocumentosSection archivos={archivos} theme={theme} t={t} />
           )
         )}
       </main>
@@ -293,7 +298,7 @@ export default function ConsultasScreen() {
   );
 }
 
-function DocumentosSection({ archivos, theme }: { archivos: ArchivoPaciente[]; theme: ReturnType<typeof usePedirTheme> }) {
+function DocumentosSection({ archivos, theme, t }: { archivos: ArchivoPaciente[]; theme: ReturnType<typeof usePedirTheme>; t: Translations }) {
   const [tab, setTab] = useState<"recetas" | "certificados" | "ordenes">("recetas");
   const recetas = archivos.filter(archivo => (archivo.tipo || "").toLowerCase().includes("receta"));
   const certificados = archivos.filter(archivo => (archivo.tipo || "").toLowerCase().includes("certificado"));
@@ -307,14 +312,14 @@ function DocumentosSection({ archivos, theme }: { archivos: ArchivoPaciente[]; t
     <section style={{ borderRadius: 24, border: `1px solid ${theme.border}`, background: theme.cardBg, padding: "18px", marginBottom: 20, boxShadow: "0 14px 40px rgba(0,0,0,0.08)" }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
         <div>
-          <p style={{ color: "#2dd4bf", fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 6 }}>Documentos</p>
-          <h2 style={{ color: theme.text, fontSize: 20, fontWeight: 950, marginBottom: 5 }}>Recetas, certificados y órdenes</h2>
-          <p style={{ color: theme.muted, fontSize: 14, lineHeight: 1.5 }}>Aca podes ver los documentos digitales que emitio tu profesional.</p>
+          <p style={{ color: "#2dd4bf", fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 6 }}>{t.consultas.documentosSection}</p>
+          <h2 style={{ color: theme.text, fontSize: 20, fontWeight: 950, marginBottom: 5 }}>{t.consultas.recetasCertificados}</h2>
+          <p style={{ color: theme.muted, fontSize: 14, lineHeight: 1.5 }}>{t.consultas.documentosDesc}</p>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", padding: 4, borderRadius: 16, border: `1px solid ${theme.border}`, background: theme.inputBg }}>
-          <DocTab active={tab === "recetas"} onClick={() => setTab("recetas")} label={`Recetas (${recetas.length})`} theme={theme} />
-          <DocTab active={tab === "certificados"} onClick={() => setTab("certificados")} label={`Certificados (${certificados.length})`} theme={theme} />
-          <DocTab active={tab === "ordenes"} onClick={() => setTab("ordenes")} label={`Órdenes (${ordenes.length})`} theme={theme} />
+          <DocTab active={tab === "recetas"} onClick={() => setTab("recetas")} label={`${t.consultas.recetas} (${recetas.length})`} theme={theme} />
+          <DocTab active={tab === "certificados"} onClick={() => setTab("certificados")} label={`${t.consultas.certificados} (${certificados.length})`} theme={theme} />
+          <DocTab active={tab === "ordenes"} onClick={() => setTab("ordenes")} label={`${t.consultas.ordenes} (${ordenes.length})`} theme={theme} />
         </div>
       </div>
 
@@ -322,14 +327,14 @@ function DocumentosSection({ archivos, theme }: { archivos: ArchivoPaciente[]; t
         <div style={{ borderRadius: 18, border: `1px dashed ${theme.border}`, background: theme.inputBg, padding: "22px 16px", textAlign: "center" }}>
           <FileText size={34} color={theme.muted} style={{ margin: "0 auto 10px" }} />
           <p style={{ color: theme.text, fontSize: 15, fontWeight: 850, marginBottom: 5 }}>
-            Sin {tab === "recetas" ? "recetas" : tab === "certificados" ? "certificados" : "órdenes"} emitidos
+            {tab === "recetas" ? t.consultas.sinRecetas : tab === "certificados" ? t.consultas.sinCertificados : t.consultas.sinOrdenes}
           </p>
-          <p style={{ color: theme.muted, fontSize: 13, lineHeight: 1.45 }}>Cuando tu profesional emita un documento, va a aparecer aca.</p>
+          <p style={{ color: theme.muted, fontSize: 13, lineHeight: 1.45 }}>{t.consultas.documentoApareceAca}</p>
         </div>
       ) : (
         <div style={{ display: "grid", gap: 12 }}>
           {visibles.map((archivo, index) => (
-            <DocumentoCard key={`${archivo.tipo}-${archivo.id ?? index}-${archivo.fecha ?? ""}`} archivo={archivo} theme={theme} />
+            <DocumentoCard key={`${archivo.tipo}-${archivo.id ?? index}-${archivo.fecha ?? ""}`} archivo={archivo} theme={theme} t={t} />
           ))}
         </div>
       )}
@@ -359,13 +364,13 @@ function DocTab({ active, onClick, label, theme }: { active: boolean; onClick: (
   );
 }
 
-function DocumentoCard({ archivo, theme }: { archivo: ArchivoPaciente; theme: ReturnType<typeof usePedirTheme> }) {
+function DocumentoCard({ archivo, theme, t }: { archivo: ArchivoPaciente; theme: ReturnType<typeof usePedirTheme>; t: Translations }) {
   const tipo = (archivo.tipo || "").toLowerCase();
   const esReceta = tipo.includes("receta");
   const esOrden = tipo.includes("orden") || tipo.includes("laboratorio") || tipo.includes("imagen") || tipo.includes("derivacion") || tipo.includes("derivación");
   const color = esReceta ? "#818cf8" : esOrden ? "#38bdf8" : "#22c55e";
-  const titulo = esReceta ? "Receta digital" : esOrden ? "Orden médica" : "Certificado medico";
-  const detalle = [archivo.doctor, archivo.especialidad].filter(Boolean).join(" - ") || "Profesional DocYa";
+  const titulo = esReceta ? t.consultas.recetaDigital : esOrden ? t.consultas.ordenMedica : t.consultas.certificadoMedico;
+  const detalle = [archivo.doctor, archivo.especialidad].filter(Boolean).join(" - ") || t.consultas.profesionalDocYa;
 
   return (
     <article style={{ borderRadius: 18, border: `1px solid ${theme.border}`, background: theme.inputBg, padding: "14px", display: "flex", alignItems: "center", gap: 13 }}>
@@ -379,13 +384,13 @@ function DocumentoCard({ archivo, theme }: { archivo: ArchivoPaciente; theme: Re
         </div>
         <p style={{ color: theme.muted, fontSize: 13, lineHeight: 1.4 }}>{detalle}</p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
-          <InfoChip label="Fecha" value={fechaCorta(archivo.fecha)} icon={<Calendar size={15} />} color="#2dd4bf" theme={theme} />
-          {archivo.consulta_id != null && <InfoChip label="Consulta" value={String(archivo.consulta_id)} icon={<ClipboardList size={15} />} color="#38bdf8" theme={theme} />}
+          <InfoChip label={t.consultas.fecha} value={fechaCorta(archivo.fecha)} icon={<Calendar size={15} />} color="#2dd4bf" theme={theme} />
+          {archivo.consulta_id != null && <InfoChip label={t.consultas.consulta} value={String(archivo.consulta_id)} icon={<ClipboardList size={15} />} color="#38bdf8" theme={theme} />}
         </div>
       </div>
       {archivo.url && (
         <a href={archivo.url} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, borderRadius: 14, background: "linear-gradient(90deg,#00b3a6,#2dd4bf)", color: "#fff", padding: "11px 13px", fontSize: 13, fontWeight: 900, textDecoration: "none", flexShrink: 0 }}>
-          Ver
+          {t.consultas.ver}
           <ExternalLink size={15} />
         </a>
       )}
@@ -402,9 +407,9 @@ function InfoChip({ label, value, icon, color, theme }: { label: string; value: 
   );
 }
 
-function ActivaCard({ activa, theme }: { activa: ConsultaActiva; theme: ReturnType<typeof usePedirTheme> }) {
-  const meta = estadoMeta(activa.estado);
-  const tipo = tipoMeta(activa.tipo);
+function ActivaCard({ activa, theme, t }: { activa: ConsultaActiva; theme: ReturnType<typeof usePedirTheme>; t: Translations }) {
+  const meta = estadoMeta(activa.estado, t.consultas.estados);
+  const tipo = tipoMeta(activa.tipo, t.consultas.tipoLabels);
   const trackingHref = `/pedir/buscando?consulta_id=${activa.id}&tipo=${activa.tipo || "medico"}`;
   return (
     <article style={{ borderRadius: 22, border: `1.5px solid ${meta.color}55`, background: `${meta.color}10`, padding: "18px", marginBottom: 20 }}>
@@ -413,22 +418,22 @@ function ActivaCard({ activa, theme }: { activa: ConsultaActiva; theme: ReturnTy
           <meta.Icon size={24} color={meta.color} />
         </div>
         <div style={{ flex: 1 }}>
-          <p style={{ color: meta.color, fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 4 }}>Consulta activa</p>
+          <p style={{ color: meta.color, fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 4 }}>{t.consultas.consultaActiva}</p>
           <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6, color: theme.text }}>{meta.label}</h2>
-          <p style={{ color: theme.muted, fontSize: 14, lineHeight: 1.45 }}>{activa.motivo || "Tu consulta esta en proceso."}</p>
+          <p style={{ color: theme.muted, fontSize: 14, lineHeight: 1.45 }}>{activa.motivo || t.consultas.consultaEnProceso}</p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-            <InfoChip label="Tipo" value={tipo.label} icon={<tipo.Icon size={15} />} color={tipo.color} theme={theme} />
-            {activa.medico_nombre && <InfoChip label="Profesional" value={activa.medico_nombre} icon={<UserCheck size={15} />} color="#38bdf8" theme={theme} />}
+            <InfoChip label={t.consultas.tipo} value={tipo.label} icon={<tipo.Icon size={15} />} color={tipo.color} theme={theme} />
+            {activa.medico_nombre && <InfoChip label={t.consultas.profesionalLabel} value={activa.medico_nombre} icon={<UserCheck size={15} />} color="#38bdf8" theme={theme} />}
           </div>
         </div>
       </div>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}>
         <Link href={trackingHref} style={{ flex: "1 1 180px", textAlign: "center", borderRadius: 14, background: "linear-gradient(90deg,#00b3a6,#2dd4bf)", color: "#fff", padding: "13px 16px", fontWeight: 850, textDecoration: "none" }}>
-          Ver seguimiento
+          {t.consultas.verSeguimiento}
         </Link>
         {(activa.video_url || activa.daily_room_url) && (
           <Link href={`/pedir/videollamada?consulta_id=${activa.id}&video_url=${encodeURIComponent(activa.video_url || activa.daily_room_url || "")}&medico=${encodeURIComponent(activa.medico_nombre || "")}`} style={{ flex: "1 1 180px", textAlign: "center", borderRadius: 14, border: `1px solid ${theme.border}`, color: theme.text, padding: "13px 16px", fontWeight: 850, textDecoration: "none" }}>
-            Entrar a videollamada
+            {t.consultas.entrarVideoLlamada}
           </Link>
         )}
       </div>
@@ -436,11 +441,11 @@ function ActivaCard({ activa, theme }: { activa: ConsultaActiva; theme: ReturnTy
   );
 }
 
-function ConsultaCard({ consulta, theme }: { consulta: HistoriaConsulta; theme: ReturnType<typeof usePedirTheme> }) {
-  const meta = estadoMeta(consulta.estado);
-  const tipo = tipoMeta(consulta.tipo || consulta.tipo_profesional);
+function ConsultaCard({ consulta, theme, t }: { consulta: HistoriaConsulta; theme: ReturnType<typeof usePedirTheme>; t: Translations }) {
+  const meta = estadoMeta(consulta.estado, t.consultas.estados);
+  const tipo = tipoMeta(consulta.tipo || consulta.tipo_profesional, t.consultas.tipoLabels);
   const historia = parseHistoria(consulta.historia_clinica);
-  const profesional = consulta.medico || consulta.medico_nombre || "Profesional no asignado";
+  const profesional = consulta.medico || consulta.medico_nombre || t.consultas.profesionalNoAsignado;
   const signos = historia?.signos_vitales as Record<string, unknown> | undefined;
 
   return (
@@ -452,19 +457,19 @@ function ConsultaCard({ consulta, theme }: { consulta: HistoriaConsulta; theme: 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
             <div>
-              <h3 style={{ fontSize: 18, fontWeight: 900, color: theme.text, marginBottom: 4 }}>Consulta #{consulta.consulta_id ?? consulta.id ?? "-"}</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 900, color: theme.text, marginBottom: 4 }}>{t.consultas.consultaNum}{consulta.consulta_id ?? consulta.id ?? "-"}</h3>
               <p style={{ color: theme.muted, fontSize: 14 }}>{profesional}</p>
             </div>
             <span style={{ color: meta.color, background: `${meta.color}14`, borderRadius: 999, padding: "6px 10px", fontSize: 12, fontWeight: 900 }}>{meta.label}</span>
           </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
-            <InfoChip label="Fecha" value={fechaCorta(consulta.fecha_consulta || consulta.creado_en)} icon={<Calendar size={15} />} color="#2dd4bf" theme={theme} />
-            <InfoChip label="Tipo" value={tipo.label} icon={<tipo.Icon size={15} />} color={tipo.color} theme={theme} />
-            {consulta.fecha_nota && <InfoChip label="Nota" value={fechaCorta(consulta.fecha_nota)} icon={<FileText size={15} />} color="#38bdf8" theme={theme} />}
+            <InfoChip label={t.consultas.fecha} value={fechaCorta(consulta.fecha_consulta || consulta.creado_en)} icon={<Calendar size={15} />} color="#2dd4bf" theme={theme} />
+            <InfoChip label={t.consultas.tipo} value={tipo.label} icon={<tipo.Icon size={15} />} color={tipo.color} theme={theme} />
+            {consulta.fecha_nota && <InfoChip label={t.consultas.nota} value={fechaCorta(consulta.fecha_nota)} icon={<FileText size={15} />} color="#38bdf8" theme={theme} />}
           </div>
 
-          <ClinicalBlock title="Motivo de consulta" value={consulta.motivo || "-"} theme={theme} />
+          <ClinicalBlock title={t.consultas.motivoConsulta} value={consulta.motivo || "-"} theme={theme} />
 
           {historia && (
             <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
@@ -476,12 +481,12 @@ function ConsultaCard({ consulta, theme }: { consulta: HistoriaConsulta; theme: 
                   {textValue(signos.sat) && <InfoChip label="SatO2" value={textValue(signos.sat)} icon={<Activity size={15} />} color="#38bdf8" theme={theme} />}
                 </div>
               )}
-              {textValue(historia.respiratorio) && <ClinicalBlock title="Examen respiratorio" value={textValue(historia.respiratorio)} theme={theme} />}
-              {textValue(historia.cardio) && <ClinicalBlock title="Examen cardiovascular" value={textValue(historia.cardio)} theme={theme} />}
-              {textValue(historia.abdomen) && <ClinicalBlock title="Examen abdominal" value={textValue(historia.abdomen)} theme={theme} />}
-              {textValue(historia.snc) && <ClinicalBlock title="Sistema nervioso central" value={textValue(historia.snc)} theme={theme} />}
-              {textValue(historia.diagnostico) && <ClinicalBlock title="Diagnostico" value={textValue(historia.diagnostico)} theme={theme} />}
-              {textValue(historia.observacion) && <ClinicalBlock title="Observaciones" value={textValue(historia.observacion)} theme={theme} />}
+              {textValue(historia.respiratorio) && <ClinicalBlock title={t.consultas.examenRespiratorio} value={textValue(historia.respiratorio)} theme={theme} />}
+              {textValue(historia.cardio) && <ClinicalBlock title={t.consultas.examenCardiovascular} value={textValue(historia.cardio)} theme={theme} />}
+              {textValue(historia.abdomen) && <ClinicalBlock title={t.consultas.examenAbdominal} value={textValue(historia.abdomen)} theme={theme} />}
+              {textValue(historia.snc) && <ClinicalBlock title={t.consultas.sistemaNervioso} value={textValue(historia.snc)} theme={theme} />}
+              {textValue(historia.diagnostico) && <ClinicalBlock title={t.consultas.diagnostico} value={textValue(historia.diagnostico)} theme={theme} />}
+              {textValue(historia.observacion) && <ClinicalBlock title={t.consultas.observaciones} value={textValue(historia.observacion)} theme={theme} />}
             </div>
           )}
         </div>

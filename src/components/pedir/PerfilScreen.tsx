@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import AddressInput from "./AddressInput";
 import { usePedirTheme } from "./theme";
+import { useI18n } from "@/lib/i18n/context";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -28,6 +29,7 @@ const notify = (msg: string, ok = true) => {
 
 export default function PerfilScreen() {
   const router = useRouter();
+  const { t } = useI18n();
   const [user, setUser] = useState<PedirUser | null>(null);
   const { dark, bg, surface, brandBorder: border, text, muted, inputBg, headerBg, logo } = usePedirTheme();
 
@@ -52,15 +54,15 @@ export default function PerfilScreen() {
 
   const guardar = useCallback(async () => {
     if (!user) return;
-    if (!nroDoc.trim())    return notify("Ingresá tu número de documento", false);
-    if (!direccion.trim()) return notify("Ingresá tu dirección", false);
-    if (!fechaNac)         return notify("Seleccioná tu fecha de nacimiento", false);
-    if (!telefono.trim())  return notify("Ingresá tu teléfono", false);
-    if (!acepta)           return notify("Debés aceptar los términos", false);
+    if (!nroDoc.trim())    return notify(t.perfil.dniRequerido, false);
+    if (!direccion.trim()) return notify(t.perfil.direccionRequerida, false);
+    if (!fechaNac)         return notify(t.perfil.fechaRequerida, false);
+    if (!telefono.trim())  return notify(t.perfil.telRequerido, false);
+    if (!acepta)           return notify(t.perfil.terminosRequeridos, false);
 
     const telefonoCom = `${COUNTRY_CODE}${telefono.replace(/\D/g, "")}`;
     if (!/^\+[1-9]\d{7,14}$/.test(telefonoCom))
-      return notify("Ingresá un teléfono válido (sin 0 ni 15)", false);
+      return notify(t.perfil.telInvalido, false);
 
     setSubmitting(true);
     try {
@@ -79,18 +81,18 @@ export default function PerfilScreen() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.detail || "No se pudo guardar el perfil");
+      if (!res.ok) throw new Error(data?.detail || t.perfil.errorGuardar);
 
       const updated: PedirUser = { ...user, perfil_completo: true };
       localStorage.setItem("pedir_user", JSON.stringify(updated));
-      notify("¡Perfil completo! Ya podés pedir tu consulta");
+      notify(t.perfil.exito);
       router.push("/pedir");
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Error al guardar", false);
+      notify(e instanceof Error ? e.message : t.perfil.errorGeneral, false);
     } finally {
       setSubmitting(false);
     }
-  }, [user, nroDoc, direccion, fechaNac, telefono, acepta, tipoDoc, sexo, router]);
+  }, [user, nroDoc, direccion, fechaNac, telefono, acepta, tipoDoc, sexo, router, t]);
 
   if (!user) return null;
 
@@ -114,13 +116,13 @@ export default function PerfilScreen() {
       <main style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 80px" }}>
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,179,166,0.12)", border: "1px solid rgba(0,179,166,0.25)", borderRadius: 999, padding: "6px 14px", fontSize: 13, fontWeight: 600, color: "#00b3a6", marginBottom: 16 }}>
-            <CheckCircle2 size={14} /> Un paso más
+            <CheckCircle2 size={14} /> {t.perfil.badge}
           </div>
           <h1 style={{ fontSize: "clamp(22px, 4vw, 28px)", fontWeight: 900, marginBottom: 8, color: "#2dd4bf" }}>
-            Completá tu perfil
+            {t.perfil.title}
           </h1>
           <p style={{ color: muted, fontSize: 15, lineHeight: 1.6 }}>
-            Hola <strong style={{ color: text }}>{user.full_name.split(" ")[0]}</strong>, necesitamos algunos datos para poder asignarte un profesional y emitir recetas.
+            {t.perfil.hola} <strong style={{ color: text }}>{user.full_name.split(" ")[0]}</strong>{t.perfil.necesitamosDatos}
           </p>
         </div>
 
@@ -128,7 +130,7 @@ export default function PerfilScreen() {
 
           {/* Datos personales */}
           <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
-            <Label icon={<CreditCard size={15} />} text="Documento" muted={muted} />
+            <Label icon={<CreditCard size={15} />} text={t.perfil.documento} muted={muted} />
             <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: 12 }}>
               <div style={{ position: "relative" }}>
                 <select
@@ -136,16 +138,16 @@ export default function PerfilScreen() {
                   onChange={e => setTipoDoc(e.target.value)}
                   style={{ ...inputStyle, appearance: "none", paddingRight: 32 }}
                 >
-                  <option value="dni">DNI</option>
-                  <option value="pasaporte">Pasaporte</option>
-                  <option value="otro">Otro</option>
+                  <option value="dni">{t.perfil.dni}</option>
+                  <option value="pasaporte">{t.perfil.pasaporte}</option>
+                  <option value="otro">{t.perfil.otro}</option>
                 </select>
                 <ChevronDown size={14} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: muted, pointerEvents: "none" }} />
               </div>
               <input
                 value={nroDoc}
                 onChange={e => setNroDoc(e.target.value)}
-                placeholder="Ej: 30123456"
+                placeholder={t.perfil.dniPlaceholder}
                 style={inputStyle}
               />
             </div>
@@ -153,32 +155,32 @@ export default function PerfilScreen() {
 
           {/* Teléfono */}
           <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
-            <Label icon={<Phone size={15} />} text="Teléfono (sin 0 ni 15)" muted={muted} />
+            <Label icon={<Phone size={15} />} text={t.perfil.telefonoLabel} muted={muted} />
             <div style={{ display: "grid", gridTemplateColumns: "72px 1fr", gap: 12 }}>
               <div style={{ ...inputStyle, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: muted }}>{COUNTRY_CODE}</div>
               <input
                 value={telefono}
                 onChange={e => setTelefono(e.target.value)}
-                placeholder="11 2233 4455"
+                placeholder={t.perfil.telefonoPlaceholder}
                 inputMode="tel"
                 style={inputStyle}
               />
             </div>
-            <p style={{ fontSize: 12, color: muted, marginTop: 8 }}>Argentina +54. Ej: 11 2233 4455 (sin el 0 ni el 15)</p>
+            <p style={{ fontSize: 12, color: muted, marginTop: 8 }}>{t.perfil.telefonoHint}</p>
           </div>
 
           {/* Dirección — usa el componente reutilizable */}
           <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
-            <Label icon={<CheckCircle2 size={15} />} text="Dirección habitual" muted={muted} />
+            <Label icon={<CheckCircle2 size={15} />} text={t.perfil.direccionLabel} muted={muted} />
             <AddressInput
               value={direccion}
               onChange={setDireccion}
               onPlaceSelect={(addr) => setDireccion(addr)}
-              placeholder="Empezá a escribir tu dirección..."
+              placeholder={t.perfil.direccionPlaceholder}
               dark={dark}
             />
             <p style={{ fontSize: 12, color: muted, marginTop: 8 }}>
-              Podés cambiar la dirección al hacer cada pedido.
+              {t.perfil.direccionHint}
             </p>
           </div>
 
@@ -186,7 +188,7 @@ export default function PerfilScreen() {
           <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div>
-                <Label icon={<Calendar size={15} />} text="Fecha de nacimiento" muted={muted} />
+                <Label icon={<Calendar size={15} />} text={t.perfil.fechaNacimiento} muted={muted} />
                 <input
                   type="date"
                   value={fechaNac}
@@ -195,12 +197,12 @@ export default function PerfilScreen() {
                 />
               </div>
               <div>
-                <Label icon={<Users size={15} />} text="Sexo biológico" muted={muted} />
+                <Label icon={<Users size={15} />} text={t.perfil.sexoBiologico} muted={muted} />
                 <div style={{ position: "relative" }}>
                   <select value={sexo} onChange={e => setSexo(e.target.value)} style={{ ...inputStyle, appearance: "none", paddingRight: 32 }}>
-                    <option value="masculino">Masculino</option>
-                    <option value="femenino">Femenino</option>
-                    <option value="otro">Otro</option>
+                    <option value="masculino">{t.perfil.masculino}</option>
+                    <option value="femenino">{t.perfil.femenino}</option>
+                    <option value="otro">{t.perfil.otro}</option>
                   </select>
                   <ChevronDown size={14} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: muted, pointerEvents: "none" }} />
                 </div>
@@ -219,10 +221,10 @@ export default function PerfilScreen() {
                 style={{ marginTop: 2, width: 18, height: 18, flexShrink: 0 }}
               />
               <label htmlFor="acepta-perfil" style={{ fontSize: 14, color: muted, cursor: "pointer", lineHeight: 1.5 }}>
-                Acepto los{" "}
-                <Link href="/legal/pacientes/terminos" target="_blank" style={{ color: "#00b3a6" }}>Términos y Condiciones</Link>
-                {" "}y la{" "}
-                <Link href="/legal/pacientes/privacidad" target="_blank" style={{ color: "#00b3a6" }}>Política de Privacidad</Link>.
+                {t.perfil.acepto}{" "}
+                <Link href="/legal/pacientes/terminos" target="_blank" style={{ color: "#00b3a6" }}>{t.perfil.terminosCondiciones}</Link>
+                {" "}{t.perfil.yLa}{" "}
+                <Link href="/legal/pacientes/privacidad" target="_blank" style={{ color: "#00b3a6" }}>{t.perfil.politicaPrivacidad}</Link>.
               </label>
             </div>
           </div>
@@ -233,7 +235,7 @@ export default function PerfilScreen() {
             disabled={submitting}
             style={{ width: "100%", padding: "17px", borderRadius: 18, border: "none", background: submitting ? "rgba(0,179,166,0.5)" : "linear-gradient(90deg, #00b3a6, #2dd4bf)", color: "#fff", fontSize: 16, fontWeight: 700, cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontFamily: "inherit", boxShadow: submitting ? "none" : "0 8px 24px rgba(0,179,166,0.35)" }}
           >
-            {submitting ? <><Loader2 size={20} className="animate-spin" />Guardando...</> : <><CheckCircle2 size={20} />Guardar y continuar</>}
+            {submitting ? <><Loader2 size={20} className="animate-spin" />{t.perfil.guardando}</> : <><CheckCircle2 size={20} />{t.perfil.guardarContinuar}</>}
           </button>
         </div>
       </main>

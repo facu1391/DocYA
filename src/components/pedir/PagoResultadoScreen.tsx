@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, XCircle, Loader2, RotateCcw, Home } from "lucide-react";
 import { usePedirTheme } from "./theme";
+import { useI18n } from "@/lib/i18n/context";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -92,7 +93,7 @@ async function solicitarConsulta(body: Record<string, unknown>) {
 
   if (tipo === "teleconsulta") {
     const token = String(body.access_token ?? "");
-    if (!token) throw new Error("Token requerido. Cerra sesion e ingresa nuevamente.");
+    if (!token) throw new Error("TOKEN_REQUIRED");
     headers.Authorization = `Bearer ${token}`;
   }
 
@@ -103,13 +104,14 @@ async function solicitarConsulta(body: Record<string, unknown>) {
   });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.detail?.mensaje || err.detail || "No se pudo iniciar la consulta");
+    throw new Error(err.detail?.mensaje || err.detail || "ERROR_INICIAR");
   }
   return res.json();
 }
 
 export default function PagoResultadoScreen() {
   const router = useRouter();
+  const { t } = useI18n();
   const params = useSearchParams();
   const status = params.get("status") ?? "";
   const collectionStatus = params.get("collection_status") ?? "";
@@ -130,8 +132,8 @@ export default function PagoResultadoScreen() {
       setFase("error");
       setMensaje(
         status === "pending"
-          ? "Tu pago esta siendo procesado por Mercado Pago. Revisa tu cuenta de MP en unos minutos."
-          : "El pago no pudo completarse. No se realizo ningun cobro."
+          ? t.pagoResultado.pagoPendiente
+          : t.pagoResultado.pagoFallido
       );
       return;
     }
@@ -142,7 +144,7 @@ export default function PagoResultadoScreen() {
       try {
         const pending = readStoredJson("docya_saldo_mp_pending") || await reconstruirPendingDesdeConsulta(consultaId);
         if (!pending) {
-          throw new Error("Pago recibido, pero no pudimos retomar tu sesion. Volve a ingresar a DocYa e intenta nuevamente.");
+          throw new Error(t.pagoResultado.errorSesion);
         }
 
         const data = await solicitarConsulta({
@@ -169,7 +171,7 @@ export default function PagoResultadoScreen() {
         sessionStorage.removeItem("docya_saldo_mp_pending");
 
         const nuevaConsultaId = getConsultaId(data);
-        if (!nuevaConsultaId) throw new Error("No se pudo obtener la teleconsulta creada");
+        if (!nuevaConsultaId) throw new Error(t.pagoResultado.errorTeleconsulta);
 
         setFase("ok");
         setTimeout(() => {
@@ -178,12 +180,17 @@ export default function PagoResultadoScreen() {
       } catch (e) {
         doneRef.current = false;
         setFase("error");
-        setMensaje(e instanceof Error ? e.message : "Error al iniciar la consulta");
+        const msg = e instanceof Error ? e.message : "";
+        const errorMap: Record<string, string> = {
+          TOKEN_REQUIRED: t.pagoResultado.tokenRequerido,
+          ERROR_INICIAR: t.pagoResultado.errorIniciar,
+        };
+        setMensaje(errorMap[msg] || msg || t.pagoResultado.errorGeneral);
       }
     };
 
     void solicitar();
-  }, [status, collectionStatus, paymentId, consultaId, router]);
+  }, [status, collectionStatus, paymentId, consultaId, router, t]);
 
   return (
     <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
@@ -201,8 +208,8 @@ export default function PagoResultadoScreen() {
               <Loader2 size={40} color="#2dd4bf" className="animate-spin" />
             </div>
             <div style={{ textAlign: "center" }}>
-              <p style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Confirmando tu pago...</p>
-              <p style={{ color: muted, fontSize: 14, lineHeight: 1.6 }}>Estamos procesando tu pago con Mercado Pago y buscando un profesional para vos.</p>
+              <p style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>{t.pagoResultado.confirmando}</p>
+              <p style={{ color: muted, fontSize: 14, lineHeight: 1.6 }}>{t.pagoResultado.procesando}</p>
             </div>
           </>
         )}
@@ -213,8 +220,8 @@ export default function PagoResultadoScreen() {
               <CheckCircle2 size={40} color="#22c55e" />
             </div>
             <div style={{ textAlign: "center" }}>
-              <p style={{ fontSize: 20, fontWeight: 800, marginBottom: 8, color: "#22c55e" }}>Pago confirmado</p>
-              <p style={{ color: muted, fontSize: 14 }}>Redirigiendo al seguimiento de tu consulta...</p>
+              <p style={{ fontSize: 20, fontWeight: 800, marginBottom: 8, color: "#22c55e" }}>{t.pagoResultado.pagoConfirmado}</p>
+              <p style={{ color: muted, fontSize: 14 }}>{t.pagoResultado.redirigiendo}</p>
             </div>
           </>
         )}
@@ -226,7 +233,7 @@ export default function PagoResultadoScreen() {
             </div>
             <div style={{ textAlign: "center" }}>
               <p style={{ fontSize: 20, fontWeight: 800, marginBottom: 8, color: "#f87171" }}>
-                {status === "pending" ? "Pago en proceso" : "No se pudo completar"}
+                {status === "pending" ? t.pagoResultado.pagoEnProceso : t.pagoResultado.noSePudo}
               </p>
               <p style={{ color: muted, fontSize: 14, lineHeight: 1.6, maxWidth: 380, margin: "0 auto" }}>{mensaje}</p>
             </div>
@@ -235,13 +242,13 @@ export default function PagoResultadoScreen() {
                 href="/pedir"
                 style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px", borderRadius: 16, background: "linear-gradient(90deg,#00b3a6,#2dd4bf)", color: "#fff", fontWeight: 700, textDecoration: "none", fontSize: 15 }}
               >
-                <Home size={18} /> Volver al inicio
+                <Home size={18} /> {t.pagoResultado.volverInicio}
               </Link>
               <Link
                 href="/pedir/solicitar"
                 style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px", borderRadius: 16, border: `1px solid ${border}`, color: text, fontWeight: 600, textDecoration: "none", fontSize: 15 }}
               >
-                <RotateCcw size={18} /> Intentar de nuevo
+                <RotateCcw size={18} /> {t.pagoResultado.intentarDeNuevo}
               </Link>
             </div>
           </>

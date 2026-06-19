@@ -11,6 +11,7 @@ import {
   AlertCircle, Activity,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
+import { useI18n } from "@/lib/i18n/context";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -41,33 +42,12 @@ type ConsultaData = {
 
 type PedirUser = { id: string; access_token?: string };
 
-const TIPO_CONFIG: Record<string, { label: string; icon: typeof Stethoscope; color: string; colorLight: string }> = {
-  medico:       { label: "Médico a domicilio",    icon: Stethoscope, color: "#00b3a6", colorLight: "rgba(0,179,166,0.14)" },
-  teleconsulta: { label: "Teleconsulta",           icon: Video,       color: "#818cf8", colorLight: "rgba(129,140,248,0.14)" },
-  enfermero:    { label: "Enfermería a domicilio", icon: HeartPulse,  color: "#f472b6", colorLight: "rgba(244,114,182,0.14)" },
-};
-
-// Pasos del flujo para domicilio (médico / enfermero)
-const PASOS_DOMICILIO = [
-  { key: "pendiente",    label: "Buscando",    icon: Clock },
-  { key: "aceptada",     label: "Asignado",    icon: UserCheck },
-  { key: "en_camino",    label: "En camino",   icon: Navigation },
-  { key: "en_domicilio", label: "Llegó",       icon: Home },
-  { key: "en_curso",     label: "Atendiendo",  icon: Activity },
-  { key: "finalizada",   label: "Finalizada",  icon: CheckCircle2 },
-];
-
-// Pasos para teleconsulta
-const PASOS_TELECONSULTA = [
-  { key: "pendiente",       label: "Buscando",    icon: Clock },
-  { key: "aceptada",        label: "Asignado",    icon: UserCheck },
-  { key: "en_videollamada", label: "En sala",     icon: Video },
-  { key: "finalizada",      label: "Finalizada",  icon: CheckCircle2 },
-];
+const PASOS_DOMICILIO_KEYS = ["pendiente", "aceptada", "en_camino", "en_domicilio", "en_curso", "finalizada"];
+const PASOS_TELECONSULTA_KEYS = ["pendiente", "aceptada", "en_videollamada", "finalizada"];
 
 function pasoIndex(estado: string, esTeleconsulta: boolean): number {
-  const pasos = esTeleconsulta ? PASOS_TELECONSULTA : PASOS_DOMICILIO;
-  const idx = pasos.findIndex(p => p.key === estado);
+  const keys = esTeleconsulta ? PASOS_TELECONSULTA_KEYS : PASOS_DOMICILIO_KEYS;
+  const idx = keys.indexOf(estado);
   if (idx !== -1) return idx;
   if (estado === "buscando_medico") return 0;
   if (estado === "asignada") return esTeleconsulta ? 1 : 0;
@@ -79,6 +59,7 @@ const ESTADOS_TERMINADOS = ["finalizada", "cancelada", "cancelada_paciente", "ca
 const ESTADOS_CRITICOS = ["aceptada", "asignada", "en_camino", "en_domicilio", "en_curso", "en_videollamada"];
 
 export default function BuscandoScreen() {
+  const { t } = useI18n();
   const params = useSearchParams();
   const consultaId = params.get("consulta_id") ?? "";
   const tipo       = params.get("tipo") ?? "medico";
@@ -100,6 +81,28 @@ export default function BuscandoScreen() {
     softPanel, softPanelBorder, inactiveStep, inactiveStepBg,
     inactiveStepBorder, inactiveText, doneText,
   } = usePedirTheme();
+
+  const TIPO_CONFIG: Record<string, { label: string; icon: typeof Stethoscope; color: string; colorLight: string }> = {
+    medico:       { label: t.buscando.tipos.medico,       icon: Stethoscope, color: "#00b3a6", colorLight: "rgba(0,179,166,0.14)" },
+    teleconsulta: { label: t.buscando.tipos.teleconsulta, icon: Video,       color: "#818cf8", colorLight: "rgba(129,140,248,0.14)" },
+    enfermero:    { label: t.buscando.tipos.enfermero,    icon: HeartPulse,  color: "#f472b6", colorLight: "rgba(244,114,182,0.14)" },
+  };
+
+  const PASOS_DOMICILIO = [
+    { key: "pendiente",    label: t.buscando.pasosDomicilio[0], icon: Clock },
+    { key: "aceptada",     label: t.buscando.pasosDomicilio[1], icon: UserCheck },
+    { key: "en_camino",    label: t.buscando.pasosDomicilio[2], icon: Navigation },
+    { key: "en_domicilio", label: t.buscando.pasosDomicilio[3], icon: Home },
+    { key: "en_curso",     label: t.buscando.pasosDomicilio[4], icon: Activity },
+    { key: "finalizada",   label: t.buscando.pasosDomicilio[5], icon: CheckCircle2 },
+  ];
+
+  const PASOS_TELECONSULTA = [
+    { key: "pendiente",       label: t.buscando.pasosTeleconsulta[0], icon: Clock },
+    { key: "aceptada",        label: t.buscando.pasosTeleconsulta[1], icon: UserCheck },
+    { key: "en_videollamada", label: t.buscando.pasosTeleconsulta[2], icon: Video },
+    { key: "finalizada",      label: t.buscando.pasosTeleconsulta[3], icon: CheckCircle2 },
+  ];
 
   const tipoCfg        = TIPO_CONFIG[tipo] ?? TIPO_CONFIG.medico;
   const Icon           = tipoCfg.icon;
@@ -230,28 +233,28 @@ export default function BuscandoScreen() {
 
   // Titulo por estado
   const estadoTitulo = (() => {
-    if (esPendiente)              return `Buscando profesional${dots}`;
-    if (estado === "aceptada" || estado === "asignada") return "¡Profesional asignado!";
-    if (estado === "en_camino")   return "Profesional en camino";
-    if (estado === "en_domicilio") return "¡El profesional llegó!";
-    if (estado === "en_curso")    return "Consulta en curso";
-    if (estado === "en_videollamada") return "Sala de video lista";
-    if (esFin)                   return "Consulta finalizada";
-    if (estado === "pago_no_autorizado") return "Pago no autorizado";
-    if (esCancelado)             return "Consulta cancelada";
-    return "Procesando...";
+    if (esPendiente)              return `${t.buscando.estadoTitulo.buscando}${dots}`;
+    if (estado === "aceptada" || estado === "asignada") return t.buscando.estadoTitulo.asignado;
+    if (estado === "en_camino")   return t.buscando.estadoTitulo.enCamino;
+    if (estado === "en_domicilio") return t.buscando.estadoTitulo.llego;
+    if (estado === "en_curso")    return t.buscando.estadoTitulo.enCurso;
+    if (estado === "en_videollamada") return t.buscando.estadoTitulo.salaLista;
+    if (esFin)                   return t.buscando.estadoTitulo.finalizada;
+    if (estado === "pago_no_autorizado") return t.buscando.estadoTitulo.pagoNoAutorizado;
+    if (esCancelado)             return t.buscando.estadoTitulo.cancelada;
+    return t.buscando.estadoTitulo.procesando;
   })();
 
   const estadoSub = (() => {
-    if (esPendiente)              return "Estamos encontrando el profesional más cercano para vos";
-    if (estado === "aceptada" || estado === "asignada") return "Confirmó la consulta y se está preparando";
-    if (estado === "en_camino")   return "Ya está yendo hacia tu domicilio";
-    if (estado === "en_domicilio") return "Está en la puerta de tu domicilio";
-    if (estado === "en_curso")    return "El profesional está atendiendo en este momento";
-    if (estado === "en_videollamada") return "Podés unirte a la videollamada ahora";
-    if (esFin)                   return "Esperamos que te hayas sentido mejor";
-    if (estado === "pago_no_autorizado") return "El pago con tu tarjeta no fue autorizado";
-    if (esCancelado)             return "No se realizó ningún cobro";
+    if (esPendiente)              return t.buscando.estadoSub.buscando;
+    if (estado === "aceptada" || estado === "asignada") return t.buscando.estadoSub.asignado;
+    if (estado === "en_camino")   return t.buscando.estadoSub.enCamino;
+    if (estado === "en_domicilio") return t.buscando.estadoSub.llego;
+    if (estado === "en_curso")    return t.buscando.estadoSub.enCurso;
+    if (estado === "en_videollamada") return t.buscando.estadoSub.salaLista;
+    if (esFin)                   return t.buscando.estadoSub.finalizada;
+    if (estado === "pago_no_autorizado") return t.buscando.estadoSub.pagoNoAutorizado;
+    if (esCancelado)             return t.buscando.estadoSub.cancelada;
     return "";
   })();
 
@@ -372,11 +375,11 @@ export default function BuscandoScreen() {
                   <p style={{ fontWeight: 800, fontSize: 17, margin: 0 }}>{data?.medico_nombre}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: 4, background: `${tipoCfg.color}15`, border: `1px solid ${tipoCfg.color}30`, borderRadius: 8, padding: "2px 8px" }}>
                     <CheckCircle2 size={12} color={tipoCfg.color} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: tipoCfg.color }}>Verificado</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: tipoCfg.color }}>{t.buscando.verificado}</span>
                   </div>
                 </div>
                 {data?.medico_matricula && (
-                  <p style={{ fontSize: 13, color: muted, margin: 0 }}>Mat. {data.medico_matricula}</p>
+                  <p style={{ fontSize: 13, color: muted, margin: 0 }}>{t.buscando.mat} {data.medico_matricula}</p>
                 )}
               </div>
             </div>
@@ -388,8 +391,8 @@ export default function BuscandoScreen() {
                   <div style={{ flex: 1, background: softPanel, border: `1px solid ${softPanelBorder}`, borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
                     <Clock size={16} color={tipoCfg.color} />
                     <div>
-                      <p style={{ fontSize: 11, color: muted, margin: 0, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Tiempo estimado</p>
-                      <p style={{ fontSize: 18, fontWeight: 800, margin: 0, color: text }}>{data.tiempo_estimado_min} min</p>
+                      <p style={{ fontSize: 11, color: muted, margin: 0, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>{t.buscando.tiempoEstimado}</p>
+                      <p style={{ fontSize: 18, fontWeight: 800, margin: 0, color: text }}>{data.tiempo_estimado_min} {t.buscando.min}</p>
                     </div>
                   </div>
                 )}
@@ -397,8 +400,8 @@ export default function BuscandoScreen() {
                   <div style={{ flex: 1, background: softPanel, border: `1px solid ${softPanelBorder}`, borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
                     <MapPin size={16} color={tipoCfg.color} />
                     <div>
-                      <p style={{ fontSize: 11, color: muted, margin: 0, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Distancia</p>
-                      <p style={{ fontSize: 18, fontWeight: 800, margin: 0, color: text }}>{data.distancia_km.toFixed(1)} km</p>
+                      <p style={{ fontSize: 11, color: muted, margin: 0, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>{t.buscando.distancia}</p>
+                      <p style={{ fontSize: 18, fontWeight: 800, margin: 0, color: text }}>{data.distancia_km.toFixed(1)} {t.buscando.km}</p>
                     </div>
                   </div>
                 )}
@@ -413,7 +416,7 @@ export default function BuscandoScreen() {
             {countdown > 0 ? (
               <div style={{ textAlign: "center" }}>
                 <p style={{ fontSize: 12, color: muted, marginBottom: 16, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.6px" }}>
-                  Tiempo de búsqueda restante
+                  {t.buscando.tiempoBusqueda}
                 </p>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
                   <svg width="80" height="80" viewBox="0 0 80 80" style={{ transform: "rotate(-90deg)", flexShrink: 0 }}>
@@ -432,7 +435,7 @@ export default function BuscandoScreen() {
                     <p style={{ fontSize: 42, fontWeight: 900, fontVariantNumeric: "tabular-nums", margin: 0, lineHeight: 1, color: text }}>
                       {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}
                     </p>
-                    <p style={{ fontSize: 13, color: muted, margin: "6px 0 0" }}>minutos</p>
+                    <p style={{ fontSize: 13, color: muted, margin: "6px 0 0" }}>{t.buscando.minutos}</p>
                   </div>
                 </div>
               </div>
@@ -440,10 +443,10 @@ export default function BuscandoScreen() {
               <div style={{ textAlign: "center", padding: "8px 0" }}>
                 <AlertCircle size={32} color="#fbbf24" style={{ margin: "0 auto 12px" }} />
                 <p style={{ fontWeight: 700, fontSize: 16, color: "#fbbf24", marginBottom: 8 }}>
-                  No encontramos profesionales disponibles
+                  {t.buscando.noEncontramos}
                 </p>
                 <p style={{ fontSize: 14, color: muted, lineHeight: 1.6 }}>
-                  No hay profesionales disponibles en este momento.<br />Intentá de nuevo en unos minutos.
+                  {t.buscando.noHayProfesionales}<br />{t.buscando.intentaDeNuevo}
                 </p>
               </div>
             )}
@@ -453,17 +456,17 @@ export default function BuscandoScreen() {
         {/* ── PASOS (mientras pendiente) ── */}
         {esPendiente && (
           <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px", marginBottom: 16 }}>
-            <p style={{ fontWeight: 700, fontSize: 11, color: muted, marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.8px" }}>¿Qué pasa ahora?</p>
+            <p style={{ fontWeight: 700, fontSize: 11, color: muted, marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.8px" }}>{t.buscando.quePasa}</p>
             {[
-              { icon: MapPin,    color: "#fbbf24", text: "Buscamos el profesional más cercano disponible" },
-              { icon: PhoneCall, color: tipoCfg.color, text: "El profesional acepta y te lo notificamos al instante" },
-              { icon: Navigation, color: "#818cf8", text: esTeleconsulta ? "El profesional inicia la videollamada y podés unirte" : "Va en camino y te informamos el tiempo estimado" },
-            ].map(({ icon: SIcon, color, text: t }) => (
-              <div key={t} style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+              { icon: MapPin,    color: "#fbbf24", label: t.buscando.buscamosCercano },
+              { icon: PhoneCall, color: tipoCfg.color, label: t.buscando.profesionalAcepta },
+              { icon: Navigation, color: "#818cf8", label: esTeleconsulta ? t.buscando.profesionalIniciaVideo : t.buscando.vaCaminoTiempo },
+            ].map(({ icon: SIcon, color, label }) => (
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
                 <div style={{ width: 38, height: 38, borderRadius: 12, background: `${color}15`, border: `1px solid ${color}25`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <SIcon size={18} color={color} />
                 </div>
-                <p style={{ fontSize: 14, color: muted, lineHeight: 1.4, flex: 1, margin: 0 }}>{t}</p>
+                <p style={{ fontSize: 14, color: muted, lineHeight: 1.4, flex: 1, margin: 0 }}>{label}</p>
               </div>
             ))}
           </div>
@@ -474,10 +477,10 @@ export default function BuscandoScreen() {
           <div style={{ background: "rgba(45,212,191,0.08)", border: "1.5px solid rgba(45,212,191,0.30)", borderRadius: 20, padding: "24px 20px", marginBottom: 16, textAlign: "center" }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>🔔</div>
             <p style={{ fontWeight: 800, fontSize: 17, color: "#2dd4bf", marginBottom: 8 }}>
-              El profesional está en la puerta
+              {t.buscando.profesionalPuerta}
             </p>
             <p style={{ fontSize: 14, color: muted, lineHeight: 1.6 }}>
-              Abrí la puerta — el profesional llegó a tu domicilio y está listo para atenderte.
+              {t.buscando.abriPuerta}
             </p>
           </div>
         )}
@@ -490,8 +493,8 @@ export default function BuscandoScreen() {
                 <Activity size={24} color="#818cf8" />
               </div>
               <div>
-                <p style={{ fontWeight: 700, fontSize: 15, margin: 0, color: "#a5b4fc" }}>Consulta en curso</p>
-                <p style={{ fontSize: 13, color: muted, margin: "4px 0 0" }}>El profesional está atendiendo en tu domicilio</p>
+                <p style={{ fontWeight: 700, fontSize: 15, margin: 0, color: "#a5b4fc" }}>{t.buscando.consultaEnCurso}</p>
+                <p style={{ fontSize: 13, color: muted, margin: "4px 0 0" }}>{t.buscando.profesionalAtendiendo}</p>
               </div>
             </div>
           </div>
@@ -512,10 +515,10 @@ export default function BuscandoScreen() {
               }}
             >
               <Video size={22} />
-              Unirme a la videollamada
+              {t.buscando.unirmeVideoLlamada}
             </Link>
             <p style={{ fontSize: 12, color: muted, textAlign: "center", marginTop: 10 }}>
-              La sala ya está lista — podés entrar cuando quieras
+              {t.buscando.salaLista}
             </p>
           </div>
         )}
@@ -524,13 +527,13 @@ export default function BuscandoScreen() {
         {esFin && (
           <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "24px 20px", marginBottom: 16, textAlign: "center" }}>
             <CheckCircle2 size={40} color="#4ade80" style={{ margin: "0 auto 14px" }} />
-            <p style={{ fontWeight: 800, fontSize: 17, marginBottom: 6 }}>¡Consulta completada!</p>
+            <p style={{ fontWeight: 800, fontSize: 17, marginBottom: 6 }}>{t.buscando.consultaCompletada}</p>
             <p style={{ color: muted, fontSize: 14, lineHeight: 1.5, marginBottom: 20 }}>
-              Gracias por usar DocYa. Tu médico puede haberte enviado recetas o indicaciones.
+              {t.buscando.graciasDocYa}
             </p>
             {!ratingEnviado ? (
               <>
-                <p style={{ fontSize: 13, color: muted, marginBottom: 12, fontWeight: 600 }}>¿Cómo fue la atención?</p>
+                <p style={{ fontSize: 13, color: muted, marginBottom: 12, fontWeight: 600 }}>{t.buscando.comoFueAtencion}</p>
                 <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
                   {[1, 2, 3, 4, 5].map(s => (
                     <button
@@ -546,7 +549,7 @@ export default function BuscandoScreen() {
             ) : (
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, color: "#fbbf24", fontWeight: 700 }}>
                 <Star size={18} fill="#fbbf24" color="#fbbf24" />
-                ¡Gracias por tu valoración!
+                {t.buscando.graciasValoracion}
               </div>
             )}
           </div>
@@ -559,12 +562,12 @@ export default function BuscandoScreen() {
               <XCircle size={24} color="#f87171" style={{ flexShrink: 0, marginTop: 2 }} />
               <div>
                 <p style={{ fontWeight: 700, fontSize: 15, color: "#f87171", marginBottom: 6 }}>
-                  {estado === "pago_no_autorizado" ? "Pago no autorizado" : "Consulta cancelada"}
+                  {estado === "pago_no_autorizado" ? t.buscando.pagoNoAutorizadoCard : t.buscando.consultaCancelada}
                 </p>
                 <p style={{ fontSize: 13, color: muted, lineHeight: 1.5 }}>
                   {estado === "pago_no_autorizado"
-                    ? "Tu tarjeta no fue autorizada por Mercado Pago. No se realizó ningún cobro. Podés intentar con otra tarjeta o usar saldo en cuenta MP."
-                    : "La consulta fue cancelada. No se realizó ningún cobro a tu cuenta."
+                    ? t.buscando.tarjetaNoAutorizada
+                    : t.buscando.consultaCanceladaDetalle
                   }
                 </p>
               </div>
@@ -581,7 +584,7 @@ export default function BuscandoScreen() {
               style={{ width: "100%", padding: "15px", borderRadius: 16, border: "1px solid rgba(239,68,68,0.35)", background: "rgba(239,68,68,0.08)", color: "#f87171", fontSize: 15, fontWeight: 600, cursor: cancelando ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", opacity: cancelando ? 0.6 : 1 }}
             >
               {cancelando ? <Loader2 size={18} className="animate-spin" /> : <X size={18} />}
-              Cancelar búsqueda
+              {t.buscando.cancelarBusqueda}
             </button>
           )}
 
@@ -591,7 +594,7 @@ export default function BuscandoScreen() {
               style={{ width: "100%", padding: "16px", borderRadius: 16, background: "linear-gradient(90deg, #00b3a6, #2dd4bf)", color: "#fff", fontSize: 15, fontWeight: 700, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
             >
               <Home size={18} />
-              Volver al inicio
+              {t.buscando.volverInicio}
             </Link>
           )}
 
@@ -601,7 +604,7 @@ export default function BuscandoScreen() {
               style={{ width: "100%", padding: "15px", borderRadius: 16, border: `1px solid ${border}`, background: softPanel, color: text, fontSize: 15, fontWeight: 600, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
             >
               <RotateCcw size={18} />
-              Intentar de nuevo
+              {t.buscando.intentarDeNuevo}
             </Link>
           )}
         </div>

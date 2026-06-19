@@ -10,18 +10,26 @@ import {
   Phone, CheckCircle2, ChevronRight, X,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
+import { useI18n } from "@/lib/i18n/context";
 
-const PREGUNTAS = [
-  { id: 0, texto: "¿Tenés dificultad grave para respirar?",             icon: Wind,        color: "#38D7D2" },
-  { id: 1, texto: "¿Tenés dolor intenso en el pecho?",                  icon: Heart,       color: "#FF4F70" },
-  { id: 2, texto: "¿Tenés pérdida de conocimiento o convulsiones?",     icon: Brain,       color: "#A78BFA" },
-  { id: 3, texto: "¿Tenés sangrado abundante o que no se detiene?",     icon: Droplets,    color: "#FF344E" },
-  { id: 4, texto: "¿Tuviste un accidente grave, fractura o quemadura?", icon: Bandage,     color: "#FFB84D" },
+const PREGUNTA_ICONS = [
+  { id: 0, icon: Wind,     color: "#38D7D2" },
+  { id: 1, icon: Heart,    color: "#FF4F70" },
+  { id: 2, icon: Brain,    color: "#A78BFA" },
+  { id: 3, icon: Droplets, color: "#FF344E" },
+  { id: 4, icon: Bandage,  color: "#FFB84D" },
 ];
 
 type Resp = Record<number, boolean>;
 
 export default function FiltroScreen() {
+  const { t } = useI18n();
+
+  const PREGUNTAS = PREGUNTA_ICONS.map((p, i) => ({
+    ...p,
+    texto: t.filtro.preguntas[i],
+  }));
+
   const router = useRouter();
   const params = useSearchParams();
   const tipo = params.get("tipo") ?? "medico";
@@ -60,7 +68,7 @@ export default function FiltroScreen() {
             </Link>
             <Image src={logo} alt="DocYa" width={80} height={26} style={{ width: 80, height: "auto", maxHeight: 26, objectFit: "contain", display: "block", flexShrink: 0 }} />
             <div style={{ marginLeft: "auto", background: "rgba(0,179,166,0.1)", border: "1px solid rgba(0,179,166,0.25)", borderRadius: 999, padding: "4px 12px", fontSize: 13, fontWeight: 600, color: "#2dd4bf" }}>
-              {respondidas}/{PREGUNTAS.length} respondidas
+              {respondidas}/{PREGUNTAS.length} {t.filtro.respondidas}
             </div>
           </div>
         </header>
@@ -86,10 +94,10 @@ export default function FiltroScreen() {
                   overflowWrap: "anywhere",
                   userSelect: "none",
                 }}>
-                  Evaluación de seguridad
+                  {t.filtro.evalTitle}
                 </h1>
                 <p style={{ color: muted, fontSize: 14, lineHeight: 1.6 }}>
-                  Respondé estas preguntas antes de continuar. Si alguna aplica, puede ser una emergencia que requiere atención inmediata — DocYa no reemplaza al <strong style={{ color: "#fbbf24" }}>107</strong> ni al <strong style={{ color: "#fbbf24" }}>911</strong>.
+                  {t.filtro.evalDescription}
                 </p>
               </div>
             </div>
@@ -117,11 +125,11 @@ export default function FiltroScreen() {
                     <button
                       onClick={() => responder(p.id, true)}
                       style={{ flex: 1, padding: "11px 0", borderRadius: 12, border: `1.5px solid ${resp === true ? "#ef4444" : softPanelBorder}`, background: resp === true ? "rgba(239,68,68,0.2)" : "transparent", color: resp === true ? "#f87171" : muted, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}
-                    >Sí</button>
+                    >{t.filtro.si}</button>
                     <button
                       onClick={() => responder(p.id, false)}
                       style={{ flex: 1, padding: "11px 0", borderRadius: 12, border: `1.5px solid ${resp === false ? "#00b3a6" : softPanelBorder}`, background: resp === false ? "rgba(0,179,166,0.15)" : "transparent", color: resp === false ? "#2dd4bf" : muted, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}
-                    >No</button>
+                    >{t.filtro.no}</button>
                   </div>
                 </div>
               );
@@ -133,7 +141,7 @@ export default function FiltroScreen() {
             <div style={{ background: "rgba(0,179,166,0.08)", border: "1.5px solid rgba(0,179,166,0.3)", borderRadius: 18, padding: "18px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
               <CheckCircle2 size={22} color="#2dd4bf" />
               <p style={{ fontWeight: 700, color: "#2dd4bf", fontSize: 15 }}>
-                Todo en orden — podés continuar con tu consulta
+                {t.filtro.todoOrden}
               </p>
             </div>
           )}
@@ -152,11 +160,11 @@ export default function FiltroScreen() {
               transition: "all 0.2s",
             }}
           >
-            {todasNo ? <>Continuar con la solicitud <ChevronRight size={20} /></> : <>Respondé todas las preguntas para continuar</>}
+            {todasNo ? <>{t.filtro.continuar} <ChevronRight size={20} /></> : <>{t.filtro.respondeAll}</>}
           </button>
 
           <p style={{ fontSize: 12, color: muted, textAlign: "center", marginTop: 16, lineHeight: 1.5 }}>
-            DocYa es un servicio de atención médica no urgente. Ante una emergencia llamá al 107 o 911.
+            {t.filtro.disclaimer}
           </p>
         </main>
       </div>
@@ -199,18 +207,18 @@ export default function FiltroScreen() {
               overflowWrap: "anywhere",
               userSelect: "none",
             }}>
-              Posible emergencia
+              {t.filtro.emergenciaTitle}
             </h2>
 
             <p style={{ color: muted, fontSize: 14, textAlign: "center", lineHeight: 1.6, marginBottom: 8 }}>
-              Respondiste <strong style={{ color: "#f87171" }}>Sí</strong> a:
+              {t.filtro.respondiste} <strong style={{ color: "#f87171" }}>{t.filtro.si}</strong> {t.filtro.a}
             </p>
             <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 14, padding: "12px 16px", marginBottom: 20, textAlign: "center" }}>
               <p style={{ fontSize: 14, fontWeight: 600, color: "#fca5a5" }}>&quot;{preguntaEmerg.texto}&quot;</p>
             </div>
 
             <p style={{ color: muted, fontSize: 14, lineHeight: 1.6, marginBottom: 24, textAlign: "center" }}>
-              Esto puede requerir atención inmediata. <strong style={{ color: text }}>DocYa no reemplaza los servicios de emergencia.</strong> Te recomendamos llamar ahora.
+              {t.filtro.emergenciaDesc}
             </p>
 
             <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
@@ -218,13 +226,13 @@ export default function FiltroScreen() {
                 href="tel:107"
                 style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "15px", borderRadius: 16, background: "#ef4444", color: "#fff", fontWeight: 800, fontSize: 16, textDecoration: "none", boxShadow: "0 6px 20px rgba(239,68,68,0.45)" }}
               >
-                <Phone size={18} /> Llamar al 107
+                <Phone size={18} /> {t.filtro.llamar107}
               </a>
               <a
                 href="tel:911"
                 style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "15px", borderRadius: 16, background: "rgba(239,68,68,0.15)", border: "1.5px solid rgba(239,68,68,0.4)", color: "#f87171", fontWeight: 800, fontSize: 16, textDecoration: "none" }}
               >
-                <Phone size={18} /> Llamar al 911
+                <Phone size={18} /> {t.filtro.llamar911}
               </a>
             </div>
 
@@ -232,7 +240,7 @@ export default function FiltroScreen() {
               onClick={cerrarModal}
               style={{ width: "100%", padding: "13px", borderRadius: 14, background: softPanel, border: `1px solid ${softPanelBorder}`, color: muted, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}
             >
-              Continuar respondiendo el cuestionario
+              {t.filtro.continuarCuestionario}
             </button>
           </div>
         </div>

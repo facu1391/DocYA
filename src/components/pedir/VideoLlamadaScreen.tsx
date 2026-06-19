@@ -8,17 +8,19 @@ import {
   Maximize2, Minimize2, Shield, Clock, User,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
+import { useI18n } from "@/lib/i18n/context";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
 type PedirUser = { id: string; access_token?: string };
 
 export default function VideoLlamadaScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const params = useSearchParams();
   const consultaId = params.get("consulta_id") ?? "";
   const videoUrl   = params.get("video_url") ?? "";
-  const medico     = params.get("medico") ?? "Profesional";
+  const medico     = params.get("medico") ?? "";
 
   const [iframeReady, setIframeReady] = useState(false);
   const [fullscreen,  setFullscreen]  = useState(false);
@@ -85,16 +87,16 @@ export default function VideoLlamadaScreen() {
           <div style={{ width: 80, height: 80, borderRadius: 999, background: "rgba(0,179,166,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
             <Video size={36} color="#2dd4bf" />
           </div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 12 }}>Teleconsulta finalizada</h1>
-          <p style={{ color: muted, fontSize: 16, marginBottom: 8 }}>Duración: <strong style={{ color: text }}>{fmtTime(elapsed)}</strong></p>
+          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 12 }}>{t.videoLlamada.finalizada}</h1>
+          <p style={{ color: muted, fontSize: 16, marginBottom: 8 }}>{t.videoLlamada.duracion} <strong style={{ color: text }}>{fmtTime(elapsed)}</strong></p>
           <p style={{ color: muted, fontSize: 14, lineHeight: 1.6, marginBottom: 32 }}>
-            Gracias por usar DocYa. Tu médico puede haberte enviado una receta o indicaciones al historial.
+            {t.videoLlamada.gracias}
           </p>
           <button
             onClick={() => router.push("/pedir")}
             style={{ width: "100%", padding: "16px", borderRadius: 16, background: "linear-gradient(90deg, #00b3a6, #2dd4bf)", color: "#fff", fontSize: 16, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "inherit" }}
           >
-            Volver al inicio
+            {t.videoLlamada.volverInicio}
           </button>
         </div>
       </div>
@@ -117,8 +119,8 @@ export default function VideoLlamadaScreen() {
                   <User size={16} color="#2dd4bf" />
                 </div>
                 <div>
-                  <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{medico || "Profesional"}</p>
-                  <p style={{ fontSize: 11, color: muted, margin: 0 }}>Médico verificado</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{medico || t.videoLlamada.profesional}</p>
+                  <p style={{ fontSize: 11, color: muted, margin: 0 }}>{t.videoLlamada.medicoVerificado}</p>
                 </div>
               </div>
 
@@ -130,7 +132,7 @@ export default function VideoLlamadaScreen() {
 
               {/* Seguro */}
               <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: muted }}>
-                <Shield size={14} color="#2dd4bf" /> Cifrada
+                <Shield size={14} color="#2dd4bf" /> {t.videoLlamada.cifrada}
               </div>
             </div>
           </div>
@@ -144,8 +146,8 @@ export default function VideoLlamadaScreen() {
             <div style={{ width: 64, height: 64, borderRadius: 999, background: "rgba(129,140,248,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Video size={30} color="#818cf8" />
             </div>
-            <p style={{ color: muted, fontSize: 15 }}>Conectando a la videollamada...</p>
-            <p style={{ color: muted, opacity: 0.7, fontSize: 13 }}>Puede pedir acceso a cámara y micrófono</p>
+            <p style={{ color: muted, fontSize: 15 }}>{t.videoLlamada.conectando}</p>
+            <p style={{ color: muted, opacity: 0.7, fontSize: 13 }}>{t.videoLlamada.permisos}</p>
           </div>
         )}
         <iframe
@@ -168,7 +170,7 @@ export default function VideoLlamadaScreen() {
             <button
               onClick={() => setFullscreen(f => !f)}
               style={{ width: 52, height: 52, borderRadius: 999, border: `1px solid ${border}`, background: softPanel, color: muted, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
-              title={fullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+              title={fullscreen ? t.videoLlamada.salirFullscreen : t.videoLlamada.fullscreen}
             >
               {fullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
             </button>
@@ -176,7 +178,7 @@ export default function VideoLlamadaScreen() {
             <button
               onClick={salir}
               style={{ width: 64, height: 64, borderRadius: 999, background: "#ef4444", color: "#fff", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 20px rgba(239,68,68,0.45)" }}
-              title="Salir de la llamada"
+              title={t.videoLlamada.salirLlamada}
             >
               <PhoneOff size={26} />
             </button>

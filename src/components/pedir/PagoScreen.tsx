@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, ShieldCheck, Loader2, RefreshCw } from "lucide-react";
 import { usePedirTheme } from "./theme";
+import { useI18n } from "@/lib/i18n/context";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean; access_token?: string };
@@ -14,7 +15,10 @@ function getConsultaId(data: Record<string, unknown>) {
   return data.id ?? data.consulta_id;
 }
 
-async function solicitarConsulta(body: Record<string, unknown>) {
+async function solicitarConsulta(
+  body: Record<string, unknown>,
+  errorMessages: { tokenRequerido: string; errorIniciar: string },
+) {
   const tipo = String(body.tipo ?? "");
   const endpoint = tipo === "teleconsulta" ? "/teleconsultas" : "/consultas/solicitar";
   const headers: Record<string, string> = { "Content-Type": "application/json" };
@@ -41,7 +45,7 @@ async function solicitarConsulta(body: Record<string, unknown>) {
 
   if (tipo === "teleconsulta") {
     const token = String(body.access_token ?? "");
-    if (!token) throw new Error("Token requerido. Cerrá sesión e ingresá nuevamente.");
+    if (!token) throw new Error(errorMessages.tokenRequerido);
     headers.Authorization = `Bearer ${token}`;
   }
 
@@ -52,7 +56,7 @@ async function solicitarConsulta(body: Record<string, unknown>) {
   });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.detail?.mensaje || err.detail || "No se pudo iniciar la consulta");
+    throw new Error(err.detail?.mensaje || err.detail || errorMessages.errorIniciar);
   }
   return res.json();
 }
@@ -63,6 +67,7 @@ function formatPesos(value?: number | null) {
 }
 
 export default function PagoScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const params = useSearchParams();
   const url         = params.get("url") ?? "";
@@ -122,16 +127,19 @@ export default function PagoScreen() {
       };
       if (paymentId) body.payment_id = paymentId;
 
-      const data = await solicitarConsulta(body);
+      const data = await solicitarConsulta(body, {
+        tokenRequerido: t.pago.tokenRequerido,
+        errorIniciar: t.pago.errorIniciar,
+      });
       const nuevaConsultaId = getConsultaId(data);
-      if (!nuevaConsultaId) throw new Error("No se pudo obtener la teleconsulta creada");
+      if (!nuevaConsultaId) throw new Error(t.pago.errorIniciar);
       router.push(`/pedir/buscando?consulta_id=${nuevaConsultaId}&tipo=${tipo}&metodo=${metodo}`);
     } catch (e) {
       setProcesando(false);
       doneRef.current = false;
-      setError(e instanceof Error ? e.message : "Error al iniciar la consulta");
+      setError(e instanceof Error ? e.message : t.pago.errorGeneral);
     }
-  }, [user, motivo, direccion, lat, lng, consultaId, tipo, metodo, router, categoriaConsulta, provincia, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo]);
+  }, [user, motivo, direccion, lat, lng, consultaId, tipo, metodo, router, categoriaConsulta, provincia, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo, t]);
 
   // Mensaje desde el iframe del formulario MP (web context)
   useEffect(() => {
@@ -139,7 +147,7 @@ export default function PagoScreen() {
       if (e.data?.type === "docya_payment_success") {
         confirmarYSolicitar(e.data.payment_id?.toString());
       } else if (e.data?.type === "docya_payment_error") {
-        setError(e.data.message || "No se pudo procesar el pago.");
+        setError(e.data.message || t.pago.errorGeneral);
       }
     };
     window.addEventListener("message", handler);
@@ -176,7 +184,7 @@ export default function PagoScreen() {
           </Link>
           <Image src={logo} alt="DocYa" width={80} height={26} style={{ width: 80, height: "auto", maxHeight: 26, objectFit: "contain", display: "block", flexShrink: 0 }} />
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#2dd4bf", fontWeight: 600 }}>
-            <ShieldCheck size={15} /> Pago seguro
+            <ShieldCheck size={15} /> {t.pago.badge}
           </div>
         </div>
       </header>
@@ -186,20 +194,20 @@ export default function PagoScreen() {
           <div style={{ width: 72, height: 72, borderRadius: 999, background: "rgba(0,179,166,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Loader2 size={36} color="#2dd4bf" className="animate-spin" />
           </div>
-          <p style={{ fontSize: 18, fontWeight: 700, textAlign: "center" }}>Confirmando tu pago...</p>
-          <p style={{ color: muted, fontSize: 14, textAlign: "center" }}>Estamos buscando un profesional para vos</p>
+          <p style={{ fontSize: 18, fontWeight: 700, textAlign: "center" }}>{t.pago.confirmando}</p>
+          <p style={{ color: muted, fontSize: 14, textAlign: "center" }}>{t.pago.buscandoProfesional}</p>
         </div>
       ) : (
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 720, margin: "0 auto", width: "100%", padding: "20px 20px 40px" }}>
 
           <div style={{ marginBottom: 16 }}>
-            <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 6, color: "#2dd4bf" }}>Autorizá el pago</h1>
+            <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 6, color: "#2dd4bf" }}>{t.pago.autorizaPago}</h1>
             <p style={{ color: muted, fontSize: 14 }}>
-              El cobro se realiza <strong style={{ color: text }}>solo cuando un profesional acepta</strong> tu consulta.
+              {t.pago.cobroConAceptacion}
             </p>
             {monto > 0 && (
               <div style={{ marginTop: 12, borderRadius: 16, border: `1px solid ${border}`, background: "rgba(0,179,166,0.08)", padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                <span style={{ color: muted, fontSize: 13, fontWeight: 800 }}>Monto a autorizar</span>
+                <span style={{ color: muted, fontSize: 13, fontWeight: 800 }}>{t.pago.montoAutorizar}</span>
                 <strong style={{ color: "#2dd4bf", fontSize: 22, lineHeight: 1 }}>{formatPesos(monto)}</strong>
               </div>
             )}
@@ -219,7 +227,7 @@ export default function PagoScreen() {
             {!iframeLoaded && (
               <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: overlayBg }}>
                 <Loader2 size={32} color="#2dd4bf" className="animate-spin" />
-                <p style={{ color: muted, fontSize: 14 }}>Cargando formulario de pago...</p>
+                <p style={{ color: muted, fontSize: 14 }}>{t.pago.cargandoFormulario}</p>
               </div>
             )}
             <iframe
@@ -227,12 +235,12 @@ export default function PagoScreen() {
               style={{ width: "100%", height: "100%", minHeight: 520, border: "none", display: "block" }}
               onLoad={() => setIframeLoaded(true)}
               allow="payment"
-              title="Formulario de pago DocYa"
+              title={t.pago.iframeTitle}
             />
           </div>
 
           <p style={{ fontSize: 12, color: muted, textAlign: "center", marginTop: 14, lineHeight: 1.5 }}>
-            🔒 Tu información de pago es procesada por Mercado Pago con cifrado SSL.
+            {t.pago.footerSSL}
           </p>
         </div>
       )}
