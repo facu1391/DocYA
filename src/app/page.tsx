@@ -7,6 +7,7 @@ import TeleconsultaSection from "@/components/landing-public/nueva-landing/Telec
 import ResolucionSection from "@/components/landing-public/nueva-landing/ResolucionSection";
 import PastilleroSection from "@/components/landing-public/nueva-landing/PastilleroSection";
 import BeneficiosSection from "@/components/landing-public/nueva-landing/BeneficiosSection";
+import TrustStack from "@/components/landing-public/nueva-landing/TrustStack";
 import ComoFunciona from "@/components/landing-public/nueva-landing/ComoFunciona";
 import CoberturaSection from "@/components/landing-public/nueva-landing/CoberturaSection";
 import PreciosSection from "@/components/landing-public/nueva-landing/PreciosSection";
@@ -25,6 +26,7 @@ export default function Home() {
       <ResolucionSection />
       <PastilleroSection />
       <BeneficiosSection />
+      <TrustStack />
       <ComoFunciona />
       <CoberturaSection />
       <PreciosSection />

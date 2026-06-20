@@ -105,7 +105,7 @@ export default function Footer() {
                 </div>
 
                 <div className="border-t border-white/10 pt-6 lg:pt-1">
-                  <div className="grid gap-8 sm:grid-cols-2">
+                  <div className="grid gap-8 sm:grid-cols-3">
                     <div className="text-center md:text-left">
                       <h4 className={sectionTitleCls}>Legal</h4>
                       <ul className="mt-3 flex flex-wrap justify-center gap-2 text-sm md:block md:space-y-2">
@@ -117,6 +117,17 @@ export default function Footer() {
                         <li>
                           <Link href={`${legalBase}/privacidad`} className={chipLinkCls}>
                             Politica de Privacidad
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="text-center md:text-left">
+                      <h4 className={sectionTitleCls}>Descargas</h4>
+                      <ul className="mt-3 flex flex-wrap justify-center gap-2 text-sm md:block md:space-y-2">
+                        <li>
+                          <Link href="/descargas" className={chipLinkCls}>
+                            Descargar DocYa
                           </Link>
                         </li>
                       </ul>
@@ -154,28 +165,26 @@ export default function Footer() {
                     <h4 className={sectionTitleCls}>Respaldo institucional</h4>
                     <div className="mt-4 grid gap-8 sm:grid-cols-2">
                       <div className="mx-auto w-full max-w-[250px] md:mx-0">
-                        <div className="relative h-20 w-full">
-                          <Image
-                            src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1776466341/Dise%C3%B1o_sin_t%C3%ADtulo_31_zqxiuz.png"
-                            alt="Logo del Ministerio de Salud de la Nacion"
-                            fill
-                            className="object-contain object-center md:object-left"
-                          />
-                        </div>
+                        <Image
+                          src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1776466341/Dise%C3%B1o_sin_t%C3%ADtulo_31_zqxiuz.png"
+                          alt="Logo del Ministerio de Salud de la Nacion"
+                          width={250}
+                          height={80}
+                          className="h-20 w-full object-contain object-center md:object-left"
+                        />
                         <p className="mt-3 text-sm leading-6 text-white/70">
                           DocYa se encuentra registrada en el Ministerio de Salud de la Nacion (ID 0259).
                         </p>
                       </div>
 
                       <div className="mx-auto w-full max-w-[250px] md:mx-0">
-                        <div className="relative h-16 w-full">
-                          <Image
-                            src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1775043651/logosisa_dxtx66.png"
-                            alt="Logo SISA"
-                            fill
-                            className="object-contain object-center md:object-left"
-                          />
-                        </div>
+                        <Image
+                          src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1775043651/logosisa_dxtx66.png"
+                          alt="Logo SISA"
+                          width={250}
+                          height={64}
+                          className="h-16 w-full object-contain object-center md:object-left"
+                        />
                         <p className="mt-3 text-sm leading-6 text-white/70">
                           Todos nuestros profesionales estan validados en SISA.
                         </p>
@@ -249,6 +258,7 @@ export default function Footer() {
                   <li><Link href="/ingresos" className={chipLinkCls}>Ingresos</Link></li>
                   <li><Link href="/faqs" className={chipLinkCls}>FAQs</Link></li>
                   <li><Link href="/contacto" className={chipLinkCls}>Contacto</Link></li>
+                  <li><Link href="/descargas" className={chipLinkCls}>Descargas</Link></li>
                   <li><Link href="/registro" className={chipLinkCls}>Registrate</Link></li>
                 </ul>
               </div>

@@ -413,6 +413,61 @@
   }
 }
 
+.tech-marquee-mask {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 10%,
+    #000 90%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 10%,
+    #000 90%,
+    transparent
+  );
+}
+
+.tech-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 0.75rem;
+  animation: tech-marquee 34s linear infinite;
+  will-change: transform;
+}
+
+.tech-marquee-mask:hover .tech-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes tech-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 0.375rem));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-marquee-track {
+    animation: none;
+    overflow-x: auto;
+    max-width: calc(100vw - 4rem);
+    scroll-snap-type: x mandatory;
+  }
+
+  .tech-marquee-track > div > div {
+    scroll-snap-align: start;
+  }
+}
+
 /* ====== Swiper con paleta DocYa ====== */
 .swiper-button-prev,
 .swiper-button-next {

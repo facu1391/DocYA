@@ -3,6 +3,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { Video } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
 import CoberturaDynamic from "./CoberturaDynamic";
 import { useI18n } from "@/lib/i18n/context";
@@ -151,6 +152,25 @@ export default function CoberturaSection() {
                 {t.cobertura.fallbackProximamente}
               </span>
             )}
+          </div>
+
+          <div className="mb-8">
+            <div className="mb-4 flex items-center gap-2">
+              <span
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ background: "#3A86FF", boxShadow: "0 0 10px #3A86FF" }}
+              />
+              <h4 className="text-lg font-bold">{t.cobertura.teleconsultaTitle}</h4>
+            </div>
+            <div
+              className="glass-card flex items-start gap-4 p-5"
+              style={{ borderColor: "rgba(58, 134, 255, 0.18)" }}
+            >
+              <Video className="mt-0.5 h-6 w-6 shrink-0 text-[#3A86FF]" />
+              <p className="text-text-muted m-0 text-sm leading-relaxed">
+                {t.cobertura.teleconsultaDescription}
+              </p>
+            </div>
           </div>
 
           <div

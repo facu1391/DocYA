@@ -190,6 +190,8 @@ export const es = {
     proximamente: "PRÓXIMAMENTE",
     fallbackDisponible: "Próximamente estaremos mostrando las zonas activas.",
     fallbackProximamente: "Sin nuevas zonas cargadas por el momento.",
+    teleconsultaTitle: "TELECONSULTAS",
+    teleconsultaDescription: "Las teleconsultas están disponibles en todo el país. Conectate con un profesional desde cualquier lugar de Argentina.",
     ctaTitle: "¿Querés que lleguemos a tu ciudad?",
     ctaDescription: "Sumate como embajador y ayudanos a expandir DocYa.",
     altMapa: "Mapa de Cobertura DocYa",
