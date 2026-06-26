@@ -8,8 +8,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isRecetario = pathname?.startsWith("/recetario");
   const isPedir     = pathname?.startsWith("/pedir");
+  const isClinic    = pathname?.startsWith("/clinic");
 
-  if (isRecetario || isPedir) {
+  if (isRecetario || isPedir || isClinic) {
     return <>{children}</>;
   }
 
