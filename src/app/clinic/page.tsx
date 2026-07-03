@@ -396,15 +396,7 @@ function ClinicalAiCapture() {
     <div className="h-[430px] overflow-hidden rounded-[8px] border border-slate-200 bg-[#f6f8fb] shadow-2xl shadow-slate-950/10 lg:h-[455px]">
       <div className="grid h-full lg:grid-cols-[118px_1fr] xl:grid-cols-[128px_1fr]">
         <aside className="hidden border-r border-slate-200 bg-[#0f1726] p-3 text-white lg:block">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-teal-400 text-slate-950">
-              <Stethoscope className="h-4 w-4" />
-            </span>
-            <div>
-              <p className="text-base font-bold leading-none">DocYa</p>
-              <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-teal-300">Clinic</p>
-            </div>
-          </div>
+          <Image src={CLINIC_LOGO} alt="DocYa Clinic" width={110} height={35} className="h-auto w-[110px]" />
           <nav className="mt-7 space-y-1.5 text-[11px] font-semibold text-slate-400">
             {["Dashboard", "Pacientes", "Agenda", "Recetario", "Ordenes"].map((item, index) => (
               <div
@@ -635,13 +627,7 @@ function TurneroCapture() {
     <div className="overflow-hidden rounded-[8px] border border-white/10 bg-black shadow-2xl shadow-black/50">
       <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-teal-400 text-slate-950">
-            <Stethoscope className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-sm font-bold leading-none text-white">DocYa</p>
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-teal-400">Clinic</p>
-          </div>
+          <Image src={CLINIC_LOGO} alt="DocYa Clinic" width={130} height={41} className="h-auto w-[130px]" />
           <span className="ml-2 text-xl font-bold text-white">· Sala de espera</span>
         </div>
         <p className="text-2xl font-bold tabular-nums text-white">10:11 p. m.</p>
