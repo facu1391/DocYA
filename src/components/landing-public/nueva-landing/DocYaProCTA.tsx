@@ -1,8 +1,12 @@
 // src/components/landing-public/nueva-landing/DocYaProCTA.tsx
+"use client";
+
 import { Stethoscope, ArrowRight, ShieldCheck } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
+import { useI18n } from "@/lib/i18n/context";
 
 export default function DocYaProCTA() {
+  const { t } = useI18n();
   return (
     <section className="py-16">
       <div className="mx-auto w-full max-w-[1200px] px-6">
@@ -15,19 +19,19 @@ export default function DocYaProCTA() {
               <div className="flex items-center gap-3 mb-6">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-800 px-3 py-1 text-xs font-semibold tracking-wide text-white">
                   <Stethoscope size={14} className="text-[var(--brand)]" />
-                  RED DOCYA PRO
+                  {t.proCta.badge1}
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400">
-                  <ShieldCheck size={14} className="text-blue-400" /> Profesionales Verificados
+                  <ShieldCheck size={14} className="text-blue-400" /> {t.proCta.badge2}
                 </span>
               </div>
 
               <h3 className="mb-4 text-3xl md:text-4xl font-bold leading-tight text-white">
-                ¿Sos profesional de la salud?
+                {t.proCta.title}
               </h3>
 
               <p className="text-slate-300 max-w-lg text-lg">
-                Únete a la plataforma tecnológica líder. Amplía tu base de pacientes, optimizá tus tiempos y gestioná tus consultas de forma segura con nuestras herramientas digitales exclusivas.
+                {t.proCta.description}
               </p>
             </div>
 
@@ -36,7 +40,7 @@ export default function DocYaProCTA() {
                 href="/profesionales"
                 className="inline-flex w-full md:w-auto items-center justify-center gap-3 rounded-full bg-white px-8 py-4 text-lg font-bold text-slate-900 transition-transform duration-300 hover:scale-105"
               >
-                Conocé DocYa Pro
+                {t.proCta.cta}
                 <ArrowRight size={20} className="text-slate-900" />
               </a>
             </div>

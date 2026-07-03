@@ -1,11 +1,11 @@
-// src/app/referidos/layout.tsx
+﻿// src/app/referidos/layout.tsx
 import type { Metadata } from "next";
 import ScrollToTopButton from "@/components/fab/ScrollToTopButton";
 
 export const metadata: Metadata = {
-  title: "Referidos | DocYa",
+  title: "Partner DocYa | DocYa",
   description:
-    "Sumate al programa de referidos de DocYa y ganá dinero compartiendo salud.",
+    "Sumate al programa Partner DocYa y generá ingresos compartiendo salud.",
 };
 
 export default function ReferidosLayout({

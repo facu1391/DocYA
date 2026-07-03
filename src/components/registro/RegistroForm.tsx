@@ -5,24 +5,35 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Script from "next/script";
 import {
-  registroSchema,
   registroPacienteSchema,
+  registroSchema,
   type RegistroFormValues,
   type RegistroPacienteValues,
 } from "./schema";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import {
-  User2, Mail, Phone, Stethoscope, IdCard, Send, Loader2,
-  Image as ImageIcon, IdCard as IdIcon, Camera, Lock,
+  Camera,
+  IdCard,
+  Image as ImageIcon,
+  Loader2,
+  Lock,
+  Mail,
+  MapPin,
+  Phone,
+  Send,
+  Stethoscope,
+  User2,
 } from "lucide-react";
+
 import LoadingSplash from "@/components/common/LoadingSplash";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import ZonaCobertura from "@/components/registro/ZonaCobertura";
 import TermsPaciente from "./TermsPaciente";
 
@@ -32,11 +43,62 @@ type Props = {
   mode?: Mode;
 };
 
+type GoogleWindow = Window & {
+  google?: {
+    maps?: {
+      places?: {
+        Autocomplete?: new (
+          input: HTMLInputElement,
+          options: {
+            fields: string[];
+            componentRestrictions?: { country: string };
+            types?: string[];
+          },
+        ) => GooglePlacesAutocomplete;
+      };
+    };
+  };
+};
+
+type GooglePlacesPlace = {
+  formatted_address?: string;
+};
+
+type GooglePlacesAutocomplete = {
+  addListener: (eventName: "place_changed", handler: () => void) => void;
+  getPlace: () => GooglePlacesPlace;
+};
+
+const PRO_COUNTRIES = [
+  { code: "AR", phoneCode: "54" },
+  { code: "UY", phoneCode: "598" },
+  { code: "CL", phoneCode: "56" },
+  { code: "PY", phoneCode: "595" },
+  { code: "BO", phoneCode: "591" },
+  { code: "PE", phoneCode: "51" },
+  { code: "ES", phoneCode: "34" },
+  { code: "US", phoneCode: "1" },
+];
+
+const PRO_PLACES_API_KEY =
+  process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyDVv_barlVwHJTgLF66dP4ESUffCBuS3uA";
+
+function flagEmoji(code: string) {
+  return code
+    .toUpperCase()
+    .replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
+}
+
 export default function RegistroForm({ mode = "pro" }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loadingSplash, setLoadingSplash] = useState(false);
   const [codigoReferido, setCodigoReferido] = useState("");
+  const [proCountry, setProCountry] = useState(PRO_COUNTRIES[0]);
+  const [placesLoaded, setPlacesLoaded] = useState(false);
+  const [placesStatus, setPlacesStatus] = useState("");
+  const proAddressInputRef = useRef<HTMLInputElement | null>(null);
+  const proAutocompleteRef = useRef<GooglePlacesAutocomplete | null>(null);
 
   const isPaciente = mode === "paciente";
 
@@ -44,7 +106,9 @@ export default function RegistroForm({ mode = "pro" }: Props) {
     if (!isPaciente) return;
     const refFromUrl = (searchParams.get("ref") || "").trim();
     const refStored =
-      typeof window !== "undefined" ? window.localStorage.getItem("docya_ref_code") || "" : "";
+      typeof window !== "undefined"
+        ? window.localStorage.getItem("docya_ref_code") || ""
+        : "";
     const finalRef = refFromUrl || refStored;
     if (finalRef) {
       setCodigoReferido(finalRef);
@@ -69,6 +133,41 @@ export default function RegistroForm({ mode = "pro" }: Props) {
   const dniDorso = watch("dniDorso" as any) as File | undefined;
   const selfieDni = watch("selfieDni" as any) as File | undefined;
 
+  useEffect(() => {
+    if (isPaciente || !placesLoaded || !proAddressInputRef.current) return;
+
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    const bindAutocomplete = () => {
+      const Autocomplete = (window as GoogleWindow).google?.maps?.places?.Autocomplete;
+      if (!Autocomplete || !proAddressInputRef.current) {
+        attempts += 1;
+        if (attempts < maxAttempts) {
+          window.setTimeout(bindAutocomplete, 300);
+        } else {
+          setPlacesStatus("Google Places no termino de inicializar.");
+        }
+        return;
+      }
+
+      setPlacesStatus("");
+      proAutocompleteRef.current = new Autocomplete(proAddressInputRef.current, {
+        fields: ["formatted_address"],
+        componentRestrictions: { country: "ar" },
+        types: ["address"],
+      });
+
+      proAutocompleteRef.current.addListener("place_changed", () => {
+        const place = proAutocompleteRef.current?.getPlace?.();
+        const value = place?.formatted_address || proAddressInputRef.current?.value || "";
+        setValue("direccion" as any, value, { shouldValidate: true, shouldDirty: true });
+      });
+    };
+
+    bindAutocomplete();
+  }, [isPaciente, placesLoaded, setValue]);
+
   const onPickFile =
     (field: keyof RegistroFormValues) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,35 +191,30 @@ export default function RegistroForm({ mode = "pro" }: Props) {
 
   async function onSubmit(raw: any) {
     try {
-      const rawZona = (raw.zona || "").trim();
-      const [p1 = "", p2 = ""] = rawZona.split("/").map((s: string) => s.trim());
-      let provincia = "", localidad = "";
-      if (p1 && p2) {
-        provincia = p1;
-        localidad = p2;
-      } else {
-        localidad = rawZona;
-      }
-
       if (!isPaciente) {
-        const [fotoPerfil64, dniFrente64, dniDorso64, selfieDni64] = await Promise.all([
-          fileToDataURL(foto),
-          fileToDataURL(dniFrente),
-          fileToDataURL(dniDorso),
-          fileToDataURL(selfieDni),
-        ]);
+        const telefonoDigits = String(raw.telefono ?? "").replace(/\D/g, "");
+        const telefonoCompleto = `+${proCountry.phoneCode}${telefonoDigits}`;
+        const [fotoPerfil64, dniFrente64, dniDorso64, selfieDni64] =
+          await Promise.all([
+            fileToDataURL(foto),
+            fileToDataURL(dniFrente),
+            fileToDataURL(dniDorso),
+            fileToDataURL(selfieDni),
+          ]);
 
         const payload = {
           full_name: raw.nombreCompleto.trim(),
           email: String(raw.email).toLowerCase().trim(),
           password: raw.password,
           matricula: raw.matricula?.trim(),
-          especialidad: raw.especialidad?.trim(),
+          especialidad: raw.especialidad?.trim() || null,
           tipo: raw.tipo,
-          telefono: raw.telefono?.trim(),
-          provincia,
-          localidad,
-          dni: raw.dni?.trim(),
+          telefono: telefonoCompleto,
+          dni: raw.tipoDocumento === "dni" ? raw.numeroDocumento?.trim() : null,
+          tipo_documento: raw.tipoDocumento,
+          numero_documento: raw.numeroDocumento?.trim(),
+          direccion: raw.direccion?.trim(),
+          acepta_terminos: raw.aceptaTerminos === true,
           foto_perfil: fotoPerfil64,
           foto_dni_frente: dniFrente64,
           foto_dni_dorso: dniDorso64,
@@ -135,10 +229,15 @@ export default function RegistroForm({ mode = "pro" }: Props) {
 
         if (!res.ok) {
           const js = await res.json().catch(() => ({}));
-          toast.error(js?.detail || "No se pudo enviar. Probá de nuevo.");
+          toast.error(js?.detail || "No se pudo registrar.");
           return;
         }
       } else {
+        const rawZona = (raw.zona || "").trim();
+        const [p1 = "", p2 = ""] = rawZona.split("/").map((s: string) => s.trim());
+        const provincia = p1 && p2 ? p1 : "";
+        const localidad = p1 && p2 ? p2 : rawZona;
+
         const payloadPaciente = {
           email: String(raw.email).toLowerCase().trim(),
           full_name: raw.nombreCompleto.trim(),
@@ -149,6 +248,7 @@ export default function RegistroForm({ mode = "pro" }: Props) {
           provincia,
           localidad,
           fecha_nacimiento: raw.fechaNacimiento || null,
+          sexo: raw.sexo,
           acepto_condiciones: true,
           codigo_referido: codigoReferido || undefined,
         };
@@ -161,24 +261,15 @@ export default function RegistroForm({ mode = "pro" }: Props) {
 
         if (!res.ok) {
           const js = await res.json().catch(() => ({}));
-          toast.error(js?.detail || "No se pudo enviar. Probá de nuevo.");
+          toast.error(js?.detail || "No se pudo registrar.");
           return;
         }
       }
 
-      toast.success("Registro exitoso ✅. Revisá tu correo para activar tu cuenta.");
+      toast.success("Registro exitoso. Revisa tu correo para activar tu cuenta.");
       setLoadingSplash(true);
-
-      const timer = setTimeout(() => {
-        if (isPaciente) {
-          router.push("/gracias?celebra=1&aud=paciente");
-        } else {
-          router.push("/gracias?celebra=1&aud=pro");
-        }
-      }, 2000);
-      return () => clearTimeout(timer);
     } catch {
-      toast.error("Error de red. Probá de nuevo.");
+      toast.error("Error de red. Proba de nuevo.");
       setLoadingSplash(false);
     }
   }
@@ -186,8 +277,16 @@ export default function RegistroForm({ mode = "pro" }: Props) {
   const Err = ({ msg }: { msg?: string }) =>
     msg ? <p className="mt-1 text-xs text-red-500">{msg}</p> : null;
 
+  const direccionField = register("direccion" as any);
+
   function FileRow({
-    id, label, icon, accept = "image/*", onChange, fileName, error,
+    id,
+    label,
+    icon,
+    accept = "image/*",
+    onChange,
+    fileName,
+    error,
   }: {
     id: string;
     label: string;
@@ -201,13 +300,15 @@ export default function RegistroForm({ mode = "pro" }: Props) {
 
     return (
       <div>
-        <Label htmlFor={id} className="mb-1 block">{label}</Label>
+        <Label htmlFor={id} className="mb-1 block">
+          {label}
+        </Label>
         <div className="flex items-center gap-2 rounded-xl border bg-background px-3 py-2 focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]">
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--brand)_45%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] text-[var(--brand)]">
             {icon}
           </span>
           <span className="flex-1 truncate text-sm text-muted-foreground">
-            {fileName || "Ningún archivo seleccionado"}
+            {fileName || "Ningun archivo seleccionado"}
           </span>
           <Button
             type="button"
@@ -232,14 +333,25 @@ export default function RegistroForm({ mode = "pro" }: Props) {
 
   return (
     <>
+      {!isPaciente && (
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${PRO_PLACES_API_KEY}&libraries=places&loading=async&language=es&region=AR`}
+          strategy="afterInteractive"
+          onLoad={() => setPlacesLoaded(true)}
+          onReady={() => setPlacesLoaded(true)}
+        />
+      )}
+
       <div className="surface rounded-3xl border p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] sm:p-6 md:p-8">
         <div className="mb-6">
           <span className="badge">Formulario</span>
           <h2 className="mt-3 text-xl font-semibold md:text-2xl">
-            {isPaciente ? "Completá tu registro" : "Postulate como profesional"}
+            {isPaciente ? "Completa tu registro" : "Registrate en DocYa Pro"}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground md:text-base">
-            Cargá tus datos para continuar con el proceso.
+            {isPaciente
+              ? "Carga tus datos para crear tu cuenta."
+              : "Completa tu informacion profesional y documentacion para habilitar tu cuenta."}
           </p>
         </div>
 
@@ -248,19 +360,72 @@ export default function RegistroForm({ mode = "pro" }: Props) {
           noValidate
           className="mt-6 grid gap-4 sm:mt-8 sm:gap-5 md:gap-6"
         >
+          {!isPaciente && (
+            <div>
+              <Label>Tipo de profesional</Label>
+              <div className="relative mt-1">
+                <Stethoscope className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
+                <select
+                  className="h-11 w-full rounded-md border bg-background pl-9 pr-8 focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] md:h-12"
+                  defaultValue=""
+                  {...register("tipo" as any)}
+                >
+                  <option value="">Elegi una opcion</option>
+                  <option value="medico">Medico</option>
+                  <option value="enfermero">Enfermero</option>
+                </select>
+              </div>
+              <Err msg={(errors as any)?.tipo?.message} />
+            </div>
+          )}
+
           <div>
             <Label>Nombre y apellido</Label>
             <div className="relative mt-1">
               <User2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
               <Input
                 className="h-11 pl-9 md:h-12"
-                placeholder="Ej: Ana Pérez"
+                placeholder="Ej: Ana Perez"
                 {...register("nombreCompleto" as any)}
                 autoComplete="name"
               />
             </div>
             <Err msg={(errors as any)?.nombreCompleto?.message} />
           </div>
+
+          {!isPaciente && (
+            <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+              <div>
+                <Label>Tipo de documento</Label>
+                <div className="relative mt-1">
+                  <IdCard className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
+                  <select
+                    className="h-11 w-full rounded-md border bg-background pl-9 pr-8 focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] md:h-12"
+                    defaultValue="dni"
+                    {...register("tipoDocumento" as any)}
+                  >
+                    <option value="dni">DNI</option>
+                    <option value="pasaporte">Pasaporte</option>
+                  </select>
+                </div>
+                <Err msg={(errors as any)?.tipoDocumento?.message} />
+              </div>
+
+              <div>
+                <Label>Numero de documento</Label>
+                <div className="relative mt-1">
+                  <IdCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
+                  <Input
+                    className="h-11 pl-9 md:h-12"
+                    {...register("numeroDocumento" as any)}
+                    inputMode="text"
+                    autoComplete="off"
+                  />
+                </div>
+                <Err msg={(errors as any)?.numeroDocumento?.message} />
+              </div>
+            </div>
+          )}
 
           <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
             <div>
@@ -278,114 +443,165 @@ export default function RegistroForm({ mode = "pro" }: Props) {
             </div>
 
             <div>
-              <Label>Teléfono</Label>
-              <div className="relative mt-1">
-                <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
-                <Input
-                  className="h-11 pl-9 md:h-12"
-                  {...register("telefono" as any)}
-                  inputMode="tel"
-                  autoComplete="tel"
-                  placeholder="+54 9 …"
-                />
-              </div>
+              <Label>Telefono</Label>
+              {isPaciente ? (
+                <div className="relative mt-1">
+                  <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
+                  <Input
+                    className="h-11 pl-9 md:h-12"
+                    {...register("telefono" as any)}
+                    inputMode="tel"
+                    autoComplete="tel"
+                    placeholder="+54 9 ..."
+                  />
+                </div>
+              ) : (
+                <div className="mt-1 flex overflow-hidden rounded-md border bg-background focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]">
+                  <select
+                    className="h-11 w-32 border-r bg-background px-2 text-sm outline-none md:h-12"
+                    value={proCountry.code}
+                    onChange={(e) => {
+                      const next = PRO_COUNTRIES.find(
+                        (country) => country.code === e.target.value,
+                      );
+                      if (next) setProCountry(next);
+                    }}
+                  >
+                    {PRO_COUNTRIES.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {flagEmoji(country.code)} +{country.phoneCode}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="relative flex-1">
+                    <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
+                    <Input
+                      className="h-11 border-0 pl-9 focus-visible:ring-0 md:h-12"
+                      {...register("telefono" as any)}
+                      inputMode="numeric"
+                      autoComplete="tel-national"
+                      placeholder="1123456789"
+                    />
+                  </div>
+                </div>
+              )}
               <Err msg={(errors as any)?.telefono?.message} />
             </div>
           </div>
 
           {!isPaciente && (
-            <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
-              <div>
-                <Label>Tipo de profesional</Label>
-                <div className="relative mt-1">
-                  <Stethoscope className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
-                  <select
-                    className="h-11 w-full rounded-md border bg-background pl-9 pr-8 focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] md:h-12"
-                    defaultValue=""
-                    {...register("tipo" as any)}
-                  >
-                    <option value="">Elegí una opción</option>
-                    <option value="medico">Médico/a</option>
-                    <option value="enfermero">Enfermero/a</option>
-                  </select>
+            <>
+              <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+                <div>
+                  <Label>Matricula profesional</Label>
+                  <div className="relative mt-1">
+                    <IdCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
+                    <Input
+                      className="h-11 pl-9 md:h-12"
+                      {...register("matricula" as any)}
+                      autoComplete="off"
+                    />
+                  </div>
+                  <Err msg={(errors as any)?.matricula?.message} />
                 </div>
-                <Err msg={(errors as any)?.tipo?.message} />
+
+                <div>
+                  <Label>Especialidad opcional</Label>
+                  <div className="relative mt-1">
+                    <Stethoscope className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
+                    <Input
+                      className="h-11 pl-9 md:h-12"
+                      placeholder="Ej: Clinica, Pediatria, UTI"
+                      {...register("especialidad" as any)}
+                      autoComplete="off"
+                    />
+                  </div>
+                  <Err msg={(errors as any)?.especialidad?.message} />
+                </div>
               </div>
 
               <div>
-                <Label>Especialidad</Label>
+                <Label>Direccion profesional</Label>
                 <div className="relative mt-1">
-                  <Stethoscope className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
+                  <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
                   <Input
                     className="h-11 pl-9 md:h-12"
-                    placeholder="Ej: Clínica, Pediatría, UTI…"
-                    {...register("especialidad" as any)}
-                    autoComplete="off"
+                    placeholder="Ej: Av. Santa Fe 1234, piso 4, CABA"
+                    {...direccionField}
+                    ref={(node) => {
+                      direccionField.ref(node);
+                      proAddressInputRef.current = node;
+                    }}
+                    autoComplete="street-address"
                   />
                 </div>
-                <Err msg={(errors as any)?.especialidad?.message} />
+                <Err msg={(errors as any)?.direccion?.message} />
+                {placesStatus ? <p className="mt-1 text-xs text-amber-600">{placesStatus}</p> : null}
               </div>
-            </div>
+            </>
           )}
 
-          <div className={`grid gap-4 sm:gap-5 ${!isPaciente ? "md:grid-cols-2" : ""}`}>
-            {!isPaciente && (
-              <div>
-                <Label>Matrícula</Label>
-                <div className="relative mt-1">
-                  <IdCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
-                  <Input
-                    className="h-11 pl-9 md:h-12"
-                    {...register("matricula" as any)}
-                    autoComplete="off"
-                  />
+          {isPaciente && (
+            <>
+              <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+                <div>
+                  <Label>DNI</Label>
+                  <div className="relative mt-1">
+                    <IdCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
+                    <Input
+                      className="h-11 pl-9 md:h-12"
+                      {...register("dni" as any)}
+                      inputMode="numeric"
+                      pattern="\d*"
+                      placeholder="Solo numeros"
+                      autoComplete="off"
+                    />
+                  </div>
+                  <Err msg={(errors as any)?.dni?.message} />
                 </div>
-                <Err msg={(errors as any)?.matricula?.message} />
-              </div>
-            )}
 
-            <div>
-              <Label>DNI</Label>
-              <div className="relative mt-1">
-                <IdCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
-                <Input
-                  className="h-11 pl-9 md:h-12"
-                  {...register("dni" as any)}
-                  inputMode="numeric"
-                  pattern="\d*"
-                  placeholder="Solo números"
-                  autoComplete="off"
-                />
-              </div>
-              <Err msg={(errors as any)?.dni?.message} />
-            </div>
-
-            {isPaciente && (
-              <div>
-                <Label>Fecha de nacimiento</Label>
-                <div className="relative mt-1">
+                <div>
+                  <Label>Fecha de nacimiento</Label>
                   <Input
                     type="date"
-                    className="h-11 md:h-12"
+                    className="mt-1 h-11 md:h-12"
                     {...register("fechaNacimiento" as any)}
                   />
+                  <Err msg={(errors as any)?.fechaNacimiento?.message} />
                 </div>
-                <Err msg={(errors as any)?.fechaNacimiento?.message} />
               </div>
-            )}
-          </div>
 
-          <ZonaCobertura
-            value={watch("zona" as any) as string}
-            onChangeZona={(zonaStr) =>
-              setValue("zona" as any, zonaStr, { shouldValidate: true, shouldDirty: true })
-            }
-            error={(errors as any)?.zona?.message}
-          />
+              <div>
+                <Label>Sexo</Label>
+                <select
+                  className="mt-1 h-11 w-full rounded-md border bg-background px-3 pr-8 focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] md:h-12"
+                  defaultValue=""
+                  {...register("sexo" as any)}
+                >
+                  <option value="">Elegi una opcion</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="femenino">Femenino</option>
+                  <option value="otro">Otro</option>
+                </select>
+                <Err msg={(errors as any)?.sexo?.message} />
+              </div>
+
+              <ZonaCobertura
+                value={watch("zona" as any) as string}
+                onChangeZona={(zonaStr) =>
+                  setValue("zona" as any, zonaStr, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
+                }
+                error={(errors as any)?.zona?.message}
+              />
+            </>
+          )}
 
           <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
             <div>
-              <Label>Contraseña</Label>
+              <Label>Contrasena</Label>
               <div className="relative mt-1">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
                 <Input
@@ -399,7 +615,7 @@ export default function RegistroForm({ mode = "pro" }: Props) {
             </div>
 
             <div>
-              <Label>Confirmar contraseña</Label>
+              <Label>Confirmar contrasena</Label>
               <div className="relative mt-1">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
                 <Input
@@ -425,23 +641,23 @@ export default function RegistroForm({ mode = "pro" }: Props) {
               />
               <FileRow
                 id="dniFrente"
-                label="DNI Frente"
-                icon={<IdIcon className="h-4 w-4" />}
+                label="DNI frente"
+                icon={<IdCard className="h-4 w-4" />}
                 onChange={onPickFile("dniFrente")}
                 fileName={dniFrente?.name}
                 error={(errors as any)?.dniFrente?.message}
               />
               <FileRow
                 id="dniDorso"
-                label="DNI Dorso"
-                icon={<IdIcon className="h-4 w-4" />}
+                label="DNI dorso"
+                icon={<IdCard className="h-4 w-4" />}
                 onChange={onPickFile("dniDorso")}
                 fileName={dniDorso?.name}
                 error={(errors as any)?.dniDorso?.message}
               />
               <FileRow
                 id="selfieDni"
-                label="Selfie con DNI"
+                label="Selfie con documento"
                 icon={<Camera className="h-4 w-4" />}
                 onChange={onPickFile("selfieDni")}
                 fileName={selfieDni?.name}
@@ -462,11 +678,11 @@ export default function RegistroForm({ mode = "pro" }: Props) {
                 <>
                   Acepto los{" "}
                   <Link href="/legal/pacientes/terminos" className="link-primary">
-                    Términos y Condiciones
+                    Terminos y Condiciones
                   </Link>{" "}
                   y la{" "}
                   <Link href="/legal/pacientes/privacidad" className="link-primary">
-                    Política de Privacidad
+                    Politica de Privacidad
                   </Link>
                   .
                 </>
@@ -474,11 +690,7 @@ export default function RegistroForm({ mode = "pro" }: Props) {
                 <>
                   Acepto los{" "}
                   <Link href="/legal/pro/terminos" className="link-primary">
-                    Términos y Condiciones
-                  </Link>{" "}
-                  y la{" "}
-                  <Link href="/legal/pro/privacidad" className="link-primary">
-                    Política de Privacidad
+                    terminos y condiciones
                   </Link>{" "}
                   de DocYa Pro.
                 </>
@@ -506,7 +718,7 @@ export default function RegistroForm({ mode = "pro" }: Props) {
                 </>
               ) : (
                 <>
-                  Registrarme
+                  {isPaciente ? "Registrarme" : "Crear cuenta"}
                   <Send className="ml-2 h-4 w-4" />
                 </>
               )}
@@ -517,13 +729,13 @@ export default function RegistroForm({ mode = "pro" }: Props) {
 
       <LoadingSplash
         show={loadingSplash}
-        message="Guardando tu registro…"
+        message="Guardando tu registro..."
         autoHideMs={2000}
         onHide={() =>
           router.push(
             isPaciente
               ? "/gracias?celebra=1&aud=paciente"
-              : "/gracias?celebra=1&aud=pro"
+              : "/gracias?celebra=1&aud=pro",
           )
         }
       />

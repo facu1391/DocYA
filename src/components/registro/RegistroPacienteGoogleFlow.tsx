@@ -93,6 +93,13 @@ const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   "327572770521-tom99oocat1tcp9pahlejsar4iu62lhg.apps.googleusercontent.com";
 
+const APPLE_SERVICE_ID =
+  process.env.NEXT_PUBLIC_APPLE_SERVICE_ID || "com.docya.web";
+
+const APPLE_REDIRECT_URI =
+  process.env.NEXT_PUBLIC_APPLE_REDIRECT_URI ||
+  "https://www.docya.com.ar/registro/paciente";
+
 type GoogleIdConfiguration = {
   client_id: string;
   callback: (response: { credential?: string }) => void | Promise<void>;
@@ -130,6 +137,9 @@ export default function RegistroPacienteGoogleFlow() {
   const googleRenderedRef = useRef(false);
   const [googleLoaded, setGoogleLoaded] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
+  const [appleBusy, setAppleBusy] = useState(false);
+  const [aceptaTerminosApple, setAceptaTerminosApple] = useState(false);
+  const [aceptaTerminosGeneral, setAceptaTerminosGeneral] = useState(false);
   const [stage, setStage] = useState<"google" | "profile">("google");
   const [loadingSplash, setLoadingSplash] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -167,6 +177,68 @@ export default function RegistroPacienteGoogleFlow() {
       }
     }
   }, [searchParams]);
+
+  const handleAppleSignIn = useCallback(async () => {
+    if (!aceptaTerminosGeneral) {
+      toast.error("Debés aceptar los términos y condiciones.");
+      return;
+    }
+    setAppleBusy(true);
+    setStatusMessage("");
+    try {
+      const appleAuth = (window as unknown as { AppleID?: { auth?: { init: (c: object) => void; signIn: () => Promise<{ authorization: { id_token: string }; user?: { name?: { firstName?: string; lastName?: string }; email?: string } }> } } }).AppleID;
+      if (!appleAuth?.auth) {
+        toast.error("Apple Sign In no está disponible. Intentá desde Safari.");
+        return;
+      }
+
+      appleAuth.auth.init({
+        clientId: APPLE_SERVICE_ID,
+        scope: "name email",
+        redirectURI: APPLE_REDIRECT_URI,
+        usePopup: true,
+      });
+
+      const response = await appleAuth.auth.signIn();
+      const identityToken = response.authorization?.id_token;
+      if (!identityToken) throw new Error("Apple no devolvió un token válido.");
+
+      const firstName = response.user?.name?.firstName ?? "";
+      const lastName = response.user?.name?.lastName ?? "";
+      const fullName = [firstName, lastName].filter(Boolean).join(" ") || undefined;
+      const email = response.user?.email ?? undefined;
+
+      const res = await fetch("/api/auth_apple_paciente", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identity_token: identityToken, full_name: fullName, email }),
+      });
+      const data: GoogleAuthResponse = await res.json().catch(() => ({}));
+
+      if (!res.ok) throw new Error(data?.detail || "No se pudo validar con Apple");
+
+      const nextUserId = String(data.user?.id ?? "");
+      if (!nextUserId) throw new Error("No se recibió el usuario de Apple");
+
+      setUserId(nextUserId);
+      setPrefillName(data.user?.full_name ?? fullName ?? "");
+      setPrefillEmail(data.user?.email ?? email ?? "");
+
+      if (data.perfil_completo || data.user?.perfil_completo) {
+        toast.success("Tu cuenta ya está lista. Ahora podés ingresar a DocYa.");
+        setLoadingSplash(true);
+        return;
+      }
+
+      setStage("profile");
+      toast.success("Continuemos con los datos finales de tu perfil.");
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "error" in error && (error as { error: string }).error === "popup_closed_by_user") return;
+      toast.error(error instanceof Error ? error.message : "No se pudo iniciar con Apple");
+    } finally {
+      setAppleBusy(false);
+    }
+  }, [aceptaTerminosGeneral]);
 
   const handleGoogleCredential = useCallback(async (credential: string) => {
     setGoogleBusy(true);
@@ -239,12 +311,16 @@ export default function RegistroPacienteGoogleFlow() {
       cancel_on_tap_outside: true,
     } as GoogleIdConfiguration);
 
+    const btnWidth = Math.min(
+      googleButtonRef.current.offsetWidth || 300,
+      360,
+    );
     googleApi.accounts.id.renderButton(googleButtonRef.current, {
       theme: "outline",
       size: "large",
       shape: "pill",
       text: "signup_with",
-      width: 360,
+      width: btnWidth,
       logo_alignment: "left",
     });
 
@@ -358,16 +434,20 @@ export default function RegistroPacienteGoogleFlow() {
   return (
     <>
       <Script
-        src={`https://accounts.google.com/gsi/client`}
+        src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
         onLoad={() => setGoogleLoaded(true)}
+      />
+      <Script
+        src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"
+        strategy="afterInteractive"
       />
       <Script
         src={`https://maps.googleapis.com/maps/api/js?key=${PLACES_API_KEY}&libraries=places&loading=async&language=es&region=AR`}
         strategy="afterInteractive"
       />
 
-      <div className="surface rounded-3xl border p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] sm:p-6 md:p-8">
+      <div className="surface w-full overflow-hidden rounded-3xl border p-4 shadow-[0_10px_30px_rgba(0,0,0,0.08)] [overflow-wrap:anywhere] sm:p-6 md:p-8">
         <div className="mb-6">
           <span className="badge">Pacientes</span>
           <h2 className="mt-3 text-xl font-semibold md:text-2xl">{title}</h2>
@@ -376,6 +456,7 @@ export default function RegistroPacienteGoogleFlow() {
 
         {stage === "google" ? (
           <div className="grid gap-5">
+            {/* Validación de identidad */}
             <div className="rounded-2xl border bg-background/70 p-5">
               <div className="flex items-start gap-3">
                 <div className="rounded-xl border border-[color-mix(in_srgb,var(--brand)_35%,transparent)] bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] p-2 text-[var(--brand)]">
@@ -384,25 +465,56 @@ export default function RegistroPacienteGoogleFlow() {
                 <div>
                   <p className="text-sm font-semibold">Primero validamos tu identidad</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Usá tu cuenta Google y después te pedimos documento, teléfono, dirección y fecha de nacimiento.
+                    Usá tu cuenta Google o Apple y después te pedimos documento, teléfono, dirección y fecha de nacimiento.
                   </p>
                 </div>
               </div>
             </div>
 
+            {/* Términos compartidos */}
+            <div className="w-full overflow-hidden rounded-2xl border bg-background/70 p-4">
+              <div className="mb-3 max-h-40 w-full overflow-y-auto overflow-x-hidden rounded-xl border p-3">
+                <TermsPaciente />
+              </div>
+              <div className="flex w-full min-w-0 items-start gap-3">
+                <input
+                  id="aceptaTerminosGeneral"
+                  type="checkbox"
+                  className="mt-0.5 h-4 w-4 shrink-0"
+                  checked={aceptaTerminosGeneral}
+                  onChange={(e) => setAceptaTerminosGeneral(e.target.checked)}
+                />
+                <label
+                  htmlFor="aceptaTerminosGeneral"
+                  className="min-w-0 flex-1 cursor-pointer text-sm leading-relaxed text-muted-foreground"
+                >
+                  Acepto los{" "}
+                  <Link href="/legal/pacientes/terminos" className="link-primary whitespace-nowrap">
+                    Términos y Condiciones
+                  </Link>{" "}
+                  y la{" "}
+                  <Link href="/legal/pacientes/privacidad" className="link-primary whitespace-nowrap">
+                    Política de Privacidad
+                  </Link>
+                  .
+                </label>
+              </div>
+            </div>
+
+            {/* Google */}
             <div className="rounded-2xl border bg-background p-5">
               <div className="mb-4 flex items-center gap-2 text-sm font-medium">
                 <Mail className="h-4 w-4 text-[var(--brand)]" />
                 Ingresar con Google
               </div>
-              <div className="flex min-h-12 items-center justify-center">
+              <div className={`w-full min-h-12 flex items-center justify-center transition-opacity ${!aceptaTerminosGeneral ? "pointer-events-none opacity-40" : ""}`}>
                 {googleBusy ? (
                   <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                     Validando tu cuenta
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </div>
                 ) : (
-                  <div ref={googleButtonRef} />
+                  <div ref={googleButtonRef} className="w-full" />
                 )}
               </div>
               <p className="mt-4 text-xs text-muted-foreground">
@@ -415,10 +527,41 @@ export default function RegistroPacienteGoogleFlow() {
               ) : null}
             </div>
 
-            <div className="rounded-2xl border bg-background/60 p-5">
-              <p className="text-sm font-medium">¿Preferís registrarte con email y contraseña?</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                También podés usar el formulario clásico más abajo si no querés ingresar con Google.
+            {/* Apple */}
+            <div className="rounded-2xl border bg-background p-5">
+              <div className="mb-4 flex items-center gap-2 text-sm font-medium">
+                <svg className="h-4 w-4" viewBox="0 0 814 1000" fill="currentColor">
+                  <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-42.3-150.9-103.2c-46-60.9-85.5-159-85.5-252.9 0-73.4 13.1-145.8 41.1-207.8 40.2-91.5 105-150 165.9-150 62.5 0 101.6 39.5 165.9 39.5 62.5 0 100.2-39.5 165.9-39.5 62.5 0 126.2 58.4 165.9 150zm-114.3-258.8c27.6-31.7 47.6-75.7 47.6-119.8 0-6.1-.5-12.2-1.6-17.3-45.1 1.6-98.8 30.3-130.5 63.2-27.6 29.9-51.2 73.9-51.2 118.5 0 6.7 1.1 13.4 1.6 15.5 2.7.5 7.1 1.1 11.6 1.1 41.9 0 91.5-28.1 122.5-61.2z" />
+                </svg>
+                Ingresar con Apple
+              </div>
+              <button
+                type="button"
+                onClick={handleAppleSignIn}
+                disabled={appleBusy || !aceptaTerminosGeneral}
+                className="flex w-full items-center justify-center gap-3 rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:opacity-80 disabled:opacity-40 dark:bg-white dark:text-black"
+              >
+                {appleBusy ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Validando…
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-5 w-5" viewBox="0 0 814 1000" fill="currentColor">
+                      <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-42.3-150.9-103.2c-46-60.9-85.5-159-85.5-252.9 0-73.4 13.1-145.8 41.1-207.8 40.2-91.5 105-150 165.9-150 62.5 0 101.6 39.5 165.9 39.5 62.5 0 100.2-39.5 165.9-39.5 62.5 0 126.2 58.4 165.9 150zm-114.3-258.8c27.6-31.7 47.6-75.7 47.6-119.8 0-6.1-.5-12.2-1.6-17.3-45.1 1.6-98.8 30.3-130.5 63.2-27.6 29.9-51.2 73.9-51.2 118.5 0 6.7 1.1 13.4 1.6 15.5 2.7.5 7.1 1.1 11.6 1.1 41.9 0 91.5-28.1 122.5-61.2z" />
+                    </svg>
+                    Continuar con Apple
+                  </>
+                )}
+              </button>
+              {codigoReferido ? (
+                <p className="mt-2 text-xs font-medium text-[var(--brand)]">
+                  Referido aplicado: {codigoReferido}
+                </p>
+              ) : null}
+              <p className="mt-2 text-xs text-muted-foreground">
+                Funciona mejor en Safari. En otros navegadores abre un popup de Apple.
               </p>
             </div>
           </div>

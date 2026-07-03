@@ -1,6 +1,7 @@
 // src/components/sections/EarningsExamples.tsx
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 
 const ARS = (n: number) =>
@@ -10,15 +11,41 @@ const ARS = (n: number) =>
     maximumFractionDigits: 0,
   });
 
-const NETO_POR_CONSULTA = 30000 * 0.8;
-
-const ESCENARIOS = [
-  { label: "8 consultas / semana", semanal: 8 * NETO_POR_CONSULTA },
-  { label: "12 consultas / semana", semanal: 12 * NETO_POR_CONSULTA },
-  { label: "20 consultas / semana", semanal: 20 * NETO_POR_CONSULTA },
-];
+const API =
+  process.env.NEXT_PUBLIC_API_BASE ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://docya-railway-production.up.railway.app";
 
 export default function EarningsExamples() {
+  const [precio, setPrecio] = useState(30000);
+  const [comision, setComision] = useState(20);
+
+  useEffect(() => {
+    let alive = true;
+    fetch(`${API.replace(/\/$/, "")}/tarifas/consulta-medico`, { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!alive || !data) return;
+        const monto = Number(data.monto);
+        const porcentaje = Number(data.comision_porcentaje);
+        if (Number.isFinite(monto) && monto > 0) setPrecio(monto);
+        if (Number.isFinite(porcentaje)) setComision(porcentaje);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const escenarios = useMemo(() => {
+    const netoPorConsulta = precio * (1 - comision / 100);
+    return [
+      { label: "8 consultas / semana", semanal: 8 * netoPorConsulta },
+      { label: "12 consultas / semana", semanal: 12 * netoPorConsulta },
+      { label: "20 consultas / semana", semanal: 20 * netoPorConsulta },
+    ];
+  }, [precio, comision]);
+
   return (
     <section className="bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
       <div className="mx-auto w-full max-w-6xl px-4 py-12 md:py-16">
@@ -32,13 +59,13 @@ export default function EarningsExamples() {
           </h2>
 
           <p className="mt-2 text-sm text-muted-foreground md:text-base">
-            Escenarios estimados con precio de $30.000 y 20% de comisión
+            Escenarios estimados con precio de {ARS(precio)} y {comision.toLocaleString("es-AR")}% de comision
             (sin costos). Solo a modo orientativo.
           </p>
         </div>
 
         <div className="mx-auto mt-8 grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {ESCENARIOS.map((s) => {
+          {escenarios.map((s) => {
             const mensual = s.semanal * 4;
 
             return (

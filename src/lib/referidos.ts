@@ -32,14 +32,14 @@ export const TIPO_LABEL: Record<string, string> = {
   influencer: "Influencer",
   embajador: "Embajador",
   paciente: "Paciente Feliz",
-  partner: "Partner",
+  partner: "Partner DocYa",
 }
 
 export function getReferidosApiBase() {
   return (
     process.env.NEXT_PUBLIC_API_BASE ||
     process.env.NEXT_PUBLIC_API_URL ||
-    ""
+    "https://docya-railway-production.up.railway.app"
   )
 }
 
@@ -96,6 +96,11 @@ export function getStoredReferente(): Referente | null {
   } catch {
     return null
   }
+}
+
+export function setStoredReferente(referente: Referente): void {
+  if (typeof window === "undefined") return
+  localStorage.setItem("docya_referente", JSON.stringify(referente))
 }
 
 export function getStoredToken(): string | null {

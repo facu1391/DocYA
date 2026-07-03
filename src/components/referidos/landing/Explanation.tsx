@@ -1,4 +1,4 @@
-// src/components/referidos/landing/Explanation.tsx
+﻿// src/components/referidos/landing/Explanation.tsx
 import Reveal from "@/components/referidos/common/Reveal";
 
 export default function Explanation() {
@@ -17,7 +17,7 @@ export default function Explanation() {
             <strong className="text-white">médico a domicilio</strong> como si fuera un Uber.
           </p>
           <p className="text-slate-400 text-lg md:text-xl leading-relaxed">
-            Vos recomendás la app, y cada vez que alguien que invitaste usa DocYa,{" "}
+            Vos compartís DocYa, y cada vez que una persona recomendada usa la app,{" "}
             <strong className="text-white">
               ganás $1.000 por cada consulta durante 12 meses
             </strong>.

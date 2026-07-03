@@ -1,4 +1,4 @@
-// src/components/referidos/landing/Benefits.tsx
+﻿// src/components/referidos/landing/Benefits.tsx
 import {
   Link2,
   BarChart2,
@@ -20,7 +20,7 @@ const benefits = [
   {
     icon: BarChart2,
     title: "Panel transparente",
-    desc: "Seguí en tiempo real tus referidos, sus consultas realizadas y el dinero acumulado por cobrar.",
+    desc: "Seguí en tiempo real tus recomendados, sus consultas realizadas y el dinero acumulado por cobrar.",
   },
   {
     icon: CalendarCheck,
@@ -30,7 +30,7 @@ const benefits = [
   {
     icon: Infinity,
     title: "Sin límite",
-    desc: "Cuantas más personas invitás, más consultas pueden generarse y más dinero podés ganar.",
+    desc: "Cuantas más personas recomendás, más consultas pueden generarse y más dinero podés ganar.",
   },
   {
     icon: FileText,
@@ -62,10 +62,10 @@ export default function Benefits() {
       <div className="max-w-6xl mx-auto relative z-10">
         <Reveal className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-black mb-4">
-            Beneficios de ser embajador DocYa
+            Beneficios de ser Partner DocYa
           </h2>
           <p className="text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed">
-            No solo ganás dinero recomendando la app. También tenés argumentos
+            No solo generás ingresos recomendando la app. También tenés argumentos
             reales para compartir una solución de salud que resuelve problemas
             concretos de la gente, como atención médica en casa, certificados,
             recetas y seguimiento en tiempo real.
@@ -93,7 +93,7 @@ export default function Benefits() {
 
         <Reveal className="text-center mt-14">
           <p className="text-xl font-semibold text-white">
-            DocYa no es solo una app para referir.
+            DocYa no es solo una app para recomendar.
           </p>
           <p className="text-slate-400 mt-3 max-w-3xl mx-auto leading-relaxed">
             Es una solución fácil de recomendar porque la gente entiende rápido

@@ -1,4 +1,4 @@
-// src/app/referidos/page.tsx
+﻿// src/app/referidos/page.tsx
 import type { Metadata } from "next";
 import ReferidosLandingNavbar from "@/components/referidos/landing/ReferidosLandingNavbar";
 import Hero from "@/components/referidos/landing/Hero";
@@ -13,16 +13,16 @@ import TermsAndConditions from "@/components/referidos/landing/TermsAndCondition
 import ReferidosLandingFooter from "@/components/referidos/landing/ReferidosLandingFooter";
 
 export const metadata: Metadata = {
-  title: "Referidos",
+  title: "Partner DocYa",
   description:
-    "Sumate al programa de referidos de DocYa y ganá dinero compartiendo una solución de salud real.",
+    "Sumate al programa Partner DocYa y generá ingresos compartiendo una solución de salud real.",
   alternates: {
     canonical: "/referidos",
   },
   openGraph: {
-    title: "DocYa Referidos — Ganá compartiendo salud",
+    title: "Partner DocYa — Generá ingresos compartiendo salud",
     description:
-      "Sumate al programa de referidos de DocYa y ganá dinero por cada consulta válida.",
+      "Sumate al programa Partner DocYa y ganá por cada consulta válida.",
     url: "/referidos",
   },
 };

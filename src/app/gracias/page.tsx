@@ -28,44 +28,42 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
 
   const copy = isPaciente
     ? {
-        badge: "Registro enviado",
+        badge: "¡Cuenta lista!",
         p1: (
           <>
-            <strong>Revisá tu correo para activar tu cuenta</strong>. Si no ves el mensaje en unos
-            minutos, mirá en <strong>Spam</strong> o <strong>Promociones</strong>. Una vez
-            activada, ya podés usar DocYa para solicitar atención.
+            Tu cuenta ya está activa. <strong>Descargá la app</strong>, ingresá con Google o Apple
+            y empezá a solicitar atención médica en minutos.
           </>
         ),
-        c1_t: "Activá tu cuenta",
+        c1_t: "Cuenta activada",
         c1_p: (
           <>
-            Abrí el email de <strong>confirmación</strong> y seguí el enlace para activar tu
-            usuario. Si no llega, revisá <strong>Spam</strong> y <strong>Promociones</strong>.
+            Tu identidad fue verificada con <strong>Google o Apple</strong>. No necesitás activar
+            nada por correo — tu cuenta ya está lista para usar.
           </>
         ),
-        c2_t: "Perfil listo",
+        c2_t: "Perfil completo",
         c2_p: (
           <>
-            Verificamos tus <strong>datos básicos</strong> y tu <strong>zona de cobertura</strong>.
-            Si necesitamos algo más, nos contactamos por email.
+            Tus <strong>datos básicos</strong> quedaron guardados. Cuando abras la app podés
+            agregar tu dirección y completar el resto del perfil.
           </>
         ),
         c3_t: "Descargá la app",
         c3_p: (
           <>
-            Activá tu cuenta y empezá a disfrutar la experiencia DocYa desde tu celular, con acceso
-            rápido a profesionales verificados y seguimiento de tus consultas.
+            Ingresá con la misma cuenta de <strong>Google o Apple</strong> que usaste para
+            registrarte y empezá a pedir atención desde tu celular.
           </>
         ),
         ctas: (
           <div className="mx-auto mt-8 max-w-5xl space-y-6">
             <div className="text-center">
               <p className="text-base md:text-lg font-semibold text-foreground">
-                Descargá la app y empezá a disfrutar la experiencia DocYa
+                Descargá la app y empezá ahora
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Tené tu cuenta siempre a mano, pedí atención en minutos y seguí toda tu experiencia
-                desde la app.
+                Ingresá con Google o Apple — la misma cuenta que usaste para registrarte.
               </p>
             </div>
             <DownloadAppPublic />
@@ -78,7 +76,7 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
         ),
         help: (
           <>
-            ¿Necesitás ayuda con tu registro? Escribinos a{" "}
+            ¿Necesitás ayuda? Escribinos a{" "}
             <a href="mailto:soporte@docya.com.ar" className="link-primary">
               soporte@docya.com.ar
             </a>

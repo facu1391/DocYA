@@ -4,18 +4,14 @@
 import React from "react";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-
-const steps = [
-  "Consultás GRATIS con IA",
-  "Recibís orientación inmediata",
-  "Si lo necesitás, solicitás atención",
-  "DocYa asigna automáticamente al médico más cercano",
-  "Te atienden en tu casa",
-];
+import { useI18n } from "@/lib/i18n/context";
 
 export default function ComoFunciona() {
+  const { t } = useI18n();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+
+  const steps = t.comoFunciona.steps;
 
   return (
     <section id="como-funciona" className="py-32">
@@ -27,7 +23,7 @@ export default function ComoFunciona() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
         >
-          ¿Cómo funciona?
+          {t.comoFunciona.title}
         </motion.h2>
 
         <div className="hidden md:flex justify-between items-start max-w-5xl mx-auto">

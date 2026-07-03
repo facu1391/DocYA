@@ -1,4 +1,4 @@
-// src/components/referidos/dashboard/ReferidosPage.tsx
+﻿// src/components/referidos/dashboard/ReferidosPage.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -75,10 +75,10 @@ export default function ReferidosPage() {
           className="mb-8"
         >
           <h1 className="text-2xl md:text-3xl font-black mb-1">
-            Mis Referidos
+            Mis Recomendados
           </h1>
           <p className="text-slate-400 text-sm">
-            Pacientes que se registraron usando tu código
+            Pacientes que se registraron usando tu código partner
           </p>
         </motion.div>
 
@@ -96,7 +96,7 @@ export default function ReferidosPage() {
 
             {!loading && (
               <span className="text-xs text-slate-500 bg-white/[0.04] px-3 py-1.5 rounded-full border border-white/[0.06]">
-                {data.length} {data.length === 1 ? "referido" : "referidos"}
+                {data.length} {data.length === 1 ? "recomendado" : "recomendados"}
               </span>
             )}
           </div>
@@ -109,7 +109,7 @@ export default function ReferidosPage() {
             <div className="text-center py-20">
               <Users className="w-14 h-14 text-slate-700 mx-auto mb-4" />
               <p className="text-slate-400 font-semibold text-lg">
-                Todavía no tenés referidos
+                Todavía no tenés recomendados
               </p>
               <p className="text-slate-600 text-sm mt-2">
                 Compartí tu link o QR para empezar a ganar
@@ -122,7 +122,7 @@ export default function ReferidosPage() {
                   <thead>
                     <tr className="border-b border-white/[0.06]">
                       {[
-                        "PACIENTE / REFERIDO",
+                        "PACIENTE RECOMENDADO",
                         "ÚLTIMA CONSULTA",
                         "VENCIMIENTO",
                         "MONTO GANADO",

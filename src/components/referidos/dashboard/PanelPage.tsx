@@ -1,4 +1,4 @@
-// src/components/referidos/dashboard/PanelPage.tsx
+﻿// src/components/referidos/dashboard/PanelPage.tsx
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -22,6 +22,7 @@ import {
   apiUrl,
   getStoredReferente,
   getStoredToken,
+  setStoredReferente,
 } from "@/lib/referidos";
 
 function StatCard({
@@ -83,7 +84,7 @@ function QRModal({ link, onClose }: { link: string; onClose: () => void }) {
     ctx.drawImage(img, 0, 0, 280, 280);
 
     const a = document.createElement("a");
-    a.download = "qr-referido-docya.png";
+    a.download = "qr-partner-docya.png";
     a.href = canvas.toDataURL("image/png");
     a.click();
   }, []);
@@ -112,7 +113,7 @@ function QRModal({ link, onClose }: { link: string; onClose: () => void }) {
           <X className="w-4 h-4" />
         </button>
 
-        <h2 className="text-xl font-black mb-1">Tu QR de referido</h2>
+        <h2 className="text-xl font-black mb-1">Tu QR partner</h2>
         <p className="text-slate-400 text-sm mb-6">
           Compartilo en redes o imprimilo.
         </p>
@@ -178,7 +179,16 @@ export default function PanelPage() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => d && setStats(d))
+      .then((d) => {
+        if (!d) return;
+        setStats(d);
+        // Sincronizar código y link por si el admin los cambió
+        if (d.codigo_referido && d.link_referido) {
+          const updated = { ...stored, codigo_referido: d.codigo_referido, link_referido: d.link_referido };
+          setStoredReferente(updated);
+          setReferente(updated);
+        }
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -198,10 +208,10 @@ export default function PanelPage() {
           className="mb-8"
         >
           <h1 className="text-2xl md:text-3xl font-black mb-1">
-            Hola, {referente?.full_name?.split(" ")[0] ?? "Embajador"}
+            Hola, {referente?.full_name?.split(" ")[0] ?? "Partner"}
           </h1>
           <p className="text-slate-400 text-sm">
-            Este es el resumen de tu actividad como referente.
+            Este es el resumen de tu actividad como partner.
           </p>
         </motion.div>
 
@@ -218,7 +228,7 @@ export default function PanelPage() {
           <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
             <StatCard
               icon={Users}
-              label="Total referidos"
+              label="Total recomendados"
               value={`${stats?.total_referidos ?? 0}`}
               color="teal"
               delay={0.05}
@@ -259,7 +269,7 @@ export default function PanelPage() {
             className="mt-8 bg-white/[0.03] backdrop-blur-xl border border-white/[0.07] rounded-3xl p-6 md:p-8"
           >
             <p className="text-xs text-slate-500 font-bold tracking-widest uppercase mb-3">
-              Tu link personalizado
+              Tu link partner
             </p>
 
             <div className="flex flex-col lg:flex-row gap-3">

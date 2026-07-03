@@ -7,8 +7,10 @@ import FooterChrome from "@/components/layouts/FooterChrome";
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isRecetario = pathname?.startsWith("/recetario");
+  const isPedir     = pathname?.startsWith("/pedir");
+  const isClinic    = pathname?.startsWith("/clinic");
 
-  if (isRecetario) {
+  if (isRecetario || isPedir || isClinic) {
     return <>{children}</>;
   }
 

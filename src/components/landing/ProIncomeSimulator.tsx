@@ -1,0 +1,266 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { HeartPulse, Minus, Moon, Plus, SlidersHorizontal, Stethoscope, Sun, Video, Wallet } from "lucide-react";
+
+type ProType = "medico" | "enfermero" | "teleconsulta";
+type Turno = "diurna" | "nocturna";
+
+type TarifaState = {
+  gross: number;
+  net: number;
+  commission: number;
+  fromBackend: boolean;
+};
+
+type TarifasPorTurno = Record<Turno, TarifaState>;
+
+const API =
+  process.env.NEXT_PUBLIC_API_BASE ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://docya-railway-production.up.railway.app";
+
+const ENDPOINTS: Record<ProType, string> = {
+  medico: "consulta-medico",
+  enfermero: "consulta-enfermero",
+  teleconsulta: "teleconsulta",
+};
+
+const FALLBACK: Record<ProType, TarifasPorTurno> = {
+  medico:       { diurna: { gross: 30000, net: 24000, commission: 20, fromBackend: false }, nocturna: { gross: 40000, net: 32000, commission: 20, fromBackend: false } },
+  enfermero:    { diurna: { gross: 20000, net: 16000, commission: 20, fromBackend: false }, nocturna: { gross: 30000, net: 24000, commission: 20, fromBackend: false } },
+  teleconsulta: { diurna: { gross: 15000, net: 12000, commission: 20, fromBackend: false }, nocturna: { gross: 20000, net: 16000, commission: 20, fromBackend: false } },
+};
+
+function parseMoney(value: unknown) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : null;
+}
+
+function extractTarifa(data: Record<string, unknown>, fallback: TarifaState): TarifaState {
+  const gross =
+    parseMoney(data.monto) ||
+    parseMoney(data.precio) ||
+    parseMoney(data.total) ||
+    fallback.gross;
+  const explicitNet =
+    parseMoney(data.monto_profesional) ||
+    parseMoney(data.neto_profesional) ||
+    parseMoney(data.monto_neto_profesional) ||
+    parseMoney(data.profesional_monto) ||
+    parseMoney(data.monto_neto);
+  const commission = Number(data.comision_porcentaje ?? fallback.commission);
+  const safeCommission = Number.isFinite(commission) && commission >= 0 && commission <= 100
+    ? commission : fallback.commission;
+  return {
+    gross,
+    net: explicitNet || Math.round(gross * (1 - safeCommission / 100)),
+    commission: safeCommission,
+    fromBackend: true,
+  };
+}
+
+function formatPesos(value: number) {
+  return `$${value.toLocaleString("es-AR")}`;
+}
+
+async function fetchTarifa(endpoint: string, turno: Turno, fallback: TarifaState): Promise<TarifaState> {
+  try {
+    const res = await fetch(
+      `${API.replace(/\/$/, "")}/tarifas/${endpoint}?turno=${turno}`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    return extractTarifa(data, fallback);
+  } catch {
+    return fallback;
+  }
+}
+
+export default function ProIncomeSimulator() {
+  const [type, setType] = useState<ProType>("medico");
+  const [turno, setTurno] = useState<Turno>("diurna");
+  const [consultasDia, setConsultasDia] = useState(4);
+  const [diasSemana, setDiasSemana] = useState(5);
+  const [tarifas, setTarifas] = useState<Record<ProType, TarifasPorTurno>>(FALLBACK);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    const turnos: Turno[] = ["diurna", "nocturna"];
+
+    Promise.all(
+      (Object.entries(ENDPOINTS) as [ProType, string][]).flatMap(([key, endpoint]) =>
+        turnos.map(async (t) => {
+          const result = await fetchTarifa(endpoint, t, FALLBACK[key][t]);
+          return [key, t, result] as const;
+        })
+      )
+    ).then((items) => {
+      if (!alive) return;
+      const next = { ...FALLBACK };
+      for (const [key, t, result] of items) {
+        next[key] = { ...next[key], [t]: result };
+      }
+      setTarifas(next);
+      setLoading(false);
+    });
+
+    return () => { alive = false; };
+  }, []);
+
+  const activeTarifa = tarifas[type][turno];
+
+  const result = useMemo(() => {
+    const daily = activeTarifa.net * consultasDia;
+    const weekly = daily * diasSemana;
+    const monthly = weekly * 4;
+    return { daily, weekly, monthly };
+  }, [activeTarifa.net, consultasDia, diasSemana]);
+
+  const typeConfig = {
+    medico:       { label: "Médico",      icon: Stethoscope, accent: "from-[#4fdbc8] to-[#14b8a6]", glow: "shadow-[0_16px_40px_rgba(20,184,166,0.22)]" },
+    enfermero:    { label: "Enfermero",   icon: HeartPulse,  accent: "from-[#f472b6] to-[#ec4899]", glow: "shadow-[0_16px_40px_rgba(236,72,153,0.22)]" },
+    teleconsulta: { label: "Teleconsulta",icon: Video,       accent: "from-[#a78bfa] to-[#818cf8]", glow: "shadow-[0_16px_40px_rgba(129,140,248,0.22)]" },
+  } as const;
+
+  const ActiveIcon = typeConfig[type].icon;
+
+  return (
+    <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.055] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.20)] backdrop-blur-xl md:p-6">
+
+      {/* Header */}
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="flex items-center gap-2 text-xl font-bold text-[#4fdbc8]">
+          <SlidersHorizontal className="h-5 w-5" /> Simulá tus ingresos
+        </h3>
+        <span className="rounded-full border border-white/10 bg-black/25 px-3 py-1 text-xs font-semibold text-[#bbcac6]">
+          {loading ? "Consultando tarifas" : activeTarifa.fromBackend ? "Tarifa actual" : "Estimación"}
+        </span>
+      </div>
+
+      {/* Tipo de profesional */}
+      <div className="grid grid-cols-3 gap-3">
+        {(Object.keys(typeConfig) as ProType[]).map((key) => {
+          const Icon = typeConfig[key].icon;
+          const active = key === type;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setType(key)}
+              className={`flex min-h-12 items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-extrabold transition ${
+                active
+                  ? `border-transparent bg-gradient-to-r ${typeConfig[key].accent} text-[#04151c] ${typeConfig[key].glow}`
+                  : "border-white/10 bg-black/20 text-[#d3e5ef] hover:border-[#14b8a6]/40"
+              }`}
+            >
+              <Icon className="h-5 w-5" />
+              {typeConfig[key].label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Toggle turno diurna / nocturna */}
+      <div className="mt-4 flex items-center gap-3">
+        <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8fb6b2]">Turno</span>
+        <div className="flex rounded-2xl border border-white/10 bg-black/20 p-1 gap-1">
+          <button
+            type="button"
+            onClick={() => setTurno("diurna")}
+            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold transition ${
+              turno === "diurna"
+                ? "bg-amber-400/90 text-[#1a0f00] shadow-[0_4px_14px_rgba(251,191,36,0.35)]"
+                : "text-[#d3e5ef] hover:text-amber-300"
+            }`}
+          >
+            <Sun className="h-4 w-4" /> Diurna
+          </button>
+          <button
+            type="button"
+            onClick={() => setTurno("nocturna")}
+            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold transition ${
+              turno === "nocturna"
+                ? "bg-indigo-500/80 text-white shadow-[0_4px_14px_rgba(99,102,241,0.40)]"
+                : "text-[#d3e5ef] hover:text-indigo-300"
+            }`}
+          >
+            <Moon className="h-4 w-4" /> Nocturna
+          </button>
+        </div>
+        <span className="text-[11px] text-[#8fb6b2]">
+          {turno === "nocturna" ? "22:00 – 06:00 hs" : "06:00 – 22:00 hs"}
+        </span>
+      </div>
+
+      {/* Controles */}
+      <div className="mt-5 grid gap-4">
+        <Control label="Consultas por día" value={consultasDia} min={1} max={12} onChange={setConsultasDia} />
+        <Control label="Días por semana"   value={diasSemana}   min={1} max={7}  onChange={setDiasSemana} />
+      </div>
+
+      {/* Resultado */}
+      <div className="mt-6 rounded-3xl border border-[#14b8a6]/25 bg-[#04151c]/65 p-5">
+        <div className="flex items-center gap-3">
+          <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r ${typeConfig[type].accent} text-[#04151c]`}>
+            <ActiveIcon className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#8fb6b2]">Neto estimado por consulta</p>
+            <p className="text-2xl font-black text-white">{formatPesos(activeTarifa.net)}</p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <Result label="Por día"    value={result.daily} />
+          <Result label="Por semana" value={result.weekly} featured />
+          <Result label="Por mes"    value={result.monthly} />
+        </div>
+      </div>
+
+      <p className="mt-4 flex gap-2 text-xs leading-5 text-[#8fb6b2]">
+        <Wallet className="mt-0.5 h-4 w-4 shrink-0 text-[#4fdbc8]" />
+        Cálculo orientativo con el valor neto por consulta. Comisión DocYa vigente: {activeTarifa.commission.toLocaleString("es-AR")}%.{" "}
+        {type === "teleconsulta" && "Las teleconsultas se atienden desde cualquier lugar, sin traslados."}
+      </p>
+    </div>
+  );
+}
+
+function Control({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (v: number) => void }) {
+  const update = (next: number) => onChange(Math.min(max, Math.max(min, next)));
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <span className="text-sm font-bold text-white">{label}</span>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => update(value - 1)}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-[#d3e5ef] transition hover:border-[#14b8a6]/50 hover:text-[#4fdbc8]"
+            aria-label={`Bajar ${label}`}>
+            <Minus className="h-4 w-4" />
+          </button>
+          <strong className="min-w-8 text-center text-xl text-white">{value}</strong>
+          <button type="button" onClick={() => update(value + 1)}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-[#d3e5ef] transition hover:border-[#14b8a6]/50 hover:text-[#4fdbc8]"
+            aria-label={`Subir ${label}`}>
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+      <input type="range" min={min} max={max} value={value}
+        onChange={(e) => update(Number(e.target.value))}
+        className="h-2 w-full accent-[#14b8a6]" />
+    </div>
+  );
+}
+
+function Result({ label, value, featured = false }: { label: string; value: number; featured?: boolean }) {
+  return (
+    <div className={`rounded-2xl border p-4 ${featured ? "border-[#14b8a6]/40 bg-[#14b8a6]/10" : "border-white/10 bg-white/[0.04]"}`}>
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8fb6b2]">{label}</p>
+      <p className="mt-1 text-xl font-black text-white md:text-2xl">{formatPesos(value)}</p>
+    </div>
+  );
+}

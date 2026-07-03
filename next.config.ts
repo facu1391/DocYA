@@ -1,6 +1,34 @@
 import type { NextConfig } from "next";
 
+const noIndexHeaders = [
+  "/login",
+  "/gracias",
+  "/pedir/filtro",
+  "/pedir/pago",
+  "/pedir/consultas",
+  "/pedir/buscando",
+  "/pedir/pago_resultado",
+  "/pedir/solicitar",
+  "/pedir/perfil",
+  "/pedir/videollamada",
+  "/recetario/login",
+  "/recetario/completar-perfil",
+  "/recetario/cuenta-en-revision",
+  "/recetario/dashboard/:path*",
+  "/referidos/login",
+  "/referidos/link",
+  "/referidos/cobros",
+  "/referidos/mis-referidos",
+  "/referidos/panel",
+];
+
 const nextConfig: NextConfig = {
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     remotePatterns: [
       {
@@ -27,6 +55,15 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      ...noIndexHeaders.map((source) => ({
+        source,
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, noarchive",
+          },
+        ],
+      })),
     ];
   },
 

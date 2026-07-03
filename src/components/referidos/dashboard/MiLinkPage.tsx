@@ -1,4 +1,4 @@
-// src/components/referidos/dashboard/MiLinkPage.tsx
+﻿// src/components/referidos/dashboard/MiLinkPage.tsx
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -35,7 +35,7 @@ function QRModal({ link, onClose }: { link: string; onClose: () => void }) {
     ctx.drawImage(img, 0, 0, 280, 280);
 
     const a = document.createElement("a");
-    a.download = "qr-referido-docya.png";
+    a.download = "qr-partner-docya.png";
     a.href = canvas.toDataURL("image/png");
     a.click();
   }, []);
@@ -64,7 +64,7 @@ function QRModal({ link, onClose }: { link: string; onClose: () => void }) {
           <X className="w-4 h-4" />
         </button>
 
-        <h2 className="text-xl font-black mb-1">Tu QR de referido</h2>
+        <h2 className="text-xl font-black mb-1">Tu QR partner</h2>
         <p className="text-slate-400 text-sm mb-6">
           Compartilo en redes o imprimilo.
         </p>
@@ -117,7 +117,7 @@ const SOCIAL_ASSETS = [
     label: "Flyer para redes",
     hint: "Ideal para stories de Instagram y WhatsApp",
     url: "https://res.cloudinary.com/dqsacd9ez/image/upload/v1774746718/Dise%C3%B1o_sin_t%C3%ADtulo_27_ccfdfm.png",
-    filename: "docya-flyer-referidos.png",
+    filename: "docya-flyer-partner.png",
   },
   {
     id: "flyer2",
@@ -132,6 +132,13 @@ const SOCIAL_ASSETS = [
     hint: "Ideal para stories y estados de WhatsApp",
     url: "https://res.cloudinary.com/dqsacd9ez/image/upload/v1774749989/Necesitas_certificado_m%C3%A9dico_YA_exl8bk.png",
     filename: "docya-certificado-medico.png",
+  },
+  {
+    id: "farmacias",
+    label: "Material para farmacias",
+    hint: "Pieza lista para imprimir o compartir en mostrador",
+    url: "https://res.cloudinary.com/dqsacd9ez/image/upload/v1779805518/TU_QR_AQUI_xpkrfh.png",
+    filename: "docya-material-farmacias.png",
   },
 ];
 
@@ -197,9 +204,9 @@ export default function MiLinkPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-2xl md:text-3xl font-black mb-1">Mi Link</h1>
+          <h1 className="text-2xl md:text-3xl font-black mb-1">Link Partner</h1>
           <p className="text-slate-400 text-sm">
-            Herramientas para compartir y difundir tu código
+            Herramientas para compartir y difundir tu código partner
           </p>
         </motion.div>
 
@@ -212,7 +219,7 @@ export default function MiLinkPage() {
               className="bg-white/[0.03] backdrop-blur-xl rounded-2xl p-5 md:p-6 border border-white/[0.07]"
             >
               <p className="text-xs text-slate-500 font-bold tracking-widest uppercase mb-3">
-                Tu link personalizado
+                Tu link partner
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
