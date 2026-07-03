@@ -85,7 +85,7 @@ export default function BuscandoScreen() {
   const TIPO_CONFIG: Record<string, { label: string; icon: typeof Stethoscope; color: string; colorLight: string }> = {
     medico:       { label: t.buscando.tipos.medico,       icon: Stethoscope, color: "#00b3a6", colorLight: "rgba(0,179,166,0.14)" },
     teleconsulta: { label: t.buscando.tipos.teleconsulta, icon: Video,       color: "#818cf8", colorLight: "rgba(129,140,248,0.14)" },
-    enfermero:    { label: t.buscando.tipos.enfermero,    icon: HeartPulse,  color: "#f472b6", colorLight: "rgba(244,114,182,0.14)" },
+    enfermero:    { label: t.buscando.tipos.enfermeria,   icon: HeartPulse,  color: "#f472b6", colorLight: "rgba(244,114,182,0.14)" },
   };
 
   const PASOS_DOMICILIO = [
@@ -460,7 +460,7 @@ export default function BuscandoScreen() {
             {[
               { icon: MapPin,    color: "#fbbf24", label: t.buscando.buscamosCercano },
               { icon: PhoneCall, color: tipoCfg.color, label: t.buscando.profesionalAcepta },
-              { icon: Navigation, color: "#818cf8", label: esTeleconsulta ? t.buscando.profesionalIniciaVideo : t.buscando.vaCaminoTiempo },
+              { icon: Navigation, color: "#818cf8", label: esTeleconsulta ? t.buscando.profesionalVideoLlamada : t.buscando.profesionalEnCamino },
             ].map(({ icon: SIcon, color, label }) => (
               <div key={label} style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
                 <div style={{ width: 38, height: 38, borderRadius: 12, background: `${color}15`, border: `1px solid ${color}25`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -562,12 +562,12 @@ export default function BuscandoScreen() {
               <XCircle size={24} color="#f87171" style={{ flexShrink: 0, marginTop: 2 }} />
               <div>
                 <p style={{ fontWeight: 700, fontSize: 15, color: "#f87171", marginBottom: 6 }}>
-                  {estado === "pago_no_autorizado" ? t.buscando.pagoNoAutorizadoCard : t.buscando.consultaCancelada}
+                  {estado === "pago_no_autorizado" ? t.buscando.pagoNoAutorizadoCard : t.buscando.consultaCanceladaCard}
                 </p>
                 <p style={{ fontSize: 13, color: muted, lineHeight: 1.5 }}>
                   {estado === "pago_no_autorizado"
                     ? t.buscando.tarjetaNoAutorizada
-                    : t.buscando.consultaCanceladaDetalle
+                    : t.buscando.consultaCancelada
                   }
                 </p>
               </div>

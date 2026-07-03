@@ -9,7 +9,7 @@ import AppShell from "@/components/layouts/AppShell";
 import { Toaster } from "react-hot-toast";
 
 const SITE_URL = "https://www.docya.com.ar";
-const OG_IMAGE = `${SITE_URL}/og/og-docya.jpg`;
+const OG_IMAGE = `${SITE_URL}/og/og-docya.jpg.png`;
 
 export const viewport: Viewport = {
   themeColor: [
@@ -34,16 +34,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "DocYa — Atención médica y de enfermería a domicilio",
+    default: "DocYa — Médico a domicilio y atención médica online",
     template: "%s | DocYa",
   },
   description:
-    "Atención médica y de enfermería a domicilio en todo el país. Profesionales verificados, atención 24/7 y pagos seguros.",
+    "Pedí un médico a domicilio, teleconsulta o enfermería desde DocYa. Profesionales verificados, atención rápida y pagos seguros.",
   keywords: [
     "médico a domicilio",
+    "médico a domicilio en Argentina",
+    "doctor a domicilio",
     "enfermería a domicilio",
     "atención médica en casa",
     "consulta médica online",
+    "teleconsulta médica",
     "certificados médicos digitales",
     "recetas médicas",
     "salud argentina",
@@ -68,10 +71,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: SITE_URL,
-    title: "DocYa — Atención médica a domicilio",
+    title: "DocYa — Médico a domicilio",
     siteName: "DocYa",
     description:
-      "Pedí un médico o enfermero/a a tu hogar, sin esperas. Profesionales verificados y pagos seguros.",
+      "Pedí un médico a domicilio, teleconsulta o enfermería desde DocYa. Profesionales verificados y pagos seguros.",
     images: [
       {
         url: OG_IMAGE,
@@ -84,8 +87,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "DocYa — Atención médica a domicilio",
-    description: "Pedí un médico o enfermero/a a tu hogar, sin esperas. Profesionales verificados y pagos seguros.",
+    title: "DocYa — Médico a domicilio",
+    description: "Pedí un médico a domicilio, teleconsulta o enfermería desde DocYa. Profesionales verificados y pagos seguros.",
     images: [OG_IMAGE],
     site: "@docya_ar",
   },
@@ -107,10 +110,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const orgJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": "MedicalOrganization",
     name: "DocYa",
     url: SITE_URL,
     logo: `${SITE_URL}/logo_puclic-light.png`,
+    areaServed: {
+      "@type": "Country",
+      name: "Argentina",
+    },
   };
 
   const websiteJsonLd = {
@@ -118,11 +125,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@type": "WebSite",
     name: "DocYa",
     url: SITE_URL,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${SITE_URL}/buscar?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
   };
 
   return (
