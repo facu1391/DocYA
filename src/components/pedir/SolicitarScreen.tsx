@@ -154,10 +154,11 @@ export default function SolicitarScreen() {
   }, [tipo, t]);
 
 
-  const PLACES_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyAcvJIlpOAkRzVaXlcnE8lJQfQGBqx-bKA";
+  const PLACES_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
 
   const usarUbicacionActual = useCallback(() => {
     if (!navigator.geolocation) return notify(t.solicitar.geoNoDisponible, false);
+    if (!PLACES_KEY) return notify(t.solicitar.geoError, false);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         setLat(pos.coords.latitude);
