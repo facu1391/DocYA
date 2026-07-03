@@ -650,16 +650,16 @@ function TurneroCapture() {
         <div className="border-r border-white/10 p-8">
           <p className="text-xs font-bold uppercase tracking-[0.3em] text-slate-500">Paciente</p>
           <h3 className="mt-4 text-5xl font-black leading-tight tracking-tight text-white">
-            Carlos Elbio<br />Menem
+            Laura<br />Fernandez
           </h3>
           <div className="mt-8 grid grid-cols-2 gap-4">
             <div className="rounded-[8px] bg-teal-950 p-4">
               <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Consultorio</p>
-              <p className="mt-2 text-5xl font-black text-white">14</p>
+              <p className="mt-2 text-5xl font-black text-white">8</p>
             </div>
             <div className="rounded-[8px] bg-slate-900 p-4">
               <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Turno</p>
-              <p className="mt-2 text-5xl font-black text-white">10:00</p>
+              <p className="mt-2 text-5xl font-black text-white">10:15</p>
             </div>
           </div>
         </div>
@@ -667,9 +667,9 @@ function TurneroCapture() {
           <p className="text-base font-bold text-white">Ultimos llamados</p>
           <div className="mt-3 divide-y divide-white/10">
             {[
-              { name: "Guadalupe Murcia", consultorio: "14", hora: "08:00" },
-              { name: "Juan Perez", consultorio: "Asignado", hora: "A14" },
-              { name: "Carlos Elbio Menem", consultorio: "14", hora: "19:30" },
+              { name: "Laura Fernandez", consultorio: "8", hora: "10:15" },
+              { name: "Martin Diaz", consultorio: "5", hora: "10:02" },
+              { name: "Sofia Romero", consultorio: "12", hora: "09:48" },
             ].map((entry) => (
               <div key={entry.name + entry.hora} className="flex items-start justify-between gap-3 py-4">
                 <div>
