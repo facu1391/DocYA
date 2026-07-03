@@ -107,8 +107,7 @@ type GoogleIdConfiguration = {
   cancel_on_tap_outside?: boolean;
 };
 
-const PLACES_API_KEY =
-  process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyAcvJIlpOAkRzVaXlcnE8lJQfQGBqx-bKA";
+const PLACES_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
 
 const COUNTRIES: CountryOption[] = [
   { code: "AR", name: "Argentina", phoneCode: "54", flag: "AR" },
@@ -442,10 +441,12 @@ export default function RegistroPacienteGoogleFlow() {
         src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"
         strategy="afterInteractive"
       />
-      <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=${PLACES_API_KEY}&libraries=places&loading=async&language=es&region=AR`}
-        strategy="afterInteractive"
-      />
+      {PLACES_API_KEY ? (
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${PLACES_API_KEY}&libraries=places&loading=async&language=es&region=AR`}
+          strategy="afterInteractive"
+        />
+      ) : null}
 
       <div className="surface w-full overflow-hidden rounded-3xl border p-4 shadow-[0_10px_30px_rgba(0,0,0,0.08)] [overflow-wrap:anywhere] sm:p-6 md:p-8">
         <div className="mb-6">
