@@ -1,4 +1,5 @@
 // src/app/page.tsx
+import Script from "next/script";
 import Hero from "@/components/landing-public/nueva-landing/Hero";
 import IASection from "@/components/landing-public/nueva-landing/IASection";
 import GeoSection from "@/components/landing-public/nueva-landing/GeoSection";
@@ -15,9 +16,51 @@ import ReferidosPromoSection from "@/components/landing-public/ReferidosPromoSec
 import DocYaProCTA from "@/components/landing-public/nueva-landing/DocYaProCTA";
 import FinalCTA from "@/components/landing-public/nueva-landing/FinalCTA";
 
+const SITE_URL = "https://www.docya.com.ar";
+
 export default function Home() {
+  const medicalServiceJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": `${SITE_URL}/#medico-a-domicilio`,
+    name: "Médico a domicilio",
+    alternateName: [
+      "Doctor a domicilio",
+      "Atención médica en casa",
+      "Teleconsulta médica",
+      "Enfermería a domicilio",
+    ],
+    description:
+      "DocYa conecta pacientes con profesionales verificados para atención médica a domicilio, teleconsulta y enfermería.",
+    provider: {
+      "@type": "MedicalOrganization",
+      name: "DocYa",
+      url: SITE_URL,
+    },
+    areaServed: {
+      "@type": "Country",
+      name: "Argentina",
+    },
+    serviceType: [
+      "Médico a domicilio",
+      "Teleconsulta médica",
+      "Enfermería a domicilio",
+    ],
+    url: SITE_URL,
+    offers: {
+      "@type": "Offer",
+      url: `${SITE_URL}/pedir`,
+      availability: "https://schema.org/InStock",
+    },
+  };
+
   return (
     <>
+      <Script
+        id="ld-home-medical-service"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(medicalServiceJsonLd) }}
+      />
       <Hero />
       <IASection />
       <GeoSection />
