@@ -1,0 +1,20 @@
+# DocYa
+
+> Atención médica y de enfermería a domicilio en Argentina. Profesionales verificados, disponibilidad 24/7 y pagos electrónicos seguros. También ofrece teleconsulta por videollamada cuando no es necesaria una visita presencial.
+
+DocYa conecta pacientes con médicos y enfermeros/as verificados para consultas a domicilio, en todo el país. La solicitud se hace desde el navegador o la app, sin necesidad de turno previo, con geolocalización para asignar al profesional disponible más cercano.
+
+## Servicios
+- Médico a domicilio
+- Enfermería a domicilio
+- Teleconsulta médica por videollamada
+
+## Páginas principales
+- [Inicio](https://www.docya.com.ar/): qué es DocYa, cómo funciona, cobertura y precios.
+- [Preguntas frecuentes](https://www.docya.com.ar/faqs): dudas sobre pagos y disponibilidad para profesionales.
+- [Contacto](https://www.docya.com.ar/contacto): canales de contacto directo.
+- [Descargas](https://www.docya.com.ar/descargas): apps para pacientes y profesionales.
+- [Profesionales](https://www.docya.com.ar/profesionales): información para médicos y enfermeros que quieran sumarse.
+
+## Notas
+- DocYa no reemplaza servicios de emergencia. Ante una urgencia, se recomienda llamar al 107 o 911.

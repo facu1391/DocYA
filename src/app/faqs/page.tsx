@@ -1,5 +1,5 @@
 // src/app/faqs/page.tsx
-import FAQs from "@/components/sections/FAQs";
+import FAQs, { faqs } from "@/components/sections/FAQs";
 import Script from "next/script";
 
 export const metadata = {
@@ -17,24 +17,14 @@ export default function Page() {
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "¿Cómo se paga la consulta?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "El pago es electrónico y seguro desde la app. Recibís comprobante.",
-        },
+    mainEntity: faqs.map(({ q, a }) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: a,
       },
-      {
-        "@type": "Question",
-        name: "¿En qué zonas atienden?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Arrancamos en zonas habilitadas y vamos expandiendo a todo el país.",
-        },
-      },
-    ],
+    })),
   };
 
   return (

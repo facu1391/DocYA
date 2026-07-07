@@ -41,12 +41,12 @@ export default function ContactSidebar() {
           <div className="text-sm">
             <p className="font-medium">WhatsApp</p>
             <a
-              href="https://wa.me/5491112345678"
+              href="https://wa.me/5491168700607"
               target="_blank"
               rel="noreferrer"
               className="link-primary"
             >
-              +54 9 11 1234-5678
+              +54 9 11 6870-0607
             </a>
           </div>
         </div>

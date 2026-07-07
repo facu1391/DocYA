@@ -12,7 +12,7 @@ import Link from "next/link";
 
 type FAQ = { q: string; a: string };
 
-const faqs: FAQ[] = [
+export const faqs: FAQ[] = [
   { q: "¿Cuándo cobro?", a: "Acreditación semanal directamente en tu cuenta." },
   {
     q: "¿Puedo elegir horarios y zonas?",

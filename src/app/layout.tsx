@@ -105,12 +105,19 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const sameAs = [
+    "https://www.linkedin.com/company/docya",
+    "https://instagram.com/docya.argentina",
+    "https://facebook.com/docya",
+  ];
+
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "DocYa",
     url: SITE_URL,
     logo: `${SITE_URL}/logo_puclic-light.png`,
+    sameAs,
   };
 
   const websiteJsonLd = {
@@ -123,6 +130,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       target: `${SITE_URL}/buscar?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
+  };
+
+  const medicalBusinessJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "MedicalBusiness",
+    name: "DocYa",
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo_puclic-light.png`,
+    sameAs,
+    description:
+      "Atención médica y de enfermería a domicilio en todo el país. Profesionales verificados, atención 24/7 y pagos seguros.",
+    areaServed: {
+      "@type": "Country",
+      name: "Argentina",
+    },
+    availableService: [
+      { "@type": "MedicalTherapy", name: "Médico a domicilio" },
+      { "@type": "MedicalTherapy", name: "Enfermería a domicilio" },
+      { "@type": "MedicalTherapy", name: "Teleconsulta médica" },
+    ],
   };
 
   return (
@@ -148,6 +175,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           id="ld-website"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <Script
+          id="ld-medical-business"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(medicalBusinessJsonLd) }}
         />
 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
