@@ -1,5 +1,6 @@
 // src/app/faqs/page.tsx
-import FAQs, { faqs } from "@/components/sections/FAQs";
+import FAQs from "@/components/sections/FAQs";
+import { faqs } from "@/components/sections/faqs-data";
 import Script from "next/script";
 
 export const metadata = {
