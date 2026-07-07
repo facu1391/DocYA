@@ -3,9 +3,7 @@
 import { useEffect, useRef } from "react";
 import { MapPin } from "lucide-react";
 
-const PLACES_KEY =
-  process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY ||
-  "AIzaSyAcvJIlpOAkRzVaXlcnE8lJQfQGBqx-bKA";
+const PLACES_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
 
 type PlaceResult = {
   formatted_address?: string;
@@ -97,6 +95,7 @@ export default function AddressInput({
   // Cargar SDK si no está cargado
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (!PLACES_KEY) return;
     if ((window as GWin).google?.maps?.places) return;
     if (document.getElementById("gplaces-sdk")) return;
     const s = document.createElement("script");

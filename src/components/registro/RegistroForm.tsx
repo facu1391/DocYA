@@ -80,8 +80,7 @@ const PRO_COUNTRIES = [
   { code: "US", phoneCode: "1" },
 ];
 
-const PRO_PLACES_API_KEY =
-  process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyDVv_barlVwHJTgLF66dP4ESUffCBuS3uA";
+const PRO_PLACES_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
 
 function flagEmoji(code: string) {
   return code
@@ -333,14 +332,14 @@ export default function RegistroForm({ mode = "pro" }: Props) {
 
   return (
     <>
-      {!isPaciente && (
+      {!isPaciente && PRO_PLACES_API_KEY ? (
         <Script
           src={`https://maps.googleapis.com/maps/api/js?key=${PRO_PLACES_API_KEY}&libraries=places&loading=async&language=es&region=AR`}
           strategy="afterInteractive"
           onLoad={() => setPlacesLoaded(true)}
           onReady={() => setPlacesLoaded(true)}
         />
-      )}
+      ) : null}
 
       <div className="surface rounded-3xl border p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] sm:p-6 md:p-8">
         <div className="mb-6">

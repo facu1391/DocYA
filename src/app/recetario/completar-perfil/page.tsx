@@ -24,9 +24,7 @@ import {
 import { completarPerfilMedico, subirFirmaDigital } from "@/lib/recetario/api";
 import { clearSession, getMedico, getToken, saveSession, type MedicoSession } from "@/lib/recetario/auth";
 
-const GOOGLE_PLACES_API_KEY =
-  process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY ||
-  "AIzaSyAcvJIlpOAkRzVaXlcnE8lJQfQGBqx-bKA";
+const GOOGLE_PLACES_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
 const TIPOS = ["medico", "enfermero"] as const;
 const TIPOS_DOCUMENTO = ["dni", "pasaporte", "otro"] as const;
 
@@ -533,17 +531,19 @@ export default function CompletarPerfilPage() {
 
   return (
     <>
-      <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_API_KEY}&libraries=places&loading=async&language=es&region=AR`}
-        strategy="afterInteractive"
-        onLoad={() => {
-          setGoogleReady(true);
-          setGoogleError("");
-        }}
-        onError={() => {
-          setGoogleError("No se pudo cargar Google Maps Places.");
-        }}
-      />
+      {GOOGLE_PLACES_API_KEY ? (
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_API_KEY}&libraries=places&loading=async&language=es&region=AR`}
+          strategy="afterInteractive"
+          onLoad={() => {
+            setGoogleReady(true);
+            setGoogleError("");
+          }}
+          onError={() => {
+            setGoogleError("No se pudo cargar Google Maps Places.");
+          }}
+        />
+      ) : null}
       {/* Dark theme for Google Places autocomplete dropdown */}
       <style>{`
         .pac-container {

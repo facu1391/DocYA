@@ -123,8 +123,7 @@ const APPLE_REDIRECT_URI =
   process.env.NEXT_PUBLIC_APPLE_PRO_REDIRECT_URI ||
   "https://www.docya.com.ar/registro";
 
-const PLACES_API_KEY =
-  process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "AIzaSyDVv_barlVwHJTgLF66dP4ESUffCBuS3uA";
+const PLACES_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
 
 const COUNTRIES: CountryOption[] = [
   { code: "AR", name: "Argentina", phoneCode: "54" },
@@ -533,10 +532,12 @@ export default function RegistroProGoogleFlow() {
         onLoad={() => setAppleLoaded(true)}
         onReady={() => setAppleLoaded(true)}
       />
-      <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=${PLACES_API_KEY}&libraries=places&loading=async&language=es&region=AR`}
-        strategy="afterInteractive"
-      />
+      {PLACES_API_KEY ? (
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${PLACES_API_KEY}&libraries=places&loading=async&language=es&region=AR`}
+          strategy="afterInteractive"
+        />
+      ) : null}
 
       <div className="surface w-full overflow-hidden rounded-2xl border p-4 shadow-[0_10px_30px_rgba(0,0,0,0.08)] [overflow-wrap:anywhere] sm:rounded-3xl sm:p-6 md:p-8">
         <div className="mb-6">
