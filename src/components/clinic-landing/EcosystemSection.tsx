@@ -61,8 +61,13 @@ export default function EcosystemSection() {
           subtitle="Paciente, aplicación, nube, consultorio e inteligencia artificial, trabajando en tiempo real."
         />
 
-        {/* Desktop: diagrama radial */}
-        <ScrollReveal className="relative mt-16 hidden aspect-[2.1/1] w-full md:block">
+        <p className="mt-6 text-center text-xs font-medium text-text-muted sm:hidden">
+          Deslizá para ver todo el ecosistema →
+        </p>
+
+        {/* Diagrama radial: mismo layout en desktop y mobile, con scroll horizontal en pantallas chicas */}
+        <ScrollReveal className="mt-6 overflow-x-auto pb-4 sm:mt-16 sm:overflow-visible sm:pb-0">
+        <div className="relative aspect-[2.1/1] w-[640px] sm:w-full">
           <svg
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
@@ -156,53 +161,8 @@ export default function EcosystemSection() {
               </motion.div>
             );
           })}
-        </ScrollReveal>
-
-        {/* Mobile: flujo vertical simplificado, sin lineas SVG */}
-        <div className="mt-14 md:hidden">
-          {CENTRAL_NODES.map((node, i) => {
-            const Icon = node.icon;
-            const isCloud = node.key === "cloud";
-            return (
-              <div key={node.key} className="flex flex-col items-center">
-                <ScrollReveal delay={i * 0.05} className="flex flex-col items-center gap-2">
-                  <div
-                    className="flex h-12 w-12 items-center justify-center rounded-full border-2"
-                    style={{
-                      borderColor: isCloud ? "var(--brand)" : "var(--glass-border)",
-                      background: isCloud ? "var(--brand)" : "var(--card)",
-                    }}
-                  >
-                    <Icon className="h-5 w-5" style={{ color: isCloud ? "#fff" : "var(--brand)" }} />
-                  </div>
-                  <span className="text-xs font-semibold text-foreground">{node.label}</span>
-                </ScrollReveal>
-                {i < CENTRAL_NODES.length - 1 && (
-                  <div
-                    className="my-2 h-6 w-0.5"
-                    style={{ background: "color-mix(in srgb, var(--brand) 30%, transparent)" }}
-                  />
-                )}
-              </div>
-            );
-          })}
-
-          <div className="grid grid-cols-2 gap-3 pt-8">
-            {PERIPHERAL_NODES.map((node) => {
-              const Icon = node.icon;
-              return (
-                <div
-                  key={node.label}
-                  className="flex items-center gap-2 rounded-xl border p-3"
-                  style={{ borderColor: "var(--border)" }}
-                >
-                  <Icon className="h-4 w-4 shrink-0" style={{ color: "var(--brand)" }} />
-                  <span className="text-xs font-medium text-text-muted">{node.label}</span>
-                </div>
-              );
-            })}
-          </div>
         </div>
+        </ScrollReveal>
       </div>
     </section>
   );
