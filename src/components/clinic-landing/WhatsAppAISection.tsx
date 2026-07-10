@@ -54,7 +54,7 @@ export default function WhatsAppAISection() {
   }, [inView, reduceMotion]);
 
   return (
-    <section id={ANCHORS.whatsapp} className="scroll-mt-24 py-28">
+    <section id={ANCHORS.whatsapp} ref={ref} className="scroll-mt-24 py-28">
       <div className="mx-auto grid max-w-6xl items-center gap-14 px-6 lg:grid-cols-2">
         <ScrollReveal>
           <SectionHeading eyebrow="WhatsApp IA" title="Los turnos se agendan solos" align="left" />
