@@ -113,7 +113,7 @@ function StepVisual({ step }: { step: number }) {
 
 export default function HowItWorksSection() {
   const ref = useRef(null);
-  const inView = useInView(ref, { margin: "-100px", amount: 0.3 });
+  const inView = useInView(ref, { margin: "-80px" });
   const reduceMotion = useReducedMotion();
   const [active, setActive] = useState(0);
 
