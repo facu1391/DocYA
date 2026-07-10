@@ -51,6 +51,78 @@ function nodeCoord(key: string) {
   return { x: node.x, y: node.y };
 }
 
+const MOBILE_GROUP_1 = PERIPHERAL_NODES.filter((n) =>
+  ["WhatsApp", "Teleconsulta", "Órdenes médicas", "Historia clínica"].includes(n.label)
+);
+const MOBILE_GROUP_2 = PERIPHERAL_NODES.filter((n) =>
+  ["Recetas", "Certificados", "Agenda", "Contabilidad"].includes(n.label)
+);
+
+function MobileCentralNode({ node, index }: { node: (typeof CENTRAL_NODES)[number]; index: number }) {
+  const Icon = node.icon;
+  const isCloud = node.key === "cloud";
+  return (
+    <motion.div
+      className="flex flex-col items-center gap-2"
+      initial={{ opacity: 0, scale: 0.8 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, delay: index * 0.08 }}
+    >
+      <div
+        className={`flex items-center justify-center rounded-full border-2 ${node.size}`}
+        style={{
+          borderColor: isCloud ? "var(--brand)" : "var(--glass-border)",
+          background: isCloud ? "var(--brand)" : "var(--card)",
+        }}
+      >
+        <Icon className="h-6 w-6" style={{ color: isCloud ? "#fff" : "var(--brand)" }} />
+      </div>
+      <span className="text-xs font-semibold text-foreground">{node.label}</span>
+    </motion.div>
+  );
+}
+
+function MobileConnector({ delay = 0 }: { delay?: number }) {
+  return (
+    <motion.div
+      className="h-8 w-px origin-top"
+      style={{ background: "var(--border)" }}
+      initial={{ scaleY: 0 }}
+      whileInView={{ scaleY: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, delay }}
+    />
+  );
+}
+
+function MobileClusterGrid({ nodes, delay = 0 }: { nodes: typeof PERIPHERAL_NODES; delay?: number }) {
+  return (
+    <motion.div
+      className="grid grid-cols-2 gap-x-10 gap-y-5"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay }}
+    >
+      {nodes.map((node) => {
+        const Icon = node.icon;
+        return (
+          <div key={node.label} className="flex flex-col items-center gap-1.5">
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-full border"
+              style={{ borderColor: "var(--border)", background: "var(--card)" }}
+            >
+              <Icon className="h-4 w-4 text-text-muted" />
+            </div>
+            <span className="whitespace-nowrap text-[11px] font-medium text-text-muted">{node.label}</span>
+          </div>
+        );
+      })}
+    </motion.div>
+  );
+}
+
 export default function EcosystemSection() {
   return (
     <section className="py-28">
@@ -61,13 +133,26 @@ export default function EcosystemSection() {
           subtitle="Paciente, aplicación, nube, consultorio e inteligencia artificial, trabajando en tiempo real."
         />
 
-        <p className="mt-6 text-center text-xs font-medium text-text-muted sm:hidden">
-          Deslizá para ver todo el ecosistema →
-        </p>
+        {/* Mobile: timeline vertical, más legible en pantallas angostas que el diagrama radial */}
+        <div className="mt-10 flex flex-col items-center sm:hidden">
+          <MobileCentralNode node={CENTRAL_NODES[0]} index={0} />
+          <MobileConnector delay={0.1} />
+          <MobileCentralNode node={CENTRAL_NODES[1]} index={1} />
+          <MobileConnector delay={0.2} />
+          <MobileClusterGrid nodes={MOBILE_GROUP_1} delay={0.3} />
+          <MobileConnector delay={0.4} />
+          <MobileCentralNode node={CENTRAL_NODES[2]} index={2} />
+          <MobileConnector delay={0.5} />
+          <MobileClusterGrid nodes={MOBILE_GROUP_2} delay={0.6} />
+          <MobileConnector delay={0.7} />
+          <MobileCentralNode node={CENTRAL_NODES[3]} index={3} />
+          <MobileConnector delay={0.8} />
+          <MobileCentralNode node={CENTRAL_NODES[4]} index={4} />
+        </div>
 
-        {/* Diagrama radial: mismo layout en desktop y mobile, con scroll horizontal en pantallas chicas */}
-        <ScrollReveal className="mt-6 overflow-x-auto pb-4 sm:mt-16 sm:overflow-visible sm:pb-0">
-        <div className="relative aspect-[2.1/1] w-[640px] sm:w-full">
+        {/* Desktop: diagrama radial */}
+        <ScrollReveal className="mt-16 hidden sm:block">
+        <div className="relative aspect-[2.1/1] w-full">
           <svg
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
