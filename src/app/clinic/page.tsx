@@ -12,6 +12,10 @@ const TeleconsultaSceneSection = dynamic(
   { ssr: true }
 );
 const DocYaAppSection = dynamic(() => import("@/components/clinic-landing/DocYaAppSection"), { ssr: true });
+const ArgentinaGlobeSection = dynamic(
+  () => import("@/components/clinic-landing/ArgentinaGlobeSection"),
+  { ssr: true }
+);
 const EcosystemSection = dynamic(() => import("@/components/clinic-landing/EcosystemSection"), { ssr: true });
 const BenefitsSection = dynamic(() => import("@/components/clinic-landing/BenefitsSection"), { ssr: true });
 const BeforeAfterSection = dynamic(() => import("@/components/clinic-landing/BeforeAfterSection"), { ssr: true });
@@ -45,6 +49,7 @@ export default function ClinicPage() {
       <WhatsAppAISection />
       <TeleconsultaSceneSection />
       <DocYaAppSection />
+      <ArgentinaGlobeSection />
       <EcosystemSection />
       <BenefitsSection />
       <BeforeAfterSection />
