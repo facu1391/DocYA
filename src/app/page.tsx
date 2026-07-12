@@ -15,6 +15,7 @@ import PreciosSection from "@/components/landing-public/nueva-landing/PreciosSec
 import ReferidosPromoSection from "@/components/landing-public/ReferidosPromoSection";
 import DocYaProCTA from "@/components/landing-public/nueva-landing/DocYaProCTA";
 import FinalCTA from "@/components/landing-public/nueva-landing/FinalCTA";
+import DifferentiatorBanner from "@/components/seo/DifferentiatorBanner";
 
 const SITE_URL = "https://www.docya.com.ar";
 
@@ -29,6 +30,11 @@ export default function Home() {
       "Atención médica en casa",
       "Teleconsulta médica",
       "Enfermería a domicilio",
+      "Médico a domicilio particular",
+      "Médico a domicilio sin obra social",
+      "Teleconsulta particular",
+      "Receta médica online",
+      "Certificado médico online",
     ],
     description:
       "DocYa conecta pacientes con profesionales verificados para atención médica a domicilio, teleconsulta y enfermería.",
@@ -72,6 +78,7 @@ export default function Home() {
       <TrustStack />
       <ComoFunciona />
       <CoberturaSection />
+      <DifferentiatorBanner ctaHref="/medico-a-domicilio-particular" ctaLabel="Conocé cómo funciona el pago" />
       <PreciosSection />
       <ReferidosPromoSection />
       <DocYaProCTA />

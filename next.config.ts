@@ -86,6 +86,18 @@ const nextConfig: NextConfig = {
         source: "/recetario/verificar/:path*",
         destination: `${apiBase}/recetario/verificar/:path*`,
       },
+      // SEO por barrio: la URL publica es /medico-a-domicilio-{barrio} (sin
+      // slash) pero Next.js no soporta mezclar texto fijo y un segmento
+      // dinamico en el mismo nombre de carpeta, asi que la pagina real vive
+      // en /medico-a-domicilio/[barrio] y este rewrite la expone con la URL
+      // pedida sin cambiar lo que ve el navegador ni los buscadores.
+      // No afecta a /medico-a-domicilio-caba ni /medico-a-domicilio-particular
+      // porque esas son rutas estaticas exactas y Next.js las resuelve antes
+      // de evaluar este rewrite.
+      {
+        source: "/medico-a-domicilio-:barrio",
+        destination: "/medico-a-domicilio/:barrio",
+      },
     ];
   },
 };

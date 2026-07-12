@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Sparkles, Stethoscope, Bot } from "lucide-react";
+import { Sparkles, Stethoscope, Bot, MessageCircle } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
 
 export default function Hero() {
@@ -76,6 +76,16 @@ export default function Hero() {
                 style={{ border: "1.5px solid rgba(255,255,255,0.2)", color: "inherit", textDecoration: "none", backdropFilter: "blur(4px)" }}
               >
                 {t.hero.descargarApp}
+              </a>
+              <a
+                href="https://wa.me/5491178940962"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-bold rounded-full w-fit"
+                style={{ background: "rgba(37,211,102,0.14)", border: "1.5px solid rgba(37,211,102,0.35)", color: "#25d366", textDecoration: "none" }}
+              >
+                <MessageCircle size={20} />
+                {t.hero.pedirPorWhatsapp}
               </a>
             </div>
             <div className="flex gap-4 flex-wrap">
