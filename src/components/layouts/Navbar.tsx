@@ -27,7 +27,15 @@ export default function Navbar() {
   const [loading, setLoading] = useState(false);
   const { locale, setLocale, t } = useI18n();
 
-  const PUBLIC_PREFIXES = ["/", "/registro/paciente", "/legal/pacientes"];
+  const PUBLIC_PREFIXES = [
+    "/",
+    "/registro/paciente",
+    "/legal/pacientes",
+    "/medico-a-domicilio",
+    "/teleconsulta-particular",
+    "/receta-medica-online",
+    "/certificado-medico-online",
+  ];
 
   const aud = (searchParams?.get("aud") || "").toLowerCase();
   const isGraciasPaciente = pathname === "/gracias" && aud === "paciente";

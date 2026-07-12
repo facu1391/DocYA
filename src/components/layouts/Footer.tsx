@@ -16,7 +16,11 @@ export default function Footer() {
     pathname.startsWith("/gracias") ||
     pathname.startsWith("/como-funciona") ||
     pathname.startsWith("/precios") ||
-    pathname.startsWith("/cobertura");
+    pathname.startsWith("/cobertura") ||
+    pathname.startsWith("/medico-a-domicilio") ||
+    pathname.startsWith("/teleconsulta-particular") ||
+    pathname.startsWith("/receta-medica-online") ||
+    pathname.startsWith("/certificado-medico-online");
   const legalBase = isPublicAudience ? "/legal/pacientes" : "/legal/pro";
 
   const publicCopy =
