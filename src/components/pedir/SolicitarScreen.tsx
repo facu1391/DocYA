@@ -13,6 +13,7 @@ import AddressInput from "./AddressInput";
 import MapView from "./MapView";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
+import { guardarPagoPendiente } from "@/lib/pedir/pendingPayment";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -210,6 +211,23 @@ export default function SolicitarScreen() {
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
 
+        // Guardar datos para recuperarlos si se cierra/refresca la pestaña
+        // después de autorizar la tarjeta pero antes de que el iframe
+        // confirme por postMessage (el mismo riesgo que ya cubríamos para
+        // saldo_mp, ahora también acá).
+        guardarPagoPendiente({
+          consulta_id, tipo,
+          motivo: motivo.trim(),
+          direccion: direccion.trim(),
+          lat, lng,
+          paciente_uuid: user.id,
+          access_token: user.access_token,
+          categoria_consulta: categoriaConsulta,
+          provincia: provincia ?? undefined,
+          metodo_pago: "tarjeta",
+          ...datosPediatricos,
+        });
+
         const mpUrl = `${API}/pagos/embebido/formulario/${consulta_id}`;
         const pagoParams = new URLSearchParams({
           url: mpUrl,
@@ -250,8 +268,10 @@ export default function SolicitarScreen() {
         const { init_point } = await prefRes.json();
 
         // Guardar datos para recuperarlos al volver de MP. En iOS/Safari el
-        // redirect externo puede perder una de las dos copias.
-        const pendingPayload = JSON.stringify({
+        // redirect externo puede perder una de las dos copias; y si ni
+        // siquiera vuelve a esta pestaña, la recuperación global del Home
+        // (recuperarConsultaPendienteGlobal) lo reconstruye desde el backend.
+        guardarPagoPendiente({
           consulta_id, tipo,
           motivo: motivo.trim(),
           direccion: direccion.trim(),
@@ -259,11 +279,10 @@ export default function SolicitarScreen() {
           paciente_uuid: user.id,
           access_token: user.access_token,
           categoria_consulta: categoriaConsulta,
-          provincia,
+          provincia: provincia ?? undefined,
+          metodo_pago: "saldo_mp",
           ...datosPediatricos,
         });
-        localStorage.setItem("docya_saldo_mp_pending", pendingPayload);
-        sessionStorage.setItem("docya_saldo_mp_pending", pendingPayload);
 
         // Redirect full-page a MP (no iframe — MP bloquea embedding)
         window.location.href = init_point;

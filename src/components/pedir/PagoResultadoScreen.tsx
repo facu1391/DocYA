@@ -7,107 +7,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, XCircle, Loader2, RotateCcw, Home } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
-
-const API = process.env.NEXT_PUBLIC_API_BASE!;
-
-type PedirUser = { id: string; access_token?: string };
-
-function getConsultaId(data: Record<string, unknown>) {
-  return data.id ?? data.consulta_id;
-}
-
-function readStoredJson(key: string): Record<string, unknown> | null {
-  try {
-    const raw = localStorage.getItem(key) || sessionStorage.getItem(key);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function readPedirUser(): PedirUser | null {
-  const data = readStoredJson("pedir_user");
-  if (!data?.id) return null;
-  return { id: String(data.id), access_token: data.access_token ? String(data.access_token) : undefined };
-}
-
-async function reconstruirPendingDesdeConsulta(consultaId: string): Promise<Record<string, unknown> | null> {
-  if (!consultaId) return null;
-  const user = readPedirUser();
-  if (!user?.access_token) return null;
-
-  const [consultaRes, estadoRes] = await Promise.all([
-    fetch(`${API}/consultas/${consultaId}`),
-    fetch(`${API}/consultas/${consultaId}/estado`),
-  ]);
-  if (!consultaRes.ok) return null;
-
-  const consulta = await consultaRes.json();
-  const estado = estadoRes.ok ? await estadoRes.json().catch(() => ({})) : {};
-  if (String(consulta.paciente_uuid) !== user.id) return null;
-
-  return {
-    consulta_id: consulta.id ?? consultaId,
-    tipo: consulta.canal_atencion === "teleconsulta" ? "teleconsulta" : consulta.tipo || "teleconsulta",
-    motivo: consulta.motivo,
-    direccion: consulta.direccion,
-    lat: consulta.lat,
-    lng: consulta.lng,
-    paciente_uuid: user.id,
-    access_token: user.access_token,
-    categoria_consulta: consulta.categoria_consulta,
-    provincia: consulta.provincia,
-    paciente_menor_nombre: consulta.paciente_menor_nombre,
-    paciente_menor_dni: consulta.paciente_menor_dni,
-    paciente_menor_fecha_nacimiento: consulta.paciente_menor_fecha_nacimiento,
-    paciente_menor_sexo: consulta.paciente_menor_sexo,
-    responsable_vinculo: consulta.responsable_vinculo,
-    payment_id: estado.payment_id,
-  };
-}
-
-async function solicitarConsulta(body: Record<string, unknown>) {
-  const tipo = String(body.tipo ?? "");
-  const endpoint = tipo === "teleconsulta" ? "/teleconsultas" : "/consultas/solicitar";
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  const payload = tipo === "teleconsulta"
-    ? {
-        consulta_id: body.consulta_id,
-        paciente_uuid: body.paciente_uuid,
-        motivo: body.motivo,
-        direccion: body.direccion,
-        provincia: body.provincia || "Argentina",
-        localidad: body.direccion || "Argentina",
-        categoria_consulta: body.categoria_consulta,
-        paciente_menor_nombre: body.paciente_menor_nombre,
-        paciente_menor_dni: body.paciente_menor_dni,
-        paciente_menor_fecha_nacimiento: body.paciente_menor_fecha_nacimiento,
-        paciente_menor_sexo: body.paciente_menor_sexo,
-        responsable_vinculo: body.responsable_vinculo,
-        necesita_certificado: false,
-        consentimiento_teleconsulta: true,
-        metodo_pago: body.metodo_pago,
-        payment_id: body.payment_id,
-      }
-    : body;
-
-  if (tipo === "teleconsulta") {
-    const token = String(body.access_token ?? "");
-    if (!token) throw new Error("TOKEN_REQUIRED");
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  const res = await fetch(`${API}${endpoint}`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail?.mensaje || err.detail || "ERROR_INICIAR");
-  }
-  return res.json();
-}
+import {
+  leerPagoPendienteLocal,
+  leerPedirUser,
+  limpiarPagoPendiente,
+  reconstruirPagoDesdeConsulta,
+  solicitarConsulta,
+} from "@/lib/pedir/pendingPayment";
 
 export default function PagoResultadoScreen() {
   const router = useRouter();
@@ -142,7 +48,13 @@ export default function PagoResultadoScreen() {
 
     const solicitar = async () => {
       try {
-        const pending = readStoredJson("docya_saldo_mp_pending") || await reconstruirPendingDesdeConsulta(consultaId);
+        const user = leerPedirUser();
+        const pendingLocal = leerPagoPendienteLocal();
+        const pending = (pendingLocal && String(pendingLocal.consulta_id) === consultaId)
+          ? pendingLocal
+          : user
+            ? await reconstruirPagoDesdeConsulta(consultaId, user)
+            : null;
         if (!pending) {
           throw new Error(t.pagoResultado.errorSesion);
         }
@@ -153,7 +65,7 @@ export default function PagoResultadoScreen() {
           direccion: pending.direccion,
           lat: pending.lat,
           lng: pending.lng,
-          metodo_pago: "saldo_mp",
+          metodo_pago: pending.metodo_pago || "saldo_mp",
           tipo: pending.tipo,
           consulta_id: pending.consulta_id,
           access_token: pending.access_token,
@@ -167,10 +79,9 @@ export default function PagoResultadoScreen() {
           responsable_vinculo: pending.responsable_vinculo,
         });
 
-        localStorage.removeItem("docya_saldo_mp_pending");
-        sessionStorage.removeItem("docya_saldo_mp_pending");
+        limpiarPagoPendiente();
 
-        const nuevaConsultaId = getConsultaId(data);
+        const nuevaConsultaId = data.consulta_id;
         if (!nuevaConsultaId) throw new Error(t.pagoResultado.errorTeleconsulta);
 
         setFase("ok");

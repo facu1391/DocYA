@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
+import { recuperarConsultaPendienteGlobal } from "@/lib/pedir/pendingPayment";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 const GOOGLE_CLIENT_ID =
@@ -97,6 +98,7 @@ export default function PedirHome() {
   }, []);
 
   // Recuperar consulta activa si el paciente navegó atrás accidentalmente
+  // (chequeo instantáneo, sin red — cubre el caso más común).
   useEffect(() => {
     try {
       const raw = localStorage.getItem("docya_consulta_activa");
@@ -106,6 +108,22 @@ export default function PedirHome() {
       router.replace(`/pedir/buscando?consulta_id=${consulta_id}&tipo=${tipo}`);
     } catch {}
   }, [router]);
+
+  // Recuperación GLOBAL contra el backend: cubre el caso que el chequeo de
+  // arriba no puede ver — un pago ya aprobado por Mercado Pago que nunca
+  // llegó a activar la consulta (por ejemplo, la pestaña se cerró antes de
+  // volver de MP, o antes de que el iframe de tarjeta avisara). No depende
+  // de en qué página haya quedado el paciente: alcanza con que vuelva a
+  // abrir DocYa logueado.
+  useEffect(() => {
+    if (!user) return;
+    let cancelado = false;
+    recuperarConsultaPendienteGlobal(user).then(info => {
+      if (cancelado || !info) return;
+      router.replace(`/pedir/buscando?consulta_id=${info.consultaId}&tipo=${info.tipo}`);
+    });
+    return () => { cancelado = true; };
+  }, [user, router]);
 
   useEffect(() => {
     let alive = true;

@@ -7,59 +7,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, ShieldCheck, Loader2, RefreshCw } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
+import { limpiarPagoPendiente, solicitarConsulta } from "@/lib/pedir/pendingPayment";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean; access_token?: string };
-
-function getConsultaId(data: Record<string, unknown>) {
-  return data.id ?? data.consulta_id;
-}
-
-async function solicitarConsulta(
-  body: Record<string, unknown>,
-  errorMessages: { tokenRequerido: string; errorIniciar: string },
-) {
-  const tipo = String(body.tipo ?? "");
-  const endpoint = tipo === "teleconsulta" ? "/teleconsultas" : "/consultas/solicitar";
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  const payload = tipo === "teleconsulta"
-    ? {
-        consulta_id: body.consulta_id,
-        paciente_uuid: body.paciente_uuid,
-        motivo: body.motivo,
-        direccion: body.direccion,
-        provincia: body.provincia || "Argentina",
-        localidad: body.direccion || "Argentina",
-        categoria_consulta: body.categoria_consulta,
-        paciente_menor_nombre: body.paciente_menor_nombre,
-        paciente_menor_dni: body.paciente_menor_dni,
-        paciente_menor_fecha_nacimiento: body.paciente_menor_fecha_nacimiento,
-        paciente_menor_sexo: body.paciente_menor_sexo,
-        responsable_vinculo: body.responsable_vinculo,
-        necesita_certificado: false,
-        consentimiento_teleconsulta: true,
-        metodo_pago: body.metodo_pago,
-        payment_id: body.payment_id,
-      }
-    : body;
-
-  if (tipo === "teleconsulta") {
-    const token = String(body.access_token ?? "");
-    if (!token) throw new Error(errorMessages.tokenRequerido);
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  const res = await fetch(`${API}${endpoint}`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail?.mensaje || err.detail || errorMessages.errorIniciar);
-  }
-  return res.json();
-}
 
 function formatPesos(value?: number | null) {
   if (!value) return "";
@@ -127,17 +78,19 @@ export default function PagoScreen() {
       };
       if (paymentId) body.payment_id = paymentId;
 
-      const data = await solicitarConsulta(body, {
-        tokenRequerido: t.pago.tokenRequerido,
-        errorIniciar: t.pago.errorIniciar,
-      });
-      const nuevaConsultaId = getConsultaId(data);
-      if (!nuevaConsultaId) throw new Error(t.pago.errorIniciar);
-      router.push(`/pedir/buscando?consulta_id=${nuevaConsultaId}&tipo=${tipo}&metodo=${metodo}`);
+      const data = await solicitarConsulta(body);
+      if (!data.consulta_id) throw new Error(t.pago.errorIniciar);
+      limpiarPagoPendiente();
+      router.push(`/pedir/buscando?consulta_id=${data.consulta_id}&tipo=${tipo}&metodo=${metodo}`);
     } catch (e) {
       setProcesando(false);
       doneRef.current = false;
-      setError(e instanceof Error ? e.message : t.pago.errorGeneral);
+      const codigo = e instanceof Error ? e.message : "";
+      const mensajes: Record<string, string> = {
+        TOKEN_REQUIRED: t.pago.tokenRequerido,
+        ERROR_INICIAR: t.pago.errorIniciar,
+      };
+      setError(mensajes[codigo] || codigo || t.pago.errorGeneral);
     }
   }, [user, motivo, direccion, lat, lng, consultaId, tipo, metodo, router, categoriaConsulta, provincia, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo, t]);
 
