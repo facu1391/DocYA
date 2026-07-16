@@ -194,11 +194,14 @@ export default function MedicoADomicilioCabaPage() {
       <RelatedLinks
         title="Servicios relacionados"
         links={[
-          { label: "Teleconsulta médica", href: "/#teleconsulta", description: "Atención por videollamada" },
+          { label: "Médico a domicilio las 24 horas", href: "/medico-a-domicilio-24-horas", description: "Noche, madrugada, fines de semana y feriados" },
+          { label: "Médico a domicilio urgente", href: "/medico-a-domicilio-urgente", description: "Atención prioritaria para cuadros agudos" },
+          { label: "Médico clínico a domicilio", href: "/medico-clinico-a-domicilio", description: "Evaluación clínica general" },
+          { label: "Precio del médico a domicilio", href: "/medico-a-domicilio-precio", description: "Cuánto cuesta la consulta" },
           { label: "Médico a domicilio particular", href: "/medico-a-domicilio-particular", description: "Sin obra social ni prepaga" },
+          { label: "Teleconsulta médica online", href: "/teleconsulta", description: "Atención por videollamada" },
           { label: "Receta médica online", href: "/receta-medica-online", description: "Recetas digitales válidas" },
           { label: "Certificado médico online", href: "/certificado-medico-online", description: "Laboral, escolar o de reposo" },
-          { label: "Cobertura y medios de pago", href: "/#cobertura", description: "Cómo funciona el pago" },
           { label: "Contacto", href: "/contacto", description: "¿Tenés otra duda? Escribinos" },
         ]}
       />

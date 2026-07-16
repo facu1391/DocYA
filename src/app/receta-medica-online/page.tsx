@@ -71,7 +71,7 @@ export default function RecetaMedicaOnlinePage() {
   const serviceJsonLd = buildServiceJsonLd({
     id: `${PATH}#service`,
     name: "Receta médica online",
-    alternateName: ["Receta digital", "Receta médica digital"],
+    alternateName: ["Receta digital", "Receta médica digital", "Receta electrónica"],
     description:
       "Emisión de recetas médicas con firma digital, tras una consulta por teleconsulta o a domicilio con un médico matriculado.",
     url: PATH,

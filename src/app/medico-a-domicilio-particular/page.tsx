@@ -147,7 +147,9 @@ export default function MedicoADomicilioParticularPage() {
       <RelatedLinks
         title="Servicios relacionados"
         links={[
+          { label: "Precio del médico a domicilio", href: "/medico-a-domicilio-precio", description: "Cuánto cuesta la consulta" },
           { label: "Médico a domicilio en CABA", href: "/medico-a-domicilio-caba", description: "Elegí tu barrio" },
+          { label: "Médico a domicilio urgente", href: "/medico-a-domicilio-urgente", description: "Atención prioritaria para cuadros agudos" },
           { label: "Teleconsulta particular", href: "/teleconsulta-particular", description: "Atención por videollamada, sin obra social" },
           { label: "Receta médica online", href: "/receta-medica-online", description: "Recetas digitales válidas" },
           { label: "Certificado médico online", href: "/certificado-medico-online", description: "Laboral, escolar o de reposo" },

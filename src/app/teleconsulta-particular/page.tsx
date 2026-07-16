@@ -147,6 +147,7 @@ export default function TeleconsultaParticularPage() {
       <RelatedLinks
         title="Servicios relacionados"
         links={[
+          { label: "Teleconsulta médica online", href: "/teleconsulta", description: "Disponible en toda Argentina" },
           { label: "Médico a domicilio particular", href: "/medico-a-domicilio-particular", description: "Sin obra social ni prepaga" },
           { label: "Médico a domicilio en CABA", href: "/medico-a-domicilio-caba", description: "Elegí tu barrio" },
           { label: "Receta médica online", href: "/receta-medica-online", description: "Recetas digitales válidas" },

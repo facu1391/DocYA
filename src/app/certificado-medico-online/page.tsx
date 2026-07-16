@@ -73,6 +73,8 @@ export default function CertificadoMedicoOnlinePage() {
     alternateName: [
       "Certificado médico laboral online",
       "Certificado médico escolar online",
+      "Certificado médico para el trabajo",
+      "Constancia médica",
     ],
     description:
       "Emisión de certificados médicos (laboral, escolar o de reposo) tras una consulta por teleconsulta o a domicilio con un médico matriculado.",
@@ -145,10 +147,11 @@ export default function CertificadoMedicoOnlinePage() {
       <RelatedLinks
         title="Servicios relacionados"
         links={[
+          { label: "Certificado médico laboral", href: "/certificado-medico-laboral", description: "Para justificar una ausencia al trabajo" },
+          { label: "Certificado médico escolar", href: "/certificado-medico-escolar", description: "Para justificar la inasistencia a clase" },
           { label: "Receta médica online", href: "/receta-medica-online", description: "Recetas digitales válidas" },
           { label: "Teleconsulta particular", href: "/teleconsulta-particular", description: "Atención por videollamada, sin obra social" },
           { label: "Médico a domicilio particular", href: "/medico-a-domicilio-particular", description: "Sin obra social ni prepaga" },
-          { label: "Médico a domicilio en CABA", href: "/medico-a-domicilio-caba", description: "Elegí tu barrio" },
           { label: "Contacto", href: "/contacto", description: "¿Tenés otra duda? Escribinos" },
         ]}
       />
