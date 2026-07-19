@@ -110,6 +110,20 @@ export default function TeleconsultaTuristasPage() {
 
       <DifferentiatorBanner ctaLabel="Pedir teleconsulta" />
 
+      <section className="py-6">
+        <div className="mx-auto w-full max-w-3xl px-6">
+          <div className="glass-card rounded-3xl border-l-4 p-6 md:p-8" style={{ borderLeftColor: "#ef4444" }}>
+            <p className="font-semibold text-foreground">¿Es una emergencia?</p>
+            <p className="mt-2 text-sm leading-relaxed text-text-muted md:text-base">
+              La teleconsulta es para cuadros que no ponen en riesgo tu vida. Si tenés dolor en el pecho,
+              dificultad para respirar, una hemorragia importante, pérdida de conocimiento o cualquier otro
+              cuadro que pueda ser grave, no uses la app: llamá al <strong>911</strong> o al{" "}
+              <strong>107 (SAME)</strong>, o dirigite a la guardia o el hospital más cercano.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <SeoContentSection
         heading="Enfermarte de viaje no debería arruinarte el viaje"
         paragraphs={[

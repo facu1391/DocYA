@@ -179,7 +179,7 @@ export const TELECONSULTA_LOCATIONS: TeleconsultaLocation[] = [
           "Sí, el servicio cubre toda la provincia por igual, incluido San Rafael y las zonas rurales del sur.",
       },
     ],
-    related: ["cordoba", "neuquen", "san-juan"],
+    related: ["cordoba", "neuquen", "san-juan", "san-luis"],
   },
   {
     slug: "tucuman",
@@ -215,7 +215,7 @@ export const TELECONSULTA_LOCATIONS: TeleconsultaLocation[] = [
           "No, el precio de la teleconsulta es el mismo en toda la Provincia de Tucumán, se muestre desde donde se pida.",
       },
     ],
-    related: ["salta", "cafayate"],
+    related: ["salta", "cafayate", "santiago-del-estero"],
   },
   {
     slug: "salta",
@@ -491,7 +491,292 @@ export const TELECONSULTA_LOCATIONS: TeleconsultaLocation[] = [
         answer: "No, el precio de la teleconsulta es el mismo en toda la Provincia de Corrientes.",
       },
     ],
+    related: ["chaco", "entre-rios"],
+  },
+  {
+    slug: "catamarca",
+    name: "Catamarca",
+    type: "provincia",
+    region: "Provincia de Catamarca",
+    seoDescription:
+      "Teleconsulta médica en toda la Provincia de Catamarca: capital, zona minera de altura e interior. Médico matriculado por videollamada al mismo precio.",
+    intro: [
+      "Catamarca combina una capital chica con un territorio andino muy extenso hacia el oeste, donde la actividad minera de altura (Bajo la Alumbrera, Agua Rica) tiene trabajadores en campamentos alejados de cualquier centro urbano. Para ellos, acceder a una consulta médica implica coordinar con la logística del yacimiento; la teleconsulta ofrece una vía directa sin depender de esa infraestructura.",
+      "La provincia también recibe peregrinos y turistas que visitan a la Virgen del Valle en la capital, además de circuitos hacia localidades del interior con poca oferta de especialistas puntuales. La teleconsulta cubre esa distancia para consultas generales y seguimientos.",
+    ],
+    highlights: [
+      "San Fernando del Valle de Catamarca",
+      "Zona minera de altura (Bajo la Alumbrera, Agua Rica)",
+      "Fiambalá y Antofagasta de la Sierra",
+      "Valle Central catamarqueño",
+    ],
+    faqs: [
+      {
+        question: "¿Sirve para trabajadores mineros en campamentos de altura?",
+        answer: "Sí, mientras haya conexión a internet en el campamento podés pedir la teleconsulta sin depender de la infraestructura de salud del yacimiento.",
+      },
+      {
+        question: "¿Atienden a peregrinos que visitan la Virgen del Valle?",
+        answer: "Sí, no hace falta ser residente de Catamarca para pedir la teleconsulta.",
+      },
+      {
+        question: "¿Cubre localidades alejadas como Fiambalá o Antofagasta de la Sierra?",
+        answer: "Sí, el servicio cubre toda la provincia por igual; solo hace falta conexión a internet.",
+      },
+    ],
+    related: ["la-rioja", "santiago-del-estero"],
+  },
+  {
+    slug: "chubut",
+    name: "Chubut",
+    type: "provincia",
+    region: "Provincia de Chubut",
+    seoDescription:
+      "Teleconsulta médica en toda la Provincia de Chubut: Comodoro Rivadavia, valle inferior y cordillera. Médico matriculado por videollamada al mismo precio.",
+    intro: [
+      "Chubut tiene una geografía muy diversa: la costa atlántica con la actividad petrolera de Comodoro Rivadavia, el valle inferior con la colonia galesa de Gaiman y Trelew, y la cordillera hacia Esquel con turismo de montaña. Esa distancia interna hace que muchas localidades no tengan especialistas puntuales cerca y dependan de viajar a Comodoro Rivadavia o Trelew.",
+      "La provincia también recibe turismo hacia el Parque Nacional Los Alerces y el tren histórico La Trochita, con visitantes que pasan varios días en zonas rurales alejadas de un centro de salud grande. La teleconsulta funciona igual en cualquier punto de Chubut.",
+    ],
+    highlights: ["Comodoro Rivadavia", "Trelew y Gaiman (colonia galesa)", "Esquel y Parque Nacional Los Alerces", "Costa y meseta chubutense"],
+    faqs: [
+      {
+        question: "¿Sirve para trabajadores petroleros en Comodoro Rivadavia?",
+        answer: "Sí, es uno de los usos frecuentes en la zona: resolver una consulta general sin depender de turnos saturados.",
+      },
+      {
+        question: "¿Atienden turistas en la zona de Esquel y Los Alerces?",
+        answer: "Sí, mientras tengas conexión a internet podés pedir la teleconsulta desde donde estés.",
+      },
+      {
+        question: "¿Es lo mismo que la teleconsulta específica de Puerto Madryn?",
+        answer: "Sí, es el mismo servicio. Puerto Madryn tiene página propia por el volumen de turismo de Península Valdés, pero la teleconsulta cubre toda la Provincia de Chubut.",
+      },
+    ],
+    related: ["puerto-madryn", "rio-negro"],
+  },
+  {
+    slug: "entre-rios",
+    name: "Entre Ríos",
+    type: "provincia",
+    region: "Provincia de Entre Ríos",
+    seoDescription:
+      "Teleconsulta médica en toda la Provincia de Entre Ríos: Paraná, termas y el interior agropecuario. Médico matriculado por videollamada al mismo precio.",
+    intro: [
+      "Entre Ríos es una de las provincias con más turismo termal del país -Federación, Concordia, Colón, Villa Elisa- con complejos que reciben visitantes durante todo el año, muchos por varios días. Un cuadro gripal o una descompostura en medio de esas vacaciones se resuelve más rápido por videollamada que buscando una guardia en una ciudad desconocida.",
+      "En el interior agropecuario de la provincia, con localidades chicas entre el río Paraná y el río Uruguay, el acceso a un especialista puntual suele requerir viajar hasta Paraná o Concordia. La teleconsulta acerca esa consulta sin ese traslado.",
+    ],
+    highlights: ["Termas de Federación y Concordia", "Paraná Capital", "Colón y Villa Elisa", "Interior agropecuario entrerriano"],
+    faqs: [
+      {
+        question: "¿Sirve si estoy de vacaciones en algún complejo termal?",
+        answer: "Sí, podés pedir la teleconsulta desde tu alojamiento sin necesidad de buscar un centro de salud desconocido.",
+      },
+      {
+        question: "¿Atienden localidades del interior lejos de Paraná?",
+        answer: "Sí, el servicio cubre toda la provincia por igual.",
+      },
+      {
+        question: "¿El precio cambia entre la capital y el interior?",
+        answer: "No, el precio de la teleconsulta es el mismo en toda la Provincia de Entre Ríos.",
+      },
+    ],
+    related: ["santa-fe", "corrientes"],
+  },
+  {
+    slug: "formosa",
+    name: "Formosa",
+    type: "provincia",
+    region: "Provincia de Formosa",
+    seoDescription:
+      "Teleconsulta médica en toda la Provincia de Formosa: capital, interior rural y zona de frontera. Médico matriculado por videollamada al mismo precio.",
+    intro: [
+      "Formosa tiene un territorio con localidades rurales bastante alejadas de la capital, donde la oferta de especialistas puntuales es limitada y trasladarse a la ciudad de Formosa puede llevar varias horas. La teleconsulta acerca esa consulta a quienes hoy dependen de ese viaje para algo que no requiere examen físico presencial.",
+      "Al ser una provincia fronteriza con Paraguay, también hay movimiento de personas que cruzan por trabajo o familia y que a veces no tienen su cobertura médica resuelta de este lado de la frontera. La teleconsulta se paga de forma particular, sin depender de esa cobertura.",
+    ],
+    highlights: ["Formosa Capital", "Interior rural chaqueño-formoseño", "Zona de frontera con Paraguay", "Bañado La Estrella"],
+    faqs: [
+      {
+        question: "¿Sirve para localidades rurales lejos de Formosa Capital?",
+        answer: "Sí, es uno de los usos más frecuentes fuera de la capital provincial.",
+      },
+      {
+        question: "¿Atienden a quienes cruzan la frontera con Paraguay por trabajo o familia?",
+        answer: "Sí, la teleconsulta se paga de forma particular, sin depender de una cobertura médica argentina.",
+      },
+      {
+        question: "¿El clima subtropical afecta la disponibilidad del servicio?",
+        answer: "No, el servicio depende de tu conexión a internet, no del clima.",
+      },
+    ],
     related: ["chaco"],
+  },
+  {
+    slug: "la-pampa",
+    name: "La Pampa",
+    type: "provincia",
+    region: "Provincia de La Pampa",
+    seoDescription:
+      "Teleconsulta médica en toda la Provincia de La Pampa: Santa Rosa, General Pico e interior agropecuario. Médico matriculado por videollamada al mismo precio.",
+    intro: [
+      "La Pampa es una provincia con baja densidad de población y localidades distribuidas en un territorio agropecuario extenso, donde Santa Rosa y General Pico concentran la mayor oferta de especialistas. Para quien vive en un pueblo chico del interior pampeano, viajar hasta esas ciudades para una consulta puntual puede significar perder buena parte del día.",
+      "La teleconsulta funciona igual en toda la provincia: mismo precio, mismo proceso, sin depender de la distancia hasta Santa Rosa o General Pico. Es especialmente útil para seguimientos de tratamientos crónicos o dudas sobre medicación que no requieren examen físico presencial.",
+    ],
+    highlights: ["Santa Rosa", "General Pico", "Interior agropecuario pampeano", "Parque Nacional Lihué Calel"],
+    faqs: [
+      {
+        question: "¿Sirve para pueblos chicos alejados de Santa Rosa o General Pico?",
+        answer: "Sí, es uno de los usos más habituales en la provincia: resolver la consulta sin ese viaje.",
+      },
+      {
+        question: "¿Atienden seguimientos de tratamientos crónicos?",
+        answer: "Sí, es un caso de uso frecuente: control de medicación y seguimiento sin trasladarse.",
+      },
+      {
+        question: "¿El precio cambia según la localidad pampeana?",
+        answer: "No, el precio de la teleconsulta es el mismo en toda la Provincia de La Pampa.",
+      },
+    ],
+    related: ["buenos-aires", "rio-negro"],
+  },
+  {
+    slug: "la-rioja",
+    name: "La Rioja",
+    type: "provincia",
+    region: "Provincia de La Rioja",
+    seoDescription:
+      "Teleconsulta médica en toda la Provincia de La Rioja: capital, Talampaya y zona vitivinícola. Médico matriculado por videollamada al mismo precio.",
+    intro: [
+      "La Rioja combina la capital con un territorio de valles y montañas donde el turismo hacia el Parque Nacional Talampaya y la zona de Chilecito genera visitas de varios días por rutas alejadas de cualquier centro de salud grande. Para un viajero que se descompone en medio de ese circuito, la teleconsulta evita perder el resto del recorrido.",
+      "En el interior riojano, con una economía ligada a la vitivinicultura y la minería, acceder a un especialista puntual suele requerir viajar hasta la capital provincial. La teleconsulta acorta esa distancia para consultas generales y seguimientos.",
+    ],
+    highlights: ["La Rioja Capital", "Parque Nacional Talampaya", "Chilecito y zona vitivinícola", "Valles riojanos"],
+    faqs: [
+      {
+        question: "¿Sirve si estoy recorriendo el Parque Nacional Talampaya?",
+        answer: "Sí, mientras tengas conexión a internet podés pedir la teleconsulta desde donde estés en el circuito.",
+      },
+      {
+        question: "¿Atienden localidades del interior riojano como Chilecito?",
+        answer: "Sí, el servicio cubre toda la provincia por igual.",
+      },
+      {
+        question: "¿Es lo mismo el precio en el interior que en la capital?",
+        answer: "No cambia, el precio de la teleconsulta es el mismo en toda la Provincia de La Rioja.",
+      },
+    ],
+    related: ["catamarca", "san-juan"],
+  },
+  {
+    slug: "san-luis",
+    name: "San Luis",
+    type: "provincia",
+    region: "Provincia de San Luis",
+    seoDescription:
+      "Teleconsulta médica en toda la Provincia de San Luis: capital, sierras puntanas y Villa Mercedes. Médico matriculado por videollamada al mismo precio.",
+    intro: [
+      "San Luis combina un fuerte desarrollo industrial y tecnológico en la capital con las sierras puntanas -Merlo y su reconocido microclima- que reciben turismo durante gran parte del año. Un visitante que se descompone en medio de una estadía en las sierras puede resolverlo por videollamada sin perder el resto de sus vacaciones.",
+      "El interior puntano, con localidades chicas distribuidas entre las sierras y la llanura, tiene menos oferta de especialistas puntuales que la capital. La teleconsulta acerca esa consulta sin necesidad de viajar hasta San Luis capital o Villa Mercedes.",
+    ],
+    highlights: ["San Luis Capital", "Villa de Merlo y sierras puntanas", "Villa Mercedes", "Parque Nacional Sierra de las Quijadas"],
+    faqs: [
+      {
+        question: "¿Sirve si estoy de vacaciones en Merlo?",
+        answer: "Sí, podés pedir la teleconsulta desde tu alojamiento sin perder tus días de sierra.",
+      },
+      {
+        question: "¿Atienden el interior puntano lejos de la capital?",
+        answer: "Sí, el servicio cubre toda la provincia por igual.",
+      },
+      {
+        question: "¿El precio es distinto en las sierras que en la capital?",
+        answer: "No, el precio de la teleconsulta es el mismo en toda la Provincia de San Luis.",
+      },
+    ],
+    related: ["cordoba", "mendoza"],
+  },
+  {
+    slug: "santa-cruz",
+    name: "Santa Cruz",
+    type: "provincia",
+    region: "Provincia de Santa Cruz",
+    seoDescription:
+      "Teleconsulta médica en toda la Provincia de Santa Cruz: Río Gallegos, Ruta 40 y el interior patagónico. Médico matriculado por videollamada al mismo precio.",
+    intro: [
+      "Santa Cruz es una de las provincias más extensas y menos densamente pobladas del país, con Río Gallegos como capital y actividad petrolera importante, y localidades del interior separadas por cientos de kilómetros de ruta patagónica. Para quien vive o trabaja en esas localidades, viajar hasta un especialista puntual puede significar un día completo de viaje.",
+      "Además de El Calafate y sus glaciares, la provincia recibe turismo de ruta hacia la Ruta 40 santacruceña, con tramos muy alejados de cualquier centro de salud. La teleconsulta funciona igual en cualquier punto de Santa Cruz.",
+    ],
+    highlights: ["Río Gallegos", "Ruta 40 santacruceña", "Comandante Luis Piedrabuena", "Zona petrolera de Santa Cruz"],
+    faqs: [
+      {
+        question: "¿Sirve para localidades muy alejadas de Río Gallegos?",
+        answer: "Sí, es uno de los usos más frecuentes en la provincia: resolver la consulta sin ese viaje de horas.",
+      },
+      {
+        question: "¿Es lo mismo que la teleconsulta específica de El Calafate?",
+        answer: "Sí, es el mismo servicio. El Calafate tiene página propia por el volumen de turismo hacia los glaciares, pero la teleconsulta cubre toda Santa Cruz.",
+      },
+      {
+        question: "¿Atienden a trabajadores petroleros de la zona?",
+        answer: "Sí, mientras haya conexión a internet en el yacimiento o base de operaciones.",
+      },
+    ],
+    related: ["el-calafate", "tierra-del-fuego"],
+  },
+  {
+    slug: "santiago-del-estero",
+    name: "Santiago del Estero",
+    type: "provincia",
+    region: "Provincia de Santiago del Estero",
+    seoDescription:
+      "Teleconsulta médica en toda la Provincia de Santiago del Estero: capital, Termas de Río Hondo e interior. Médico matriculado por videollamada al mismo precio.",
+    intro: [
+      "Termas de Río Hondo es uno de los destinos termales más visitados del país, con una población de turistas -muchos jubilados y familias que se quedan varias semanas- que se multiplica en temporada. Una consulta simple durante esa estadía se resuelve por teleconsulta sin necesidad de buscar un centro de salud desconocido en la ciudad.",
+      "En el interior santiagueño, con altas temperaturas gran parte del año y localidades rurales alejadas de la capital, la teleconsulta acerca la consulta general y el seguimiento de tratamientos sin ese traslado hasta Santiago del Estero capital.",
+    ],
+    highlights: ["Termas de Río Hondo", "Santiago del Estero Capital", "La Banda", "Interior rural santiagueño"],
+    faqs: [
+      {
+        question: "¿Sirve para quienes están de vacaciones en Termas de Río Hondo?",
+        answer: "Sí, es uno de los usos más frecuentes en la provincia por el volumen de turismo termal.",
+      },
+      {
+        question: "¿Atienden consultas por golpe de calor en el interior santiagueño?",
+        answer: "Sí, el médico evalúa el cuadro por videollamada y te indica cómo proceder.",
+      },
+      {
+        question: "¿Cubren localidades alejadas de la capital provincial?",
+        answer: "Sí, el servicio cubre toda la provincia por igual.",
+      },
+    ],
+    related: ["tucuman", "chaco"],
+  },
+  {
+    slug: "tierra-del-fuego",
+    name: "Tierra del Fuego",
+    type: "provincia",
+    region: "Provincia de Tierra del Fuego",
+    seoDescription:
+      "Teleconsulta médica en toda la Provincia de Tierra del Fuego: Río Grande, Ushuaia y zonas rurales. Médico matriculado por videollamada al mismo precio.",
+    intro: [
+      "Además de Ushuaia, Tierra del Fuego tiene en Río Grande a su ciudad más poblada, con una economía ligada a la industria electrónica y la actividad petrolera, y una población que no siempre encuentra turno rápido con un especialista puntual. La teleconsulta ofrece una alternativa inmediata sin depender de esa disponibilidad local.",
+      "La provincia también tiene zonas rurales de estancias ovejeras donde el clima extremo y la distancia hacen que trasladarse hasta un centro de salud no sea inmediato. Ahí la teleconsulta cubre lo que no requiere examen físico presencial.",
+    ],
+    highlights: ["Río Grande", "Ushuaia", "Parque Nacional Tierra del Fuego", "Estancias ovejeras fueguinas"],
+    faqs: [
+      {
+        question: "¿Cubre Río Grande además de Ushuaia?",
+        answer: "Sí, el servicio cubre toda la Provincia de Tierra del Fuego por igual.",
+      },
+      {
+        question: "¿Es lo mismo que la teleconsulta específica de Ushuaia?",
+        answer: "Sí, es el mismo servicio. Ushuaia tiene página propia por el volumen de turismo, pero la teleconsulta cubre toda la provincia.",
+      },
+      {
+        question: "¿Atienden estancias rurales alejadas de las ciudades?",
+        answer: "Sí, mientras haya conexión a internet en el establecimiento.",
+      },
+    ],
+    related: ["ushuaia", "santa-cruz"],
   },
 
   // ───────────────────────── Ciudades turísticas ─────────────────────────
@@ -529,7 +814,7 @@ export const TELECONSULTA_LOCATIONS: TeleconsultaLocation[] = [
           "Sí, el servicio está disponible para cualquier persona en Bariloche durante todo el año, sea residente o esté de visita.",
       },
     ],
-    related: ["rio-negro", "neuquen", "el-calafate"],
+    related: ["rio-negro", "neuquen", "san-martin-de-los-andes", "villa-la-angostura"],
   },
   {
     slug: "ushuaia",
@@ -565,7 +850,7 @@ export const TELECONSULTA_LOCATIONS: TeleconsultaLocation[] = [
           "No, el precio es el mismo en toda Argentina, incluida Tierra del Fuego, y se muestra en la app antes de confirmar el pedido.",
       },
     ],
-    related: ["el-calafate", "rio-negro"],
+    related: ["el-calafate", "tierra-del-fuego"],
   },
   {
     slug: "el-calafate",
@@ -601,7 +886,7 @@ export const TELECONSULTA_LOCATIONS: TeleconsultaLocation[] = [
           "Sí, si el médico lo considera pertinente después de evaluar tu situación, puede emitir la receta con firma digital al finalizar la videollamada.",
       },
     ],
-    related: ["ushuaia", "bariloche"],
+    related: ["ushuaia", "bariloche", "santa-cruz"],
   },
   {
     slug: "puerto-iguazu",
@@ -775,7 +1060,7 @@ export const TELECONSULTA_LOCATIONS: TeleconsultaLocation[] = [
         answer: "Sí, la teleconsulta está disponible todo el año en Puerto Madryn, no solo en temporada de avistaje.",
       },
     ],
-    related: ["ushuaia", "el-calafate"],
+    related: ["ushuaia", "el-calafate", "chubut"],
   },
   {
     slug: "tigre",
@@ -834,7 +1119,119 @@ export const TELECONSULTA_LOCATIONS: TeleconsultaLocation[] = [
         answer: "Sí, la teleconsulta está disponible todo el año en Villa Gesell, no solo en temporada alta.",
       },
     ],
-    related: ["mar-del-plata"],
+    related: ["mar-del-plata", "pinamar"],
+  },
+  {
+    slug: "pinamar",
+    name: "Pinamar",
+    type: "ciudad",
+    region: "Pinamar, Buenos Aires",
+    seoDescription:
+      "Teleconsulta médica en Pinamar para turistas y residentes. Médico matriculado por videollamada, disponible también en temporada alta de verano.",
+    intro: [
+      "Pinamar es uno de los balnearios más elegidos de la Costa Atlántica bonaerense, con una temporada de verano que multiplica su población entre diciembre y febrero y una oferta hotelera y de alquileres que recibe familias por semanas completas. Un cuadro gripal, una indigestión o una consulta de rutina durante esas vacaciones se resuelve por videollamada sin perder un día de playa en una guardia con mucha demanda.",
+      "Fuera de temporada, Pinamar tiene una población estable más chica, con menos oferta de especialistas que en temporada alta. La teleconsulta funciona igual todo el año, tanto para los vecinos como para quien visita la ciudad en un fin de semana largo.",
+    ],
+    highlights: ["Playa y balneario de Pinamar", "Cariló (cercano)", "Bosque forestado de Pinamar", "Zona de Ostende"],
+    faqs: [
+      {
+        question: "¿La teleconsulta ayuda en la temporada alta de verano en Pinamar?",
+        answer: "Sí, es uno de los momentos donde más se usa, para evitar guardias y turnos saturados por el aumento de población.",
+      },
+      {
+        question: "¿Cubre también Cariló y Ostende?",
+        answer: "Sí, cubrimos toda la zona; el pedido se asigna al médico disponible más cercano.",
+      },
+      {
+        question: "¿Atienden fuera de temporada?",
+        answer: "Sí, la teleconsulta está disponible todo el año en Pinamar.",
+      },
+    ],
+    related: ["villa-gesell", "mar-del-plata"],
+  },
+  {
+    slug: "tandil",
+    name: "Tandil",
+    type: "ciudad",
+    region: "Tandil, Buenos Aires",
+    seoDescription:
+      "Teleconsulta médica en Tandil para turistas, estudiantes y residentes. Médico matriculado por videollamada durante todo el año.",
+    intro: [
+      "Tandil combina turismo de sierras -trekking, gastronomía regional, la tradicional Semana Santa con el Vía Crucis viviente- con una población estable importante que incluye muchos estudiantes universitarios de la UNICEN que viven lejos de su familia. Ambos perfiles generan consultas que se resuelven bien por teleconsulta: desde un visitante de fin de semana hasta un estudiante sin médico de cabecera en la ciudad.",
+      "Al no ser una ciudad turística de playa, la demanda en Tandil es más pareja durante todo el año, con picos en Semana Santa y fines de semana largos. La teleconsulta está disponible en cualquiera de esos momentos, sin depender de conseguir turno en un consultorio.",
+    ],
+    highlights: ["Sierras de Tandil", "Piedra Movediza", "Universidad Nacional del Centro (UNICEN)", "Centro histórico de Tandil"],
+    faqs: [
+      {
+        question: "¿Sirve para estudiantes universitarios que viven solos en Tandil?",
+        answer: "Sí, es una consulta habitual en la zona por la cantidad de estudiantes de la UNICEN que viven lejos de su familia.",
+      },
+      {
+        question: "¿Atienden turistas durante la Semana Santa?",
+        answer: "Sí, es uno de los fines de semana de mayor demanda turística en la ciudad y la teleconsulta está disponible igual.",
+      },
+      {
+        question: "¿Cubren las sierras y zonas de trekking cercanas?",
+        answer: "Sí, mientras tengas conexión a internet podés pedir la teleconsulta desde donde estés.",
+      },
+    ],
+    related: ["mar-del-plata", "buenos-aires"],
+  },
+  {
+    slug: "san-martin-de-los-andes",
+    name: "San Martín de los Andes",
+    type: "ciudad",
+    region: "San Martín de los Andes, Neuquén",
+    seoDescription:
+      "Teleconsulta médica en San Martín de los Andes para turistas y residentes. Médico matriculado por videollamada en la Ruta de los Siete Lagos.",
+    intro: [
+      "San Martín de los Andes es la puerta de entrada a la Ruta de los Siete Lagos y al cerro Chapelco, con una temporada de esquí en invierno y trekking y pesca en verano que atraen visitantes durante todo el año. Un cuadro relacionado con el frío, la altura del cerro o una torcedura durante una caminata se resuelve más rápido por videollamada que buscando una guardia en un pueblo que no conocés.",
+      "La ciudad también tiene una población estable que, como en otras localidades cordilleranas, cuenta con menos especialistas puntuales que las grandes ciudades de la región. La teleconsulta cubre esa distancia sin necesidad de viajar hasta Neuquén capital o Bariloche.",
+    ],
+    highlights: ["Lago Lácar", "Cerro Chapelco", "Ruta de los Siete Lagos", "Centro cívico de San Martín de los Andes"],
+    faqs: [
+      {
+        question: "¿Sirve durante la temporada de esquí en el Cerro Chapelco?",
+        answer: "Sí, podés pedir la teleconsulta desde tu alojamiento sin perder tu día de nieve si el cuadro lo permite.",
+      },
+      {
+        question: "¿Atienden a quienes recorren la Ruta de los Siete Lagos?",
+        answer: "Sí, mientras tengas conexión a internet podés pedirla desde donde estés en el circuito.",
+      },
+      {
+        question: "¿Es necesario viajar a Neuquén capital o Bariloche para una consulta?",
+        answer: "No siempre: para consultas generales y seguimientos, la teleconsulta te conecta con un médico sin salir de la ciudad.",
+      },
+    ],
+    related: ["villa-la-angostura", "neuquen", "bariloche"],
+  },
+  {
+    slug: "villa-la-angostura",
+    name: "Villa La Angostura",
+    type: "ciudad",
+    region: "Villa La Angostura, Neuquén",
+    seoDescription:
+      "Teleconsulta médica en Villa La Angostura para turistas y residentes. Médico matriculado por videollamada en temporada de nieve y de verano.",
+    intro: [
+      "Villa La Angostura es un destino de montaña muy elegido tanto en la temporada de nieve del Cerro Bayo como en verano, por el Parque Nacional Los Arrayanes. Muchos visitantes llegan por unos pocos días desde Bariloche o en tránsito por la Ruta de los Siete Lagos, y un cuadro gripal o una torcedura en la nieve se resuelve más rápido por teleconsulta que buscando atención en un pueblo desconocido.",
+      "La localidad tiene una población estable chica frente al volumen de turismo, por lo que la oferta médica local puede saturarse en temporada alta. La teleconsulta no depende de esa disponibilidad local: te conecta con un médico igual, esté la ciudad llena de turistas o no.",
+    ],
+    highlights: ["Cerro Bayo", "Parque Nacional Los Arrayanes", "Ruta de los Siete Lagos", "Puerto Manzano"],
+    faqs: [
+      {
+        question: "¿Sirve durante la temporada de nieve en el Cerro Bayo?",
+        answer: "Sí, podés pedir la teleconsulta sin perder tu día de esquí si el cuadro lo permite.",
+      },
+      {
+        question: "¿Atienden visitantes de paso hacia Bariloche por la Ruta de los Siete Lagos?",
+        answer: "Sí, no hace falta ser residente para pedir la teleconsulta.",
+      },
+      {
+        question: "¿La alta demanda turística afecta la disponibilidad de la teleconsulta?",
+        answer: "No, a diferencia de un turno presencial local, la teleconsulta no depende de la oferta médica de la ciudad.",
+      },
+    ],
+    related: ["san-martin-de-los-andes", "bariloche"],
   },
 ];
 
