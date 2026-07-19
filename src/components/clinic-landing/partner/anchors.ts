@@ -7,4 +7,5 @@ export const PARTNER_ANCHORS = {
   comoGanas: "como-ganas",
   tuPlataforma: "tu-plataforma",
   preguntas: "preguntas-frecuentes",
+  postularme: "postularme",
 } as const;

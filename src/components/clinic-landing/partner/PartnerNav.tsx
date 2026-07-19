@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { CLINIC_LOGO, CTA_PARTNER_HREF } from "../shared/variants";
+import { CLINIC_LOGO } from "../shared/variants";
 import { PARTNER_ANCHORS } from "./anchors";
 
 const NAV_LINKS = [
@@ -15,6 +15,8 @@ const NAV_LINKS = [
   { label: "Tu plataforma", href: `#${PARTNER_ANCHORS.tuPlataforma}` },
   { label: "Preguntas frecuentes", href: `#${PARTNER_ANCHORS.preguntas}` },
 ];
+
+const CTA_PARTNER_HREF = `#${PARTNER_ANCHORS.postularme}`;
 
 export default function PartnerNav() {
   const [open, setOpen] = useState(false);
@@ -53,9 +55,9 @@ export default function PartnerNav() {
         </ul>
 
         <div className="hidden md:block">
-          <Link href={CTA_PARTNER_HREF} className="btn-primary">
+          <a href={CTA_PARTNER_HREF} className="btn-primary">
             Quiero ser Partner
-          </Link>
+          </a>
         </div>
 
         <button
@@ -91,13 +93,13 @@ export default function PartnerNav() {
                 </li>
               ))}
               <li>
-                <Link
+                <a
                   href={CTA_PARTNER_HREF}
                   onClick={() => setOpen(false)}
                   className="btn-primary w-full justify-center"
                 >
                   Quiero ser Partner
-                </Link>
+                </a>
               </li>
             </ul>
           </motion.div>

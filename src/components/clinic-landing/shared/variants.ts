@@ -16,7 +16,6 @@ export const ANCHORS = {
 } as const;
 
 export const CTA_DEMO_HREF = "/contacto?ref=clinic";
-export const CTA_PARTNER_HREF = "/contacto?ref=clinic-partner";
 
 export const EASE_OUT: [number, number, number, number] = [0.5, 0, 0, 1];
 

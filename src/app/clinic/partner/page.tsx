@@ -25,6 +25,10 @@ const PartnerFaqSection = dynamic(
   () => import("@/components/clinic-landing/partner/PartnerFaqSection"),
   { ssr: true }
 );
+const PartnerApplyForm = dynamic(
+  () => import("@/components/clinic-landing/partner/PartnerApplyForm"),
+  { ssr: true }
+);
 const PartnerFinalCTA = dynamic(
   () => import("@/components/clinic-landing/partner/PartnerFinalCTA"),
   { ssr: true }
@@ -55,6 +59,7 @@ export default function ClinicPartnerPage() {
       <PartnerDashboardSection />
       <PartnerBenefitsSection />
       <PartnerFaqSection />
+      <PartnerApplyForm />
       <PartnerFinalCTA />
       <ClinicFooter />
 

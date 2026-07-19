@@ -2,7 +2,9 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import ScrollReveal from "../shared/ScrollReveal";
-import { CTA_PARTNER_HREF } from "../shared/variants";
+import { PARTNER_ANCHORS } from "./anchors";
+
+const CTA_PARTNER_HREF = `#${PARTNER_ANCHORS.postularme}`;
 
 export default function PartnerFinalCTA() {
   return (
@@ -14,10 +16,10 @@ export default function PartnerFinalCTA() {
             Contanos quién sos y arrancamos: te damos de alta como Partner y accedés a tu panel.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link href={CTA_PARTNER_HREF} className="btn-primary h-12 px-6 text-base">
+            <a href={CTA_PARTNER_HREF} className="btn-primary h-12 px-6 text-base">
               Quiero ser Partner
               <ArrowRight className="h-4 w-4" />
-            </Link>
+            </a>
             <Link
               href="/clinic"
               className="inline-flex h-12 items-center rounded-lg border px-6 text-base font-medium text-white transition hover:bg-white/10"

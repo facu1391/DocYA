@@ -1,22 +1,34 @@
-// src/app/api/contacto/route.ts
 import { NextResponse } from "next/server";
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE || "https://docya-railway-production.up.railway.app";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
 
-    // 📩 En el futuro podés integrar SendGrid o EmailJS acá
-    // Ejemplo: await sendEmail(body);
+    const upstream = await fetch(`${API_BASE}/contacto`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
 
-    console.log("[CONTACTO] Nuevo mensaje recibido:", body);
+    const text = await upstream.text();
+    let json: unknown;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      json = { detail: text };
+    }
 
-    return NextResponse.json(
-      { ok: true, received: body, message: "Contacto recibido correctamente" },
-      { status: 200 }
-    );
+    if (!upstream.ok) {
+      return NextResponse.json(json, { status: upstream.status });
+    }
+
+    return NextResponse.json(json, { status: 200 });
   } catch {
     return NextResponse.json(
-      { ok: false, error: "Unexpected error" },
+      { ok: false, error: "No pudimos enviar el mensaje" },
       { status: 500 }
     );
   }
@@ -28,4 +40,3 @@ export async function GET() {
     { status: 200 }
   );
 }
-
