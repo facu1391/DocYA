@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Globe, Video, ShieldCheck, Wallet } from "lucide-react";
 import { buildServiceJsonLd } from "@/lib/seo/schema";
+import { getLocationsByType } from "@/data/teleconsulta-locations";
 import Breadcrumbs from "@/components/seo/Breadcrumbs";
 import SeoHero from "@/components/seo/SeoHero";
 import DifferentiatorBanner from "@/components/seo/DifferentiatorBanner";
@@ -68,6 +69,9 @@ const FAQS = [
 ];
 
 export default function TeleconsultaArgentinaPage() {
+  const provincias = getLocationsByType("provincia");
+  const ciudades = getLocationsByType("ciudad");
+
   const serviceJsonLd = buildServiceJsonLd({
     id: `${PATH}#service`,
     name: "Teleconsulta en toda Argentina",
@@ -141,8 +145,27 @@ export default function TeleconsultaArgentinaPage() {
       />
 
       <RelatedLinks
+        title="Teleconsulta por provincia"
+        links={provincias.map((location) => ({
+          label: location.name,
+          href: `/teleconsulta/${location.slug}`,
+          description: `Teleconsulta en ${location.name}`,
+        }))}
+      />
+
+      <RelatedLinks
+        title="Teleconsulta en destinos turísticos"
+        links={ciudades.map((location) => ({
+          label: location.name,
+          href: `/teleconsulta/${location.slug}`,
+          description: `Teleconsulta en ${location.name}`,
+        }))}
+      />
+
+      <RelatedLinks
         title="Servicios relacionados"
         links={[
+          { label: "Doctor para turistas en Argentina", href: "/teleconsulta-turistas", description: "¿Te enfermaste de viaje?" },
           { label: "Teleconsulta médica online", href: "/teleconsulta", description: "Cómo funciona el servicio" },
           { label: "Teleconsulta las 24 horas", href: "/teleconsulta-24-horas", description: "Disponible a cualquier hora" },
           { label: "Receta médica online", href: "/receta-medica-online", description: "Recetas digitales válidas" },
