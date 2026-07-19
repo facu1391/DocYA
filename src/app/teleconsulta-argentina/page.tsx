@@ -166,6 +166,7 @@ export default function TeleconsultaArgentinaPage() {
         title="Servicios relacionados"
         links={[
           { label: "Doctor para turistas en Argentina", href: "/teleconsulta-turistas", description: "¿Te enfermaste de viaje?" },
+          { label: "Médico online antes de viajar", href: "/teleconsulta-aeropuerto", description: "Ezeiza, Aeroparque o en escala" },
           { label: "Teleconsulta médica online", href: "/teleconsulta", description: "Cómo funciona el servicio" },
           { label: "Teleconsulta las 24 horas", href: "/teleconsulta-24-horas", description: "Disponible a cualquier hora" },
           { label: "Receta médica online", href: "/receta-medica-online", description: "Recetas digitales válidas" },

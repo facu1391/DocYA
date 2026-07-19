@@ -28,7 +28,13 @@ export const metadata: Metadata = {
   title: "Doctor para turistas en Argentina | Teleconsulta médica",
   description:
     "¿Te enfermaste de viaje por Argentina? Hablá con un médico matriculado por videollamada desde cualquier provincia, sin obra social local. Receta y certificado si corresponde.",
-  alternates: { canonical: PATH },
+  alternates: {
+    canonical: PATH,
+    languages: {
+      "es-AR": PATH,
+      en: "/medical-care-tourists-argentina",
+    },
+  },
   openGraph: {
     title: "Doctor para turistas en Argentina | DocYa",
     description:
@@ -176,6 +182,8 @@ export default function TeleconsultaTuristasPage() {
       <RelatedLinks
         title="Servicios relacionados"
         links={[
+          { label: "English version", href: "/medical-care-tourists-argentina", description: "Read this page in English" },
+          { label: "Médico online antes de viajar", href: "/teleconsulta-aeropuerto", description: "Ezeiza, Aeroparque o en escala" },
           { label: "Teleconsulta en toda Argentina", href: "/teleconsulta-argentina", description: "Ver cobertura por provincia" },
           { label: "Cómo funciona la teleconsulta", href: "/teleconsulta", description: "Funcionamiento general del servicio" },
           { label: "Teleconsulta particular", href: "/teleconsulta-particular", description: "Sin obra social ni prepaga" },

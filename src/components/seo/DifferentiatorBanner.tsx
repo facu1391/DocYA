@@ -7,11 +7,15 @@ import ScrollReveal from "@/components/landing-public/nueva-landing/ScrollReveal
 interface DifferentiatorBannerProps {
   ctaHref?: string;
   ctaLabel?: string;
+  title?: string;
+  subtitle?: string;
 }
 
 export default function DifferentiatorBanner({
   ctaHref = "/pedir",
   ctaLabel = "Solicitar ahora",
+  title = "No necesitás obra social ni prepaga.",
+  subtitle = "Solicitá un médico a domicilio o una teleconsulta y pagá solo cuando lo necesites.",
 }: DifferentiatorBannerProps) {
   return (
     <section className="py-6">
@@ -23,10 +27,10 @@ export default function DifferentiatorBanner({
             </div>
             <div className="flex-1 text-center md:text-left">
               <p className="text-lg md:text-xl font-semibold leading-snug">
-                No necesitás obra social ni prepaga.
+                {title}
               </p>
               <p className="text-text-muted mt-1">
-                Solicitá un médico a domicilio o una teleconsulta y pagá solo cuando lo necesites.
+                {subtitle}
               </p>
             </div>
             <a href={ctaHref} className="btn-primary rounded-full px-6 py-3 h-auto shrink-0 font-bold">
