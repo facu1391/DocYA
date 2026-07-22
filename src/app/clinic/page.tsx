@@ -11,6 +11,7 @@ const TeleconsultaSceneSection = dynamic(
   () => import("@/components/clinic-landing/TeleconsultaSceneSection"),
   { ssr: true }
 );
+const WaitingRoomSection = dynamic(() => import("@/components/clinic-landing/WaitingRoomSection"), { ssr: true });
 const DocYaAppSection = dynamic(() => import("@/components/clinic-landing/DocYaAppSection"), { ssr: true });
 const ArgentinaGlobeSection = dynamic(
   () => import("@/components/clinic-landing/ArgentinaGlobeSection"),
@@ -48,6 +49,7 @@ export default function ClinicPage() {
       <TimeSavedSection />
       <WhatsAppAISection />
       <TeleconsultaSceneSection />
+      <WaitingRoomSection />
       <DocYaAppSection />
       <ArgentinaGlobeSection />
       <EcosystemSection />

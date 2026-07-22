@@ -12,6 +12,7 @@ export const ANCHORS = {
   comoFunciona: "como-funciona",
   whatsapp: "whatsapp-ia",
   teleconsulta: "teleconsulta",
+  salaDeEspera: "sala-de-espera",
   funcionalidades: "funcionalidades",
 } as const;
 

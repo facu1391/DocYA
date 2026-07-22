@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { label: "Cómo funciona", href: `#${ANCHORS.comoFunciona}` },
   { label: "WhatsApp IA", href: `#${ANCHORS.whatsapp}` },
   { label: "Teleconsulta", href: `#${ANCHORS.teleconsulta}` },
+  { label: "Sala de espera", href: `#${ANCHORS.salaDeEspera}` },
   { label: "Funcionalidades", href: `#${ANCHORS.funcionalidades}` },
 ];
 

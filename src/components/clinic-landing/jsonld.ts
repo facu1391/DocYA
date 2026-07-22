@@ -10,7 +10,7 @@ export function buildClinicSoftwareJsonLd() {
     operatingSystem: "Web",
     url: `${SITE_URL}/clinic`,
     description:
-      "Plataforma de gestion inteligente para consultorios y clinicas: historia clinica con IA, turnos, WhatsApp inteligente, teleconsultas, recetas digitales, certificados, ordenes medicas y contabilidad.",
+      "Plataforma de gestion inteligente para consultorios y clinicas: historia clinica con IA, turnos, WhatsApp inteligente, teleconsultas, sala de espera con llamado de pacientes, recetas digitales, certificados, ordenes medicas y contabilidad.",
     provider: {
       "@type": "Organization",
       name: "DocYa",
