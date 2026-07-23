@@ -14,15 +14,22 @@ export const metadata = {
   },
 };
 
-export default function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ ref?: string }>;
+}) {
+  const { ref } = await searchParams;
+  const isClinic = ref === "clinic";
+
   return (
     <main className="bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">
-      <ContactHero />
+      <ContactHero isClinic={isClinic} />
 
       <section className="py-10 md:py-14">
         <div className="mx-auto w-full max-w-6xl px-4">
           <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-12 lg:items-start">
-            <ContactForm />
+            <ContactForm isClinic={isClinic} />
             <ContactSidebar />
           </div>
         </div>

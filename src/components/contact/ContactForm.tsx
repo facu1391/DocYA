@@ -16,7 +16,7 @@ const schema = z.object({
   nombre: z.string().min(2, "Ingresá tu nombre"),
   email: z.string().email("Email inválido"),
   telefono: z.string().optional(),
-  motivo: z.enum(["soporte", "alianzas", "prensa", "otro"], {
+  motivo: z.enum(["soporte", "alianzas", "prensa", "clinic_demo", "otro"], {
     message: "Elegí un motivo",
   }),
   mensaje: z.string().min(10, "Contanos en al menos 10 caracteres"),
@@ -25,20 +25,27 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export default function ContactForm() {
+interface Props {
+  isClinic?: boolean;
+}
+
+export default function ContactForm({ isClinic = false }: Props) {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: isClinic ? { motivo: "clinic_demo" } : undefined,
+  });
 
   async function onSubmit(data: FormValues) {
     try {
       const res = await fetch("/api/contacto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(isClinic ? { ...data, origen: "clinic-demo" } : data),
       });
       if (!res.ok) throw new Error("Error al enviar");
       toast.success("¡Mensaje enviado! Te respondemos a la brevedad.");
@@ -55,7 +62,7 @@ export default function ContactForm() {
     <article className="lg:col-span-8">
       <div className="surface rounded-3xl border p-6 shadow-[0_10px_30px_rgba(0,0,0,0.08)] md:p-8">
         <div className="mb-6">
-          <span className="badge">Formulario</span>
+          <span className="badge">{isClinic ? "Demo DocYa Clinic" : "Formulario"}</span>
           <h2 className="mt-3 text-xl font-semibold md:text-2xl">Escribinos</h2>
           <p className="mt-2 text-sm text-muted-foreground md:text-base">
             Completá tus datos y te respondemos lo antes posible.
@@ -109,6 +116,7 @@ export default function ContactForm() {
                 <option value="soporte">Soporte</option>
                 <option value="alianzas">Alianzas</option>
                 <option value="prensa">Prensa</option>
+                <option value="clinic_demo">Demo de DocYa Clinic</option>
                 <option value="otro">Otro</option>
               </select>
               <Err msg={errors.motivo?.message} />
