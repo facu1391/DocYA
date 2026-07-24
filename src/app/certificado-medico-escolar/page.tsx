@@ -147,6 +147,7 @@ export default function CertificadoMedicoEscolarPage() {
           { label: "Certificado médico laboral", href: "/certificado-medico-laboral", description: "Para justificar una ausencia al trabajo" },
           { label: "Médico a domicilio en CABA", href: "/medico-a-domicilio-caba", description: "Elegí tu barrio" },
           { label: "Teleconsulta médica online", href: "/teleconsulta", description: "Atención por videollamada" },
+          { label: "Centro de Ayuda DocYa", href: "/centro-de-ayuda/certificados", description: "Más dudas sobre certificados médicos" },
           { label: "Contacto", href: "/contacto", description: "¿Tenés otra duda? Escribinos" },
         ]}
       />

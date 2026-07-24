@@ -35,6 +35,7 @@ export default function Navbar() {
     "/teleconsulta-particular",
     "/receta-medica-online",
     "/certificado-medico-online",
+    "/centro-de-ayuda",
   ];
 
   const aud = (searchParams?.get("aud") || "").toLowerCase();

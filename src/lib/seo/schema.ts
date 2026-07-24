@@ -42,6 +42,67 @@ export function buildFaqJsonLd(items: FaqItem[]) {
   };
 }
 
+interface ArticleJsonLdInput {
+  id: string;
+  headline: string;
+  description: string;
+  url: string;
+  datePublished?: string;
+  dateModified?: string;
+}
+
+export function buildArticleJsonLd({
+  id,
+  headline,
+  description,
+  url,
+  datePublished = "2026-07-24",
+  dateModified,
+}: ArticleJsonLdInput) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "MedicalWebPage",
+    "@id": `${SITE_URL}${id}`,
+    headline,
+    name: headline,
+    description,
+    url: `${SITE_URL}${url}`,
+    inLanguage: "es-AR",
+    datePublished,
+    dateModified: dateModified || datePublished,
+    isAccessibleForFree: true,
+    author: {
+      "@type": "Organization",
+      name: "DocYa",
+      url: SITE_URL,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "DocYa",
+      url: SITE_URL,
+    },
+  };
+}
+
+interface ItemListJsonLdInput {
+  id: string;
+  items: { name: string; url: string }[];
+}
+
+export function buildItemListJsonLd({ id, items }: ItemListJsonLdInput) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${SITE_URL}${id}`,
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      url: `${SITE_URL}${item.url}`,
+    })),
+  };
+}
+
 interface ServiceJsonLdInput {
   id: string;
   name: string;

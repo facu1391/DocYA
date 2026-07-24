@@ -150,6 +150,7 @@ export default function TeleconsultaPage() {
           { label: "Teleconsulta en toda Argentina", href: "/teleconsulta-argentina", description: "Cobertura por provincia" },
           { label: "Receta médica online", href: "/receta-medica-online", description: "Recetas digitales válidas" },
           { label: "Certificado médico online", href: "/certificado-medico-online", description: "Laboral, escolar o de reposo" },
+          { label: "Centro de Ayuda DocYa", href: "/centro-de-ayuda/teleconsulta", description: "Cuándo alcanza una teleconsulta y más" },
           { label: "Contacto", href: "/contacto", description: "¿Tenés otra duda? Escribinos" },
         ]}
       />

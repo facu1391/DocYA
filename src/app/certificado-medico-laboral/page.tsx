@@ -148,6 +148,7 @@ export default function CertificadoMedicoLaboralPage() {
           { label: "Certificado médico escolar", href: "/certificado-medico-escolar", description: "Para justificar la inasistencia a clase" },
           { label: "Teleconsulta particular", href: "/teleconsulta-particular", description: "Sin obra social ni prepaga" },
           { label: "Receta médica online", href: "/receta-medica-online", description: "Recetas digitales válidas" },
+          { label: "Centro de Ayuda DocYa", href: "/centro-de-ayuda/certificados", description: "Más dudas sobre certificados médicos" },
           { label: "Contacto", href: "/contacto", description: "¿Tenés otra duda? Escribinos" },
         ]}
       />

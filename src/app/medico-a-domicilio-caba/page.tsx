@@ -202,6 +202,7 @@ export default function MedicoADomicilioCabaPage() {
           { label: "Teleconsulta médica online", href: "/teleconsulta", description: "Atención por videollamada" },
           { label: "Receta médica online", href: "/receta-medica-online", description: "Recetas digitales válidas" },
           { label: "Certificado médico online", href: "/certificado-medico-online", description: "Laboral, escolar o de reposo" },
+          { label: "Centro de Ayuda DocYa", href: "/centro-de-ayuda/medico-a-domicilio", description: "Cuándo llamar al médico, qué atiende y más" },
           { label: "Contacto", href: "/contacto", description: "¿Tenés otra duda? Escribinos" },
         ]}
       />

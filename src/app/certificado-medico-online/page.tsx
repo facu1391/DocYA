@@ -152,6 +152,7 @@ export default function CertificadoMedicoOnlinePage() {
           { label: "Receta médica online", href: "/receta-medica-online", description: "Recetas digitales válidas" },
           { label: "Teleconsulta particular", href: "/teleconsulta-particular", description: "Atención por videollamada, sin obra social" },
           { label: "Médico a domicilio particular", href: "/medico-a-domicilio-particular", description: "Sin obra social ni prepaga" },
+          { label: "Centro de Ayuda DocYa", href: "/centro-de-ayuda/certificados", description: "Más dudas sobre certificados médicos" },
           { label: "Contacto", href: "/contacto", description: "¿Tenés otra duda? Escribinos" },
         ]}
       />

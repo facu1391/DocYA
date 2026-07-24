@@ -213,6 +213,7 @@ export default async function TeleconsultaLocationPage({
           { label: "Cómo funciona la teleconsulta", href: "/teleconsulta", description: "Funcionamiento general del servicio" },
           { label: "Receta médica online", href: "/receta-medica-online", description: "Recetas digitales válidas" },
           { label: "Certificado médico online", href: "/certificado-medico-online", description: "Laboral, escolar o de reposo" },
+          { label: "Centro de Ayuda DocYa", href: "/centro-de-ayuda/teleconsulta", description: "Cuándo alcanza una teleconsulta y más" },
           { label: "Contacto", href: "/contacto", description: "¿Tenés otra duda? Escribinos" },
         ]}
       />

@@ -20,7 +20,8 @@ export default function Footer() {
     pathname.startsWith("/medico-a-domicilio") ||
     pathname.startsWith("/teleconsulta-particular") ||
     pathname.startsWith("/receta-medica-online") ||
-    pathname.startsWith("/certificado-medico-online");
+    pathname.startsWith("/certificado-medico-online") ||
+    pathname.startsWith("/centro-de-ayuda");
   const legalBase = isPublicAudience ? "/legal/pacientes" : "/legal/pro";
 
   const publicCopy =
@@ -132,6 +133,11 @@ export default function Footer() {
                         <li>
                           <Link href="/descargas" className={chipLinkCls}>
                             Descargar DocYa
+                          </Link>
+                        </li>
+                        <li>
+                          <Link href="/centro-de-ayuda" className={chipLinkCls}>
+                            Centro de Ayuda
                           </Link>
                         </li>
                       </ul>
