@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { NAV_LINKS, SOFTWARE_LOGO, SOFTWARE_PATH } from "./shared/variants";
+import { NAV_LINKS, SOFTWARE_LOGO_PATH, SOFTWARE_PATH } from "./shared/variants";
 
 export default function SoftwareNav() {
   const [open, setOpen] = useState(false);
@@ -30,11 +30,11 @@ export default function SoftwareNav() {
         >
           <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-[var(--sw-teal-30)] bg-[var(--sw-bg2)] shadow-[0_0_24px_var(--sw-teal-15)]">
             <Image
-              src={SOFTWARE_LOGO}
+              src={SOFTWARE_LOGO_PATH}
               alt="Docya Software logo"
               width={48}
               height={48}
-              className="h-full w-full scale-[2.35] object-contain brightness-125 contrast-125"
+              className="h-full w-full scale-110 object-contain"
               priority
             />
           </div>

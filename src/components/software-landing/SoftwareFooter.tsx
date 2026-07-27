@@ -2,7 +2,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Linkedin, Mail } from "lucide-react";
-import { CONTACT_EMAIL, NAV_LINKS, SOFTWARE_LOGO, SOFTWARE_PATH } from "./shared/variants";
+import {
+  CONTACT_EMAIL,
+  NAV_LINKS,
+  SOFTWARE_LOGO_PATH,
+  SOFTWARE_PATH,
+} from "./shared/variants";
 
 const SERVICE_LINKS = [
   { label: "Aplicaciones personalizadas", href: "#software-servicios" },
@@ -24,11 +29,11 @@ export default function SoftwareFooter() {
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-[var(--sw-teal-30)] bg-[var(--sw-bg)] shadow-[0_0_24px_var(--sw-teal-15)]">
                 <Image
-                  src={SOFTWARE_LOGO}
+                  src={SOFTWARE_LOGO_PATH}
                   alt="Docya Software logo"
                   width={48}
                   height={48}
-                  className="h-full w-full scale-[2.35] object-contain brightness-125 contrast-125"
+                  className="h-full w-full scale-110 object-contain"
                 />
               </div>
               <span className="text-lg font-semibold text-[var(--sw-text)]">Docya Software</span>

@@ -6,8 +6,11 @@
 export const SITE_URL = "https://www.docya.com.ar";
 export const SOFTWARE_PATH = "/software";
 
-export const SOFTWARE_LOGO =
-  "https://res.cloudinary.com/dqsacd9ez/image/upload/v1785164907/ChatGPT_Image_27_jul_2026_12_07_39_p6hmj2.png";
+// El isotipo de navegación vive dentro del proyecto para que siempre conserve
+// su transparencia, recorte y colores, sin depender de transformaciones
+// externas de Cloudinary.
+export const SOFTWARE_LOGO_PATH = "/software/docya-software-mark.png";
+export const SOFTWARE_LOGO = `${SITE_URL}${SOFTWARE_LOGO_PATH}`;
 
 export const CONTACT_EMAIL = "soporte@docya.com.ar";
 
