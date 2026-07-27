@@ -28,13 +28,13 @@ export default function SoftwareNav() {
           href={SOFTWARE_PATH}
           className="flex items-center gap-3 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--sw-teal)]"
         >
-          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-lg bg-[var(--sw-bg2)]">
+          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-[var(--sw-teal-30)] bg-[var(--sw-bg2)] shadow-[0_0_24px_var(--sw-teal-15)]">
             <Image
               src={SOFTWARE_LOGO}
               alt="Docya Software logo"
-              width={44}
-              height={44}
-              className="h-full w-full object-contain"
+              width={48}
+              height={48}
+              className="h-full w-full scale-[2.35] object-contain brightness-125 contrast-125"
               priority
             />
           </div>

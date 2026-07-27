@@ -22,13 +22,13 @@ export default function SoftwareFooter() {
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-lg bg-[var(--sw-bg)]">
+              <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-[var(--sw-teal-30)] bg-[var(--sw-bg)] shadow-[0_0_24px_var(--sw-teal-15)]">
                 <Image
                   src={SOFTWARE_LOGO}
                   alt="Docya Software logo"
-                  width={44}
-                  height={44}
-                  className="h-full w-full object-contain"
+                  width={48}
+                  height={48}
+                  className="h-full w-full scale-[2.35] object-contain brightness-125 contrast-125"
                 />
               </div>
               <span className="text-lg font-semibold text-[var(--sw-text)]">Docya Software</span>
