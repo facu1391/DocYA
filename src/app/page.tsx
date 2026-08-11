@@ -1,4 +1,5 @@
 // src/app/page.tsx
+import type { Metadata } from "next";
 import Script from "next/script";
 import Hero from "@/components/landing-public/nueva-landing/Hero";
 import IASection from "@/components/landing-public/nueva-landing/IASection";
@@ -18,6 +19,10 @@ import FinalCTA from "@/components/landing-public/nueva-landing/FinalCTA";
 import DifferentiatorBanner from "@/components/seo/DifferentiatorBanner";
 
 const SITE_URL = "https://www.docya.com.ar";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
   const medicalServiceJsonLd = {

@@ -14,6 +14,9 @@ const noIndexHeaders = [
   "/recetario/login",
   "/recetario/completar-perfil",
   "/recetario/cuenta-en-revision",
+  "/recetario",
+  "/recetario/registro",
+  "/recetario/firma-digital",
   "/recetario/dashboard/:path*",
   "/referidos/login",
   "/referidos/link",
@@ -64,6 +67,21 @@ const nextConfig: NextConfig = {
           },
         ],
       })),
+    ];
+  },
+
+  async redirects() {
+    return [
+      {
+        source: "/legal/terminos",
+        destination: "/legal/pacientes/terminos",
+        permanent: true,
+      },
+      {
+        source: "/legal/privacidad",
+        destination: "/legal/pacientes/privacidad",
+        permanent: true,
+      },
     ];
   },
 

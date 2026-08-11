@@ -94,11 +94,11 @@ export default function FAQs() {
                     Escribinos
                   </Link>{" "}
                   o revisá los{" "}
-                  <Link href="/legal/terminos" className="link-primary">
+                  <Link href="/legal/pacientes/terminos" className="link-primary">
                     Términos
                   </Link>{" "}
                   y la{" "}
-                  <Link href="/legal/privacidad" className="link-primary">
+                  <Link href="/legal/pacientes/privacidad" className="link-primary">
                     Privacidad
                   </Link>
                   .

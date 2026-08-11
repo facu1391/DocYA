@@ -121,7 +121,7 @@ export async function reconstruirPagoDesdeConsulta(
     paciente_menor_fecha_nacimiento: consulta.paciente_menor_fecha_nacimiento,
     paciente_menor_sexo: consulta.paciente_menor_sexo,
     responsable_vinculo: consulta.responsable_vinculo,
-    metodo_pago: estado.mp_preautorizado ? "tarjeta" : "saldo_mp",
+    metodo_pago: estado.metodo_pago || (estado.mp_preautorizado ? "tarjeta" : "saldo_mp"),
     payment_id: estado.payment_id,
   };
 }
@@ -202,6 +202,8 @@ export async function recuperarConsultaPendienteGlobal(
     if (!res.ok) return null;
     const data = await res.json();
     if (!data?.activa) {
+      const pendiente = leerPagoPendienteLocal();
+      if (pendiente?.metodo_pago === "transferencia") return null;
       limpiarPagoPendiente();
       return null;
     }
@@ -215,8 +217,8 @@ export async function recuperarConsultaPendienteGlobal(
       return { consultaId, tipo };
     }
 
-    const tienePago = data.mp_preautorizado === true ||
-      ["approved", "authorized", "preautorizado"].includes(String(data.mp_status || "").toLowerCase());
+    const tienePago = data.mp_preautorizado === true || data.mp_capturado === true ||
+      ["approved", "authorized", "preautorizado", "approved_manual_transfer"].includes(String(data.mp_status || "").toLowerCase());
     if (!tienePago) return null; // sigue esperando confirmación de MP
 
     const pendienteLocal = leerPagoPendienteLocal();

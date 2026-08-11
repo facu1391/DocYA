@@ -3,6 +3,7 @@ import { AlertTriangle, ShieldCheck, Scale, FileText } from "lucide-react";
 
 export const metadata = {
   title: "Términos y Condiciones | DocYa Pro",
+  alternates: { canonical: "/legal/pro/terminos" },
   description:
     "Términos que regulan el uso de DocYa Pro para profesionales de la salud en Argentina.",
 };

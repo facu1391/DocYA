@@ -56,7 +56,6 @@ export const metadata: Metadata = {
   authors: [{ name: "DocYa" }],
   creator: "DocYa",
   publisher: "DocYa",
-  alternates: { canonical: "/" },
   robots: {
     index: true,
     follow: true,

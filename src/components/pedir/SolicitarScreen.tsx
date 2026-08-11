@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft, Stethoscope, Video, HeartPulse, Baby,
-  CreditCard, Wallet, Banknote, Loader2, ChevronRight,
+  CreditCard, Wallet, Banknote, Landmark, Loader2, ChevronRight,
   Navigation, ShieldCheck, CheckCircle2, RotateCcw,
 } from "lucide-react";
 import AddressInput from "./AddressInput";
@@ -18,7 +18,7 @@ import { guardarPagoPendiente } from "@/lib/pedir/pendingPayment";
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean; access_token?: string };
-type MetodoPago = "tarjeta" | "saldo_mp" | "efectivo";
+type MetodoPago = "tarjeta" | "saldo_mp" | "transferencia" | "efectivo";
 type Tarifa = { tipo?: string; monto: number; descripcion?: string };
 
 const TIPO_ICONS = {
@@ -68,6 +68,7 @@ export default function SolicitarScreen() {
   const METODOS: { id: MetodoPago; icon: typeof CreditCard; label: string; sub: string }[] = [
     { id: "tarjeta",  icon: CreditCard, label: t.solicitar.metodos.tarjetaTitle, sub: t.solicitar.metodos.tarjetaSub },
     { id: "saldo_mp", icon: Wallet,     label: t.solicitar.metodos.saldoTitle,   sub: t.solicitar.metodos.saldoSub },
+    { id: "transferencia", icon: Landmark, label: "Transferencia", sub: "A alias o CVU, con verificacion manual" },
     { id: "efectivo", icon: Banknote,   label: t.solicitar.metodos.efectivoTitle, sub: t.solicitar.metodos.efectivoSub },
   ];
 
@@ -200,6 +201,24 @@ export default function SolicitarScreen() {
     setSubmitting(true);
     try {
       const monto = tarifa.monto;
+
+      if (metodoPago === "transferencia") {
+        const previaRes = await fetch(`${API}/consultas/crear_previa`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: tipo === "teleconsulta" ? "teleconsulta" : "domicilio", metodo_pago: "transferencia", categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...datosPediatricos }),
+        });
+        if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
+        const { consulta_id } = await previaRes.json();
+        guardarPagoPendiente({
+          consulta_id, tipo, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng,
+          paciente_uuid: user.id, access_token: user.access_token,
+          categoria_consulta: categoriaConsulta, provincia: provincia ?? undefined,
+          metodo_pago: "transferencia", ...datosPediatricos,
+        });
+        router.push(`/pedir/transferencia?consulta_id=${consulta_id}&tipo=${tipo}&monto=${monto}`);
+        return;
+      }
 
       if (metodoPago === "tarjeta") {
         // Crear previa y abrir formulario MP en modal
@@ -462,7 +481,7 @@ export default function SolicitarScreen() {
                   );
                 })}
               </div>
-              {metodoPago !== "efectivo" && (
+              {metodoPago !== "efectivo" && metodoPago !== "transferencia" && (
                 <div style={{ borderRadius: 18, border: `1px solid ${border}`, background: inputBg, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 14 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <ShieldCheck size={22} color={cfg.color} />
@@ -486,6 +505,17 @@ export default function SolicitarScreen() {
                       </p>
                     </div>
                   ))}
+                </div>
+              )}
+              {metodoPago === "transferencia" && (
+                <div style={{ borderRadius: 18, border: `1px solid ${border}`, background: inputBg, padding: "18px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <Landmark size={22} color={cfg.color} style={{ flexShrink: 0, marginTop: 2 }} />
+                  <div>
+                    <p style={{ fontSize: 16, fontWeight: 900, color: text, margin: 0 }}>Transferencia sin comision de cobro</p>
+                    <p style={{ fontSize: 13, color: muted, margin: "5px 0 0", lineHeight: 1.5 }}>
+                      Te mostraremos el alias y CVU. Despues de transferir, avisanos y verificaremos el ingreso manualmente antes de iniciar la consulta.
+                    </p>
+                  </div>
                 </div>
               )}
               {permiteEfectivo && (
@@ -525,7 +555,7 @@ export default function SolicitarScreen() {
               ) : tarifaLoading ? (
                 <><Loader2 size={20} className="animate-spin" /> {t.solicitar.cargandoPrecio}</>
               ) : (
-                <>{metodoPago === "efectivo" ? t.solicitar.solicitarBtn : t.solicitar.autorizarPedir} {cfg.label.toLowerCase()} - {formatPesos(tarifa?.monto, t.solicitar.cargando)} <ChevronRight size={20} /></>
+                <>{metodoPago === "efectivo" ? t.solicitar.solicitarBtn : metodoPago === "transferencia" ? "Ver datos para transferir" : t.solicitar.autorizarPedir} {metodoPago === "transferencia" ? "" : cfg.label.toLowerCase()} - {formatPesos(tarifa?.monto, t.solicitar.cargando)} <ChevronRight size={20} /></>
               )}
             </button>
 

@@ -220,6 +220,7 @@ export default function BuscandoScreen() {
   const stepIdx   = pasoIndex(estado, esTeleconsulta);
   const esFin     = estado === "finalizada";
   const esCancelado = ["cancelada", "cancelada_paciente", "cancelada_sin_medico", "pago_no_autorizado"].includes(estado);
+  const tieneCreditoTransferencia = data?.mp_status === "transfer_credit_available";
   const esPendiente = estado === "pendiente" || estado === "buscando_medico";
   const hasProf   = !!data?.medico_nombre && !esCancelado;
 
@@ -241,6 +242,7 @@ export default function BuscandoScreen() {
     if (estado === "en_videollamada") return t.buscando.estadoTitulo.salaLista;
     if (esFin)                   return t.buscando.estadoTitulo.finalizada;
     if (estado === "pago_no_autorizado") return t.buscando.estadoTitulo.pagoNoAutorizado;
+    if (tieneCreditoTransferencia) return "Tu pago sigue disponible";
     if (esCancelado)             return t.buscando.estadoTitulo.cancelada;
     return t.buscando.estadoTitulo.procesando;
   })();
@@ -254,6 +256,7 @@ export default function BuscandoScreen() {
     if (estado === "en_videollamada") return t.buscando.estadoSub.salaLista;
     if (esFin)                   return t.buscando.estadoSub.finalizada;
     if (estado === "pago_no_autorizado") return t.buscando.estadoSub.pagoNoAutorizado;
+    if (tieneCreditoTransferencia) return "Ningun profesional acepto, pero no perdiste el pago. Podes volver a solicitar sin transferir otra vez.";
     if (esCancelado)             return t.buscando.estadoSub.cancelada;
     return "";
   })();
@@ -446,7 +449,9 @@ export default function BuscandoScreen() {
                   {t.buscando.noEncontramos}
                 </p>
                 <p style={{ fontSize: 14, color: muted, lineHeight: 1.6 }}>
-                  {t.buscando.noHayProfesionales}<br />{t.buscando.intentaDeNuevo}
+                  {tieneCreditoTransferencia
+                    ? <>El importe quedo guardado como credito para tu proxima solicitud.</>
+                    : <>{t.buscando.noHayProfesionales}<br />{t.buscando.intentaDeNuevo}</>}
                 </p>
               </div>
             )}
@@ -604,7 +609,7 @@ export default function BuscandoScreen() {
               style={{ width: "100%", padding: "15px", borderRadius: 16, border: `1px solid ${border}`, background: softPanel, color: text, fontSize: 15, fontWeight: 600, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
             >
               <RotateCcw size={18} />
-              {t.buscando.intentarDeNuevo}
+              {tieneCreditoTransferencia ? "Volver a solicitar con mi pago" : t.buscando.intentarDeNuevo}
             </Link>
           )}
         </div>

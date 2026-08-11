@@ -3,6 +3,7 @@ import { ShieldCheck, Lock, Database, Cookie, Scale } from "lucide-react";
 
 export const metadata = {
   title: "Política de Privacidad | DocYa Pro",
+  alternates: { canonical: "/legal/pro/privacidad" },
   description:
     "Cómo recolectamos, usamos y protegemos los datos personales en DocYa Pro conforme a la ley argentina.",
 };
