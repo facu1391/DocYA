@@ -176,6 +176,8 @@ export default function MedicoOnlinePage() {
           { label: "Mendoza", href: "/teleconsulta/mendoza", description: "Gran Mendoza y localidades" },
           { label: "Tucumán", href: "/teleconsulta/tucuman", description: "Atención por videollamada" },
           { label: "Salta", href: "/teleconsulta/salta", description: "Consulta online desde la provincia" },
+          { label: "San Juan", href: "/teleconsulta/san-juan", description: "Capital, valles e interior" },
+          { label: "La Rioja", href: "/teleconsulta/la-rioja", description: "Capital, Chilecito e interior" },
         ]}
       />
 
