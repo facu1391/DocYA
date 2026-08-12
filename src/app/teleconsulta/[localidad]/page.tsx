@@ -208,6 +208,7 @@ export default async function TeleconsultaLocationPage({
       <RelatedLinks
         title="Servicios relacionados"
         links={[
+          { label: "Médico online en Argentina", href: "/medico-online", description: "Consulta por videollamada desde cualquier provincia" },
           { label: "Doctor para turistas en Argentina", href: "/teleconsulta-turistas", description: "¿Te enfermaste de viaje?" },
           { label: "Teleconsulta en toda Argentina", href: "/teleconsulta-argentina", description: "Ver todas las provincias" },
           { label: "Cómo funciona la teleconsulta", href: "/teleconsulta", description: "Funcionamiento general del servicio" },

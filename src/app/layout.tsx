@@ -46,6 +46,8 @@ export const metadata: Metadata = {
     "enfermería a domicilio",
     "atención médica en casa",
     "consulta médica online",
+    "médico online",
+    "médico por videollamada",
     "teleconsulta médica",
     "certificados médicos digitales",
     "recetas médicas",

@@ -109,6 +109,7 @@ export default function TeleconsultaParticularPage() {
         paragraphs={[
           "Si no tenés obra social, o la tenés pero no querés depender de una autorización o un turno, podés resolver muchas consultas por teleconsulta particular: hablás con un médico matriculado por videollamada, pagás desde la app y listo.",
           "Es una alternativa a la consulta a domicilio para los casos que no requieren un examen físico presencial: seguimiento de un tratamiento, dudas sobre medicación, una receta que necesitás renovar o un certificado. Si el médico considera que tu caso necesita una visita, te lo indica en la misma consulta y podés pedir un médico a domicilio particular a continuación.",
+          "La consulta médica online particular está disponible desde cualquier provincia de Argentina. El valor se informa antes de confirmar y no necesitás presentar credencial, autorización ni derivación para solicitarla.",
         ]}
       />
 
@@ -147,6 +148,7 @@ export default function TeleconsultaParticularPage() {
       <RelatedLinks
         title="Servicios relacionados"
         links={[
+          { label: "Médico online", href: "/medico-online", description: "Consulta por videollamada en toda Argentina" },
           { label: "Teleconsulta médica online", href: "/teleconsulta", description: "Disponible en toda Argentina" },
           { label: "Médico a domicilio particular", href: "/medico-a-domicilio-particular", description: "Sin obra social ni prepaga" },
           { label: "Médico a domicilio en CABA", href: "/medico-a-domicilio-caba", description: "Elegí tu barrio" },

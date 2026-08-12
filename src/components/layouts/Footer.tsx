@@ -18,7 +18,8 @@ export default function Footer() {
     pathname.startsWith("/precios") ||
     pathname.startsWith("/cobertura") ||
     pathname.startsWith("/medico-a-domicilio") ||
-    pathname.startsWith("/teleconsulta-particular") ||
+    pathname.startsWith("/medico-online") ||
+    pathname.startsWith("/teleconsulta") ||
     pathname.startsWith("/receta-medica-online") ||
     pathname.startsWith("/certificado-medico-online") ||
     pathname.startsWith("/centro-de-ayuda");

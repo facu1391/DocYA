@@ -165,6 +165,7 @@ export default function TeleconsultaArgentinaPage() {
       <RelatedLinks
         title="Servicios relacionados"
         links={[
+          { label: "Médico online", href: "/medico-online", description: "Consulta por videollamada en todo el país" },
           { label: "Doctor para turistas en Argentina", href: "/teleconsulta-turistas", description: "¿Te enfermaste de viaje?" },
           { label: "Médico online antes de viajar", href: "/teleconsulta-aeropuerto", description: "Ezeiza, Aeroparque o en escala" },
           { label: "Teleconsulta médica online", href: "/teleconsulta", description: "Cómo funciona el servicio" },

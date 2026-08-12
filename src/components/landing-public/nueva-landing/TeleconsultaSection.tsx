@@ -1,6 +1,7 @@
 // src/components/landing-public/nueva-landing/TeleconsultaSection.tsx
 "use client";
 
+import Link from "next/link";
 import { CheckCircle2, Video } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
 import { useI18n } from "@/lib/i18n/context";
@@ -40,6 +41,13 @@ export default function TeleconsultaSection() {
               </li>
             ))}
           </ul>
+
+          <Link
+            href="/medico-online"
+            className="mt-8 inline-flex items-center rounded-full border border-[var(--brand)]/40 px-5 py-3 font-semibold text-[var(--brand)] transition hover:bg-[var(--brand)]/10"
+          >
+            Conocé cómo funciona el médico online
+          </Link>
         </ScrollReveal>
 
         {/* Card visual */}

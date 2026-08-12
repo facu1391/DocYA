@@ -145,6 +145,7 @@ export default function TeleconsultaPage() {
       <RelatedLinks
         title="Servicios relacionados"
         links={[
+          { label: "Médico online en Argentina", href: "/medico-online", description: "La forma simple de pedir una consulta por video" },
           { label: "Teleconsulta particular", href: "/teleconsulta-particular", description: "Sin obra social ni prepaga" },
           { label: "Teleconsulta las 24 horas", href: "/teleconsulta-24-horas", description: "Disponible a cualquier hora" },
           { label: "Teleconsulta en toda Argentina", href: "/teleconsulta-argentina", description: "Cobertura por provincia" },
