@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Stethoscope, Video, HeartPulse, Clock, MapPin,
   CheckCircle2, XCircle, PhoneCall, X, Loader2,
@@ -67,6 +67,7 @@ const ESTADOS_CRITICOS = ["aceptada", "asignada", "en_camino", "en_domicilio", "
 
 export default function BuscandoScreen() {
   const { t } = useI18n();
+  const router = useRouter();
   const params = useSearchParams();
   const consultaId = params.get("consulta_id") ?? "";
   const tipo       = params.get("tipo") ?? "medico";
@@ -157,6 +158,15 @@ export default function BuscandoScreen() {
           ? { Authorization: `Bearer ${user!.access_token}` }
           : undefined,
       });
+      if (res.status === 404 || res.status === 410) {
+        // La consulta pudo haber sido eliminada desde monitoreo. No dejamos
+        // al paciente atrapado en un polling infinito por un ID local viejo.
+        localStorage.removeItem("docya_consulta_activa");
+        if (pollRef.current) clearInterval(pollRef.current);
+        if (countRef.current) clearInterval(countRef.current);
+        router.replace("/pedir");
+        return;
+      }
       if (!res.ok) return;
       const d = await res.json();
       setData(d);
@@ -170,7 +180,7 @@ export default function BuscandoScreen() {
         clearInterval(countRef.current);
       }
     } catch {}
-  }, [consultaId, esTeleconsulta, user]);
+  }, [consultaId, esTeleconsulta, router, user]);
 
   useEffect(() => {
     fetchEstado();
