@@ -55,6 +55,13 @@ function pasoIndex(estado: string, esTeleconsulta: boolean): number {
   return 0;
 }
 
+function nombreProfesional(nombre?: string, esEnfermeria = false): string {
+  const nombreLimpio = nombre?.trim() ?? "";
+  if (!nombreLimpio) return "";
+  if (/^(dr(?:a|\/a)?\.?|enf\.?)\s/i.test(nombreLimpio)) return nombreLimpio;
+  return `${esEnfermeria ? "Enf." : "Dr/a"} ${nombreLimpio}`;
+}
+
 const ESTADOS_TERMINADOS = ["finalizada", "cancelada", "cancelada_paciente", "cancelada_sin_medico", "pago_no_autorizado"];
 const ESTADOS_CRITICOS = ["aceptada", "asignada", "en_camino", "en_domicilio", "en_curso", "en_videollamada"];
 
@@ -107,6 +114,7 @@ export default function BuscandoScreen() {
   const tipoCfg        = TIPO_CONFIG[tipo] ?? TIPO_CONFIG.medico;
   const Icon           = tipoCfg.icon;
   const esTeleconsulta = tipo === "teleconsulta";
+  const medicoNombre   = nombreProfesional(data?.medico_nombre, tipo === "enfermero");
   const pasos          = esTeleconsulta ? PASOS_TELECONSULTA : PASOS_DOMICILIO;
 
   useEffect(() => {
@@ -368,14 +376,14 @@ export default function BuscandoScreen() {
               {/* Avatar */}
               <div style={{ width: 64, height: 64, borderRadius: 999, background: `${tipoCfg.color}20`, border: `2px solid ${tipoCfg.color}40`, overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 {data?.medico_foto_perfil
-                  ? <img src={data.medico_foto_perfil} alt={data.medico_nombre} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ? <img src={data.medico_foto_perfil} alt={medicoNombre} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   : <Icon size={28} color={tipoCfg.color} />
                 }
               </div>
               {/* Info */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
-                  <p style={{ fontWeight: 800, fontSize: 17, margin: 0 }}>{data?.medico_nombre}</p>
+                  <p style={{ fontWeight: 800, fontSize: 17, margin: 0 }}>{medicoNombre}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: 4, background: `${tipoCfg.color}15`, border: `1px solid ${tipoCfg.color}30`, borderRadius: 8, padding: "2px 8px" }}>
                     <CheckCircle2 size={12} color={tipoCfg.color} />
                     <span style={{ fontSize: 11, fontWeight: 700, color: tipoCfg.color }}>{t.buscando.verificado}</span>
@@ -509,7 +517,7 @@ export default function BuscandoScreen() {
         {esTeleconsulta && ["aceptada", "asignada", "en_videollamada", "en_curso"].includes(estado) && (data?.video_url || data?.daily_room_url) && (
           <div style={{ marginBottom: 16 }}>
             <Link
-              href={`/pedir/videollamada?consulta_id=${consultaId}&video_url=${encodeURIComponent(data?.video_url || data?.daily_room_url || "")}&medico=${encodeURIComponent(data?.medico_nombre ?? "")}`}
+              href={`/pedir/videollamada?consulta_id=${consultaId}&video_url=${encodeURIComponent(data?.video_url || data?.daily_room_url || "")}&medico=${encodeURIComponent(medicoNombre)}`}
               style={{
                 width: "100%", padding: "18px", borderRadius: 18,
                 background: "linear-gradient(90deg, #818cf8, #a78bfa)",

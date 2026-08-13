@@ -27,6 +27,7 @@ export default function MedicamentoSearch({ onSelect }: Props) {
   const [results, setResults] = useState<Medicamento[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const wrapperRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -37,10 +38,15 @@ export default function MedicamentoSearch({ onSelect }: Props) {
       return;
     }
     setLoading(true);
+    setError("");
     try {
       const data = await buscarMedicamentos(val);
       setResults(data);
       setOpen(true);
+    } catch (err) {
+      setResults([]);
+      setOpen(true);
+      setError(err instanceof Error ? err.message : "No se pudo consultar QBI2");
     } finally {
       setLoading(false);
     }
@@ -55,26 +61,6 @@ export default function MedicamentoSearch({ onSelect }: Props) {
 
   function handleSelect(m: Medicamento) {
     onSelect(m);
-    setQ("");
-    setResults([]);
-    setOpen(false);
-  }
-
-  function handleAddManual() {
-    const nombre = q.trim();
-    if (!nombre) return;
-    const manualMedicamento: Medicamento = {
-      id: 0,
-      nombre_comercial: nombre,
-      principio_activo_str: "",
-      forma: null,
-      concentracion: null,
-      laboratorio: null,
-      requiere_receta: false,
-      categoria: null,
-      alertas: [],
-    };
-    onSelect(manualMedicamento);
     setQ("");
     setResults([]);
     setOpen(false);
@@ -229,7 +215,7 @@ export default function MedicamentoSearch({ onSelect }: Props) {
                         p. activo
                       </span>
                     )}
-                    {!m.requiere_receta && (
+                    {m.tieneCobertura && (
                       <span
                         style={{
                           background: "rgba(74,222,128,0.15)",
@@ -241,7 +227,7 @@ export default function MedicamentoSearch({ onSelect }: Props) {
                           fontWeight: 700,
                         }}
                       >
-                        OTC
+                        Cobertura
                       </span>
                     )}
                     {m.alertas?.length > 0 && (
@@ -269,11 +255,21 @@ export default function MedicamentoSearch({ onSelect }: Props) {
                       <Highlight text={m.principio_activo_str} q={byPrincipio ? q : ""} />
                     </span>
                   )}
-                  {[m.forma, m.laboratorio]
+                  {[m.presentacion, m.forma, m.laboratorio]
                     .filter(Boolean)
                     .map((s) => ` · ${s}`)
                     .join("")}
                 </div>
+                <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", marginTop: 5, color: "var(--text-muted)", fontSize: "0.7rem" }}>
+                  {m.regNo && <span>QBI2 Reg. Nº {m.regNo}</span>}
+                  {typeof m.descuento === "number" && m.descuento > 0 && <span>{m.descuento}% de descuento</span>}
+                  {m.requiereAprobacion && <span style={{ color: "#fbbf24" }}>Requiere aprobación</span>}
+                </div>
+                {m.alertas?.length > 0 && (
+                  <div style={{ color: "#fbbf24", fontSize: "0.72rem", marginTop: 4 }}>
+                    ⚠ {m.alertas.join(" · ")}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -299,23 +295,7 @@ export default function MedicamentoSearch({ onSelect }: Props) {
             WebkitBackdropFilter: "blur(14px)",
           }}
         >
-          <div>No se encontraron resultados para &quot;{q}&quot;</div>
-          <button
-            type="button"
-            onClick={handleAddManual}
-            style={{
-              marginTop: 12,
-              border: "1px solid rgba(56,189,248,0.35)",
-              background: "rgba(56,189,248,0.1)",
-              color: "#7dd3fc",
-              borderRadius: 9999,
-              padding: "0.65rem 1rem",
-              cursor: "pointer",
-              fontWeight: 700,
-            }}
-          >
-            Agregar &quot;{q.trim()}&quot; manualmente
-          </button>
+          <div>{error || <>No se encontraron resultados en QBI2 para &quot;{q}&quot;</>}</div>
         </div>
       )}
     </div>

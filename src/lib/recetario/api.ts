@@ -1,3 +1,5 @@
+import { getToken } from "@/lib/recetario/auth";
+
 const BASE =
   process.env.NEXT_PUBLIC_API_BASE ||
   process.env.NEXT_PUBLIC_API_URL ||
@@ -141,6 +143,17 @@ export interface Medicamento {
   categoria: string | null;
   alertas: string[];
   codigo_alfabeta?: string | null;
+  regNo?: string | null;
+  nombreProducto?: string | null;
+  nombreDroga?: string | null;
+  tieneCobertura?: boolean;
+  requiereAprobacion?: boolean;
+  descuento?: number | null;
+  requiereDuplicado?: boolean;
+  hiv?: boolean;
+  psicofarmaco?: boolean;
+  estupefaciente?: boolean;
+  ventaControlada?: boolean;
   pvp_pami?: number | null;
   cobertura_pct?: number | null;
   importe_afiliado?: number | null;
@@ -150,17 +163,64 @@ export interface Medicamento {
 
 export async function buscarMedicamentos(q: string): Promise<Medicamento[]> {
   if (q.length < 2) return [];
-  const res = await fetch(`${BASE}/medicamentos?q=${encodeURIComponent(q)}&limit=12`);
+  const token = getToken();
+  if (!token) throw new Error("Token no proporcionado");
+  const termino = q.trim();
+  const res = await fetch(
+    `${BASE}/recetario/rcta/medicamentos?q=${encodeURIComponent(termino)}`,
+    { headers: authHeaders(token) },
+  );
   const data = await parseJsonResponse(res);
-  return data.resultados ?? [];
+  if (!res.ok) {
+    throw new Error(data.detail || data.mensaje || "No se pudo consultar el vademécum QBI2");
+  }
+  const medicamentos = data?.response?.medicamentos ?? data?.medicamentos;
+  if (!Array.isArray(medicamentos)) {
+    throw new Error("QBI2 no devolvió un listado de medicamentos válido");
+  }
+  return medicamentos.map((item: Record<string, unknown>, index: number) => {
+    const nombreProducto = String(item.nombreProducto ?? "").trim();
+    const nombreDroga = String(item.nombreDroga ?? "").trim();
+    const regNo = String(item.regNo ?? "").trim();
+    return {
+      id: Number(regNo) || index,
+      nombre_comercial: nombreProducto,
+      principio_activo_str: nombreDroga,
+      forma: null,
+      concentracion: null,
+      laboratorio: null,
+      presentacion: typeof item.presentacion === "string" ? item.presentacion : null,
+      requiere_receta: true,
+      categoria: null,
+      alertas: [
+        item.psicofarmaco ? "Psicofármaco" : "",
+        item.estupefaciente ? "Estupefaciente" : "",
+        item.ventaControlada ? "Venta controlada" : "",
+        item.hiv ? "HIV" : "",
+        item.requiereDuplicado ? "Requiere duplicado" : "",
+        item.requiereAprobacion ? "Requiere aprobación" : "",
+      ].filter(Boolean) as string[],
+      codigo_alfabeta: regNo || null,
+      regNo: regNo || null,
+      nombreProducto: nombreProducto || null,
+      nombreDroga: nombreDroga || null,
+      tieneCobertura: Boolean(item.tieneCobertura),
+      requiereAprobacion: Boolean(item.requiereAprobacion),
+      descuento: typeof item.descuento === "number" ? item.descuento : null,
+      requiereDuplicado: Boolean(item.requiereDuplicado),
+      hiv: Boolean(item.hiv),
+      psicofarmaco: Boolean(item.psicofarmaco),
+      estupefaciente: Boolean(item.estupefaciente),
+      ventaControlada: Boolean(item.ventaControlada),
+      match_field: nombreProducto.toLowerCase().includes(termino.toLowerCase())
+        ? "nombre_comercial" as const
+        : "principio_activo" as const,
+    };
+  });
 }
 
 export async function buscarPorPrincipioActivo(nombre: string): Promise<Medicamento[]> {
-  const res = await fetch(
-    `${BASE}/medicamentos/principio/${encodeURIComponent(nombre)}?limit=10`
-  );
-  const data = await parseJsonResponse(res);
-  return data.resultados ?? [];
+  return buscarMedicamentos(nombre);
 }
 
 // ── Recetario — Pacientes ─────────────────────────────────────────────────────
