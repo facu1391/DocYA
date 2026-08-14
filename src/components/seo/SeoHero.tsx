@@ -9,6 +9,7 @@ interface SeoHeroProps {
   title: string;
   titleHighlight?: string;
   description: string;
+  descriptionNote?: string;
   primaryCta: { label: string; href: string };
   secondaryCta?: { label: string; href: string };
 }
@@ -18,6 +19,7 @@ export default function SeoHero({
   title,
   titleHighlight,
   description,
+  descriptionNote,
   primaryCta,
   secondaryCta,
 }: SeoHeroProps) {
@@ -52,13 +54,24 @@ export default function SeoHero({
         </motion.h1>
 
         <motion.p
-          className="text-xl text-text-muted mb-8 max-w-2xl leading-relaxed"
+          className={`text-xl text-text-muted max-w-2xl leading-relaxed ${descriptionNote ? "mb-2" : "mb-8"}`}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
         >
           {description}
         </motion.p>
+
+        {descriptionNote && (
+          <motion.p
+            className="mb-8 max-w-2xl text-sm leading-relaxed text-text-muted/80"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.25 }}
+          >
+            {descriptionNote}
+          </motion.p>
+        )}
 
         <motion.div
           className="flex flex-wrap gap-4 items-center"

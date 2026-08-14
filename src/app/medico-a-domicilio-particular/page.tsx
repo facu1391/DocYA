@@ -97,7 +97,8 @@ export default function MedicoADomicilioParticularPage() {
         badge="Sin obra social ni prepaga"
         title="Médico a domicilio"
         titleHighlight="particular"
-        description="Pedí un médico matriculado a tu casa y pagá la consulta de forma particular, sin depender de una obra social o prepaga. Vos elegís cuándo y cuánto pagar."
+        description="Pedí un médico matriculado a domicilio en CABA, sin depender de una obra social o prepaga. Conocés el precio antes de confirmar y pagás únicamente cuando necesitás atención. El tiempo promedio de llegada es de 45 minutos."
+        descriptionNote="Tiempo estimado sujeto a ubicación, horario y disponibilidad de profesionales."
         primaryCta={{ label: "Solicitar médico ahora", href: "/pedir" }}
         secondaryCta={{ label: "Prefiero una teleconsulta", href: "/teleconsulta-particular" }}
       />
@@ -128,7 +129,7 @@ export default function MedicoADomicilioParticularPage() {
           {
             icon: <ShieldCheck size={22} />,
             title: "Profesionales matriculados",
-            description: "La atención particular es igual de rigurosa: médicos verificados y matriculados en CABA.",
+            description: "Profesionales con matrícula verificada en SISA. Plataforma registrada en el Ministerio de Salud (ID 0259).",
           },
           {
             icon: <ReceiptText size={22} />,
