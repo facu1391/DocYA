@@ -20,10 +20,21 @@ export const es = {
 
   // Hero
   hero: {
-    badge: "EVALUACIÓN MÉDICA AVALADA POR IA",
+    badge: "PROFESIONALES VERIFICADOS EN SISA",
     title: "Un médico en tu casa,",
     titleHighlight: "sin esperas",
-    description: "Pedí un médico a domicilio o una teleconsulta cuando lo necesites. Todo bajo demanda, sin obra social ni prepaga: pagás la consulta de forma particular, sin planes mensuales.",
+    description: "Solicitá atención médica a domicilio en CABA, con un tiempo promedio de llegada de 45 minutos, o realizá una teleconsulta desde cualquier lugar de Argentina, aceptada generalmente en 1 a 2 minutos. Sin obra social, prepaga ni abonos mensuales: pagás únicamente cuando necesitás atenderte.",
+    tiemposAtencion: "Tiempos estimados de atención",
+    domicilioTitulo: "Médico a domicilio",
+    domicilioTiempo: "45 min",
+    domicilioDescripcion: "Tiempo promedio de llegada",
+    domicilioCobertura: "Disponible en CABA",
+    teleconsultaTitulo: "Teleconsulta",
+    teleconsultaTiempo: "1–2 min",
+    teleconsultaDescripcion: "Tiempo promedio de aceptación",
+    teleconsultaCobertura: "Disponible en toda Argentina",
+    tiemposAclaracion: "Los tiempos son estimados y pueden variar según la ubicación, el horario y la disponibilidad de profesionales.",
+    confianza: "Más de 300 pacientes registrados · Plataforma registrada en el Ministerio de Salud (ID 0259)",
     solicitarAhora: "Solicitar ahora",
     descargarApp: "Descargar App",
     pedirPorWhatsapp: "Pedir por WhatsApp",

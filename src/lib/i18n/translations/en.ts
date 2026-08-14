@@ -20,10 +20,21 @@ export const en = {
 
   // Hero
   hero: {
-    badge: "AI-POWERED MEDICAL EVALUATION",
+    badge: "PROFESSIONALS VERIFIED IN SISA",
     title: "A doctor at your door,",
     titleHighlight: "no waiting",
-    description: "Request a doctor at home or a video consultation whenever you need it. Everything on demand, no health insurance required: pay per visit, with no monthly plans.",
+    description: "Request medical care at home in Buenos Aires City, with an average arrival time of 45 minutes, or start a video consultation from anywhere in Argentina, generally accepted within 1 to 2 minutes. No health insurance or monthly subscription required: you only pay when you need care.",
+    tiemposAtencion: "Estimated care times",
+    domicilioTitulo: "Doctor at home",
+    domicilioTiempo: "45 min",
+    domicilioDescripcion: "Average arrival time",
+    domicilioCobertura: "Available in Buenos Aires City",
+    teleconsultaTitulo: "Video consultation",
+    teleconsultaTiempo: "1–2 min",
+    teleconsultaDescripcion: "Average acceptance time",
+    teleconsultaCobertura: "Available throughout Argentina",
+    tiemposAclaracion: "Times are estimates and may vary depending on location, time of day, and professional availability.",
+    confianza: "More than 300 registered patients · Platform registered with the Ministry of Health (ID 0259)",
     solicitarAhora: "Request now",
     descargarApp: "Download App",
     pedirPorWhatsapp: "Order via WhatsApp",

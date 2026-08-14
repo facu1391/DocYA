@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Sparkles, Stethoscope, Bot, MessageCircle } from "lucide-react";
+import { ShieldCheck, Stethoscope, Bot, House, Video } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
 
 export default function Hero() {
@@ -25,7 +25,7 @@ export default function Hero() {
         }}
       />
 
-      <div className="w-full max-w-[1200px] mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center relative z-10">
+      <div className="w-full max-w-[1200px] mx-auto px-6 py-10 md:py-12 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center relative z-10">
         <div>
           <motion.div
             className="badge-trusted mb-6 w-fit"
@@ -33,7 +33,7 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <Sparkles size={16} />
+            <ShieldCheck size={16} aria-hidden="true" />
             {t.hero.badge}
           </motion.div>
 
@@ -48,7 +48,7 @@ export default function Hero() {
           </motion.h1>
 
           <motion.p
-            className="text-xl text-text-muted mb-8 max-w-lg leading-relaxed"
+            className="text-base lg:text-lg text-text-muted mb-6 max-w-xl leading-relaxed"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
@@ -57,35 +57,70 @@ export default function Hero() {
           </motion.p>
 
           <motion.div
-            className="flex flex-col gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 max-w-xl"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            aria-label={t.hero.tiemposAtencion}
+          >
+            <div className="flex items-center gap-3 border-l-2 border-[var(--brand)] pl-3 py-1 min-w-0">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand)]/10 text-[var(--brand)]">
+                <House size={18} aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-text-muted">{t.hero.domicilioTitulo}</p>
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  <strong className="text-2xl leading-none text-foreground">{t.hero.domicilioTiempo}</strong>
+                  <span className="text-xs text-text-muted">{t.hero.domicilioDescripcion}</span>
+                </div>
+                <p className="mt-1 text-[11px] font-medium text-[var(--brand)]">{t.hero.domicilioCobertura}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 border-l-2 border-[var(--brand)] pl-3 py-1 min-w-0">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand)]/10 text-[var(--brand)]">
+                <Video size={18} aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-text-muted">{t.hero.teleconsultaTitulo}</p>
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  <strong className="text-2xl leading-none text-foreground">{t.hero.teleconsultaTiempo}</strong>
+                  <span className="text-xs text-text-muted">{t.hero.teleconsultaDescripcion}</span>
+                </div>
+                <p className="mt-1 text-[11px] font-medium text-[var(--brand)]">{t.hero.teleconsultaCobertura}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.p
+            className="mb-6 max-w-xl text-[11px] leading-relaxed text-text-muted"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+          >
+            {t.hero.tiemposAclaracion}
+          </motion.p>
+
+          <motion.div
+            className="flex flex-col gap-5"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.45 }}
           >
-            <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
               <a
                 href="/pedir"
-                className="inline-flex items-center justify-center gap-2 px-10 py-4 text-lg font-bold rounded-full w-fit"
+                className="inline-flex items-center justify-center gap-2 px-10 py-4 text-lg font-bold rounded-full w-full sm:w-fit"
                 style={{ background: "linear-gradient(90deg, #00b3a6, #2dd4bf)", color: "#fff", textDecoration: "none", boxShadow: "0 8px 24px rgba(0,179,166,0.4)" }}
               >
                 {t.hero.solicitarAhora}
               </a>
               <a
                 href="#descargar"
-                className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full w-fit"
+                className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full w-full sm:w-fit"
                 style={{ border: "1.5px solid rgba(255,255,255,0.2)", color: "inherit", textDecoration: "none", backdropFilter: "blur(4px)" }}
               >
                 {t.hero.descargarApp}
-              </a>
-              <a
-                href="https://wa.me/5491178940962"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-bold rounded-full w-fit"
-                style={{ background: "rgba(37,211,102,0.14)", border: "1.5px solid rgba(37,211,102,0.35)", color: "#25d366", textDecoration: "none" }}
-              >
-                <MessageCircle size={20} />
-                {t.hero.pedirPorWhatsapp}
               </a>
             </div>
             <div className="flex gap-4 flex-wrap">
@@ -109,7 +144,11 @@ export default function Hero() {
               </a>
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center gap-6 border-t border-border/50 pt-6">
+            <p className="max-w-xl text-xs leading-relaxed text-text-muted">
+              {t.hero.confianza}
+            </p>
+
+            <div className="mt-2 flex flex-wrap items-center gap-4 sm:gap-6 border-t border-border/50 pt-5">
               <div className="flex items-center gap-2 text-sm font-medium text-text-muted">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -132,7 +171,7 @@ export default function Hero() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
         >
-          <div className="relative w-[320px] h-[650px]">
+          <div className="relative w-[280px] h-[569px] sm:w-[320px] sm:h-[650px]">
             <div className="w-full h-full rounded-[40px] overflow-hidden relative z-20">
               <Image
                 src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774886286/Screenshot_20260330-105015-portrait_ihblq7.png"
