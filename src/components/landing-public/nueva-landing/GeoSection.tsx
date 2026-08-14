@@ -12,23 +12,28 @@ export default function GeoSection() {
   const { t } = useI18n();
   const features = featureIcons.map((icon, i) => ({ icon, label: t.geo.features[i] }));
   return (
-    <section id="geolocalizacion" className="dark-section py-32">
+    <section id="geolocalizacion" className="dark-section py-32 text-white">
       <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 items-center gap-16 px-6 md:grid-cols-2">
         <ScrollReveal delay={0.1}>
-          <h2 className="section-title mb-4">
+          <h2 className="section-title mb-4 text-white">
             {t.geo.title}{" "}
             <span className="highlight-text">{t.geo.titleHighlight}</span>
           </h2>
 
-          <p className="text-text-muted mb-8 text-xl leading-relaxed">
+          <p className="mb-8 text-xl leading-relaxed text-white/75">
             {t.geo.description}
           </p>
 
           <ul className="flex flex-col gap-5">
             {features.map(({ icon: Icon, label }) => (
-              <li key={label} className="flex items-center gap-4 text-lg font-medium">
-                <Icon size={24} style={{ color: "var(--accent)" }} className="shrink-0" />
-                {label}
+              <li
+                key={label}
+                className="flex items-center gap-4 text-lg font-medium text-white/95"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#4debd8]/25 bg-[#4debd8]/10 text-[#4debd8]">
+                  <Icon size={20} aria-hidden="true" />
+                </span>
+                <span>{label}</span>
               </li>
             ))}
           </ul>
