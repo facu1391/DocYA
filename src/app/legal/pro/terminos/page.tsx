@@ -145,20 +145,22 @@ export default function Terminos() {
                   <strong>Recaudación por cuenta y orden:</strong> El profesional autoriza expresamente a <strong>DocYa SAS (CUIT 30-71921300-2)</strong> para actuar como mandatario y <strong>recaudador por cuenta y orden del profesional</strong> respecto de los importes abonados por los pacientes por las prestaciones realizadas a través de la plataforma. DocYa SAS podrá percibir dichos importes mediante los medios de pago habilitados, deducir la comisión de intermediación y los conceptos que correspondan conforme a estos Términos y Condiciones, y posteriormente liquidar al profesional el saldo resultante.
                 </li>
                 <li>
-                  El paciente abona <strong>$30.000 ARS</strong> por consulta.
+                  El valor de cada prestación será el <strong>vigente e informado a través de la plataforma al momento de la solicitud</strong>, pudiendo variar según el tipo de servicio, modalidad, horario, ubicación u otras condiciones aplicables.
                 </li>
                 <li>
-                  La comisión del <strong>20%</strong> corresponde al servicio de intermediación digital prestado por <strong>DocYa SAS (CUIT 30-71921300-2)</strong>.
+                  La comisión de <strong>DocYa SAS será del 20%</strong> sobre el valor de la prestación, correspondiente al servicio de intermediación digital.
                 </li>
                 <li>
-                  El profesional recibirá el <strong>80% del valor total abonado por el paciente</strong>. La comisión de procesamiento de pagos es absorbida íntegramente por <strong>DocYa SAS</strong>.
-                </li>
-                <li>Acreditación semanal en la cuenta informada por el profesional.</li>
-                <li>
-                  El profesional es <strong>responsable exclusivo</strong> de sus obligaciones fiscales ante <strong>ARCA</strong> como prestador de servicios independiente.
+                  DocYa SAS liquidará al profesional el importe que le corresponda luego de aplicar la comisión de intermediación y los demás conceptos que resulten aplicables conforme a estos Términos y Condiciones.
                 </li>
                 <li>
-                  DocYa emitirá al profesional el <strong>comprobante fiscal correspondiente a su comisión del 20%</strong>.
+                  Las liquidaciones se realizarán con la periodicidad informada por DocYa y se acreditarán en la cuenta indicada por el profesional.
+                </li>
+                <li>
+                  El profesional será <strong>responsable exclusivo de sus obligaciones fiscales ante ARCA</strong> como prestador independiente.
+                </li>
+                <li>
+                  DocYa SAS emitirá los comprobantes fiscales que correspondan por sus servicios de intermediación.
                 </li>
               </ul>
 
