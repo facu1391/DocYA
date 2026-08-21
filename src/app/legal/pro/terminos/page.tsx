@@ -142,6 +142,9 @@ export default function Terminos() {
                   DocYa actúa exclusivamente como <strong>intermediario tecnológico digital</strong> entre el profesional y el paciente.
                 </li>
                 <li>
+                  <strong>Recaudación por cuenta y orden:</strong> El profesional autoriza expresamente a <strong>DocYa SAS (CUIT 30-71921300-2)</strong> para actuar como mandatario y <strong>recaudador por cuenta y orden del profesional</strong> respecto de los importes abonados por los pacientes por las prestaciones realizadas a través de la plataforma. DocYa SAS podrá percibir dichos importes mediante los medios de pago habilitados, deducir la comisión de intermediación y los conceptos que correspondan conforme a estos Términos y Condiciones, y posteriormente liquidar al profesional el saldo resultante.
+                </li>
+                <li>
                   El paciente abona <strong>$30.000 ARS</strong> por consulta.
                 </li>
                 <li>
