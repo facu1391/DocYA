@@ -446,6 +446,15 @@ export const en = {
     cargandoPrecio: "Loading price...",
     solicitarBtn: "Request",
     autorizarPedir: "Authorize and request",
+    confirmarPacienteTitulo: "Confirm who will receive care",
+    confirmarPacienteIntro: "The consultation must be linked to the person who will receive care.",
+    confirmarPacienteAdultoTitulo: "If it is for your partner or another adult:",
+    confirmarPacienteAdultoTexto: "that person must sign in with their own account and request the consultation.",
+    confirmarPacienteMenorTitulo: "If it is for a minor:",
+    confirmarPacienteMenorTexto: "go back and enable Pediatric consultation to enter their details.",
+    confirmarPacienteDocumentos: "Prescriptions, medical orders, and certificates will be issued using the patient details linked to this consultation.",
+    confirmarPacienteRevisar: "Review details",
+    confirmarPacienteContinuar: "Yes, continue",
   },
 
   // Pago Screen

@@ -446,6 +446,15 @@ export const es = {
     cargandoPrecio: "Cargando precio...",
     solicitarBtn: "Solicitar",
     autorizarPedir: "Autorizar y pedir",
+    confirmarPacienteTitulo: "Confirmá quién recibirá la atención",
+    confirmarPacienteIntro: "La consulta debe quedar asociada a la persona que será atendida.",
+    confirmarPacienteAdultoTitulo: "Si es para tu pareja u otro adulto:",
+    confirmarPacienteAdultoTexto: "esa persona debe ingresar con su propia cuenta y solicitar la consulta.",
+    confirmarPacienteMenorTitulo: "Si es para un menor:",
+    confirmarPacienteMenorTexto: "volvé y activá Consulta pediátrica para completar sus datos.",
+    confirmarPacienteDocumentos: "Las recetas, órdenes y certificados se emitirán con los datos del paciente asociado a esta consulta.",
+    confirmarPacienteRevisar: "Revisar datos",
+    confirmarPacienteContinuar: "Sí, continuar",
   },
 
   // Pago Screen

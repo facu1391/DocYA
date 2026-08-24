@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft, Stethoscope, Video, HeartPulse, Baby,
   CreditCard, Wallet, Banknote, Landmark, Loader2, ChevronRight,
-  Navigation, ShieldCheck, CheckCircle2, RotateCcw,
+  Navigation, ShieldCheck, CheckCircle2, RotateCcw, UserRoundCheck,
 } from "lucide-react";
 import AddressInput from "./AddressInput";
 import MapView from "./MapView";
@@ -95,6 +95,7 @@ export default function SolicitarScreen() {
   const [tarifa, setTarifa] = useState<Tarifa | null>(null);
   const [tarifaLoading, setTarifaLoading] = useState(true);
   const [tarifaError, setTarifaError] = useState("");
+  const [confirmacionPaciente, setConfirmacionPaciente] = useState(false);
   const { dark, bg, brandBorder: border, text, muted, inputBg, headerBg, logo } = usePedirTheme();
   const permiteEfectivo = tipo !== "teleconsulta";
   const permitePediatria = tipo !== "enfermero";
@@ -182,21 +183,28 @@ export default function SolicitarScreen() {
     );
   }, [PLACES_KEY, t]);
 
-  const handleSubmit = useCallback(async () => {
-    if (!user) return;
-    if (!motivo.trim()) return notify(t.solicitar.motivoRequerido, false);
-    if (!direccion.trim()) return notify(t.solicitar.direccionRequerida, false);
-    if (lat === null || lng === null) return notify(t.solicitar.coordenadasRequeridas, false);
-    if (!permiteEfectivo && metodoPago === "efectivo") return notify(t.solicitar.teleconsultaEfectivo, false);
-    if (!tarifa?.monto) return notify(t.solicitar.errorPrecioRetry, false);
+  const validarSolicitud = useCallback(() => {
+    if (!user) return false;
+    if (!motivo.trim()) { notify(t.solicitar.motivoRequerido, false); return false; }
+    if (!direccion.trim()) { notify(t.solicitar.direccionRequerida, false); return false; }
+    if (lat === null || lng === null) { notify(t.solicitar.coordenadasRequeridas, false); return false; }
+    if (!permiteEfectivo && metodoPago === "efectivo") { notify(t.solicitar.teleconsultaEfectivo, false); return false; }
+    if (!tarifa?.monto) { notify(t.solicitar.errorPrecioRetry, false); return false; }
     if (esPediatria) {
-      if (!pacienteMenorNombre.trim()) return notify(t.solicitar.nombreNinio, false);
-      if (!pacienteMenorDni.trim()) return notify(t.solicitar.dniNinio, false);
+      if (!pacienteMenorNombre.trim()) { notify(t.solicitar.nombreNinio, false); return false; }
+      if (!pacienteMenorDni.trim()) { notify(t.solicitar.dniNinio, false); return false; }
       const fecha = pacienteMenorFechaNacimiento.trim();
       if (fecha && (!/^\d{4}-\d{2}-\d{2}$/.test(fecha) || Number.isNaN(Date.parse(fecha)))) {
-        return notify(t.solicitar.fechaFormato, false);
+        notify(t.solicitar.fechaFormato, false);
+        return false;
       }
     }
+    return true;
+  }, [user, motivo, direccion, lat, lng, permiteEfectivo, metodoPago, tarifa, esPediatria, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, t]);
+
+  const handleSubmit = useCallback(async () => {
+    if (!validarSolicitud() || !user || !tarifa?.monto) return;
+    setConfirmacionPaciente(false);
 
     setSubmitting(true);
     try {
@@ -325,7 +333,7 @@ export default function SolicitarScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [user, motivo, direccion, lat, lng, metodoPago, tipo, router, permiteEfectivo, tarifa, esPediatria, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, categoriaConsulta, provincia, datosPediatricos, t]);
+  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, lat, lng, categoriaConsulta, provincia, datosPediatricos, router, t]);
 
   if (!user) return null;
 
@@ -546,7 +554,9 @@ export default function SolicitarScreen() {
 
             {/* BOTÓN SUBMIT */}
             <button
-              onClick={handleSubmit}
+              onClick={() => {
+                if (validarSolicitud()) setConfirmacionPaciente(true);
+              }}
               disabled={submitting || tarifaLoading || !!tarifaError}
               style={{ width: "100%", padding: "17px 20px", borderRadius: 18, border: "none", background: (submitting || tarifaLoading || tarifaError) ? "rgba(0,179,166,0.5)" : `linear-gradient(90deg, ${cfg.color}, #2dd4bf)`, color: "#fff", fontSize: 16, fontWeight: 700, cursor: (submitting || tarifaLoading || tarifaError) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontFamily: "inherit", boxShadow: submitting ? "none" : `0 8px 24px ${cfg.color}44` }}
             >
@@ -562,6 +572,73 @@ export default function SolicitarScreen() {
           </div>
         </main>
       </div>
+
+      {confirmacionPaciente && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirmacion-paciente-titulo"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20,
+            background: "rgba(2, 12, 20, 0.74)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <div style={{ width: "100%", maxWidth: 500, overflow: "hidden", borderRadius: 28, border: `1px solid ${border}`, background: inputBg, color: text, boxShadow: "0 28px 80px rgba(0,0,0,0.38)" }}>
+            <div style={{ padding: "28px 26px 20px", textAlign: "center", background: `linear-gradient(180deg, ${cfg.color}18, transparent)` }}>
+              <div style={{ width: 66, height: 66, margin: "0 auto 16px", borderRadius: 22, display: "flex", alignItems: "center", justifyContent: "center", background: `${cfg.color}1f`, border: `1px solid ${cfg.color}45` }}>
+                <UserRoundCheck size={32} color={cfg.color} />
+              </div>
+              <h2 id="confirmacion-paciente-titulo" style={{ margin: 0, fontSize: 23, fontWeight: 900, letterSpacing: "-0.3px" }}>
+                {t.solicitar.confirmarPacienteTitulo}
+              </h2>
+              <p style={{ margin: "10px auto 0", maxWidth: 410, color: muted, fontSize: 14, lineHeight: 1.6 }}>
+                {t.solicitar.confirmarPacienteIntro}
+              </p>
+            </div>
+
+            <div style={{ padding: "0 26px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ padding: "15px 16px", borderRadius: 16, background: `${cfg.color}10`, border: `1px solid ${cfg.color}30` }}>
+                <p style={{ margin: 0, color: text, fontSize: 14, lineHeight: 1.55 }}>
+                  <strong>{t.solicitar.confirmarPacienteAdultoTitulo}</strong> {t.solicitar.confirmarPacienteAdultoTexto}
+                </p>
+              </div>
+              <div style={{ padding: "15px 16px", borderRadius: 16, background: "rgba(129,140,248,0.09)", border: "1px solid rgba(129,140,248,0.25)" }}>
+                <p style={{ margin: 0, color: text, fontSize: 14, lineHeight: 1.55 }}>
+                  <strong>{t.solicitar.confirmarPacienteMenorTitulo}</strong> {t.solicitar.confirmarPacienteMenorTexto}
+                </p>
+              </div>
+              <p style={{ margin: "2px 2px 0", color: muted, fontSize: 12, lineHeight: 1.5, textAlign: "center" }}>
+                {t.solicitar.confirmarPacienteDocumentos}
+              </p>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.35fr", gap: 10, padding: "0 26px 26px" }}>
+              <button
+                type="button"
+                onClick={() => setConfirmacionPaciente(false)}
+                style={{ padding: "14px 16px", borderRadius: 15, border: `1px solid ${border}`, background: "transparent", color: text, fontSize: 14, fontWeight: 750, cursor: "pointer", fontFamily: "inherit" }}
+              >
+                {t.solicitar.confirmarPacienteRevisar}
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={submitting}
+                style={{ padding: "14px 16px", borderRadius: 15, border: "none", background: `linear-gradient(90deg, ${cfg.color}, #2dd4bf)`, color: "#fff", fontSize: 14, fontWeight: 800, cursor: submitting ? "wait" : "pointer", fontFamily: "inherit", boxShadow: `0 10px 24px ${cfg.color}35` }}
+              >
+                {submitting ? t.solicitar.buscandoProfesional : t.solicitar.confirmarPacienteContinuar}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
