@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Video, PhoneOff,
-  Maximize2, Minimize2, Shield, Clock, User,
+  Maximize2, Minimize2, Shield, Clock, User, FileText,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
@@ -137,6 +137,30 @@ export default function VideoLlamadaScreen() {
             </div>
           </div>
         </header>
+      )}
+
+      {/* AVISO SOBRE DOCUMENTOS EMITIDOS DURANTE LA CONSULTA */}
+      {!fullscreen && (
+        <div
+          role="status"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+            padding: "10px 20px",
+            background: "rgba(20,184,166,0.12)",
+            borderBottom: "1px solid rgba(20,184,166,0.25)",
+            color: text,
+            fontSize: 13,
+            lineHeight: 1.45,
+            textAlign: "center",
+            flexShrink: 0,
+          }}
+        >
+          <FileText size={18} color="#2dd4bf" style={{ flexShrink: 0 }} />
+          <span>{t.videoLlamada.avisoDocumentos}</span>
+        </div>
       )}
 
       {/* VIDEO */}

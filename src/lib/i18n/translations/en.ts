@@ -543,6 +543,7 @@ export const en = {
     salirFullscreen: "Exit full screen",
     fullscreen: "Full screen",
     salirLlamada: "Leave the call",
+    avisoDocumentos: "Prescriptions, medical orders, and certificates issued by the professional will be available in My consultations, under the Documents tab.",
   },
 
   // Perfil Screen

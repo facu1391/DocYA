@@ -543,6 +543,7 @@ export const es = {
     salirFullscreen: "Salir de pantalla completa",
     fullscreen: "Pantalla completa",
     salirLlamada: "Salir de la llamada",
+    avisoDocumentos: "Las recetas, órdenes y certificados que emita el profesional estarán disponibles en Mis consultas, dentro de la pestaña Documentos.",
   },
 
   // Perfil Screen
