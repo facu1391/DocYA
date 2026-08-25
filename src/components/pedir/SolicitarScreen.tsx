@@ -66,9 +66,9 @@ export default function SolicitarScreen() {
   };
 
   const METODOS: { id: MetodoPago; icon: typeof CreditCard; label: string; sub: string }[] = [
-    { id: "tarjeta",  icon: CreditCard, label: t.solicitar.metodos.tarjetaTitle, sub: t.solicitar.metodos.tarjetaSub },
-    { id: "saldo_mp", icon: Wallet,     label: t.solicitar.metodos.saldoTitle,   sub: t.solicitar.metodos.saldoSub },
-    { id: "transferencia", icon: Landmark, label: "Transferencia", sub: "A alias o CVU, con verificacion manual" },
+    { id: "transferencia", icon: Landmark, label: "Transferencia bancaria", sub: "Pago rápido y seguro" },
+    { id: "saldo_mp", icon: Wallet, label: t.solicitar.metodos.saldoTitle, sub: t.solicitar.metodos.saldoSub },
+    { id: "tarjeta", icon: CreditCard, label: "Tarjeta de crédito/débito", sub: t.solicitar.metodos.tarjetaSub },
     { id: "efectivo", icon: Banknote,   label: t.solicitar.metodos.efectivoTitle, sub: t.solicitar.metodos.efectivoSub },
   ];
 
@@ -472,19 +472,30 @@ export default function SolicitarScreen() {
               <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 14 }}>
                 {t.solicitar.metodoPago}
               </label>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, marginBottom: 18 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 18 }}>
                 {METODOS_ONLINE.map(m => {
                   const selected = metodoPago === m.id;
+                  const recommended = m.id === "transferencia";
                   const IconPago = m.icon;
                   return (
                     <button
                       key={m.id}
                       type="button"
                       onClick={() => setMetodoPago(m.id)}
-                      style={{ minHeight: 54, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "12px 10px", borderRadius: 14, border: `1.5px solid ${selected ? cfg.color : border}`, background: selected ? `${cfg.color}16` : inputBg, cursor: "pointer", color: selected ? cfg.color : muted, fontSize: 13, fontWeight: 800, fontFamily: "inherit", transition: "all 0.15s" }}
+                      style={{ minHeight: recommended ? 76 : 72, display: "flex", alignItems: "center", gap: 10, padding: "12px", borderRadius: 14, border: `1.5px solid ${selected || recommended ? cfg.color : border}`, background: selected ? `${cfg.color}16` : recommended ? `${cfg.color}0b` : inputBg, cursor: "pointer", color: selected || recommended ? cfg.color : muted, fontFamily: "inherit", transition: "all 0.15s", textAlign: "left", boxShadow: recommended ? `0 4px 14px ${cfg.color}18` : "none" }}
                     >
-                      <IconPago size={16} />
-                      {m.label}
+                      <IconPago size={18} style={{ flexShrink: 0 }} />
+                      <span style={{ minWidth: 0 }}>
+                        <span style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                          <span style={{ fontSize: 13, fontWeight: 800, color: selected || recommended ? cfg.color : text }}>{m.label}</span>
+                          {recommended && (
+                            <span style={{ borderRadius: 999, background: cfg.color, color: "#fff", padding: "3px 7px", fontSize: 9, fontWeight: 900, letterSpacing: "0.55px", lineHeight: 1 }}>
+                              RECOMENDADO
+                            </span>
+                          )}
+                        </span>
+                        <span style={{ display: "block", color: muted, fontSize: 11, fontWeight: 600, marginTop: 3, lineHeight: 1.3 }}>{m.sub}</span>
+                      </span>
                     </button>
                   );
                 })}
@@ -519,7 +530,7 @@ export default function SolicitarScreen() {
                 <div style={{ borderRadius: 18, border: `1px solid ${border}`, background: inputBg, padding: "18px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
                   <Landmark size={22} color={cfg.color} style={{ flexShrink: 0, marginTop: 2 }} />
                   <div>
-                    <p style={{ fontSize: 16, fontWeight: 900, color: text, margin: 0 }}>Transferencia sin comision de cobro</p>
+                    <p style={{ fontSize: 16, fontWeight: 900, color: text, margin: 0 }}>Transferencia bancaria</p>
                     <p style={{ fontSize: 13, color: muted, margin: "5px 0 0", lineHeight: 1.5 }}>
                       Te mostraremos el alias y CVU. Despues de transferir, avisanos y verificaremos el ingreso manualmente antes de iniciar la consulta.
                     </p>
