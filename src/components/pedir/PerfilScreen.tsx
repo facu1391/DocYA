@@ -12,6 +12,7 @@ import {
 import AddressInput from "./AddressInput";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -218,14 +219,22 @@ export default function PerfilScreen() {
               </div>
               <div>
                 <Label icon={<Users size={15} />} text={t.perfil.sexoBiologico} muted={muted} />
-                <div style={{ position: "relative" }}>
-                  <select value={sexo} onChange={e => setSexo(e.target.value)} style={{ ...inputStyle, appearance: "none", paddingRight: 32 }}>
-                    <option value="masculino">{t.perfil.masculino}</option>
-                    <option value="femenino">{t.perfil.femenino}</option>
-                    <option value="otro">{t.perfil.otro}</option>
-                  </select>
-                  <ChevronDown size={14} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: muted, pointerEvents: "none" }} />
-                </div>
+                <Select value={sexo} onValueChange={setSexo}>
+                  <SelectTrigger
+                    aria-label={t.perfil.sexoBiologico}
+                    style={{ ...inputStyle, height: 50, padding: "14px 16px" }}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent
+                    align="start"
+                    style={{ background: inputBg, borderColor: border, color: text }}
+                  >
+                    <SelectItem value="masculino">{t.perfil.masculino}</SelectItem>
+                    <SelectItem value="femenino">{t.perfil.femenino}</SelectItem>
+                    <SelectItem value="otro">{t.perfil.otro}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
