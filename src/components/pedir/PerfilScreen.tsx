@@ -13,12 +13,12 @@ import AddressInput from "./AddressInput";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import InternationalPhoneInput, { normalizePhoneNumber } from "@/components/common/InternationalPhoneInput";
+import type { CountryCode } from "libphonenumber-js";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean };
-
-const COUNTRY_CODE = "+54";
 
 const notify = (msg: string, ok = true) => {
   if (typeof document === "undefined") return;
@@ -39,6 +39,7 @@ export default function PerfilScreen() {
   const [nombreCompleto, setNombreCompleto] = useState("");
   const [nroDoc,      setNroDoc]      = useState("");
   const [telefono,    setTelefono]    = useState("");
+  const [telefonoPais, setTelefonoPais] = useState<CountryCode>("AR");
   const [direccion,   setDireccion]   = useState("");
   const [fechaNac,    setFechaNac]    = useState("");
   const [sexo,        setSexo]        = useState("masculino");
@@ -65,8 +66,8 @@ export default function PerfilScreen() {
     if (!telefono.trim())  return notify(t.perfil.telRequerido, false);
     if (!acepta)           return notify(t.perfil.terminosRequeridos, false);
 
-    const telefonoCom = `${COUNTRY_CODE}${telefono.replace(/\D/g, "")}`;
-    if (!/^\+[1-9]\d{7,14}$/.test(telefonoCom))
+    const telefonoCom = normalizePhoneNumber(telefono, telefonoPais);
+    if (!telefonoCom)
       return notify(t.perfil.telInvalido, false);
 
     setSubmitting(true);
@@ -98,7 +99,7 @@ export default function PerfilScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [user, nombreCompleto, nroDoc, direccion, fechaNac, telefono, acepta, tipoDoc, sexo, router, t]);
+  }, [user, nombreCompleto, nroDoc, direccion, fechaNac, telefono, telefonoPais, acepta, tipoDoc, sexo, router, t]);
 
   if (!user) return null;
 
@@ -177,16 +178,16 @@ export default function PerfilScreen() {
           {/* Teléfono */}
           <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
             <Label icon={<Phone size={15} />} text={t.perfil.telefonoLabel} muted={muted} />
-            <div style={{ display: "grid", gridTemplateColumns: "72px 1fr", gap: 12 }}>
-              <div style={{ ...inputStyle, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: muted }}>{COUNTRY_CODE}</div>
-              <input
-                value={telefono}
-                onChange={e => setTelefono(e.target.value)}
-                placeholder={t.perfil.telefonoPlaceholder}
-                inputMode="tel"
-                style={inputStyle}
-              />
-            </div>
+            <InternationalPhoneInput
+              country={telefonoPais}
+              onCountryChange={setTelefonoPais}
+              value={telefono}
+              onChange={setTelefono}
+              background={inputBg}
+              border={border}
+              color={text}
+              muted={muted}
+            />
             <p style={{ fontSize: 12, color: muted, marginTop: 8 }}>{t.perfil.telefonoHint}</p>
           </div>
 

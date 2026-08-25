@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Script from "next/script";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -12,7 +12,6 @@ import {
   Loader2,
   Mail,
   MapPin,
-  Phone,
   ShieldCheck,
   User2,
 } from "lucide-react";
@@ -21,6 +20,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import LoadingSplash from "@/components/common/LoadingSplash";
+import InternationalPhoneInput, { normalizePhoneNumber } from "@/components/common/InternationalPhoneInput";
+import type { CountryCode } from "libphonenumber-js";
 import TermsPaciente from "./TermsPaciente";
 
 type GoogleWindow = Window & {
@@ -82,13 +83,6 @@ type GoogleAuthResponse = {
   detail?: string;
 };
 
-type CountryOption = {
-  code: string;
-  name: string;
-  phoneCode: string;
-  flag: string;
-};
-
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   "327572770521-tom99oocat1tcp9pahlejsar4iu62lhg.apps.googleusercontent.com";
@@ -108,23 +102,6 @@ type GoogleIdConfiguration = {
 };
 
 const PLACES_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
-
-const COUNTRIES: CountryOption[] = [
-  { code: "AR", name: "Argentina", phoneCode: "54", flag: "AR" },
-  { code: "UY", name: "Uruguay", phoneCode: "598", flag: "UY" },
-  { code: "CL", name: "Chile", phoneCode: "56", flag: "CL" },
-  { code: "PY", name: "Paraguay", phoneCode: "595", flag: "PY" },
-  { code: "BO", name: "Bolivia", phoneCode: "591", flag: "BO" },
-  { code: "PE", name: "Perú", phoneCode: "51", flag: "PE" },
-  { code: "ES", name: "España", phoneCode: "34", flag: "ES" },
-  { code: "US", name: "Estados Unidos", phoneCode: "1", flag: "US" },
-];
-
-function countryFlag(code: string) {
-  return code
-    .toUpperCase()
-    .replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
-}
 
 export default function RegistroPacienteGoogleFlow() {
   const router = useRouter();
@@ -152,16 +129,9 @@ export default function RegistroPacienteGoogleFlow() {
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [sexo, setSexo] = useState("masculino");
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<CountryOption>(COUNTRIES[0]);
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>("AR");
   const [statusMessage, setStatusMessage] = useState("");
   const [codigoReferido, setCodigoReferido] = useState("");
-
-  const telefonoCompleto = useMemo(() => {
-    const digits = telefono.replace(/\D/g, "");
-    return `+${selectedCountry.phoneCode}${digits}`;
-  }, [telefono, selectedCountry]);
-
-  const telefonoValido = (value: string) => /^\+[1-9]\d{7,14}$/.test(value);
 
   useEffect(() => {
     const refFromUrl = (searchParams.get("ref") || "").trim();
@@ -387,7 +357,8 @@ export default function RegistroPacienteGoogleFlow() {
       toast.error("Debés aceptar los términos y condiciones.");
       return;
     }
-    if (!telefonoValido(telefonoCompleto)) {
+    const telefonoCompleto = normalizePhoneNumber(telefono, selectedCountry);
+    if (!telefonoCompleto) {
       toast.error("Ingresá un teléfono internacional válido.");
       return;
     }
@@ -628,45 +599,23 @@ export default function RegistroPacienteGoogleFlow() {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-[220px_1fr]">
-              <div>
-                <Label>País</Label>
-                <div className="relative mt-1">
-                  <select
-                    value={selectedCountry.code}
-                    onChange={(e) => {
-                      const nextCountry = COUNTRIES.find((country) => country.code === e.target.value);
-                      if (nextCountry) setSelectedCountry(nextCountry);
-                    }}
-                    className="h-11 w-full rounded-md border bg-background px-3 pr-10 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:h-12"
-                  >
-                    {COUNTRIES.map((country) => (
-                      <option key={country.code} value={country.code}>
-                        {countryFlag(country.flag)} {country.name} (+{country.phoneCode})
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                </div>
+            <div>
+              <Label>Número de teléfono</Label>
+              <div className="mt-1">
+                <InternationalPhoneInput
+                  country={selectedCountry}
+                  onCountryChange={setSelectedCountry}
+                  value={telefono}
+                  onChange={setTelefono}
+                  background="var(--background)"
+                  border="var(--border)"
+                  color="var(--foreground)"
+                  muted="var(--muted-foreground)"
+                />
               </div>
-              <div>
-                <Label>Teléfono internacional</Label>
-                <div className="mt-1 grid grid-cols-[92px_1fr] gap-2">
-                  <div className="flex h-11 items-center justify-center rounded-md border bg-background px-3 text-sm font-medium md:h-12">
-                    +{selectedCountry.phoneCode}
-                  </div>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
-                    <Input
-                      className="h-11 pl-9 md:h-12"
-                      value={telefono}
-                      onChange={(e) => setTelefono(e.target.value)}
-                      placeholder="Ej: 11 2233 4455"
-                      inputMode="tel"
-                    />
-                  </div>
-                </div>
-              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Seleccioná tu país e ingresá tu número de teléfono.
+              </p>
             </div>
 
             <div>
