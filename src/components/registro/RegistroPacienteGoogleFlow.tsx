@@ -367,6 +367,10 @@ export default function RegistroPacienteGoogleFlow() {
       toast.error("Primero validá tu cuenta con Google.");
       return;
     }
+    if (prefillName.trim().split(/\s+/).length < 2) {
+      toast.error("Ingresá tu nombre y apellido completos.");
+      return;
+    }
     if (!numeroDocumento.trim()) {
       toast.error("Ingresá tu número de documento.");
       return;
@@ -395,6 +399,7 @@ export default function RegistroPacienteGoogleFlow() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: userId,
+          full_name: prefillName.trim(),
           telefono: telefonoCompleto,
           tipo_documento: tipoDocumento,
           numero_documento: numeroDocumento.trim(),
@@ -570,11 +575,20 @@ export default function RegistroPacienteGoogleFlow() {
           <form onSubmit={submitProfile} className="grid gap-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label>Nombre</Label>
+                <Label>Nombre y apellido</Label>
                 <div className="relative mt-1">
                   <User2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand)]" />
-                  <Input className="h-11 pl-9 md:h-12" value={prefillName} disabled />
+                  <Input
+                    className="h-11 pl-9 md:h-12"
+                    value={prefillName}
+                    onChange={(e) => setPrefillName(e.target.value)}
+                    autoComplete="name"
+                    required
+                  />
                 </div>
+                <p className="mt-2 text-xs leading-relaxed text-amber-600 dark:text-amber-400">
+                  Verificá que sea tu nombre y apellido reales. Las recetas y los certificados médicos que se emitan durante tu atención saldrán con estos datos.
+                </p>
               </div>
               <div>
                 <Label>Email</Label>

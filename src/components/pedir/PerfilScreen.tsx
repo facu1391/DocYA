@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Phone, CreditCard,
   Calendar, Users, CheckCircle2, Loader2, ChevronDown,
+  UserRound,
 } from "lucide-react";
 import AddressInput from "./AddressInput";
 import { usePedirTheme } from "./theme";
@@ -34,6 +35,7 @@ export default function PerfilScreen() {
   const { dark, bg, surface, brandBorder: border, text, muted, inputBg, headerBg, logo } = usePedirTheme();
 
   const [tipoDoc,     setTipoDoc]     = useState("dni");
+  const [nombreCompleto, setNombreCompleto] = useState("");
   const [nroDoc,      setNroDoc]      = useState("");
   const [telefono,    setTelefono]    = useState("");
   const [direccion,   setDireccion]   = useState("");
@@ -49,11 +51,13 @@ export default function PerfilScreen() {
       const u = JSON.parse(raw) as PedirUser;
       if (u.perfil_completo) { router.replace("/pedir"); return; }
       setUser(u);
+      setNombreCompleto(u.full_name ?? "");
     } catch { router.replace("/pedir"); }
   }, [router]);
 
   const guardar = useCallback(async () => {
     if (!user) return;
+    if (nombreCompleto.trim().split(/\s+/).length < 2) return notify("Ingresá tu nombre y apellido completos.", false);
     if (!nroDoc.trim())    return notify(t.perfil.dniRequerido, false);
     if (!direccion.trim()) return notify(t.perfil.direccionRequerida, false);
     if (!fechaNac)         return notify(t.perfil.fechaRequerida, false);
@@ -71,6 +75,7 @@ export default function PerfilScreen() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id:          user.id,
+          full_name:        nombreCompleto.trim(),
           telefono:         telefonoCom,
           tipo_documento:   tipoDoc,
           numero_documento: nroDoc.trim(),
@@ -83,7 +88,7 @@ export default function PerfilScreen() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.detail || t.perfil.errorGuardar);
 
-      const updated: PedirUser = { ...user, perfil_completo: true };
+      const updated: PedirUser = { ...user, full_name: data.user?.full_name ?? nombreCompleto.trim(), perfil_completo: true };
       localStorage.setItem("pedir_user", JSON.stringify(updated));
       notify(t.perfil.exito);
       router.push("/pedir");
@@ -92,7 +97,7 @@ export default function PerfilScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [user, nroDoc, direccion, fechaNac, telefono, acepta, tipoDoc, sexo, router, t]);
+  }, [user, nombreCompleto, nroDoc, direccion, fechaNac, telefono, acepta, tipoDoc, sexo, router, t]);
 
   if (!user) return null;
 
@@ -127,6 +132,21 @@ export default function PerfilScreen() {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+          {/* Nombre legal */}
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
+            <Label icon={<UserRound size={15} />} text="Nombre y apellido" muted={muted} />
+            <input
+              value={nombreCompleto}
+              onChange={e => setNombreCompleto(e.target.value)}
+              autoComplete="name"
+              placeholder="Nombre y apellido"
+              style={inputStyle}
+            />
+            <p style={{ fontSize: 12, color: "#f59e0b", marginTop: 8, lineHeight: 1.5 }}>
+              Verificá que sea tu nombre y apellido reales. Las recetas y los certificados médicos que se emitan durante tu atención saldrán con estos datos.
+            </p>
+          </div>
 
           {/* Datos personales */}
           <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px" }}>
