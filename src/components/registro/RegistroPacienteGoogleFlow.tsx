@@ -608,6 +608,7 @@ export default function RegistroPacienteGoogleFlow() {
                   value={telefono}
                   onChange={setTelefono}
                   background="var(--background)"
+                  menuBackground="var(--popover)"
                   border="var(--border)"
                   color="var(--foreground)"
                   muted="var(--muted-foreground)"

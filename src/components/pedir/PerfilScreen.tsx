@@ -184,6 +184,7 @@ export default function PerfilScreen() {
               value={telefono}
               onChange={setTelefono}
               background={inputBg}
+              menuBackground={dark ? "#08242b" : "#ffffff"}
               border={border}
               color={text}
               muted={muted}

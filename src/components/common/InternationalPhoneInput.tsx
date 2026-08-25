@@ -18,6 +18,7 @@ type Props = {
   value: string;
   onChange: (value: string) => void;
   background: string;
+  menuBackground: string;
   border: string;
   color: string;
   muted: string;
@@ -55,6 +56,7 @@ export default function InternationalPhoneInput({
   value,
   onChange,
   background,
+  menuBackground,
   border,
   color,
   muted,
@@ -145,7 +147,7 @@ export default function InternationalPhoneInput({
       </div>
 
       {open && typeof document !== "undefined" && createPortal(
-        <div ref={menuRef} role="listbox" style={{ position: "fixed", zIndex: 9999, top: menuPosition.top, left: menuPosition.left, width: menuPosition.width, maxHeight: 330, overflow: "hidden", border: `1px solid ${border}`, borderRadius: 16, background, color, boxShadow: "0 18px 50px rgba(0,0,0,.3)" }}>
+        <div ref={menuRef} role="listbox" style={{ position: "fixed", zIndex: 9999, top: menuPosition.top, left: menuPosition.left, width: menuPosition.width, maxHeight: 330, overflow: "hidden", border: `1px solid ${border}`, borderRadius: 16, background: menuBackground, color, boxShadow: "0 22px 60px rgba(0,0,0,.55)", isolation: "isolate" }}>
           <div style={{ position: "relative", padding: 10, borderBottom: `1px solid ${border}` }}>
             <Search size={16} color={muted} style={{ position: "absolute", left: 23, top: "50%", transform: "translateY(-50%)" }} />
             <input
@@ -154,7 +156,7 @@ export default function InternationalPhoneInput({
               onChange={event => setQuery(event.target.value)}
               onKeyDown={event => { if (event.key === "Escape") setOpen(false); }}
               placeholder="Buscar país, ISO o prefijo"
-              style={{ width: "100%", boxSizing: "border-box", border: `1px solid ${border}`, borderRadius: 11, background, color, padding: "10px 12px 10px 38px", outline: "none", fontFamily: "inherit" }}
+              style={{ width: "100%", boxSizing: "border-box", border: `1px solid ${border}`, borderRadius: 11, background: menuBackground, color, padding: "10px 12px 10px 38px", outline: "none", fontFamily: "inherit" }}
             />
           </div>
           <div style={{ maxHeight: 270, overflowY: "auto", padding: 6 }}>
@@ -165,7 +167,7 @@ export default function InternationalPhoneInput({
                 role="option"
                 aria-selected={country === item.code}
                 onClick={() => { onCountryChange(item.code); onChange(""); setOpen(false); }}
-                style={{ width: "100%", border: 0, borderRadius: 10, background: country === item.code ? "rgba(0,179,166,.14)" : "transparent", color, padding: "10px 11px", display: "grid", gridTemplateColumns: "28px 1fr auto 18px", alignItems: "center", gap: 8, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
+                style={{ width: "100%", minHeight: 52, border: 0, borderBottom: `1px solid ${border}`, borderRadius: 10, background: country === item.code ? "rgba(0,179,166,.18)" : menuBackground, color, padding: "10px 11px", display: "grid", gridTemplateColumns: "28px 1fr auto 18px", alignItems: "center", gap: 8, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
               >
                 <span style={{ fontSize: 19 }}>{flagEmoji(item.code)}</span>
                 <span style={{ minWidth: 0 }}>
