@@ -90,7 +90,7 @@ export default function SolicitarScreen() {
   const [pacienteMenorFechaNacimiento, setPacienteMenorFechaNacimiento] = useState("");
   const [pacienteMenorSexo, setPacienteMenorSexo] = useState("");
   const [responsableVinculo, setResponsableVinculo] = useState("");
-  const [metodoPago, setMetodoPago] = useState<MetodoPago>("tarjeta");
+  const [metodoPago, setMetodoPago] = useState<MetodoPago>("transferencia");
   const [submitting, setSubmitting] = useState(false);
   const [tarifa, setTarifa] = useState<Tarifa | null>(null);
   const [tarifaLoading, setTarifaLoading] = useState(true);
