@@ -532,7 +532,11 @@ export default function SolicitarScreen() {
                   <div>
                     <p style={{ fontSize: 16, fontWeight: 900, color: text, margin: 0 }}>Transferencia bancaria</p>
                     <p style={{ fontSize: 13, color: muted, margin: "5px 0 0", lineHeight: 1.5 }}>
-                      Te mostraremos el alias y CVU. Despues de transferir, avisanos y verificaremos el ingreso manualmente antes de iniciar la consulta.
+                      <strong style={{ color: text }}>La opción más rápida y simple.</strong>{" "}
+                      Te mostraremos el alias y CVU para transferir. Una vez realizado el pago,{" "}
+                      <strong style={{ color: text }}>lo verificamos de inmediato</strong>{" "}
+                      y continuamos con la búsqueda de tu médico.{" "}
+                      <strong style={{ color: text }}>No necesitás enviar comprobante.</strong>
                     </p>
                   </div>
                 </div>
