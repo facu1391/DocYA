@@ -8,7 +8,7 @@ import {
   Stethoscope, Video, HeartPulse, Clock, MapPin,
   CheckCircle2, XCircle, PhoneCall, X, Loader2,
   UserCheck, Navigation, Star, RotateCcw, Home,
-  AlertCircle, Activity,
+  AlertCircle, Activity, MessageCircle,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
@@ -240,6 +240,9 @@ export default function BuscandoScreen() {
   const esCancelado = ["cancelada", "cancelada_paciente", "cancelada_sin_medico", "pago_no_autorizado"].includes(estado);
   const tieneCreditoTransferencia = data?.mp_status === "transfer_credit_available";
   const esPendiente = estado === "pendiente" || estado === "buscando_medico";
+  const esMedicoEnCamino = ["aceptada", "asignada", "en_camino"].includes(estado);
+  const mostrarAyudaWhatsApp = !esTeleconsulta && (esPendiente || esMedicoEnCamino);
+  const whatsappAyudaUrl = `https://wa.me/5491168700607?text=${encodeURIComponent(`Hola DocYa, necesito ayuda con mi consulta #${consultaId}.`)}`;
   const hasProf   = !!data?.medico_nombre && !esCancelado;
 
   // Colores por estado
@@ -492,6 +495,32 @@ export default function BuscandoScreen() {
                 <p style={{ fontSize: 14, color: muted, lineHeight: 1.4, flex: 1, margin: 0 }}>{label}</p>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* ── AYUDA POR WHATSAPP (búsqueda / profesional en camino) ── */}
+        {mostrarAyudaWhatsApp && (
+          <div style={{ background: surface, border: `1.5px solid ${border}`, borderRadius: 20, padding: "22px 20px", marginBottom: 16 }}>
+            <p style={{ fontWeight: 800, fontSize: 17, margin: "0 0 8px" }}>
+              {esPendiente ? t.buscando.ayudaBuscandoTitulo : t.buscando.ayudaEnCaminoTitulo}
+            </p>
+            <p style={{ color: muted, fontSize: 14, lineHeight: 1.6, margin: "0 0 18px" }}>
+              {esPendiente ? t.buscando.ayudaBuscandoTexto : t.buscando.ayudaEnCaminoTexto}
+            </p>
+            <a
+              href={whatsappAyudaUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                width: "100%", padding: "14px 16px", borderRadius: 16,
+                background: "#25D366", color: "#fff", fontSize: 15,
+                fontWeight: 700, textAlign: "center", textDecoration: "none",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
+              }}
+            >
+              <MessageCircle size={19} />
+              {t.buscando.contactarWhatsApp}
+            </a>
           </div>
         )}
 
