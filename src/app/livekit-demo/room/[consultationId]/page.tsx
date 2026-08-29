@@ -26,6 +26,8 @@ type TokenResponse = {
   room: string;
   role: "doctor" | "patient";
   identity: string;
+  patient_name?: string;
+  patient_age?: number | null;
 };
 
 export default function LiveKitWebViewPocPage() {
@@ -35,6 +37,8 @@ export default function LiveKitWebViewPocPage() {
   const localVideoRef = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<ConnectionLabel>("Lista para ingresar");
   const [role, setRole] = useState<"doctor" | "patient" | null>(null);
+  const [patientName, setPatientName] = useState("");
+  const [patientAge, setPatientAge] = useState<number | null>(null);
   const [micEnabled, setMicEnabled] = useState(true);
   const [cameraEnabled, setCameraEnabled] = useState(true);
   const [joined, setJoined] = useState(false);
@@ -132,6 +136,10 @@ export default function LiveKitWebViewPocPage() {
 
       await room.connect(body.ws_url, body.token);
       setRole(body.role);
+      if (body.role === "doctor") {
+        setPatientName(body.patient_name || "Paciente");
+        setPatientAge(body.patient_age ?? null);
+      }
       await Promise.all([
         room.localParticipant.setMicrophoneEnabled(true),
         room.localParticipant.setCameraEnabled(true),
@@ -191,6 +199,11 @@ export default function LiveKitWebViewPocPage() {
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#25d7c8]">Teleconsulta DocYa</p>
             <h1 className="font-black">Consulta #{params.consultationId}</h1>
+            {role === "doctor" && patientName && (
+              <p className="mt-1 text-sm font-semibold text-white/75">
+                Paciente: {patientName}{patientAge !== null ? ` · ${patientAge} años` : ""}
+              </p>
+            )}
           </div>
           <div className="text-right text-sm">
             <p className="font-bold">{status}</p>
