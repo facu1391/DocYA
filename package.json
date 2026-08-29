@@ -28,6 +28,7 @@
     "jspdf": "^2.5.2",
     "leaflet": "^1.9.4",
     "libphonenumber-js": "^1.13.11",
+    "livekit-client": "^2.22.1",
     "lucide-react": "^0.544.0",
     "motion": "^12.42.2",
     "next": "15.5.7",
