@@ -184,16 +184,12 @@ export default function LiveKitWebViewPocPage() {
     }
   }
 
-  function demoAction(name: string) {
-    setMessage(`Demo: abrir ${name}`);
-  }
-
   return (
     <main className="min-h-[100dvh] bg-[#06161d] p-3 text-[#e5f6f8] sm:p-5">
       <div className="mx-auto flex min-h-[calc(100dvh-24px)] max-w-5xl flex-col gap-3">
         <header className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#0d1e25] px-4 py-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#25d7c8]">LiveKit WebView PoC</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#25d7c8]">Teleconsulta DocYa</p>
             <h1 className="font-black">Consulta #{params.consultationId}</h1>
           </div>
           <div className="text-right text-sm">
@@ -237,13 +233,6 @@ export default function LiveKitWebViewPocPage() {
           <Control label="Salir" icon="📵" onClick={leave} disabled={!joined} danger />
         </section>
 
-        <section className="grid grid-cols-4 gap-2">
-          {['Receta', 'Certificado', 'Orden', 'Evolución'].map((name) => (
-            <button key={name} onClick={() => demoAction(name)} className="rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-xs font-bold text-white/80 sm:text-sm">
-              {name}
-            </button>
-          ))}
-        </section>
         {message && <p className="rounded-xl bg-[#102730] px-4 py-3 text-center text-sm text-white/75">{message}</p>}
       </div>
     </main>
