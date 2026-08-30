@@ -48,6 +48,16 @@ type TokenResponse = {
 
 type QualityLabel = "Verificando conexión" | "Conexión excelente" | "Conexión buena" | "Conexión inestable" | "Reconectando";
 
+type MedicalSummary = {
+  motivo: string;
+  sintomas_y_evolucion: string;
+  antecedentes_y_medicacion: string;
+  hallazgos_relevantes: string;
+  diagnostico_o_impresion: string;
+  indicaciones_y_seguimiento: string;
+  alertas: string;
+};
+
 function translationClientKind(): "web" | "webview" {
   const ua = navigator.userAgent;
   const iosWebView = /iPhone|iPad|iPod/i.test(ua) && !/Safari/i.test(ua);
@@ -74,6 +84,7 @@ export default function LiveKitWebViewPocPage() {
   const [localQuality, setLocalQuality] = useState<QualityLabel>("Verificando conexión");
   const [remoteQuality, setRemoteQuality] = useState<QualityLabel>("Verificando conexión");
   const translationRef = useRef<RealtimeTranslationController | null>(null);
+  const translationApiTokenRef = useRef("");
   const [translationStatus, setTranslationStatus] = useState<TranslationStatus>("unavailable");
   const [translationMessage, setTranslationMessage] = useState("");
   const [partialOriginal, setPartialOriginal] = useState("");
@@ -81,6 +92,10 @@ export default function LiveKitWebViewPocPage() {
   const [segments, setSegments] = useState<TranslationSegment[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [translationMetrics, setTranslationMetrics] = useState<Record<string, number | null>>({});
+  const [medicalSummary, setMedicalSummary] = useState<MedicalSummary | null>(null);
+  const [summaryDisclaimer, setSummaryDisclaimer] = useState("");
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryError, setSummaryError] = useState("");
   const poorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recoveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -189,6 +204,7 @@ export default function LiveKitWebViewPocPage() {
       const body = (await response.json()) as TokenResponse & { detail?: string };
       if (!response.ok) throw new Error(body.detail || "No se pudo autorizar la demo");
       setQualityEnabled(Boolean(body.connection_quality_ui_enabled));
+      translationApiTokenRef.current = body.translation_api_token || "";
 
       const room = new Room({
         adaptiveStream: true,
@@ -306,6 +322,26 @@ export default function LiveKitWebViewPocPage() {
     }
   }
 
+  async function generateSummary() {
+    if (!translationApiTokenRef.current || summaryLoading) return;
+    setSummaryLoading(true);
+    setSummaryError("");
+    try {
+      const response = await fetch(`${API}/teleconsultations/${params.consultationId}/translation/summary`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${translationApiTokenRef.current}` },
+      });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.detail || "No se pudo generar el resumen");
+      setMedicalSummary(body.summary?.content || null);
+      setSummaryDisclaimer(body.summary?.disclaimer || "");
+    } catch (error) {
+      setSummaryError(error instanceof Error ? error.message : "No se pudo generar el resumen");
+    } finally {
+      setSummaryLoading(false);
+    }
+  }
+
   return (
     <main className="min-h-[100dvh] bg-[#06161d] p-3 text-[#e5f6f8] sm:p-5">
       <div className="mx-auto flex min-h-[calc(100dvh-24px)] max-w-5xl flex-col gap-3">
@@ -413,6 +449,43 @@ export default function LiveKitWebViewPocPage() {
             )}
             {process.env.NODE_ENV !== "production" && Object.keys(translationMetrics).length > 0 && (
               <details className="mt-3 text-[10px] text-white/45"><summary>Métricas experimentales</summary><pre className="mt-2 overflow-x-auto">{JSON.stringify(translationMetrics, null, 2)}</pre></details>
+            )}
+          </section>
+        )}
+
+        {role === "doctor" && segments.length > 0 && (
+          <section className="rounded-2xl border border-emerald-300/15 bg-[#0d1e25] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-black text-emerald-200">🩺 Resumen para el médico</p>
+                <p className="mt-1 text-xs text-white/55">Se guarda como borrador editable de esta consulta.</p>
+              </div>
+              {!medicalSummary && (
+                <button type="button" onClick={generateSummary} disabled={summaryLoading}
+                  className="rounded-full bg-emerald-300 px-4 py-2 text-xs font-black text-[#06241f] disabled:opacity-50">
+                  {summaryLoading ? "Generando…" : "Generar resumen"}
+                </button>
+              )}
+            </div>
+            {summaryError && <p className="mt-3 text-xs text-amber-200">{summaryError}</p>}
+            {medicalSummary && (
+              <div className="mt-4 space-y-3">
+                {Object.entries({
+                  "Motivo": medicalSummary.motivo,
+                  "Síntomas y evolución": medicalSummary.sintomas_y_evolucion,
+                  "Antecedentes y medicación": medicalSummary.antecedentes_y_medicacion,
+                  "Hallazgos relevantes": medicalSummary.hallazgos_relevantes,
+                  "Diagnóstico o impresión": medicalSummary.diagnostico_o_impresion,
+                  "Indicaciones y seguimiento": medicalSummary.indicaciones_y_seguimiento,
+                  "Alertas": medicalSummary.alertas,
+                }).filter(([, value]) => value).map(([label, value]) => (
+                  <div key={label} className="rounded-xl bg-black/20 p-3">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-emerald-300">{label}</p>
+                    <p className="mt-1 text-sm text-white/85">{value}</p>
+                  </div>
+                ))}
+                <p className="text-[11px] leading-relaxed text-amber-100/75">{summaryDisclaimer}</p>
+              </div>
             )}
           </section>
         )}
