@@ -3,12 +3,18 @@
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ConnectionQuality,
   LocalVideoTrack,
   RemoteTrack,
   Room,
   RoomEvent,
   Track,
 } from "livekit-client";
+import {
+  RealtimeTranslationController,
+  TranslationSegment,
+  TranslationStatus,
+} from "@/lib/livekit/realtimeTranslation";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -28,7 +34,27 @@ type TokenResponse = {
   identity: string;
   patient_name?: string;
   patient_age?: number | null;
+  connection_quality_ui_enabled?: boolean;
+  translation_available?: boolean;
+  translation_language?: "en" | "pt-br";
+  translation_api_token?: string;
+  translation_segmentation?: {
+    silence_threshold: number;
+    silence_duration_ms: number;
+    minimum_segment_ms: number;
+    maximum_segment_ms: number;
+  };
 };
+
+type QualityLabel = "Verificando conexión" | "Conexión excelente" | "Conexión buena" | "Conexión inestable" | "Reconectando";
+
+function translationClientKind(): "web" | "webview" {
+  const ua = navigator.userAgent;
+  const iosWebView = /iPhone|iPad|iPod/i.test(ua) && !/Safari/i.test(ua);
+  const androidWebView = /; wv\)/i.test(ua) || /Version\/\d+\.\d+ Chrome/i.test(ua);
+  const bridgedWebView = Boolean((window as Window & { ReactNativeWebView?: unknown }).ReactNativeWebView);
+  return iosWebView || androidWebView || bridgedWebView ? "webview" : "web";
+}
 
 export default function LiveKitWebViewPocPage() {
   const params = useParams<{ consultationId: string }>();
@@ -44,6 +70,49 @@ export default function LiveKitWebViewPocPage() {
   const [joined, setJoined] = useState(false);
   const [message, setMessage] = useState("");
   const [needsAudioTap, setNeedsAudioTap] = useState(false);
+  const [qualityEnabled, setQualityEnabled] = useState(false);
+  const [localQuality, setLocalQuality] = useState<QualityLabel>("Verificando conexión");
+  const [remoteQuality, setRemoteQuality] = useState<QualityLabel>("Verificando conexión");
+  const translationRef = useRef<RealtimeTranslationController | null>(null);
+  const [translationStatus, setTranslationStatus] = useState<TranslationStatus>("unavailable");
+  const [translationMessage, setTranslationMessage] = useState("");
+  const [partialOriginal, setPartialOriginal] = useState("");
+  const [partialTranslated, setPartialTranslated] = useState("");
+  const [segments, setSegments] = useState<TranslationSegment[]>([]);
+  const [translationMetrics, setTranslationMetrics] = useState<Record<string, number | null>>({});
+  const poorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const recoveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const qualityText = useCallback((quality: ConnectionQuality): QualityLabel => {
+    if (quality === ConnectionQuality.Excellent) return "Conexión excelente";
+    if (quality === ConnectionQuality.Good) return "Conexión buena";
+    if (quality === ConnectionQuality.Poor || quality === ConnectionQuality.Lost) return "Conexión inestable";
+    return "Verificando conexión";
+  }, []);
+
+  const updateLocalQuality = useCallback((quality: ConnectionQuality) => {
+    if (quality === ConnectionQuality.Lost) {
+      if (poorTimerRef.current) clearTimeout(poorTimerRef.current);
+      setLocalQuality("Reconectando");
+      setMessage("Se perdió temporalmente la conexión. Estamos intentando reconectarte.");
+      return;
+    }
+    if (quality === ConnectionQuality.Poor) {
+      if (recoveryTimerRef.current) clearTimeout(recoveryTimerRef.current);
+      if (!poorTimerRef.current) poorTimerRef.current = setTimeout(() => {
+        setLocalQuality("Conexión inestable");
+        setMessage("Tu conexión a Internet está inestable. La calidad del audio o video puede verse afectada. Si es posible, acercate a una red Wi-Fi o conectate a una red más estable.");
+        poorTimerRef.current = null;
+      }, 7000);
+      return;
+    }
+    if (poorTimerRef.current) { clearTimeout(poorTimerRef.current); poorTimerRef.current = null; }
+    if (!recoveryTimerRef.current) recoveryTimerRef.current = setTimeout(() => {
+      setLocalQuality(qualityText(quality));
+      setMessage("");
+      recoveryTimerRef.current = null;
+    }, 3000);
+  }, [qualityText]);
 
   const attachTrack = useCallback((track: RemoteTrack) => {
     const element = track.attach();
@@ -75,6 +144,8 @@ export default function LiveKitWebViewPocPage() {
   }, []);
 
   const leave = useCallback(async () => {
+    await translationRef.current?.stop();
+    translationRef.current = null;
     await roomRef.current?.disconnect(true);
     roomRef.current = null;
     remoteMediaRef.current?.replaceChildren();
@@ -116,6 +187,7 @@ export default function LiveKitWebViewPocPage() {
       });
       const body = (await response.json()) as TokenResponse & { detail?: string };
       if (!response.ok) throw new Error(body.detail || "No se pudo autorizar la demo");
+      setQualityEnabled(Boolean(body.connection_quality_ui_enabled));
 
       const room = new Room({
         adaptiveStream: true,
@@ -127,6 +199,11 @@ export default function LiveKitWebViewPocPage() {
         .on(RoomEvent.TrackSubscribed, attachTrack)
         .on(RoomEvent.TrackUnsubscribed, detachTrack)
         .on(RoomEvent.LocalTrackPublished, () => attachLocalVideo(room))
+        .on(RoomEvent.ConnectionQualityChanged, (quality, participant) => {
+          if (!body.connection_quality_ui_enabled) return;
+          if (participant === room.localParticipant) updateLocalQuality(quality);
+          else setRemoteQuality(qualityText(quality));
+        })
         .on(RoomEvent.Reconnecting, () => setStatus("Reconectando"))
         .on(RoomEvent.Reconnected, () => setStatus("Conectado"))
         .on(RoomEvent.Disconnected, () => {
@@ -144,6 +221,32 @@ export default function LiveKitWebViewPocPage() {
         room.localParticipant.setMicrophoneEnabled(true),
         room.localParticipant.setCameraEnabled(true),
       ]);
+      if (
+        body.translation_available && body.translation_language &&
+        body.translation_api_token && body.translation_segmentation
+      ) {
+        const controller = new RealtimeTranslationController({
+          room,
+          apiBase: API,
+          apiToken: body.translation_api_token,
+          consultationId: Number(params.consultationId),
+          role: body.role,
+          patientLanguage: body.translation_language,
+          clientKind: translationClientKind(),
+          segmentation: body.translation_segmentation,
+          onStatus: (next, detail) => { setTranslationStatus(next); setTranslationMessage(detail || ""); },
+          onPartial: (original, translated) => { setPartialOriginal(original); setPartialTranslated(translated); },
+          onFinal: (segment) => setSegments((current) =>
+            current.some((item) => item.segment_id === segment.segment_id) ? current : [...current, segment]
+          ),
+          onMetrics: (metrics) => setTranslationMetrics(metrics as unknown as Record<string, number | null>),
+        });
+        translationRef.current = controller;
+        void controller.start().catch((error) => {
+          setTranslationStatus("unavailable");
+          setTranslationMessage(error instanceof Error ? error.message : "Traducción no disponible");
+        });
+      }
       attachLocalVideo(room);
       setJoined(true);
       setStatus("Conectado");
@@ -212,6 +315,12 @@ export default function LiveKitWebViewPocPage() {
         </header>
 
         <section className="relative min-h-[52dvh] flex-1 overflow-hidden rounded-3xl border border-white/10 bg-black">
+          {qualityEnabled && joined && (
+            <div className="absolute left-3 top-3 z-30 rounded-xl bg-black/65 px-3 py-2 text-xs backdrop-blur">
+              <p className={localQuality === "Conexión inestable" || localQuality === "Reconectando" ? "text-amber-300" : "text-emerald-300"}>Vos · {localQuality}</p>
+              <p className="mt-1 text-white/75">{role === "doctor" ? "Paciente" : "Médico"} · {remoteQuality}</p>
+            </div>
+          )}
           <div ref={remoteMediaRef} className="absolute inset-0 [&>audio]:hidden" />
           {!joined && (
             <div className="absolute inset-0 z-10 grid place-items-center bg-[#07141a] p-6 text-center">
@@ -245,6 +354,35 @@ export default function LiveKitWebViewPocPage() {
           <Control label="Cambiar" icon="🔄" onClick={switchCamera} disabled={!joined || !cameraEnabled} />
           <Control label="Salir" icon="📵" onClick={leave} disabled={!joined} danger />
         </section>
+
+        {(translationStatus !== "unavailable" || translationMessage) && (
+          <section className="rounded-2xl border border-cyan-300/15 bg-[#0d1e25] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-black text-cyan-200">🌐 {translationStatus === "active" ? "Traducción activa" : translationStatus === "preparing" ? "Preparando traducción" : translationStatus === "reconnecting" ? "Reconectando traducción" : "Traducción no disponible"}</p>
+              <p className="text-[10px] text-white/35">Audio LiveKit original</p>
+            </div>
+            {translationMessage && <p className="mt-2 text-xs text-amber-200">{translationMessage}</p>}
+            {(partialOriginal || partialTranslated) && (
+              <div className="mt-3 rounded-xl border border-dashed border-cyan-300/25 bg-black/20 p-3">
+                <p className="text-[10px] font-black tracking-widest text-amber-300">PARTIAL · {role === "doctor" ? "MÉDICO" : "PACIENTE"}</p>
+                <p className="mt-1 text-sm text-white/80">{partialOriginal || "…"}</p>
+                <p className="mt-1 text-sm font-semibold text-cyan-200">{partialTranslated || "…"}</p>
+              </div>
+            )}
+            <div className="mt-3 max-h-64 space-y-2 overflow-y-auto">
+              {segments.map((segment) => (
+                <article key={segment.segment_id} className="rounded-xl bg-black/20 p-3">
+                  <p className="text-[10px] font-black tracking-widest text-emerald-300">FINAL · {segment.speaker_role === "doctor" ? "MÉDICO" : "PACIENTE"}</p>
+                  <p className="mt-1 text-sm text-white/75">{segment.original_text}</p>
+                  <p className="mt-1 text-sm font-semibold text-cyan-100">{segment.translated_text}</p>
+                </article>
+              ))}
+            </div>
+            {process.env.NODE_ENV !== "production" && Object.keys(translationMetrics).length > 0 && (
+              <details className="mt-3 text-[10px] text-white/45"><summary>Métricas experimentales</summary><pre className="mt-2 overflow-x-auto">{JSON.stringify(translationMetrics, null, 2)}</pre></details>
+            )}
+          </section>
+        )}
 
         {message && <p className="rounded-xl bg-[#102730] px-4 py-3 text-center text-sm text-white/75">{message}</p>}
       </div>

@@ -20,6 +20,15 @@ const API = process.env.NEXT_PUBLIC_API_BASE!;
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean; access_token?: string };
 type MetodoPago = "tarjeta" | "saldo_mp" | "transferencia" | "efectivo";
 type Tarifa = { tipo?: string; monto: number; descripcion?: string };
+type TranslationLanguage = "" | "en" | "pt-br";
+type TranslationQuote = {
+  available: boolean;
+  languages: string[];
+  consultation_base_amount: number;
+  translation_fee: number;
+  translation_charged: boolean;
+  total_amount: number;
+};
 
 const TIPO_ICONS = {
   medico:       { icon: Stethoscope, color: "#00b3a6" },
@@ -95,6 +104,8 @@ export default function SolicitarScreen() {
   const [tarifa, setTarifa] = useState<Tarifa | null>(null);
   const [tarifaLoading, setTarifaLoading] = useState(true);
   const [tarifaError, setTarifaError] = useState("");
+  const [translationQuote, setTranslationQuote] = useState<TranslationQuote | null>(null);
+  const [translationLanguage, setTranslationLanguage] = useState<TranslationLanguage>("");
   const [confirmacionPaciente, setConfirmacionPaciente] = useState(false);
   const { dark, bg, brandBorder: border, text, muted, inputBg, headerBg, logo } = usePedirTheme();
   const permiteEfectivo = tipo !== "teleconsulta";
@@ -156,6 +167,36 @@ export default function SolicitarScreen() {
     return () => { alive = false; };
   }, [tipo, t]);
 
+  useEffect(() => {
+    if (tipo !== "teleconsulta" || !user?.access_token) {
+      setTranslationQuote(null);
+      setTranslationLanguage("");
+      return;
+    }
+    let alive = true;
+    fetch(`${API}/teleconsultations/translation/quote?client_kind=web`, {
+      cache: "no-store",
+      headers: { Authorization: `Bearer ${user.access_token}` },
+    })
+      .then(async (response) => response.ok ? response.json() : null)
+      .then((quote) => {
+        if (!alive) return;
+        setTranslationQuote(quote?.available ? quote : null);
+        if (!quote?.available) setTranslationLanguage("");
+      })
+      .catch(() => { if (alive) { setTranslationQuote(null); setTranslationLanguage(""); } });
+    return () => { alive = false; };
+  }, [tipo, user]);
+
+  const translationPayload = useMemo(() => translationLanguage && translationQuote?.available
+    ? {
+        translation_language: translationLanguage,
+        translation_consent: true,
+        translation_client_kind: "web",
+        translation_capability: "realtime_translation_v1",
+      }
+    : {}, [translationLanguage, translationQuote]);
+
 
   const PLACES_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
 
@@ -214,7 +255,7 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: tipo === "teleconsulta" ? "teleconsulta" : "domicilio", metodo_pago: "transferencia", categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: tipo === "teleconsulta" ? "teleconsulta" : "domicilio", metodo_pago: "transferencia", categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
@@ -222,7 +263,7 @@ export default function SolicitarScreen() {
           consulta_id, tipo, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng,
           paciente_uuid: user.id, access_token: user.access_token,
           categoria_consulta: categoriaConsulta, provincia: provincia ?? undefined,
-          metodo_pago: "transferencia", ...datosPediatricos,
+          metodo_pago: "transferencia", ...translationPayload, ...datosPediatricos,
         });
         router.push(`/pedir/transferencia?consulta_id=${consulta_id}&tipo=${tipo}&monto=${monto}`);
         return;
@@ -233,7 +274,7 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
@@ -252,7 +293,7 @@ export default function SolicitarScreen() {
           categoria_consulta: categoriaConsulta,
           provincia: provincia ?? undefined,
           metodo_pago: "tarjeta",
-          ...datosPediatricos,
+          ...translationPayload, ...datosPediatricos,
         });
 
         const mpUrl = `${API}/pagos/embebido/formulario/${consulta_id}`;
@@ -280,7 +321,7 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
@@ -308,7 +349,7 @@ export default function SolicitarScreen() {
           categoria_consulta: categoriaConsulta,
           provincia: provincia ?? undefined,
           metodo_pago: "saldo_mp",
-          ...datosPediatricos,
+          ...translationPayload, ...datosPediatricos,
         });
 
         // Redirect full-page a MP (no iframe — MP bloquea embedding)
@@ -333,7 +374,7 @@ export default function SolicitarScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, lat, lng, categoriaConsulta, provincia, datosPediatricos, router, t]);
+  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, lat, lng, categoriaConsulta, provincia, datosPediatricos, translationPayload, router, t]);
 
   if (!user) return null;
 
@@ -466,6 +507,28 @@ export default function SolicitarScreen() {
                 </p>
               </div>
             </div>
+
+            {tipo === "teleconsulta" && translationQuote?.available && (
+              <div style={{ background: "rgba(37,215,200,0.06)", border: "1.5px solid rgba(37,215,200,0.24)", borderRadius: 20, padding: "20px" }}>
+                <p style={{ margin: "0 0 13px", fontSize: 16, fontWeight: 900 }}>¿Necesitás traducción durante la consulta?</p>
+                {[
+                  { value: "" as TranslationLanguage, label: "Sin traducción" },
+                  ...(translationQuote.languages.includes("en") ? [{ value: "en" as TranslationLanguage, label: `Inglés + ${formatPesos(translationQuote.translation_fee)}` }] : []),
+                  ...(translationQuote.languages.includes("pt-br") ? [{ value: "pt-br" as TranslationLanguage, label: `Português (Brasil) + ${formatPesos(translationQuote.translation_fee)}` }] : []),
+                ].map(option => (
+                  <label key={option.value || "none"} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", cursor: "pointer", fontWeight: 750 }}>
+                    <input type="radio" name="translation-language" checked={translationLanguage === option.value} onChange={() => setTranslationLanguage(option.value)} />
+                    {option.label}
+                  </label>
+                ))}
+                <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${border}`, fontSize: 13 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span>Teleconsulta</span><strong>{formatPesos(translationQuote.consultation_base_amount)}</strong></div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 7 }}><span>Traducción IA</span><strong>{translationLanguage ? `${formatPesos(translationQuote.translation_fee)} (sin cargo en esta prueba)` : "$0"}</strong></div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, paddingTop: 10, borderTop: `1px solid ${border}`, fontSize: 17 }}><span>Total</span><strong>{formatPesos(translationQuote.total_amount)}</strong></div>
+                </div>
+                {translationLanguage && !translationQuote.translation_charged && <p style={{ margin: "10px 0 0", color: muted, fontSize: 11.5 }}>Prueba controlada: el servicio tiene un valor de {formatPesos(translationQuote.translation_fee)}, pero todavía no se suma al pago.</p>}
+              </div>
+            )}
 
             {/* MÉTODO DE PAGO */}
             <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
@@ -657,3 +720,4 @@ export default function SolicitarScreen() {
     </>
   );
 }
+
