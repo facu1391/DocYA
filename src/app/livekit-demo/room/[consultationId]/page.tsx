@@ -79,6 +79,7 @@ export default function LiveKitWebViewPocPage() {
   const [partialOriginal, setPartialOriginal] = useState("");
   const [partialTranslated, setPartialTranslated] = useState("");
   const [segments, setSegments] = useState<TranslationSegment[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [translationMetrics, setTranslationMetrics] = useState<Record<string, number | null>>({});
   const poorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recoveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -236,9 +237,13 @@ export default function LiveKitWebViewPocPage() {
           segmentation: body.translation_segmentation,
           onStatus: (next, detail) => { setTranslationStatus(next); setTranslationMessage(detail || ""); },
           onPartial: (original, translated) => { setPartialOriginal(original); setPartialTranslated(translated); },
-          onFinal: (segment) => setSegments((current) =>
-            current.some((item) => item.segment_id === segment.segment_id) ? current : [...current, segment]
-          ),
+          onFinal: (segment) => {
+            setPartialOriginal("");
+            setPartialTranslated("");
+            setSegments((current) =>
+              current.some((item) => item.segment_id === segment.segment_id) ? current : [...current, segment]
+            );
+          },
           onMetrics: (metrics) => setTranslationMetrics(metrics as unknown as Record<string, number | null>),
         });
         translationRef.current = controller;
@@ -346,6 +351,25 @@ export default function LiveKitWebViewPocPage() {
               Activar audio
             </button>
           )}
+          {joined && (partialOriginal || partialTranslated || segments.length > 0) && (() => {
+            const latest = segments[segments.length - 1];
+            const original = partialOriginal || latest?.original_text || "";
+            const translated = partialTranslated || latest?.translated_text || "";
+            const speaker = partialOriginal || partialTranslated
+              ? role
+              : latest?.speaker_role;
+            return (
+              <div className="pointer-events-none absolute bottom-3 left-3 right-3 z-30 pr-28 sm:bottom-5 sm:left-5 sm:right-5 sm:pr-40">
+                <div className="mx-auto max-w-3xl rounded-2xl border border-white/15 bg-black/75 px-4 py-3 shadow-2xl backdrop-blur-md sm:px-5 sm:py-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-amber-300">
+                    {speaker === "doctor" ? "Médico" : "Paciente"}{partialOriginal || partialTranslated ? " · escuchando…" : ""}
+                  </p>
+                  {original && <p className="mt-1 line-clamp-2 text-xs text-white/65 sm:text-sm">{original}</p>}
+                  <p className="mt-1 line-clamp-3 text-base font-black leading-snug text-cyan-100 sm:text-xl">{translated || "…"}</p>
+                </div>
+              </div>
+            );
+          })()}
         </section>
 
         <section className="grid grid-cols-4 gap-2 rounded-2xl border border-white/10 bg-[#0d1e25] p-3">
@@ -356,28 +380,31 @@ export default function LiveKitWebViewPocPage() {
         </section>
 
         {(translationStatus !== "unavailable" || translationMessage) && (
-          <section className="rounded-2xl border border-cyan-300/15 bg-[#0d1e25] p-4">
+          <section className="rounded-2xl border border-cyan-300/15 bg-[#0d1e25] p-3">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-black text-cyan-200">🌐 {translationStatus === "active" ? "Traducción activa" : translationStatus === "preparing" ? "Preparando traducción" : translationStatus === "reconnecting" ? "Reconectando traducción" : "Traducción no disponible"}</p>
-              <p className="text-[10px] text-white/35">Audio LiveKit original</p>
+              {segments.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setHistoryOpen((open) => !open)}
+                  className="rounded-full border border-cyan-200/20 bg-cyan-200/10 px-3 py-1.5 text-xs font-bold text-cyan-100"
+                >
+                  {historyOpen ? "Ocultar historial" : `Ver historial (${segments.length})`}
+                </button>
+              )}
             </div>
             {translationMessage && <p className="mt-2 text-xs text-amber-200">{translationMessage}</p>}
-            {(partialOriginal || partialTranslated) && (
-              <div className="mt-3 rounded-xl border border-dashed border-cyan-300/25 bg-black/20 p-3">
-                <p className="text-[10px] font-black tracking-widest text-amber-300">PARTIAL · {role === "doctor" ? "MÉDICO" : "PACIENTE"}</p>
-                <p className="mt-1 text-sm text-white/80">{partialOriginal || "…"}</p>
-                <p className="mt-1 text-sm font-semibold text-cyan-200">{partialTranslated || "…"}</p>
+            {historyOpen && (
+              <div className="mt-3 max-h-64 space-y-2 overflow-y-auto">
+                {segments.map((segment) => (
+                  <article key={segment.segment_id} className="rounded-xl bg-black/20 p-3">
+                    <p className="text-[10px] font-black tracking-widest text-emerald-300">{segment.speaker_role === "doctor" ? "MÉDICO" : "PACIENTE"}</p>
+                    <p className="mt-1 text-sm text-white/65">{segment.original_text}</p>
+                    <p className="mt-1 text-base font-bold text-cyan-100">{segment.translated_text}</p>
+                  </article>
+                ))}
               </div>
             )}
-            <div className="mt-3 max-h-64 space-y-2 overflow-y-auto">
-              {segments.map((segment) => (
-                <article key={segment.segment_id} className="rounded-xl bg-black/20 p-3">
-                  <p className="text-[10px] font-black tracking-widest text-emerald-300">FINAL · {segment.speaker_role === "doctor" ? "MÉDICO" : "PACIENTE"}</p>
-                  <p className="mt-1 text-sm text-white/75">{segment.original_text}</p>
-                  <p className="mt-1 text-sm font-semibold text-cyan-100">{segment.translated_text}</p>
-                </article>
-              ))}
-            </div>
             {process.env.NODE_ENV !== "production" && Object.keys(translationMetrics).length > 0 && (
               <details className="mt-3 text-[10px] text-white/45"><summary>Métricas experimentales</summary><pre className="mt-2 overflow-x-auto">{JSON.stringify(translationMetrics, null, 2)}</pre></details>
             )}
