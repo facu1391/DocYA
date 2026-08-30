@@ -75,6 +75,7 @@ export class RealtimeTranslationController {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private reconnectAttempt = 0;
   private stopped = false;
+  private microphoneRefresh: Promise<void> | null = null;
   private sessionStartedAt = performance.now();
   private sessionAudioBaseline = 0;
   private metrics: Metrics = {
@@ -123,6 +124,42 @@ export class RealtimeTranslationController {
       this.options.onMetrics({ ...this.metrics });
       // El ArrayBuffer transferido queda elegible para GC; nunca se guarda ni se envia al backend.
     };
+  }
+
+  private rebindPcmTrack(mediaStreamTrack: MediaStreamTrack) {
+    if (!this.audioContext || !this.worklet) return;
+    this.source?.disconnect();
+    this.source = this.audioContext.createMediaStreamSource(new MediaStream([mediaStreamTrack]));
+    this.source.connect(this.worklet);
+  }
+
+  async resumeAfterMicrophoneEnabled() {
+    if (this.stopped) return;
+    if (this.microphoneRefresh) return this.microphoneRefresh;
+    this.microphoneRefresh = (async () => {
+      this.options.onStatus("preparing", "Reanudando traducción…");
+      const track = localMicrophoneTrack(this.options.room);
+      this.rebindPcmTrack(track.mediaStreamTrack);
+      await this.reportUsage("microphone_reenabled");
+      if (this.pc) this.pc.onconnectionstatechange = null;
+      if (this.events) {
+        this.events.onerror = null;
+        this.events.close();
+      }
+      this.pc?.close();
+      this.pc = null;
+      this.events = null;
+      this.original = "";
+      this.translated = "";
+      this.segmentStartedAt = 0;
+      this.options.onPartial("", "");
+      await this.openOpenAiSidecar(track.mediaStreamTrack);
+      this.reconnectAttempt = 0;
+      this.options.onStatus("active");
+    })().finally(() => {
+      this.microphoneRefresh = null;
+    });
+    return this.microphoneRefresh;
   }
 
   private async openOpenAiSidecar(mediaStreamTrack: MediaStreamTrack) {

@@ -273,6 +273,12 @@ export default function LiveKitWebViewPocPage() {
     const next = !micEnabled;
     await roomRef.current?.localParticipant.setMicrophoneEnabled(next);
     setMicEnabled(next);
+    if (next && translationRef.current) {
+      void translationRef.current.resumeAfterMicrophoneEnabled().catch(() => {
+        setTranslationStatus("reconnecting");
+        setTranslationMessage("Reanudando traducción. La videollamada continúa normalmente.");
+      });
+    }
   }
 
   async function toggleCamera() {
