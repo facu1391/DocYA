@@ -523,7 +523,7 @@ export default function SolicitarScreen() {
                 ))}
                 <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${border}`, fontSize: 13 }}>
                   <div style={{ display: "flex", justifyContent: "space-between" }}><span>Teleconsulta</span><strong>{formatPesos(translationQuote.consultation_base_amount)}</strong></div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 7 }}><span>Traducción IA</span><strong>{translationLanguage ? `${formatPesos(translationQuote.translation_fee)} (sin cargo en esta prueba)` : "$0"}</strong></div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 7 }}><span>Traducción IA</span><strong>{translationLanguage ? formatPesos(translationQuote.translation_fee) : "$0"}</strong></div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, paddingTop: 10, borderTop: `1px solid ${border}`, fontSize: 17 }}><span>Total</span><strong>{formatPesos(translationQuote.total_amount)}</strong></div>
                 </div>
                 {translationLanguage && !translationQuote.translation_charged && <p style={{ margin: "10px 0 0", color: muted, fontSize: 11.5 }}>Prueba controlada: el servicio tiene un valor de {formatPesos(translationQuote.translation_fee)}, pero todavía no se suma al pago.</p>}

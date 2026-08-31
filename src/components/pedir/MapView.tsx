@@ -28,12 +28,14 @@ export default function MapView({ lat, lng, height = 180 }: Props) {
       if (!L || !containerRef.current) return;
       if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
 
-      const map = L.map(containerRef.current, { zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false });
+      const map = L.map(containerRef.current, { zoomControl: false, attributionControl: true, dragging: false, scrollWheelZoom: false });
       map.setView([lat, lng], 15);
 
-      // CartoDB Dark Matter — estilo oscuro sin API key
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-        subdomains: "abcd", maxZoom: 19,
+      // OpenStreetMap no requiere una API key. El filtro conserva el estilo oscuro.
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        className: "docya-dark-map-tiles",
+        attribution: "&copy; OpenStreetMap contributors",
       }).addTo(map);
 
       // Marcador teal personalizado
@@ -73,8 +75,19 @@ export default function MapView({ lat, lng, height = 180 }: Props) {
   }, [lat, lng]);
 
   return (
-    <div style={{ marginTop: 14, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(0,179,166,0.2)", height }}>
+    <div className="docya-location-map" style={{ marginTop: 14, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(0,179,166,0.2)", height }}>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
+      <style jsx global>{`
+        .docya-location-map .docya-dark-map-tiles {
+          filter: brightness(0.55) invert(1) contrast(1.35) hue-rotate(180deg) saturate(0.65);
+        }
+        .docya-location-map .leaflet-control-attribution {
+          background: rgba(3, 20, 26, 0.72);
+          color: rgba(255, 255, 255, 0.65);
+          font-size: 8px;
+        }
+        .docya-location-map .leaflet-control-attribution a { color: #5eead4; }
+      `}</style>
     </div>
   );
 }
