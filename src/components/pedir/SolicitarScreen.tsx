@@ -524,7 +524,7 @@ export default function SolicitarScreen() {
                 <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${border}`, fontSize: 13 }}>
                   <div style={{ display: "flex", justifyContent: "space-between" }}><span>{t.solicitar.teleconsultaLinea}</span><strong>{formatPesos(translationQuote.consultation_base_amount)}</strong></div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: 7 }}><span>{t.solicitar.traduccionIaLinea}</span><strong>{translationLanguage ? formatPesos(translationQuote.translation_fee) : "$0"}</strong></div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, paddingTop: 10, borderTop: `1px solid ${border}`, fontSize: 17 }}><span>{t.solicitar.totalLinea}</span><strong>{formatPesos(translationQuote.total_amount)}</strong></div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, paddingTop: 10, borderTop: `1px solid ${border}`, fontSize: 17 }}><span>{t.solicitar.totalLinea}</span><strong>{formatPesos(translationLanguage ? translationQuote.total_amount : translationQuote.consultation_base_amount)}</strong></div>
                 </div>
                 {translationLanguage && !translationQuote.translation_charged && <p style={{ margin: "10px 0 0", color: muted, fontSize: 11.5 }}>{t.solicitar.traduccionNoIncluida}</p>}
               </div>
