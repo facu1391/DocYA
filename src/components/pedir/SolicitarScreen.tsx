@@ -510,11 +510,11 @@ export default function SolicitarScreen() {
 
             {tipo === "teleconsulta" && translationQuote?.available && (
               <div style={{ background: "rgba(37,215,200,0.06)", border: "1.5px solid rgba(37,215,200,0.24)", borderRadius: 20, padding: "20px" }}>
-                <p style={{ margin: "0 0 13px", fontSize: 16, fontWeight: 900 }}>¿Necesitás traducción durante la consulta?</p>
+                <p style={{ margin: "0 0 13px", fontSize: 16, fontWeight: 900 }}>{t.solicitar.traduccionTitulo}</p>
                 {[
-                  { value: "" as TranslationLanguage, label: "Sin traducción" },
-                  ...(translationQuote.languages.includes("en") ? [{ value: "en" as TranslationLanguage, label: `Inglés + ${formatPesos(translationQuote.translation_fee)}` }] : []),
-                  ...(translationQuote.languages.includes("pt-br") ? [{ value: "pt-br" as TranslationLanguage, label: `Português (Brasil) + ${formatPesos(translationQuote.translation_fee)}` }] : []),
+                  { value: "" as TranslationLanguage, label: t.solicitar.sinTraduccion },
+                  ...(translationQuote.languages.includes("en") ? [{ value: "en" as TranslationLanguage, label: `${t.solicitar.idiomaIngles} + ${formatPesos(translationQuote.translation_fee)}` }] : []),
+                  ...(translationQuote.languages.includes("pt-br") ? [{ value: "pt-br" as TranslationLanguage, label: `${t.solicitar.idiomaPortugues} + ${formatPesos(translationQuote.translation_fee)}` }] : []),
                 ].map(option => (
                   <label key={option.value || "none"} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", cursor: "pointer", fontWeight: 750 }}>
                     <input type="radio" name="translation-language" checked={translationLanguage === option.value} onChange={() => setTranslationLanguage(option.value)} />
@@ -522,11 +522,11 @@ export default function SolicitarScreen() {
                   </label>
                 ))}
                 <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${border}`, fontSize: 13 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}><span>Teleconsulta</span><strong>{formatPesos(translationQuote.consultation_base_amount)}</strong></div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 7 }}><span>Traducción IA</span><strong>{translationLanguage ? formatPesos(translationQuote.translation_fee) : "$0"}</strong></div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, paddingTop: 10, borderTop: `1px solid ${border}`, fontSize: 17 }}><span>Total</span><strong>{formatPesos(translationQuote.total_amount)}</strong></div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span>{t.solicitar.teleconsultaLinea}</span><strong>{formatPesos(translationQuote.consultation_base_amount)}</strong></div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 7 }}><span>{t.solicitar.traduccionIaLinea}</span><strong>{translationLanguage ? formatPesos(translationQuote.translation_fee) : "$0"}</strong></div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, paddingTop: 10, borderTop: `1px solid ${border}`, fontSize: 17 }}><span>{t.solicitar.totalLinea}</span><strong>{formatPesos(translationQuote.total_amount)}</strong></div>
                 </div>
-                {translationLanguage && !translationQuote.translation_charged && <p style={{ margin: "10px 0 0", color: muted, fontSize: 11.5 }}>Prueba controlada: el servicio tiene un valor de {formatPesos(translationQuote.translation_fee)}, pero todavía no se suma al pago.</p>}
+                {translationLanguage && !translationQuote.translation_charged && <p style={{ margin: "10px 0 0", color: muted, fontSize: 11.5 }}>{t.solicitar.traduccionNoIncluida}</p>}
               </div>
             )}
 
