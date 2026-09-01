@@ -6,6 +6,7 @@ import IASection from "@/components/landing-public/nueva-landing/IASection";
 import GeoSection from "@/components/landing-public/nueva-landing/GeoSection";
 import DomicilioSection from "@/components/landing-public/nueva-landing/DomicilioSection";
 import TeleconsultaSection from "@/components/landing-public/nueva-landing/TeleconsultaSection";
+import TouristTranslationSection from "@/components/landing-public/nueva-landing/TouristTranslationSection";
 import ResolucionSection from "@/components/landing-public/nueva-landing/ResolucionSection";
 import PastilleroSection from "@/components/landing-public/nueva-landing/PastilleroSection";
 import BeneficiosSection from "@/components/landing-public/nueva-landing/BeneficiosSection";
@@ -40,6 +41,8 @@ export default function Home() {
       "Teleconsulta particular",
       "Receta médica online",
       "Certificado médico online",
+      "Doctor in Buenos Aires for tourists",
+      "Medical consultation with real-time AI translation",
     ],
     description:
       "DocYa conecta pacientes con profesionales verificados para atención médica a domicilio, teleconsulta y enfermería.",
@@ -55,6 +58,7 @@ export default function Home() {
     serviceType: [
       "Médico a domicilio",
       "Teleconsulta médica",
+      "Teleconsulta para turistas con traducción por IA",
       "Enfermería a domicilio",
     ],
     url: SITE_URL,
@@ -77,6 +81,7 @@ export default function Home() {
       <GeoSection />
       <DomicilioSection />
       <TeleconsultaSection />
+      <TouristTranslationSection />
       <ResolucionSection />
       <PastilleroSection />
       <BeneficiosSection />
