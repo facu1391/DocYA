@@ -42,7 +42,7 @@ export default function Home() {
       "Receta médica online",
       "Certificado médico online",
       "Doctor in Buenos Aires for tourists",
-      "Medical consultation with real-time AI translation",
+      "Medical consultation with real-time AI translation in English and Portuguese",
     ],
     description:
       "DocYa conecta pacientes con profesionales verificados para atención médica a domicilio, teleconsulta y enfermería.",
@@ -58,7 +58,7 @@ export default function Home() {
     serviceType: [
       "Médico a domicilio",
       "Teleconsulta médica",
-      "Teleconsulta para turistas con traducción por IA",
+      "Teleconsulta para turistas con traducción por IA en inglés y portugués",
       "Enfermería a domicilio",
     ],
     url: SITE_URL,

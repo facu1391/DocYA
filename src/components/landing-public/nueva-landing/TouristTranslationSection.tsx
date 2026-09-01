@@ -13,21 +13,21 @@ export default function TouristTranslationSection() {
         badge: "Medical care for tourists",
         title: "Real-time AI translation",
         highlight: "during your consultation",
-        description: "Visiting Argentina and need a doctor? Eligible video consultations may include simultaneous English–Spanish AI translation, so you and the physician can communicate more clearly.",
+        description: "Visiting Argentina and need a doctor? Eligible video consultations may include simultaneous AI translation between Spanish and English or Brazilian Portuguese, so you and the physician can communicate more clearly.",
         note: "Doctors are not necessarily bilingual. Translation is an optional technology feature shown during checkout when available.",
         primary: "Medical care in Buenos Aires",
         secondary: "Online doctor across Argentina",
-        cards: ["English patient journey", "Real-time translated video", "Licensed Argentine physicians"],
+        cards: ["English and Portuguese support", "Real-time translated video", "Licensed Argentine physicians"],
       }
     : {
         badge: "Atención médica para turistas",
         title: "Traducción con IA",
         highlight: "en tiempo real",
-        description: "Si estás de visita en Argentina, podés solicitar una teleconsulta y, cuando la opción esté disponible, sumar traducción simultánea inglés–español durante la videollamada.",
+        description: "Si estás de visita en Argentina, podés solicitar una teleconsulta y, cuando la opción esté disponible, sumar traducción simultánea entre español e inglés o portugués de Brasil durante la videollamada.",
         note: "Los médicos no necesariamente son bilingües. La traducción es una función tecnológica opcional que se informa antes de confirmar el pago.",
         primary: "Atención para turistas en Buenos Aires",
         secondary: "Teleconsulta para turistas",
-        cards: ["Solicitud disponible en inglés", "Videollamada traducida en tiempo real", "Médicos argentinos matriculados"],
+        cards: ["Soporte en inglés y portugués", "Videollamada traducida en tiempo real", "Médicos argentinos matriculados"],
       };
 
   const icons = [Globe2, Languages, ShieldCheck];
@@ -51,7 +51,7 @@ export default function TouristTranslationSection() {
           <div className="glass-card rounded-3xl p-7 shadow-xl">
             <div className="mb-6 flex items-center gap-4">
               <div className="grid h-14 w-14 place-items-center rounded-2xl bg-[var(--brand)]/15 text-[var(--brand)]"><Video size={27} /></div>
-              <div><p className="font-bold">English ↔ Español</p><p className="text-sm text-text-muted">AI real-time translation</p></div>
+              <div><p className="font-bold">English / Português ↔ Español</p><p className="text-sm text-text-muted">AI real-time translation</p></div>
             </div>
             <div className="space-y-3">
               {copy.cards.map((label, index) => {
