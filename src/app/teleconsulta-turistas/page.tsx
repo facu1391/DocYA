@@ -183,6 +183,8 @@ export default function TeleconsultaTuristasPage() {
         title="Servicios relacionados"
         links={[
           { label: "English version", href: "/medical-care-tourists-argentina", description: "Read this page in English" },
+          { label: "Doctor in Buenos Aires (English)", href: "/doctor-in-buenos-aires", description: "Atención presencial u online para visitantes" },
+          { label: "Doctor en hotel de Buenos Aires (English)", href: "/doctor-at-hotel-buenos-aires", description: "Visita médica en alojamientos de CABA" },
           { label: "Médico online antes de viajar", href: "/teleconsulta-aeropuerto", description: "Ezeiza, Aeroparque o en escala" },
           { label: "Teleconsulta en toda Argentina", href: "/teleconsulta-argentina", description: "Ver cobertura por provincia" },
           { label: "Cómo funciona la teleconsulta", href: "/teleconsulta", description: "Funcionamiento general del servicio" },

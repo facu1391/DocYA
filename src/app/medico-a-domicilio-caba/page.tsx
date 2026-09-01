@@ -200,6 +200,7 @@ export default function MedicoADomicilioCabaPage() {
           { label: "Precio del médico a domicilio", href: "/medico-a-domicilio-precio", description: "Cuánto cuesta la consulta" },
           { label: "Médico a domicilio particular", href: "/medico-a-domicilio-particular", description: "Sin obra social ni prepaga" },
           { label: "Teleconsulta médica online", href: "/teleconsulta", description: "Atención por videollamada" },
+          { label: "Doctor at your hotel (English)", href: "/doctor-at-hotel-buenos-aires", description: "House calls for international visitors" },
           { label: "Receta médica online", href: "/receta-medica-online", description: "Recetas digitales válidas" },
           { label: "Certificado médico online", href: "/certificado-medico-online", description: "Laboral, escolar o de reposo" },
           { label: "Centro de Ayuda DocYa", href: "/centro-de-ayuda/medico-a-domicilio", description: "Cuándo llamar al médico, qué atiende y más" },

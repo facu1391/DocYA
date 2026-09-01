@@ -181,8 +181,11 @@ export default function MedicalCareTouristsPage() {
       />
 
       <RelatedLinks
-        title="More"
+        title="Medical care in Buenos Aires and more"
         links={[
+          { label: "Doctor in Buenos Aires", href: "/doctor-in-buenos-aires", description: "Compare a house call with an online consultation" },
+          { label: "Medical care in English", href: "/english-speaking-doctor-buenos-aires", description: "English patient flow and optional real-time AI translation" },
+          { label: "Doctor at your hotel in Buenos Aires", href: "/doctor-at-hotel-buenos-aires", description: "Private house calls at hotels and temporary accommodation" },
           { label: "Versión en español", href: ES_PATH, description: "Ver esta página en español" },
           { label: "Coverage by province (Spanish)", href: "/teleconsulta-argentina", description: "Full list of provinces" },
           { label: "Contact", href: "/contacto", description: "Have another question? Write to us" },

@@ -111,6 +111,8 @@ interface ServiceJsonLdInput {
   url: string;
   areaServedName: string;
   areaServedType?: "City" | "AdministrativeArea" | "Country" | "Place";
+  inLanguage?: string;
+  audience?: string;
 }
 
 export function buildServiceJsonLd({
@@ -121,6 +123,8 @@ export function buildServiceJsonLd({
   url,
   areaServedName,
   areaServedType = "Place",
+  inLanguage,
+  audience,
 }: ServiceJsonLdInput) {
   return {
     "@context": "https://schema.org",
@@ -130,6 +134,8 @@ export function buildServiceJsonLd({
     alternateName,
     description,
     url: `${SITE_URL}${url}`,
+    ...(inLanguage ? { inLanguage } : {}),
+    ...(audience ? { audience: { "@type": "Audience", audienceType: audience } } : {}),
     areaServed: {
       "@type": areaServedType,
       name: areaServedName,
