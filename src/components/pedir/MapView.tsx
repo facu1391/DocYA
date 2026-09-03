@@ -1,93 +1,130 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = { lat: number; lng: number; height?: number };
 
-declare global {
-  interface Window {
-    L?: {
-      map: (el: HTMLElement, opts?: object) => LeafletMap;
-      tileLayer: (url: string, opts?: object) => LeafletLayer;
-      marker: (latlng: [number, number], opts?: object) => LeafletMarker;
-      divIcon: (opts: object) => object;
-    };
+const MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
+
+const DOCYA_MAP_STYLES: google.maps.MapTypeStyle[] = [
+  { elementType: "geometry", stylers: [{ color: "#102a31" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#9bb4b8" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#102a31" }] },
+  { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#31535a" }] },
+  { featureType: "poi", elementType: "geometry", stylers: [{ color: "#16383e" }] },
+  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#7fa5a7" }] },
+  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#24454c" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#18343a" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#c3d4d5" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#237e78" }] },
+  { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#175c59" }] },
+  { featureType: "transit", elementType: "geometry", stylers: [{ color: "#1a3940" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#071f29" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#4f8994" }] },
+];
+
+function waitForGoogleMaps(onReady: () => void, onUnavailable: () => void) {
+  if (window.google?.maps?.Map) {
+    onReady();
+    return () => undefined;
   }
+
+  if (!MAPS_KEY) {
+    onUnavailable();
+    return () => undefined;
+  }
+
+  if (!document.getElementById("gplaces-sdk")) {
+    const script = document.createElement("script");
+    script.id = "gplaces-sdk";
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&libraries=places&loading=async&language=es&region=AR`;
+    script.async = true;
+    document.head.appendChild(script);
+  }
+
+  let attempts = 0;
+  const timer = window.setInterval(() => {
+    if (window.google?.maps?.Map) {
+      window.clearInterval(timer);
+      onReady();
+    } else if (++attempts >= 50) {
+      window.clearInterval(timer);
+      onUnavailable();
+    }
+  }, 200);
+
+  return () => window.clearInterval(timer);
 }
-interface LeafletMap    { setView: (c: [number, number], z: number) => LeafletMap; addLayer: (l: LeafletLayer | LeafletMarker) => void; remove: () => void; }
-interface LeafletLayer  { addTo: (m: LeafletMap) => void; }
-interface LeafletMarker { addTo: (m: LeafletMap) => void; }
 
 export default function MapView({ lat, lng, height = 180 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef       = useRef<LeafletMap | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const markerRef = useRef<google.maps.Marker | null>(null);
+  const [unavailable, setUnavailable] = useState(false);
 
   useEffect(() => {
-    const init = () => {
-      const L = window.L;
-      if (!L || !containerRef.current) return;
-      if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
+    const position = { lat, lng };
 
-      const map = L.map(containerRef.current, { zoomControl: false, attributionControl: true, dragging: false, scrollWheelZoom: false });
-      map.setView([lat, lng], 15);
+    const renderMap = () => {
+      if (!containerRef.current) return;
+      setUnavailable(false);
 
-      // OpenStreetMap no requiere una API key. El filtro conserva el estilo oscuro.
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        className: "docya-dark-map-tiles",
-        attribution: "&copy; OpenStreetMap contributors",
-      }).addTo(map);
+      if (!mapRef.current) {
+        mapRef.current = new window.google.maps.Map(containerRef.current, {
+          center: position,
+          zoom: 15,
+          styles: DOCYA_MAP_STYLES,
+          backgroundColor: "#102a31",
+          disableDefaultUI: true,
+          clickableIcons: false,
+          gestureHandling: "none",
+          keyboardShortcuts: false,
+        });
 
-      // Marcador teal personalizado
-      const icon = L.divIcon({
-        className: "",
-        html: `<div style="width:32px;height:32px;border-radius:999px 999px 999px 4px;background:#00b3a6;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,179,166,0.5);transform:rotate(-45deg)"></div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-      });
-      L.marker([lat, lng], { icon }).addTo(map);
-
-      mapRef.current = map;
+        markerRef.current = new window.google.maps.Marker({
+          map: mapRef.current,
+          position,
+          title: "Tu ubicación",
+          icon: {
+            path: window.google.maps.SymbolPath.CIRCLE,
+            fillColor: "#00b3a6",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 4,
+            scale: 11,
+          },
+        });
+      } else {
+        mapRef.current.setCenter(position);
+        markerRef.current?.setPosition(position);
+      }
     };
 
-    if (window.L) {
-      init();
-    } else {
-      // Cargar Leaflet CSS + JS
-      if (!document.getElementById("leaflet-css")) {
-        const css = document.createElement("link");
-        css.id = "leaflet-css"; css.rel = "stylesheet";
-        css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-        document.head.appendChild(css);
-      }
-      if (!document.getElementById("leaflet-js")) {
-        const js = document.createElement("script");
-        js.id = "leaflet-js";
-        js.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-        js.onload = init;
-        document.head.appendChild(js);
-      } else {
-        const check = setInterval(() => { if (window.L) { clearInterval(check); init(); } }, 100);
-      }
-    }
-
-    return () => { if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; } };
+    return waitForGoogleMaps(renderMap, () => setUnavailable(true));
   }, [lat, lng]);
 
   return (
-    <div className="docya-location-map" style={{ marginTop: 14, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(0,179,166,0.2)", height }}>
+    <div
+      className="docya-location-map"
+      aria-label="Mapa de tu ubicación"
+      style={{
+        position: "relative",
+        marginTop: 14,
+        borderRadius: 14,
+        overflow: "hidden",
+        border: "1px solid rgba(0,179,166,0.28)",
+        background: "#102a31",
+        boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.025)",
+        height,
+      }}
+    >
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
-      <style jsx global>{`
-        .docya-location-map .docya-dark-map-tiles {
-          filter: brightness(0.55) invert(1) contrast(1.35) hue-rotate(180deg) saturate(0.65);
-        }
-        .docya-location-map .leaflet-control-attribution {
-          background: rgba(3, 20, 26, 0.72);
-          color: rgba(255, 255, 255, 0.65);
-          font-size: 8px;
-        }
-        .docya-location-map .leaflet-control-attribution a { color: #5eead4; }
-      `}</style>
+      {unavailable && (
+        <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", padding: 20, color: "#9bb4b8", background: "#102a31", textAlign: "center", fontSize: 13 }}>
+          Vista previa del mapa no disponible
+        </div>
+      )}
     </div>
   );
 }
