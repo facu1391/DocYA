@@ -9,11 +9,14 @@ import {
   Stethoscope, Video, HeartPulse, ShieldCheck, Clock,
   Home, FileText, Star, CreditCard, ChevronRight,
   Phone, LogOut, User, ChevronDown, Sun, Moon,
-  MessageCircle, AlertTriangle, Globe,
+  MessageCircle, AlertTriangle, Globe, Gift,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
 import { recuperarConsultaPendienteGlobal } from "@/lib/pedir/pendingPayment";
+import { getPatientReferrals, type PatientReferralSummary } from "@/lib/pedir/patientReferrals";
+import ReferralProgressCard from "./ReferralProgressCard";
+import { PATIENT_REFERRALS_ENABLED } from "@/lib/pedir/referralFeature";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 const GOOGLE_CLIENT_ID =
@@ -71,6 +74,7 @@ export default function PedirHome() {
   const [user, setUser]                 = useState<PedirUser | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [precios, setPrecios]           = useState<Partial<Record<ServicioId, PrecioServicio>>>({});
+  const [referralSummary, setReferralSummary] = useState<PatientReferralSummary | null>(null);
   const { dark, setTheme, homeBg: bg, cardBg, border, text, muted, headerBg, logo } = usePedirTheme();
   const { t, locale, setLocale } = useI18n();
 
@@ -124,6 +128,11 @@ export default function PedirHome() {
     });
     return () => { cancelado = true; };
   }, [user, router]);
+
+  useEffect(() => {
+    if (!PATIENT_REFERRALS_ENABLED || !user?.access_token) { setReferralSummary(null); return; }
+    getPatientReferrals(user.access_token).then(setReferralSummary).catch(() => undefined);
+  }, [user]);
 
   useEffect(() => {
     let alive = true;
@@ -257,6 +266,9 @@ export default function PedirHome() {
                 {userMenuOpen && (
                   <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", background: dark ? "#0f2a35" : "#fff", border: `1px solid ${border}`, borderRadius: 14, padding: "8px", minWidth: 180, boxShadow: "0 12px 40px rgba(0,0,0,0.25)", zIndex: 100 }}>
                     <p style={{ fontSize: 12, color: muted, padding: "4px 12px 8px" }}>{user.email}</p>
+                    {PATIENT_REFERRALS_ENABLED && <button onClick={() => router.push("/pedir/invitar")} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px", borderRadius: 10, background: "none", border: "none", color: text, cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>
+                      <Gift size={15} /> Invitá amigos
+                    </button>}
                     <button onClick={logout} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px", borderRadius: 10, background: "none", border: "none", color: "#f87171", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>
                       <LogOut size={15} /> {t.pedir.salir}
                     </button>
@@ -304,6 +316,12 @@ export default function PedirHome() {
                   <ChevronRight size={18} color={muted} />
                 </a>
               </div>
+
+              {PATIENT_REFERRALS_ENABLED && referralSummary && (
+                <div style={{ marginBottom: 22 }}>
+                  <ReferralProgressCard summary={referralSummary} onOpen={() => router.push(referralSummary.available_rewards_count > 0 ? "/pedir/filtro?tipo=teleconsulta" : "/pedir/invitar")} compact />
+                </div>
+              )}
 
               {/* CARDS */}
               <div className="pedir-cards">

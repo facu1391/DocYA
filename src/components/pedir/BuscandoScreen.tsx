@@ -207,7 +207,7 @@ export default function BuscandoScreen() {
       const url = esTeleconsulta
         ? `${API}/teleconsultas/${consultaId}/cancelar`
         : `${API}/consultas/${consultaId}/cancelar_busqueda`;
-      await fetch(url, {
+      const cancelRes = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -215,6 +215,10 @@ export default function BuscandoScreen() {
         },
         body: JSON.stringify({ paciente_uuid: esTeleconsulta ? user!.id : "" }),
       });
+      const cancelData = await cancelRes.json().catch(() => ({}));
+      if (cancelRes.ok && cancelData.benefit_restored === true) {
+        window.alert("Recuperaste tu teleconsulta gratis. Podés usarla cuando quieras.");
+      }
       localStorage.removeItem("docya_consulta_activa");
       fetchEstado();
     } catch {}

@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.docya.paciente",
+      "sha256_cert_fingerprints": ["03:15:F8:67:B7:2B:D4:3B:DA:66:DB:06:84:A1:CE:E2:31:AC:66:8C:C2:4F:52:2E:AE:3D:AB:71:0A:30:AE:A7"]
+    }
+  }
+]

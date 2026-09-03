@@ -41,6 +41,7 @@ export type PagoPendientePayload = {
   responsable_vinculo?: string;
   metodo_pago?: string;
   payment_id?: string;
+  idempotency_key?: string;
 };
 
 export function guardarPagoPendiente(payload: PagoPendientePayload): void {
@@ -218,7 +219,7 @@ export async function recuperarConsultaPendienteGlobal(
     }
 
     const tienePago = data.mp_preautorizado === true || data.mp_capturado === true ||
-      ["approved", "authorized", "preautorizado", "approved_manual_transfer"].includes(String(data.mp_status || "").toLowerCase());
+      ["approved", "authorized", "preautorizado", "approved_manual_transfer", "approved_referral_reward"].includes(String(data.mp_status || "").toLowerCase());
     if (!tienePago) return null; // sigue esperando confirmación de MP
 
     const pendienteLocal = leerPagoPendienteLocal();

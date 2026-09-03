@@ -1,0 +1,10 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["9MWF88C3B5.com.docya.paciente"],
+        "components": [{ "/": "/registro/paciente", "?": { "ref": "*" } }]
+      }
+    ]
+  }
+}

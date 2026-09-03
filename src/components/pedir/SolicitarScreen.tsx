@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowLeft, Stethoscope, Video, HeartPulse, Baby,
+  ArrowLeft, Stethoscope, Video, HeartPulse, Baby, Gift,
   CreditCard, Wallet, Banknote, Landmark, Loader2, ChevronRight,
   Navigation, ShieldCheck, CheckCircle2, RotateCcw, UserRoundCheck,
 } from "lucide-react";
@@ -13,12 +13,14 @@ import AddressInput from "./AddressInput";
 import MapView from "./MapView";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
-import { guardarPagoPendiente } from "@/lib/pedir/pendingPayment";
+import { guardarPagoPendiente, limpiarPagoPendiente, solicitarConsulta } from "@/lib/pedir/pendingPayment";
+import { getPatientReferrals, newReferralAttemptKey, reserveReferralReward } from "@/lib/pedir/patientReferrals";
+import { PATIENT_REFERRALS_ENABLED } from "@/lib/pedir/referralFeature";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean; access_token?: string };
-type MetodoPago = "tarjeta" | "saldo_mp" | "transferencia" | "efectivo";
+type MetodoPago = "tarjeta" | "saldo_mp" | "transferencia" | "efectivo" | "referral_voucher";
 type Tarifa = { tipo?: string; monto: number; descripcion?: string };
 type TranslationLanguage = "" | "en" | "pt-br";
 type TranslationQuote = {
@@ -107,6 +109,8 @@ export default function SolicitarScreen() {
   const [translationQuote, setTranslationQuote] = useState<TranslationQuote | null>(null);
   const [translationLanguage, setTranslationLanguage] = useState<TranslationLanguage>("");
   const [confirmacionPaciente, setConfirmacionPaciente] = useState(false);
+  const [availableRewards, setAvailableRewards] = useState(0);
+  const [referralAttemptKey, setReferralAttemptKey] = useState<string | null>(null);
   const { dark, bg, brandBorder: border, text, muted, inputBg, headerBg, logo } = usePedirTheme();
   const permiteEfectivo = tipo !== "teleconsulta";
   const permitePediatria = tipo !== "enfermero";
@@ -129,6 +133,13 @@ export default function SolicitarScreen() {
       setUser(JSON.parse(raw));
     } catch { router.replace("/pedir"); }
   }, [router]);
+
+  useEffect(() => {
+    if (!PATIENT_REFERRALS_ENABLED || tipo !== "teleconsulta" || !user?.access_token) { setAvailableRewards(0); return; }
+    getPatientReferrals(user.access_token)
+      .then(data => setAvailableRewards(data.available_rewards_count))
+      .catch(() => setAvailableRewards(0));
+  }, [tipo, user]);
 
   // Geolocalización inicial
   useEffect(() => {
@@ -250,6 +261,28 @@ export default function SolicitarScreen() {
     setSubmitting(true);
     try {
       const monto = tarifa.monto;
+
+      if (metodoPago === "referral_voucher") {
+        if (tipo !== "teleconsulta") throw new Error("Este beneficio sólo está disponible para teleconsultas.");
+        const attemptKey = referralAttemptKey ?? newReferralAttemptKey();
+        setReferralAttemptKey(attemptKey);
+        const previaRes = await fetch(`${API}/consultas/crear_previa`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: "teleconsulta", metodo_pago: "referral_voucher", categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
+        });
+        if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
+        const { consulta_id } = await previaRes.json();
+        const pending = { consulta_id, tipo, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, paciente_uuid: user.id, access_token: user.access_token, categoria_consulta: categoriaConsulta, provincia: provincia ?? undefined, metodo_pago: "referral_voucher", idempotency_key: attemptKey, ...translationPayload, ...datosPediatricos };
+        guardarPagoPendiente(pending);
+        await reserveReferralReward(user.access_token, Number(consulta_id), attemptKey);
+        await solicitarConsulta(pending);
+        limpiarPagoPendiente();
+        localStorage.setItem("docya_consulta_activa", JSON.stringify({ consulta_id, tipo }));
+        setReferralAttemptKey(null);
+        router.push(`/pedir/buscando?consulta_id=${consulta_id}&tipo=teleconsulta&metodo=referral_voucher`);
+        return;
+      }
 
       if (metodoPago === "transferencia") {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
@@ -374,11 +407,14 @@ export default function SolicitarScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, lat, lng, categoriaConsulta, provincia, datosPediatricos, translationPayload, router, t]);
+  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, lat, lng, categoriaConsulta, provincia, datosPediatricos, translationPayload, router, t, referralAttemptKey]);
 
   if (!user) return null;
 
   const Icon = cfg.icon;
+  const checkoutAmount = translationLanguage && translationQuote?.available
+    ? translationQuote.total_amount
+    : (translationQuote?.consultation_base_amount ?? tarifa?.monto);
 
   return (
     <>
@@ -532,10 +568,17 @@ export default function SolicitarScreen() {
 
             {/* MÉTODO DE PAGO */}
             <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
+              {PATIENT_REFERRALS_ENABLED && tipo === "teleconsulta" && availableRewards > 0 && (
+                <div style={{ padding: 16, marginBottom: 16, borderRadius: 16, border: "1px solid rgba(129,140,248,.45)", background: "rgba(129,140,248,.13)" }}>
+                  <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 900 }}><Gift size={19} style={{ verticalAlign: "middle", marginRight: 7 }} />Tenés {availableRewards === 1 ? "una teleconsulta gratis" : `${availableRewards} teleconsultas gratis`}</p>
+                  <label style={{ display: "flex", gap: 10, alignItems: "center", cursor: "pointer", fontWeight: 750 }}><input type="radio" checked={metodoPago === "referral_voucher"} onChange={() => setMetodoPago("referral_voucher")} />Usar mi teleconsulta gratis</label>
+                  <label style={{ display: "flex", gap: 10, alignItems: "center", cursor: "pointer", marginTop: 10, color: muted }}><input type="radio" checked={metodoPago !== "referral_voucher"} onChange={() => setMetodoPago("transferencia")} />Elegir otra forma de pago</label>
+                </div>
+              )}
               <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 14 }}>
                 {t.solicitar.metodoPago}
               </label>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 18 }}>
+              {metodoPago !== "referral_voucher" && <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 18 }}>
                 {METODOS_ONLINE.map(m => {
                   const selected = metodoPago === m.id;
                   const recommended = m.id === "transferencia";
@@ -545,12 +588,13 @@ export default function SolicitarScreen() {
                       key={m.id}
                       type="button"
                       onClick={() => setMetodoPago(m.id)}
-                      style={{ minHeight: recommended ? 76 : 72, display: "flex", alignItems: "center", gap: 10, padding: "12px", borderRadius: 14, border: `1.5px solid ${selected || recommended ? cfg.color : border}`, background: selected ? `${cfg.color}16` : recommended ? `${cfg.color}0b` : inputBg, cursor: "pointer", color: selected || recommended ? cfg.color : muted, fontFamily: "inherit", transition: "all 0.15s", textAlign: "left", boxShadow: recommended ? `0 4px 14px ${cfg.color}18` : "none" }}
+                      aria-pressed={selected}
+                      style={{ minHeight: recommended ? 76 : 72, display: "flex", alignItems: "center", gap: 10, padding: "12px", borderRadius: 14, border: `1.5px solid ${selected ? cfg.color : border}`, background: selected ? `${cfg.color}16` : inputBg, cursor: "pointer", color: selected ? cfg.color : muted, fontFamily: "inherit", transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s", textAlign: "left", boxShadow: selected ? `0 4px 14px ${cfg.color}18` : "none" }}
                     >
                       <IconPago size={18} style={{ flexShrink: 0 }} />
                       <span style={{ minWidth: 0 }}>
                         <span style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
-                          <span style={{ fontSize: 13, fontWeight: 800, color: selected || recommended ? cfg.color : text }}>{m.label}</span>
+                          <span style={{ fontSize: 13, fontWeight: 800, color: selected ? cfg.color : text }}>{m.label}</span>
                           {recommended && (
                             <span style={{ borderRadius: 999, background: cfg.color, color: "#fff", padding: "3px 7px", fontSize: 9, fontWeight: 900, letterSpacing: "0.55px", lineHeight: 1 }}>
                               RECOMENDADO
@@ -562,8 +606,11 @@ export default function SolicitarScreen() {
                     </button>
                   );
                 })}
-              </div>
-              {metodoPago !== "efectivo" && metodoPago !== "transferencia" && (
+              </div>}
+              {metodoPago === "referral_voucher" && (
+                <div style={{ borderRadius: 16, border: `1px solid ${border}`, padding: 16, background: inputBg }}><div style={{ display: "flex", justifyContent: "space-between" }}><span>Precio de la teleconsulta</span><strong>{formatPesos(tarifa?.monto)}</strong></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, color: "#a5b4fc" }}><span>Beneficio</span><strong>Teleconsulta gratis</strong></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 14, paddingTop: 14, borderTop: `1px solid ${border}`, fontSize: 18 }}><span>Total a pagar</span><strong>$0</strong></div></div>
+              )}
+              {metodoPago !== "efectivo" && metodoPago !== "transferencia" && metodoPago !== "referral_voucher" && (
                 <div style={{ borderRadius: 18, border: `1px solid ${border}`, background: inputBg, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 14 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <ShieldCheck size={22} color={cfg.color} />
@@ -590,18 +637,22 @@ export default function SolicitarScreen() {
                 </div>
               )}
               {metodoPago === "transferencia" && (
-                <div style={{ borderRadius: 18, border: `1px solid ${border}`, background: inputBg, padding: "18px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
-                  <Landmark size={22} color={cfg.color} style={{ flexShrink: 0, marginTop: 2 }} />
-                  <div>
-                    <p style={{ fontSize: 16, fontWeight: 900, color: text, margin: 0 }}>Transferencia bancaria</p>
-                    <p style={{ fontSize: 13, color: muted, margin: "5px 0 0", lineHeight: 1.5 }}>
-                      <strong style={{ color: text }}>La opción más rápida y simple.</strong>{" "}
-                      Te mostraremos el alias y CVU para transferir. Una vez realizado el pago,{" "}
-                      <strong style={{ color: text }}>lo verificamos de inmediato</strong>{" "}
-                      y continuamos con la búsqueda de tu médico.{" "}
-                      <strong style={{ color: text }}>No necesitás enviar comprobante.</strong>
-                    </p>
+                <div style={{ borderRadius: 18, border: `1px solid ${border}`, background: inputBg, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <ShieldCheck size={22} color={cfg.color} />
+                    <p style={{ fontSize: 17, fontWeight: 900, color: text, margin: 0 }}>Tu transferencia está protegida</p>
                   </div>
+                  {[
+                    { icon: Landmark, strong: `Transferís ${formatPesos(checkoutAmount)} para solicitar la consulta.`, text: "" },
+                    { icon: CheckCircle2, strong: "El pago corresponde únicamente a una consulta confirmada.", text: "" },
+                    { icon: RotateCcw, strong: "Si ningún médico acepta tu solicitud, te devolvemos el 100% del importe.", text: "" },
+                    { icon: ShieldCheck, strong: "No perdés tu dinero si no conseguimos un profesional.", text: "" },
+                  ].map(({ icon: BulletIcon, strong }) => (
+                    <div key={strong} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                      <BulletIcon size={17} color={cfg.color} style={{ flexShrink: 0, marginTop: 2 }} />
+                      <p style={{ fontSize: 14, color: text, lineHeight: 1.45, margin: 0, fontWeight: 700 }}>{strong}</p>
+                    </div>
+                  ))}
                 </div>
               )}
               {permiteEfectivo && (
@@ -643,7 +694,7 @@ export default function SolicitarScreen() {
               ) : tarifaLoading ? (
                 <><Loader2 size={20} className="animate-spin" /> {t.solicitar.cargandoPrecio}</>
               ) : (
-                <>{metodoPago === "efectivo" ? t.solicitar.solicitarBtn : metodoPago === "transferencia" ? "Ver datos para transferir" : t.solicitar.autorizarPedir} {metodoPago === "transferencia" ? "" : cfg.label.toLowerCase()} - {formatPesos(tarifa?.monto, t.solicitar.cargando)} <ChevronRight size={20} /></>
+                <>{metodoPago === "referral_voucher" ? "Solicitar teleconsulta gratis" : metodoPago === "efectivo" ? t.solicitar.solicitarBtn : metodoPago === "transferencia" ? `Pagar por transferencia - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : metodoPago === "saldo_mp" ? `Autorizar y pedir teleconsulta - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : `${t.solicitar.autorizarPedir} ${cfg.label.toLowerCase()} - ${formatPesos(checkoutAmount, t.solicitar.cargando)}`} <ChevronRight size={20} /></>
               )}
             </button>
 
@@ -720,4 +771,3 @@ export default function SolicitarScreen() {
     </>
   );
 }
-
