@@ -14,7 +14,7 @@ const benefits = [
     description:
       "Certificados laborales, escolares o de reposo emitidos por el profesional cuando corresponda. Incluyen QR para verificar su autenticidad online.",
     badge: "QR verificable",
-    className: "md:col-span-2 lg:col-span-7",
+    className: "lg:col-span-4",
     featured: true,
   },
   {
@@ -23,7 +23,7 @@ const benefits = [
     description:
       "Recibí tu receta médica digital después de la consulta, cuando corresponda.",
     badge: null,
-    className: "lg:col-span-5",
+    className: "lg:col-span-4",
     featured: false,
   },
   {
@@ -41,7 +41,7 @@ const benefits = [
     description:
       "Un médico evalúa tus síntomas, realiza el diagnóstico e indica el tratamiento que corresponda.",
     badge: null,
-    className: "lg:col-span-4",
+    className: "lg:col-span-6",
     featured: false,
   },
   {
@@ -50,8 +50,8 @@ const benefits = [
     description:
       "Tu historial de consultas, recetas, certificados y órdenes médicas queda organizado y disponible desde tu cuenta para que puedas consultarlo cuando lo necesites.",
     badge: null,
-    className: "md:col-span-2 lg:col-span-4",
-    featured: false,
+    className: "lg:col-span-6",
+    featured: true,
   },
 ] as const;
 
@@ -59,12 +59,10 @@ export default function ConsultaCompletaSection() {
   return (
     <section
       aria-labelledby="consulta-completa-title"
-      className="relative overflow-hidden border-y border-border/50 bg-secondary/30 py-20 md:py-28 dark:bg-secondary/10"
+      className="py-24 md:py-32"
     >
-      <div className="pointer-events-none absolute left-1/2 top-0 h-72 w-72 -translate-x-1/2 rounded-full bg-[var(--brand)]/10 blur-[100px]" />
-
-      <div className="relative mx-auto w-full max-w-[1200px] px-5 sm:px-6">
-        <ScrollReveal className="mx-auto mb-12 max-w-3xl text-center md:mb-16">
+      <div className="mx-auto w-full max-w-[1200px] px-6">
+        <ScrollReveal className="mx-auto mb-10 max-w-3xl text-center md:mb-14">
           <div className="badge-trusted mx-auto mb-5 w-fit">
             <Stethoscope size={16} aria-hidden />
             Atención médica completa
@@ -77,38 +75,43 @@ export default function ConsultaCompletaSection() {
           </p>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12 lg:gap-5">
+        <div className="grid grid-cols-1 gap-x-10 lg:grid-cols-12">
           {benefits.map(({ icon: Icon, title, description, badge, className, featured }, index) => (
             <ScrollReveal key={title} delay={index * 0.06} className={className}>
               <article
-                className={`glass-card group flex h-full min-h-[220px] flex-col rounded-3xl p-6 transition-all md:p-7 ${
-                  featured ? "border-[var(--brand)]/40 bg-[var(--brand)]/[0.07]" : ""
+                className={`group flex h-full items-start gap-4 border-t py-6 md:gap-5 md:py-7 ${
+                  featured ? "border-[var(--brand)]/40" : "border-border/70"
                 }`}
               >
-                <div className="mb-5 flex items-start justify-between gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand)]/12 text-[var(--brand)] transition-transform duration-300 group-hover:scale-105">
-                    <Icon size={24} aria-hidden />
-                  </div>
-                  {badge && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--brand)]/35 bg-[var(--brand)]/12 px-3 py-1.5 text-xs font-extrabold uppercase tracking-wide text-[var(--brand)]">
-                      <QrCode size={14} aria-hidden />
-                      {badge}
-                    </span>
-                  )}
+                <div
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-[var(--brand)] transition-transform duration-300 group-hover:scale-105"
+                  style={{ background: "rgba(10, 230, 199, 0.1)" }}
+                >
+                  <Icon size={24} aria-hidden />
                 </div>
-                <h3 className="mb-3 text-xl font-extrabold leading-tight text-foreground md:text-2xl">
-                  {title}
-                </h3>
-                <p className="m-0 text-base leading-relaxed text-text-muted">
-                  {description}
-                </p>
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <h3 className="text-lg font-bold leading-snug text-foreground md:text-xl">
+                      {title}
+                    </h3>
+                    {badge && (
+                      <span className="badge-trusted shrink-0">
+                        <QrCode size={13} aria-hidden />
+                        {badge}
+                      </span>
+                    )}
+                  </div>
+                  <p className="m-0 text-sm leading-relaxed text-text-muted md:text-base">
+                    {description}
+                  </p>
+                </div>
               </article>
             </ScrollReveal>
           ))}
         </div>
 
-        <ScrollReveal delay={0.18} className="mt-8 md:mt-10">
-          <div className="rounded-3xl border border-[var(--brand)]/25 bg-[var(--brand)]/[0.08] px-5 py-6 text-center md:px-8">
+        <ScrollReveal delay={0.18} className="mt-5 border-t border-border/70 pt-8 text-center md:mt-8 md:pt-10">
+          <div>
             <p className="m-0 text-xl font-extrabold text-foreground md:text-2xl">
               Una consulta. Todo resuelto. Todo en DocYa.
             </p>
