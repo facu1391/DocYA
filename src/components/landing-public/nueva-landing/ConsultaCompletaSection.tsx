@@ -68,7 +68,7 @@ export default function ConsultaCompletaSection() {
             Atención médica completa
           </div>
           <h2 id="consulta-completa-title" className="section-title mb-4 text-center">
-            Todo lo que podés resolver en una consulta
+            Todo lo que podés resolver en <span className="highlight-text">una consulta</span>
           </h2>
           <p className="mx-auto max-w-2xl text-lg leading-relaxed text-text-muted md:text-xl">
             Atención médica completa, sin perder horas en una guardia.
