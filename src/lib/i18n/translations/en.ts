@@ -52,12 +52,12 @@ export const en = {
   // IA Section
   ia: {
     badges: ["Smart Initial Triage", "Warning Sign Detection", "24/7 Continuous Assistance", "Safe Home Referral", "Virtual Medical Assistant"],
-    title: "Preliminary evaluation with ",
-    titleHighlight: "Medical AI",
-    description: "Our intelligent validation system analyzes your symptoms using proven clinical protocols, guiding you safely and at no cost.",
+    title: "Not sure whether you need to ",
+    titleHighlight: "see a doctor?",
+    description: "Tell us about your symptoms and receive preliminary guidance from our medical AI before requesting a consultation.",
     pasoValidado: "Step validated by healthcare professionals.",
-    calloutTitle: "Confidential pre-diagnosis",
-    calloutDescription: "100% free. No commitments. In seconds.",
+    calloutTitle: "Preliminary guidance",
+    calloutDescription: "It does not replace a medical consultation or provide a definitive diagnosis. It is a free, confidential, complementary tool.",
     altImage: "Home medical care",
   },
 

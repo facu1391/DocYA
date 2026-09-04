@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import Hero from "@/components/landing-public/nueva-landing/Hero";
+import ConsultaCompletaSection from "@/components/landing-public/nueva-landing/ConsultaCompletaSection";
 import IASection from "@/components/landing-public/nueva-landing/IASection";
 import GeoSection from "@/components/landing-public/nueva-landing/GeoSection";
 import DomicilioSection from "@/components/landing-public/nueva-landing/DomicilioSection";
@@ -10,11 +11,9 @@ import TouristTranslationSection from "@/components/landing-public/nueva-landing
 import ResolucionSection from "@/components/landing-public/nueva-landing/ResolucionSection";
 import PastilleroSection from "@/components/landing-public/nueva-landing/PastilleroSection";
 import BeneficiosSection from "@/components/landing-public/nueva-landing/BeneficiosSection";
-import TrustStack from "@/components/landing-public/nueva-landing/TrustStack";
 import ComoFunciona from "@/components/landing-public/nueva-landing/ComoFunciona";
 import CoberturaSection from "@/components/landing-public/nueva-landing/CoberturaSection";
 import PreciosSection from "@/components/landing-public/nueva-landing/PreciosSection";
-import ReferidosPromoSection from "@/components/landing-public/ReferidosPromoSection";
 import DocYaProCTA from "@/components/landing-public/nueva-landing/DocYaProCTA";
 import FinalCTA from "@/components/landing-public/nueva-landing/FinalCTA";
 import DifferentiatorBanner from "@/components/seo/DifferentiatorBanner";
@@ -77,7 +76,8 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(medicalServiceJsonLd) }}
       />
       <Hero />
-      <IASection />
+      <ConsultaCompletaSection />
+      <ComoFunciona />
       <GeoSection />
       <DomicilioSection />
       <TeleconsultaSection />
@@ -85,12 +85,10 @@ export default function Home() {
       <ResolucionSection />
       <PastilleroSection />
       <BeneficiosSection />
-      <TrustStack />
-      <ComoFunciona />
+      <IASection />
       <CoberturaSection />
       <DifferentiatorBanner ctaHref="/medico-a-domicilio-particular" ctaLabel="Conocé cómo funciona el pago" />
       <PreciosSection />
-      <ReferidosPromoSection />
       <DocYaProCTA />
       <FinalCTA mode="paciente" />
     </>

@@ -52,12 +52,12 @@ export const es = {
   // IA Section
   ia: {
     badges: ["Triage Inteligente Inicial", "Detección de Signos de Alarma", "Asistencia Continua 24/7", "Derivación Segura a Domicilio", "Asistente Médico Virtual"],
-    title: "Evaluación preliminar con ",
-    titleHighlight: "IA Médica",
-    description: "Nuestro sistema de validación inteligente analiza tus síntomas mediante protocolos clínicos comprobados, orientándote de manera segura y sin costo alguno.",
+    title: "¿No sabés si necesitás ",
+    titleHighlight: "consultar?",
+    description: "Contanos qué síntomas tenés y recibí una orientación preliminar con nuestra IA médica antes de solicitar una consulta.",
     pasoValidado: "Paso validado por profesionales de la salud.",
-    calloutTitle: "Pre-diagnóstico confidencial",
-    calloutDescription: "100% gratuito. Sin compromisos. En segundos.",
+    calloutTitle: "Orientación preliminar",
+    calloutDescription: "No reemplaza una consulta médica ni realiza un diagnóstico definitivo. Es una herramienta complementaria, gratuita y confidencial.",
     altImage: "Atención médica a domicilio",
   },
 
