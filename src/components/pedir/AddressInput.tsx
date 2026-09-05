@@ -34,7 +34,7 @@ type GWin = Window & {
 type Props = {
   value: string;
   onChange: (val: string) => void;
-  onPlaceSelect?: (direccion: string, lat?: number, lng?: number, provincia?: string) => void;
+  onPlaceSelect?: (direccion: string, lat?: number, lng?: number, provincia?: string, localidad?: string) => void;
   placeholder?: string;
   dark?: boolean;
   style?: React.CSSProperties;
@@ -82,8 +82,13 @@ export default function AddressInput({
         const lat   = place?.geometry?.location?.lat();
         const lng   = place?.geometry?.location?.lng();
         const provincia = place?.address_components?.find(c => c.types.includes("administrative_area_level_1"))?.long_name;
+        const localidad = place?.address_components?.find(c =>
+          c.types.includes("locality") ||
+          c.types.includes("postal_town") ||
+          c.types.includes("administrative_area_level_2")
+        )?.long_name;
         onChange(addr);
-        onPlaceSelect?.(addr, lat, lng, provincia);
+        onPlaceSelect?.(addr, lat, lng, provincia, localidad);
       });
 
       bound.current = true;

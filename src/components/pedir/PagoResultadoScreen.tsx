@@ -72,6 +72,7 @@ export default function PagoResultadoScreen() {
           payment_id: pending.payment_id || paymentId || undefined,
           categoria_consulta: pending.categoria_consulta,
           provincia: pending.provincia,
+          localidad: pending.localidad,
           paciente_menor_nombre: pending.paciente_menor_nombre,
           paciente_menor_dni: pending.paciente_menor_dni,
           paciente_menor_fecha_nacimiento: pending.paciente_menor_fecha_nacimiento,

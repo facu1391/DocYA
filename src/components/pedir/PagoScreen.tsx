@@ -32,6 +32,7 @@ export default function PagoScreen() {
   const monto       = Number(params.get("monto") ?? "0");
   const categoriaConsulta = params.get("categoria_consulta") ?? "adultos";
   const provincia = params.get("provincia") ?? undefined;
+  const localidad = params.get("localidad") ?? undefined;
   const pacienteMenorNombre = params.get("paciente_menor_nombre") ?? undefined;
   const pacienteMenorDni = params.get("paciente_menor_dni") ?? undefined;
   const pacienteMenorFechaNacimiento = params.get("paciente_menor_fecha_nacimiento") ?? undefined;
@@ -70,6 +71,7 @@ export default function PagoScreen() {
         access_token: user?.access_token,
         categoria_consulta: categoriaConsulta,
         provincia,
+        localidad,
         paciente_menor_nombre: pacienteMenorNombre,
         paciente_menor_dni: pacienteMenorDni,
         paciente_menor_fecha_nacimiento: pacienteMenorFechaNacimiento,
@@ -92,7 +94,7 @@ export default function PagoScreen() {
       };
       setError(mensajes[codigo] || codigo || t.pago.errorGeneral);
     }
-  }, [user, motivo, direccion, lat, lng, consultaId, tipo, metodo, router, categoriaConsulta, provincia, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo, t]);
+  }, [user, motivo, direccion, lat, lng, consultaId, tipo, metodo, router, categoriaConsulta, provincia, localidad, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo, t]);
 
   // Mensaje desde el iframe del formulario MP (web context)
   useEffect(() => {

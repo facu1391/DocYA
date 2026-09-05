@@ -95,6 +95,7 @@ export default function SolicitarScreen() {
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
   const [provincia, setProvincia] = useState<string | null>(null);
+  const [localidad, setLocalidad] = useState<string | null>(null);
   const [esPediatria, setEsPediatria] = useState(false);
   const [pacienteMenorNombre, setPacienteMenorNombre] = useState("");
   const [pacienteMenorDni, setPacienteMenorDni] = useState("");
@@ -228,7 +229,11 @@ export default function SolicitarScreen() {
           const provinciaComp = data.results?.[0]?.address_components?.find(
             (c: { types: string[] }) => c.types.includes("administrative_area_level_1")
           );
+          const localidadComp = data.results?.[0]?.address_components?.find(
+            (c: { types: string[] }) => c.types.includes("locality") || c.types.includes("postal_town") || c.types.includes("administrative_area_level_2")
+          );
           if (provinciaComp?.long_name) setProvincia(provinciaComp.long_name);
+          if (localidadComp?.long_name) setLocalidad(localidadComp.long_name);
         } catch {}
       },
       () => notify(t.solicitar.geoError, false)
@@ -239,7 +244,7 @@ export default function SolicitarScreen() {
     if (!user) return false;
     if (!motivo.trim()) { notify(t.solicitar.motivoRequerido, false); return false; }
     if (!direccion.trim()) { notify(t.solicitar.direccionRequerida, false); return false; }
-    if (lat === null || lng === null) { notify(t.solicitar.coordenadasRequeridas, false); return false; }
+    if (lat === null || lng === null || !Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) { notify(t.solicitar.coordenadasRequeridas, false); return false; }
     if (!permiteEfectivo && metodoPago === "efectivo") { notify(t.solicitar.teleconsultaEfectivo, false); return false; }
     if (!tarifa?.monto) { notify(t.solicitar.errorPrecioRetry, false); return false; }
     if (esPediatria) {
@@ -269,11 +274,11 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: "teleconsulta", metodo_pago: "referral_voucher", categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: "teleconsulta", metodo_pago: "referral_voucher", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
-        const pending = { consulta_id, tipo, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, paciente_uuid: user.id, access_token: user.access_token, categoria_consulta: categoriaConsulta, provincia: provincia ?? undefined, metodo_pago: "referral_voucher", idempotency_key: attemptKey, ...translationPayload, ...datosPediatricos };
+        const pending = { consulta_id, tipo, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, paciente_uuid: user.id, access_token: user.access_token, categoria_consulta: categoriaConsulta, provincia: provincia ?? undefined, localidad: localidad ?? undefined, metodo_pago: "referral_voucher", idempotency_key: attemptKey, ...translationPayload, ...datosPediatricos };
         guardarPagoPendiente(pending);
         await reserveReferralReward(user.access_token, Number(consulta_id), attemptKey);
         await solicitarConsulta(pending);
@@ -288,14 +293,14 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: tipo === "teleconsulta" ? "teleconsulta" : "domicilio", metodo_pago: "transferencia", categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: tipo === "teleconsulta" ? "teleconsulta" : "domicilio", metodo_pago: "transferencia", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
         guardarPagoPendiente({
           consulta_id, tipo, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng,
           paciente_uuid: user.id, access_token: user.access_token,
-          categoria_consulta: categoriaConsulta, provincia: provincia ?? undefined,
+          categoria_consulta: categoriaConsulta, provincia: provincia ?? undefined, localidad: localidad ?? undefined,
           metodo_pago: "transferencia", ...translationPayload, ...datosPediatricos,
         });
         router.push(`/pedir/transferencia?consulta_id=${consulta_id}&tipo=${tipo}&monto=${monto}`);
@@ -307,7 +312,7 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
@@ -325,6 +330,7 @@ export default function SolicitarScreen() {
           access_token: user.access_token,
           categoria_consulta: categoriaConsulta,
           provincia: provincia ?? undefined,
+          localidad: localidad ?? undefined,
           metodo_pago: "tarjeta",
           ...translationPayload, ...datosPediatricos,
         });
@@ -343,6 +349,7 @@ export default function SolicitarScreen() {
           categoria_consulta: categoriaConsulta,
         });
         if (provincia) pagoParams.set("provincia", provincia);
+        if (localidad) pagoParams.set("localidad", localidad);
         Object.entries(datosPediatricos).forEach(([key, value]) => {
           if (value) pagoParams.set(key, String(value));
         });
@@ -354,7 +361,7 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
@@ -381,6 +388,7 @@ export default function SolicitarScreen() {
           access_token: user.access_token,
           categoria_consulta: categoriaConsulta,
           provincia: provincia ?? undefined,
+          localidad: localidad ?? undefined,
           metodo_pago: "saldo_mp",
           ...translationPayload, ...datosPediatricos,
         });
@@ -407,7 +415,7 @@ export default function SolicitarScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, lat, lng, categoriaConsulta, provincia, datosPediatricos, translationPayload, router, t, referralAttemptKey]);
+  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, lat, lng, categoriaConsulta, provincia, localidad, datosPediatricos, translationPayload, router, t, referralAttemptKey]);
 
   if (!user) return null;
 
@@ -469,12 +477,19 @@ export default function SolicitarScreen() {
               </label>
               <AddressInput
                 value={direccion}
-                onChange={setDireccion}
-                onPlaceSelect={(addr, lat, lng, provincia) => {
+                onChange={(value) => {
+                  setDireccion(value);
+                  setLat(null);
+                  setLng(null);
+                  setProvincia(null);
+                  setLocalidad(null);
+                }}
+                onPlaceSelect={(addr, lat, lng, provincia, localidad) => {
                   setDireccion(addr);
                   if (lat !== undefined) setLat(lat);
                   if (lng !== undefined) setLng(lng);
                   if (provincia) setProvincia(provincia);
+                  if (localidad) setLocalidad(localidad);
                 }}
                 placeholder={t.solicitar.direccionPlaceholder}
                 dark={dark}
@@ -486,6 +501,12 @@ export default function SolicitarScreen() {
                 <Navigation size={14} />
                 {t.solicitar.usarUbicacion}
               </button>
+
+              {tipo === "teleconsulta" && (
+                <p style={{ fontSize: 12, lineHeight: 1.5, color: muted, margin: "12px 0 0" }}>
+                  Necesitamos tu ubicación para conocer desde qué ciudad solicitás la teleconsulta y mejorar la disponibilidad de profesionales en tu zona. No afecta la modalidad online de la atención.
+                </p>
+              )}
 
               {/* Mini mapa Leaflet */}
               {lat !== null && lng !== null && (

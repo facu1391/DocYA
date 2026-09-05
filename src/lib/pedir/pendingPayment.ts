@@ -34,6 +34,7 @@ export type PagoPendientePayload = {
   access_token?: string;
   categoria_consulta?: string;
   provincia?: string;
+  localidad?: string;
   paciente_menor_nombre?: string;
   paciente_menor_dni?: string;
   paciente_menor_fecha_nacimiento?: string;
@@ -117,6 +118,7 @@ export async function reconstruirPagoDesdeConsulta(
     access_token: user.access_token,
     categoria_consulta: consulta.categoria_consulta,
     provincia: consulta.provincia,
+    localidad: consulta.localidad,
     paciente_menor_nombre: consulta.paciente_menor_nombre,
     paciente_menor_dni: consulta.paciente_menor_dni,
     paciente_menor_fecha_nacimiento: consulta.paciente_menor_fecha_nacimiento,
@@ -145,8 +147,11 @@ export async function solicitarConsulta(body: Record<string, unknown>) {
         paciente_uuid: body.paciente_uuid,
         motivo: body.motivo,
         direccion: body.direccion,
+        lat: body.lat,
+        lng: body.lng,
         provincia: body.provincia || "Argentina",
-        localidad: body.direccion || "Argentina",
+        localidad: body.localidad || body.direccion || "Argentina",
+        canal_origen: "web",
         categoria_consulta: body.categoria_consulta,
         paciente_menor_nombre: body.paciente_menor_nombre,
         paciente_menor_dni: body.paciente_menor_dni,
