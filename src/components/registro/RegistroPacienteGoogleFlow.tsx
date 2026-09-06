@@ -496,7 +496,7 @@ export default function RegistroPacienteGoogleFlow() {
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </div>
                 ) : (
-                  <div ref={googleButtonRef} className="w-full" />
+                  <div ref={googleButtonRef} className="flex w-full justify-center [&>div]:mx-auto" />
                 )}
               </div>
               <p className="mt-4 text-xs text-muted-foreground">
