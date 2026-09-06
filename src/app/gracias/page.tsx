@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PartyPopper, MailCheck, Clock, ArrowRight } from "lucide-react";
+import { PartyPopper, MailCheck, Clock, ArrowRight, Smartphone, Stethoscope } from "lucide-react";
 import DownloadAppPublic from "@/components/landing-public/DownloadAppPublic";
 import ConfettiCelebration from "@/components/utils/ConfettiCelebration";
 
@@ -31,8 +31,8 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
         badge: "¡Cuenta lista!",
         p1: (
           <>
-            Tu cuenta ya está activa. <strong>Descargá la app</strong>, ingresá con Google o Apple
-            y empezá a solicitar atención médica en minutos.
+            Tu cuenta ya está activa. Podés <strong>pedir atención ahora desde la web</strong> o
+            descargar la app para usar DocYa desde tu celular.
           </>
         ),
         c1_t: "Cuenta activada",
@@ -45,33 +45,39 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
         c2_t: "Perfil completo",
         c2_p: (
           <>
-            Tus <strong>datos básicos</strong> quedaron guardados. Cuando abras la app podés
-            agregar tu dirección y completar el resto del perfil.
+            Tus <strong>datos básicos</strong> quedaron guardados y tu perfil ya está listo para
+            solicitar atención.
           </>
         ),
-        c3_t: "Descargá la app",
+        c3_t: "Elegí cómo continuar",
         c3_p: (
           <>
-            Ingresá con la misma cuenta de <strong>Google o Apple</strong> que usaste para
-            registrarte y empezá a pedir atención desde tu celular.
+            Podés pedir desde esta web o ingresar en la app con la misma cuenta de
+            <strong> Google o Apple</strong> que usaste para registrarte.
           </>
         ),
         ctas: (
           <div className="mx-auto mt-8 max-w-5xl space-y-6">
             <div className="text-center">
               <p className="text-base md:text-lg font-semibold text-foreground">
-                Descargá la app y empezá ahora
+                ¿Cómo querés continuar?
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Ingresá con Google o Apple — la misma cuenta que usaste para registrarte.
+                Pedí atención desde la web o llevá DocYa en tu celular.
               </p>
             </div>
-            <DownloadAppPublic />
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <Link href="/" className="btn-outline-primary">
-                Volver al inicio
+            <div className="mx-auto grid max-w-2xl gap-3 sm:grid-cols-2">
+              <Link href="/pedir" className="btn-primary inline-flex min-h-12 items-center justify-center gap-2 text-center">
+                <Stethoscope className="h-5 w-5" />
+                Pedir atención ahora
               </Link>
+              <a href="#descargar-app" className="btn-outline-primary inline-flex min-h-12 items-center justify-center gap-2 text-center">
+                <Smartphone className="h-5 w-5" />
+                Descargar la app
+              </a>
             </div>
+            <div id="descargar-app" className="scroll-mt-24"><DownloadAppPublic /></div>
+            <div className="text-center"><Link href="/" className="text-sm text-muted-foreground transition hover:text-foreground">Volver al inicio</Link></div>
           </div>
         ),
         help: (
