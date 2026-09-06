@@ -1,2 +1,2 @@
 export const PATIENT_REFERRALS_ENABLED =
-  process.env.NEXT_PUBLIC_PATIENT_REFERRALS_ENABLED === "true";
+  process.env.NEXT_PUBLIC_PATIENT_REFERRALS_ENABLED !== "false";

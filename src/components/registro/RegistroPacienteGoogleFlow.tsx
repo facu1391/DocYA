@@ -180,7 +180,12 @@ export default function RegistroPacienteGoogleFlow() {
       const res = await fetch("/api/auth_apple_paciente", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identity_token: identityToken, full_name: fullName, email }),
+        body: JSON.stringify({
+          identity_token: identityToken,
+          full_name: fullName,
+          email,
+          codigo_referido: codigoReferidoRef.current || codigoReferido || undefined,
+        }),
       });
       const data: GoogleAuthResponse = await res.json().catch(() => ({}));
 
@@ -207,7 +212,7 @@ export default function RegistroPacienteGoogleFlow() {
     } finally {
       setAppleBusy(false);
     }
-  }, [aceptaTerminosGeneral]);
+  }, [aceptaTerminosGeneral, codigoReferido]);
 
   const handleGoogleCredential = useCallback(async (credential: string) => {
     setGoogleBusy(true);

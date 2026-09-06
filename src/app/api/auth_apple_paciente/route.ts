@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
     const identityToken = String(body?.identity_token ?? "").trim();
     const fullName = String(body?.full_name ?? "").trim() || undefined;
     const email = String(body?.email ?? "").trim() || undefined;
+    const codigoReferido = String(body?.codigo_referido ?? "").trim() || undefined;
 
     if (!identityToken) {
       return NextResponse.json({ detail: "Token Apple faltante" }, { status: 400 });
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
     const upstream = await fetch(`${API_BASE}/auth/apple`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identity_token: identityToken, full_name: fullName, email }),
+      body: JSON.stringify({ identity_token: identityToken, full_name: fullName, email, codigo_referido: codigoReferido }),
     });
 
     const text = await upstream.text();
