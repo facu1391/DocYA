@@ -594,11 +594,11 @@ export default function RegistroPacienteGoogleFlow() {
                   <select
                     value={tipoDocumento}
                     onChange={(e) => setTipoDocumento(e.target.value)}
-                    className="h-11 w-full rounded-md border bg-background px-3 pr-10 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:h-12"
+                    className="h-11 w-full rounded-md border bg-background px-3 pr-10 text-sm text-foreground shadow-xs transition-[color,box-shadow] outline-none [color-scheme:light] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:[color-scheme:dark] md:h-12"
                   >
-                    <option value="dni">DNI</option>
-                    <option value="pasaporte">Pasaporte</option>
-                    <option value="otro">Otro</option>
+                    <option value="dni" className="bg-background text-foreground">DNI</option>
+                    <option value="pasaporte" className="bg-background text-foreground">Pasaporte</option>
+                    <option value="otro" className="bg-background text-foreground">Otro</option>
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 </div>

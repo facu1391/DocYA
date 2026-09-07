@@ -167,11 +167,11 @@ export default function PerfilScreen() {
                 <select
                   value={tipoDoc}
                   onChange={e => setTipoDoc(e.target.value)}
-                  style={{ ...inputStyle, appearance: "none", paddingRight: 32 }}
+                  style={{ ...inputStyle, appearance: "none", paddingRight: 32, colorScheme: dark ? "dark" : "light" }}
                 >
-                  <option value="dni">{t.perfil.dni}</option>
-                  <option value="pasaporte">{t.perfil.pasaporte}</option>
-                  <option value="otro">{t.perfil.otro}</option>
+                  <option value="dni" style={{ backgroundColor: dark ? "#08242b" : "#ffffff", color: dark ? "#e6fffb" : "#0f172a" }}>{t.perfil.dni}</option>
+                  <option value="pasaporte" style={{ backgroundColor: dark ? "#08242b" : "#ffffff", color: dark ? "#e6fffb" : "#0f172a" }}>{t.perfil.pasaporte}</option>
+                  <option value="otro" style={{ backgroundColor: dark ? "#08242b" : "#ffffff", color: dark ? "#e6fffb" : "#0f172a" }}>{t.perfil.otro}</option>
                 </select>
                 <ChevronDown size={14} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: muted, pointerEvents: "none" }} />
               </div>
