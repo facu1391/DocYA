@@ -192,10 +192,23 @@ export default function PerfilScreen() {
                   value={paisPasaporte}
                   onChange={e => setPaisPasaporte(e.target.value)}
                   required
-                  style={inputStyle}
+                  style={{ ...inputStyle, colorScheme: dark ? "dark" : "light" }}
                 >
-                  <option value="">Seleccioná un país</option>
-                  {paises.map(pais => <option key={pais} value={pais}>{pais}</option>)}
+                  <option
+                    value=""
+                    style={{ backgroundColor: dark ? "#08242b" : "#ffffff", color: dark ? "#e6fffb" : "#0f172a" }}
+                  >
+                    Seleccioná un país
+                  </option>
+                  {paises.map(pais => (
+                    <option
+                      key={pais}
+                      value={pais}
+                      style={{ backgroundColor: dark ? "#08242b" : "#ffffff", color: dark ? "#e6fffb" : "#0f172a" }}
+                    >
+                      {pais}
+                    </option>
+                  ))}
                 </select>
               </div>
             )}

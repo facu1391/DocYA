@@ -623,11 +623,11 @@ export default function RegistroPacienteGoogleFlow() {
                   <select
                     value={paisPasaporte}
                     onChange={(e) => setPaisPasaporte(e.target.value)}
-                    className="h-11 w-full rounded-md border bg-background px-3 pr-10 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:h-12"
+                    className="h-11 w-full rounded-md border bg-background px-3 pr-10 text-sm text-foreground shadow-xs outline-none [color-scheme:light] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:[color-scheme:dark] md:h-12"
                     required
                   >
-                    <option value="">Seleccioná un país</option>
-                    {paises.map((pais) => <option key={pais} value={pais}>{pais}</option>)}
+                    <option value="" className="bg-background text-foreground">Seleccioná un país</option>
+                    {paises.map((pais) => <option key={pais} value={pais} className="bg-background text-foreground">{pais}</option>)}
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 </div>
