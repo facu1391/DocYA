@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,7 +14,7 @@ import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import InternationalPhoneInput, { normalizePhoneNumber } from "@/components/common/InternationalPhoneInput";
-import type { CountryCode } from "libphonenumber-js";
+import { getCountries, type CountryCode } from "libphonenumber-js";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -36,6 +36,7 @@ export default function PerfilScreen() {
   const { dark, bg, surface, brandBorder: border, text, muted, inputBg, headerBg, logo } = usePedirTheme();
 
   const [tipoDoc,     setTipoDoc]     = useState("dni");
+  const [paisPasaporte, setPaisPasaporte] = useState("");
   const [nombreCompleto, setNombreCompleto] = useState("");
   const [nroDoc,      setNroDoc]      = useState("");
   const [telefono,    setTelefono]    = useState("");
@@ -45,6 +46,12 @@ export default function PerfilScreen() {
   const [sexo,        setSexo]        = useState("masculino");
   const [acepta,      setAcepta]      = useState(false);
   const [submitting,  setSubmitting]  = useState(false);
+  const paises = useMemo(() => {
+    const names = new Intl.DisplayNames(["es"], { type: "region" });
+    return getCountries()
+      .map(code => names.of(code) || code)
+      .sort((a, b) => a.localeCompare(b, "es"));
+  }, []);
 
   useEffect(() => {
     try {
@@ -61,6 +68,7 @@ export default function PerfilScreen() {
     if (!user) return;
     if (nombreCompleto.trim().split(/\s+/).length < 2) return notify("Ingresá tu nombre y apellido completos.", false);
     if (!nroDoc.trim())    return notify(t.perfil.dniRequerido, false);
+    if (tipoDoc === "pasaporte" && !paisPasaporte) return notify("Seleccioná el país que emitió tu pasaporte.", false);
     if (!direccion.trim()) return notify(t.perfil.direccionRequerida, false);
     if (!fechaNac)         return notify(t.perfil.fechaRequerida, false);
     if (!telefono.trim())  return notify(t.perfil.telRequerido, false);
@@ -81,6 +89,7 @@ export default function PerfilScreen() {
           telefono:         telefonoCom,
           tipo_documento:   tipoDoc,
           numero_documento: nroDoc.trim(),
+          pais:             tipoDoc === "dni" ? "Argentina" : paisPasaporte,
           direccion:        direccion.trim(),
           fecha_nacimiento: fechaNac,
           sexo,
@@ -99,7 +108,7 @@ export default function PerfilScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [user, nombreCompleto, nroDoc, direccion, fechaNac, telefono, telefonoPais, acepta, tipoDoc, sexo, router, t]);
+  }, [user, nombreCompleto, nroDoc, paisPasaporte, direccion, fechaNac, telefono, telefonoPais, acepta, tipoDoc, sexo, router, t]);
 
   if (!user) return null;
 
@@ -173,6 +182,23 @@ export default function PerfilScreen() {
                 style={inputStyle}
               />
             </div>
+            {tipoDoc === "pasaporte" && (
+              <div style={{ marginTop: 12 }}>
+                <label htmlFor="pais-pasaporte" style={{ display: "block", fontSize: 12, color: muted, marginBottom: 6 }}>
+                  País que emitió el pasaporte *
+                </label>
+                <select
+                  id="pais-pasaporte"
+                  value={paisPasaporte}
+                  onChange={e => setPaisPasaporte(e.target.value)}
+                  required
+                  style={inputStyle}
+                >
+                  <option value="">Seleccioná un país</option>
+                  {paises.map(pais => <option key={pais} value={pais}>{pais}</option>)}
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Teléfono */}

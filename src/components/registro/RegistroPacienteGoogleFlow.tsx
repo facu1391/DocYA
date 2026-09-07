@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import LoadingSplash from "@/components/common/LoadingSplash";
 import InternationalPhoneInput, { normalizePhoneNumber } from "@/components/common/InternationalPhoneInput";
-import type { CountryCode } from "libphonenumber-js";
+import { getCountries, type CountryCode } from "libphonenumber-js";
 import TermsPaciente from "./TermsPaciente";
 
 type GoogleWindow = Window & {
@@ -123,6 +123,7 @@ export default function RegistroPacienteGoogleFlow() {
   const [prefillName, setPrefillName] = useState("");
   const [prefillEmail, setPrefillEmail] = useState("");
   const [tipoDocumento, setTipoDocumento] = useState("dni");
+  const [paisPasaporte, setPaisPasaporte] = useState("");
   const [numeroDocumento, setNumeroDocumento] = useState("");
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
@@ -132,6 +133,12 @@ export default function RegistroPacienteGoogleFlow() {
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>("AR");
   const [statusMessage, setStatusMessage] = useState("");
   const [codigoReferido, setCodigoReferido] = useState("");
+  const paises = useMemo(() => {
+    const names = new Intl.DisplayNames(["es"], { type: "region" });
+    return getCountries()
+      .map(code => names.of(code) || code)
+      .sort((a, b) => a.localeCompare(b, "es"));
+  }, []);
 
   useEffect(() => {
     const refFromUrl = (searchParams.get("ref") || "").trim();
@@ -350,6 +357,10 @@ export default function RegistroPacienteGoogleFlow() {
       toast.error("Ingresá tu número de documento.");
       return;
     }
+    if (tipoDocumento === "pasaporte" && !paisPasaporte) {
+      toast.error("Seleccioná el país que emitió tu pasaporte.");
+      return;
+    }
     if (!direccion.trim()) {
       toast.error("Ingresá tu dirección.");
       return;
@@ -379,6 +390,7 @@ export default function RegistroPacienteGoogleFlow() {
           telefono: telefonoCompleto,
           tipo_documento: tipoDocumento,
           numero_documento: numeroDocumento.trim(),
+          pais: tipoDocumento === "dni" ? "Argentina" : paisPasaporte,
           direccion: direccion.trim(),
           fecha_nacimiento: fechaNacimiento,
           sexo,
@@ -603,6 +615,24 @@ export default function RegistroPacienteGoogleFlow() {
                 </div>
               </div>
             </div>
+
+            {tipoDocumento === "pasaporte" ? (
+              <div>
+                <Label>País que emitió el pasaporte</Label>
+                <div className="relative mt-1">
+                  <select
+                    value={paisPasaporte}
+                    onChange={(e) => setPaisPasaporte(e.target.value)}
+                    className="h-11 w-full rounded-md border bg-background px-3 pr-10 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:h-12"
+                    required
+                  >
+                    <option value="">Seleccioná un país</option>
+                    {paises.map((pais) => <option key={pais} value={pais}>{pais}</option>)}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                </div>
+              </div>
+            ) : null}
 
             <div>
               <Label>Número de teléfono</Label>
