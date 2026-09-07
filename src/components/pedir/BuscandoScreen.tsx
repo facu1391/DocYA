@@ -8,12 +8,14 @@ import {
   Stethoscope, Video, HeartPulse, Clock, MapPin,
   CheckCircle2, XCircle, PhoneCall, X, Loader2,
   UserCheck, Navigation, Star, RotateCcw, Home,
-  AlertCircle, Activity, MessageCircle,
+  AlertCircle, Activity, MessageCircle, Smartphone,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
+const PATIENT_APP_STORE_URL = "https://apps.apple.com/ar/app/docya/id6753604975";
+const PATIENT_PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.docya.paciente";
 
 type Estado =
   | "pendiente" | "aceptada" | "en_camino" | "en_domicilio"
@@ -79,6 +81,7 @@ export default function BuscandoScreen() {
   const [rating, setRating]         = useState(0);
   const [ratingEnviado, setRatingEnviado] = useState(false);
   const [user, setUser]             = useState<PedirUser | null>(null);
+  const [appDownloadUrl, setAppDownloadUrl] = useState("/descargas");
 
   const pollRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const dotsRef   = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -123,6 +126,9 @@ export default function BuscandoScreen() {
       const raw = localStorage.getItem("pedir_user");
       if (raw) setUser(JSON.parse(raw));
     } catch {}
+    const ua = navigator.userAgent.toLowerCase();
+    if (/iphone|ipad|ipod/.test(ua)) setAppDownloadUrl(PATIENT_APP_STORE_URL);
+    else if (/android/.test(ua)) setAppDownloadUrl(PATIENT_PLAY_STORE_URL);
   }, []);
 
   // Guardar consulta activa en localStorage para recuperación si el paciente navega atrás
@@ -245,6 +251,7 @@ export default function BuscandoScreen() {
   const tieneCreditoTransferencia = data?.mp_status === "transfer_credit_available";
   const esPendiente = estado === "pendiente" || estado === "buscando_medico";
   const esMedicoEnCamino = ["aceptada", "asignada", "en_camino"].includes(estado);
+  const mostrarDescargaChat = tipo === "medico" && esMedicoEnCamino;
   const mostrarAyudaWhatsApp = !esTeleconsulta && (esPendiente || esMedicoEnCamino);
   const whatsappAyudaUrl = `https://wa.me/5491168700607?text=${encodeURIComponent(`Hola DocYa, necesito ayuda con mi consulta #${consultaId}.`)}`;
   const hasProf   = !!data?.medico_nombre && !esCancelado;
@@ -499,6 +506,39 @@ export default function BuscandoScreen() {
                 <p style={{ fontSize: 14, color: muted, lineHeight: 1.4, flex: 1, margin: 0 }}>{label}</p>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* ── APP PARA CHATEAR CON EL MÉDICO ── */}
+        {mostrarDescargaChat && (
+          <div style={{ background: "linear-gradient(135deg, rgba(0,179,166,0.13), rgba(45,212,191,0.07))", border: "1.5px solid rgba(45,212,191,0.35)", borderRadius: 20, padding: "22px 20px", marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(45,212,191,0.16)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Smartphone size={23} color="#2dd4bf" />
+              </div>
+              <div>
+                <p style={{ fontWeight: 800, fontSize: 17, margin: "0 0 7px" }}>{t.buscando.descargarAppTitulo}</p>
+                <p style={{ color: muted, fontSize: 14, lineHeight: 1.6, margin: 0 }}>{t.buscando.descargarAppTexto}</p>
+              </div>
+            </div>
+            <a
+              href={appDownloadUrl}
+              target={appDownloadUrl.startsWith("http") ? "_blank" : undefined}
+              rel={appDownloadUrl.startsWith("http") ? "noopener noreferrer" : undefined}
+              style={{
+                width: "100%", padding: "14px 16px", borderRadius: 16,
+                background: "linear-gradient(90deg, #00b3a6, #2dd4bf)", color: "#fff",
+                fontSize: 15, fontWeight: 800, textAlign: "center", textDecoration: "none",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
+                marginTop: 18, boxSizing: "border-box",
+              }}
+            >
+              <Smartphone size={19} />
+              {t.buscando.descargarAppBoton}
+            </a>
+            <p style={{ color: muted, fontSize: 12, lineHeight: 1.5, margin: "12px 0 0", textAlign: "center" }}>
+              {t.buscando.descargarAppAclaracion}
+            </p>
           </div>
         )}
 
