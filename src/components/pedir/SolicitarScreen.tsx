@@ -85,6 +85,8 @@ export default function SolicitarScreen() {
   ];
 
   const METODOS_ONLINE = METODOS.filter(m => m.id !== "efectivo");
+  const METODOS_PRINCIPALES = METODOS_ONLINE.filter(m => m.id !== "saldo_mp");
+  const METODOS_SECUNDARIOS = METODOS_ONLINE.filter(m => m.id === "saldo_mp");
 
   const cfg = TIPO_CONFIG[tipo] ?? TIPO_CONFIG.medico;
 
@@ -104,6 +106,7 @@ export default function SolicitarScreen() {
   const [pacienteMenorSexo, setPacienteMenorSexo] = useState("");
   const [responsableVinculo, setResponsableVinculo] = useState("");
   const [metodoPago, setMetodoPago] = useState<MetodoPago>("transferencia");
+  const [otrosMediosAbiertos, setOtrosMediosAbiertos] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [tarifa, setTarifa] = useState<Tarifa | null>(null);
   const [tarifaLoading, setTarifaLoading] = useState(true);
@@ -430,6 +433,40 @@ export default function SolicitarScreen() {
     ? t.solicitar.idiomaIngles
     : translationLanguage === "pt-br" ? t.solicitar.idiomaPortugues : t.solicitar.sinTraduccion;
 
+  const seleccionarMetodoPago = (metodo: MetodoPago) => {
+    setMetodoPago(metodo);
+    if (metodo === "saldo_mp") setOtrosMediosAbiertos(true);
+  };
+
+  const renderMetodoOnline = (m: typeof METODOS_ONLINE[number]) => {
+    const selected = metodoPago === m.id;
+    const recommended = m.id === "transferencia";
+    const IconPago = m.icon;
+
+    return (
+      <button
+        key={m.id}
+        type="button"
+        onClick={() => seleccionarMetodoPago(m.id)}
+        aria-pressed={selected}
+        style={{ minHeight: recommended ? 76 : 72, display: "flex", alignItems: "center", gap: 10, padding: "12px", borderRadius: 14, border: `1.5px solid ${selected ? cfg.color : border}`, background: selected ? `${cfg.color}16` : inputBg, cursor: "pointer", color: selected ? cfg.color : muted, fontFamily: "inherit", transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s", textAlign: "left", boxShadow: selected ? `0 4px 14px ${cfg.color}18` : "none" }}
+      >
+        <IconPago size={18} style={{ flexShrink: 0 }} />
+        <span style={{ minWidth: 0 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 13, fontWeight: 800, color: selected ? cfg.color : text }}>{m.label}</span>
+            {recommended && (
+              <span style={{ borderRadius: 999, background: cfg.color, color: "#fff", padding: "3px 7px", fontSize: 9, fontWeight: 900, letterSpacing: "0.55px", lineHeight: 1 }}>
+                RECOMENDADO
+              </span>
+            )}
+          </span>
+          <span style={{ display: "block", color: muted, fontSize: 11, fontWeight: 600, marginTop: 3, lineHeight: 1.3 }}>{m.sub}</span>
+        </span>
+      </button>
+    );
+  };
+
   return (
     <>
 
@@ -617,35 +654,30 @@ export default function SolicitarScreen() {
               <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 14 }}>
                 {t.solicitar.metodoPago}
               </label>
-              {metodoPago !== "referral_voucher" && <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 18 }}>
-                {METODOS_ONLINE.map(m => {
-                  const selected = metodoPago === m.id;
-                  const recommended = m.id === "transferencia";
-                  const IconPago = m.icon;
-                  return (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => setMetodoPago(m.id)}
-                      aria-pressed={selected}
-                      style={{ minHeight: recommended ? 76 : 72, display: "flex", alignItems: "center", gap: 10, padding: "12px", borderRadius: 14, border: `1.5px solid ${selected ? cfg.color : border}`, background: selected ? `${cfg.color}16` : inputBg, cursor: "pointer", color: selected ? cfg.color : muted, fontFamily: "inherit", transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s", textAlign: "left", boxShadow: selected ? `0 4px 14px ${cfg.color}18` : "none" }}
-                    >
-                      <IconPago size={18} style={{ flexShrink: 0 }} />
-                      <span style={{ minWidth: 0 }}>
-                        <span style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
-                          <span style={{ fontSize: 13, fontWeight: 800, color: selected ? cfg.color : text }}>{m.label}</span>
-                          {recommended && (
-                            <span style={{ borderRadius: 999, background: cfg.color, color: "#fff", padding: "3px 7px", fontSize: 9, fontWeight: 900, letterSpacing: "0.55px", lineHeight: 1 }}>
-                              RECOMENDADO
-                            </span>
-                          )}
-                        </span>
-                        <span style={{ display: "block", color: muted, fontSize: 11, fontWeight: 600, marginTop: 3, lineHeight: 1.3 }}>{m.sub}</span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>}
+              {metodoPago !== "referral_voucher" && <>
+                <div className="payment-methods-primary">
+                  {METODOS_PRINCIPALES.map(renderMetodoOnline)}
+                </div>
+                <div style={{ marginBottom: 18 }}>
+                  <button
+                    type="button"
+                    aria-expanded={otrosMediosAbiertos}
+                    onClick={() => {
+                      if (metodoPago === "saldo_mp") setOtrosMediosAbiertos(true);
+                      else setOtrosMediosAbiertos(abierto => !abierto);
+                    }}
+                    style={{ width: "100%", minHeight: 48, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "11px 13px", borderRadius: 14, border: `1px solid ${metodoPago === "saldo_mp" ? cfg.color : border}`, background: metodoPago === "saldo_mp" ? `${cfg.color}10` : "transparent", color: text, cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 800, textAlign: "left" }}
+                  >
+                    <span>Otros medios de pago{metodoPago === "saldo_mp" ? " · Saldo Mercado Pago seleccionado" : ""}</span>
+                    <ChevronDown size={18} color={metodoPago === "saldo_mp" ? cfg.color : muted} style={{ flexShrink: 0, transform: otrosMediosAbiertos ? "rotate(180deg)" : "rotate(0deg)", transition: "transform .15s" }} />
+                  </button>
+                  {otrosMediosAbiertos && (
+                    <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                      {METODOS_SECUNDARIOS.map(renderMetodoOnline)}
+                    </div>
+                  )}
+                </div>
+              </>}
               {metodoPago === "referral_voucher" && (
                 <div style={{ borderRadius: 16, border: `1px solid ${border}`, padding: 16, background: inputBg }}><div style={{ display: "flex", justifyContent: "space-between" }}><span>Precio de la teleconsulta</span><strong>{formatPesos(tarifa?.monto)}</strong></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, color: "#a5b4fc" }}><span>Beneficio</span><strong>Teleconsulta gratis</strong></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 14, paddingTop: 14, borderTop: `1px solid ${border}`, fontSize: 18 }}><span>Total a pagar</span><strong>$0</strong></div></div>
               )}
@@ -748,7 +780,9 @@ export default function SolicitarScreen() {
 
       <style>{`
         .teleconsulta-whatsapp-help { position: fixed; right: 20px; bottom: max(20px, env(safe-area-inset-bottom)); z-index: 40; display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; border-radius: 999px; background: #25d366; color: #063b24; text-decoration: none; font-size: 14px; font-weight: 800; box-shadow: 0 8px 24px rgba(0,0,0,.22); }
+        .payment-methods-primary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
         @media (max-width: 640px) { .teleconsulta-whatsapp-help { right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); width: 52px; height: 52px; min-height: 52px; padding: 0; justify-content: center; } .teleconsulta-whatsapp-help span { display: none; } }
+        @media (max-width: 420px) { .payment-methods-primary { grid-template-columns: 1fr; } }
       `}</style>
 
       {confirmacionPaciente && (
