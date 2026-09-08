@@ -8,6 +8,7 @@ import {
   ArrowLeft, Stethoscope, Video, HeartPulse, Baby, Gift,
   CreditCard, Wallet, Banknote, Landmark, Loader2, ChevronRight,
   Navigation, ShieldCheck, CheckCircle2, RotateCcw, UserRoundCheck,
+  ChevronDown, Globe2, MessageCircle,
 } from "lucide-react";
 import AddressInput from "./AddressInput";
 import MapView from "./MapView";
@@ -68,7 +69,6 @@ export default function SolicitarScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const tipo = (params.get("tipo") ?? "medico") as keyof typeof TIPO_ICONS;
-  const tipoIcons = TIPO_ICONS[tipo] ?? TIPO_ICONS.medico;
 
   const TIPO_CONFIG = {
     medico:       { label: t.solicitar.tipos.medico,     ...TIPO_ICONS.medico },
@@ -109,6 +109,7 @@ export default function SolicitarScreen() {
   const [tarifaError, setTarifaError] = useState("");
   const [translationQuote, setTranslationQuote] = useState<TranslationQuote | null>(null);
   const [translationLanguage, setTranslationLanguage] = useState<TranslationLanguage>("");
+  const [translationOpen, setTranslationOpen] = useState(false);
   const [confirmacionPaciente, setConfirmacionPaciente] = useState(false);
   const [availableRewards, setAvailableRewards] = useState(0);
   const [referralAttemptKey, setReferralAttemptKey] = useState<string | null>(null);
@@ -423,6 +424,10 @@ export default function SolicitarScreen() {
   const checkoutAmount = translationLanguage && translationQuote?.available
     ? translationQuote.total_amount
     : (translationQuote?.consultation_base_amount ?? tarifa?.monto);
+  const whatsappSupportUrl = `https://wa.me/5491168700607?text=${encodeURIComponent(`Hola, estoy solicitando una teleconsulta en DocYa${checkoutAmount ? ` por ${formatPesos(checkoutAmount)}` : ""} y necesito ayuda.`)}`;
+  const translationLabel = translationLanguage === "en"
+    ? t.solicitar.idiomaIngles
+    : translationLanguage === "pt-br" ? t.solicitar.idiomaPortugues : t.solicitar.sinTraduccion;
 
   return (
     <>
@@ -443,7 +448,7 @@ export default function SolicitarScreen() {
           </div>
         </header>
 
-        <main style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 80px" }}>
+        <main style={{ maxWidth: 720, margin: "0 auto", padding: tipo === "teleconsulta" ? "32px 20px 150px" : "32px 20px 80px" }}>
           <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: 900, marginBottom: 8, color: "#2dd4bf" }}>
             {t.solicitar.pageTitle} {cfg.label.toLowerCase()}
           </h1>
@@ -566,25 +571,37 @@ export default function SolicitarScreen() {
             </div>
 
             {tipo === "teleconsulta" && translationQuote?.available && (
-              <div style={{ background: "rgba(37,215,200,0.06)", border: "1.5px solid rgba(37,215,200,0.24)", borderRadius: 20, padding: "20px" }}>
-                <p style={{ margin: "0 0 13px", fontSize: 16, fontWeight: 900 }}>{t.solicitar.traduccionTitulo}</p>
-                {[
-                  { value: "" as TranslationLanguage, label: t.solicitar.sinTraduccion },
-                  ...(translationQuote.languages.includes("en") ? [{ value: "en" as TranslationLanguage, label: `${t.solicitar.idiomaIngles} + ${formatPesos(translationQuote.translation_fee)}` }] : []),
-                  ...(translationQuote.languages.includes("pt-br") ? [{ value: "pt-br" as TranslationLanguage, label: `${t.solicitar.idiomaPortugues} + ${formatPesos(translationQuote.translation_fee)}` }] : []),
-                ].map(option => (
-                  <label key={option.value || "none"} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", cursor: "pointer", fontWeight: 750 }}>
-                    <input type="radio" name="translation-language" checked={translationLanguage === option.value} onChange={() => setTranslationLanguage(option.value)} />
-                    {option.label}
-                  </label>
-                ))}
-                <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${border}`, fontSize: 13 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}><span>{t.solicitar.teleconsultaLinea}</span><strong>{formatPesos(translationQuote.consultation_base_amount)}</strong></div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 7 }}><span>{t.solicitar.traduccionIaLinea}</span><strong>{translationLanguage ? formatPesos(translationQuote.translation_fee) : "$0"}</strong></div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, paddingTop: 10, borderTop: `1px solid ${border}`, fontSize: 17 }}><span>{t.solicitar.totalLinea}</span><strong>{formatPesos(translationLanguage ? translationQuote.total_amount : translationQuote.consultation_base_amount)}</strong></div>
+              <>
+                <div style={{ background: "rgba(37,215,200,0.06)", border: "1.5px solid rgba(37,215,200,0.24)", borderRadius: 20, overflow: "hidden" }}>
+                  <button type="button" onClick={() => setTranslationOpen(open => !open)} aria-expanded={translationOpen} aria-controls="translation-options" style={{ width: "100%", minHeight: 70, display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", border: 0, background: "transparent", color: text, cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
+                    <Globe2 size={22} color="#25d7c8" style={{ flexShrink: 0 }} />
+                    <span style={{ minWidth: 0, flex: 1 }}>
+                      <span style={{ display: "block", fontSize: 15, fontWeight: 850 }}>{translationLanguage ? "Traducción durante la consulta" : t.solicitar.traduccionTitulo}</span>
+                      <span style={{ display: "block", marginTop: 3, color: muted, fontSize: 13 }}>{translationLanguage ? `${translationLabel} · +${formatPesos(translationQuote.translation_fee)}` : "Sin traducción · Opcional"}</span>
+                    </span>
+                    <ChevronDown size={21} color={muted} style={{ flexShrink: 0, transform: translationOpen ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
+                  </button>
+                  {translationOpen && <div id="translation-options" style={{ borderTop: `1px solid ${border}`, padding: "10px 16px 14px" }}>
+                    {[
+                      { value: "" as TranslationLanguage, label: t.solicitar.sinTraduccion },
+                      ...(translationQuote.languages.includes("en") ? [{ value: "en" as TranslationLanguage, label: `${t.solicitar.idiomaIngles} + ${formatPesos(translationQuote.translation_fee)}` }] : []),
+                      ...(translationQuote.languages.includes("pt-br") ? [{ value: "pt-br" as TranslationLanguage, label: `${t.solicitar.idiomaPortugues} + ${formatPesos(translationQuote.translation_fee)}` }] : []),
+                    ].map(option => (
+                      <label key={option.value || "none"} style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 46, padding: "7px 0", cursor: "pointer", fontWeight: 750 }}>
+                        <input type="radio" name="translation-language" checked={translationLanguage === option.value} onChange={() => { setTranslationLanguage(option.value); setTranslationOpen(false); }} />
+                        {option.label}
+                      </label>
+                    ))}
+                  </div>}
                 </div>
-                {translationLanguage && !translationQuote.translation_charged && <p style={{ margin: "10px 0 0", color: muted, fontSize: 11.5 }}>{t.solicitar.traduccionNoIncluida}</p>}
-              </div>
+                <div aria-label="Resumen del precio" style={{ borderRadius: 18, border: `1px solid ${border}`, background: inputBg, padding: "16px", fontSize: 14 }}>
+                  <p style={{ fontSize: 13, fontWeight: 850, margin: "0 0 12px", color: muted, textTransform: "uppercase", letterSpacing: "0.5px" }}>Resumen</p>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}><span>{t.solicitar.teleconsultaLinea}</span><strong>{formatPesos(translationQuote.consultation_base_amount)}</strong></div>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 16, marginTop: 8 }}><span>{t.solicitar.traduccionIaLinea}</span><strong>{translationLanguage ? formatPesos(translationQuote.translation_fee) : "$0"}</strong></div>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 16, marginTop: 12, paddingTop: 12, borderTop: `1px solid ${border}`, fontSize: 18 }}><span>{t.solicitar.totalLinea}</span><strong>{formatPesos(checkoutAmount)}</strong></div>
+                  {translationLanguage && !translationQuote.translation_charged && <p style={{ margin: "10px 0 0", color: muted, fontSize: 11.5 }}>{t.solicitar.traduccionNoIncluida}</p>}
+                </div>
+              </>
             )}
 
             {/* MÉTODO DE PAGO */}
@@ -718,10 +735,20 @@ export default function SolicitarScreen() {
                 <>{metodoPago === "referral_voucher" ? "Solicitar teleconsulta gratis" : metodoPago === "efectivo" ? t.solicitar.solicitarBtn : metodoPago === "transferencia" ? `Pagar por transferencia - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : metodoPago === "saldo_mp" ? `Autorizar y pedir teleconsulta - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : `${t.solicitar.autorizarPedir} ${cfg.label.toLowerCase()} - ${formatPesos(checkoutAmount, t.solicitar.cargando)}`} <ChevronRight size={20} /></>
               )}
             </button>
+            {tipo === "teleconsulta" && <a href={whatsappSupportUrl} target="_blank" rel="noreferrer" style={{ alignSelf: "center", color: muted, fontSize: 13, textDecoration: "underline", textUnderlineOffset: 3 }}>¿Tenés alguna duda? Hablá con nosotros por WhatsApp</a>}
 
           </div>
         </main>
       </div>
+
+      {tipo === "teleconsulta" && <a className="teleconsulta-whatsapp-help" href={whatsappSupportUrl} target="_blank" rel="noreferrer" aria-label="Hablar con soporte por WhatsApp">
+        <MessageCircle size={21} aria-hidden="true" /> <span>¿Necesitás ayuda?</span>
+      </a>}
+
+      <style>{`
+        .teleconsulta-whatsapp-help { position: fixed; right: 20px; bottom: max(20px, env(safe-area-inset-bottom)); z-index: 40; display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; border-radius: 999px; background: #25d366; color: #063b24; text-decoration: none; font-size: 14px; font-weight: 800; box-shadow: 0 8px 24px rgba(0,0,0,.22); }
+        @media (max-width: 640px) { .teleconsulta-whatsapp-help { right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); width: 52px; height: 52px; min-height: 52px; padding: 0; justify-content: center; } .teleconsulta-whatsapp-help span { display: none; } }
+      `}</style>
 
       {confirmacionPaciente && (
         <div

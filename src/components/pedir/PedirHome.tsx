@@ -380,6 +380,16 @@ export default function PedirHome() {
                 })}
               </div>
 
+              <Link href="/pedir/consultas" className="pedir-documents-banner" style={{ background: cardBg, border: `1px solid ${border}`, color: text, textDecoration: "none" }}>
+                <div className="pedir-documents-icon"><FileText size={22} color="#00b3a6" /></div>
+                <div className="pedir-documents-copy">
+                  <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Tus documentos siempre disponibles</p>
+                  <p style={{ margin: "4px 0 0", fontSize: 13, color: muted, lineHeight: 1.5 }}>Las recetas, certificados y órdenes médicas que genere el profesional quedan guardados automáticamente en <strong style={{ color: text }}>Mis consultas</strong>.</p>
+                  <p className="pedir-documents-secondary" style={{ margin: "3px 0 0", fontSize: 12, color: muted }}>Podés consultarlos o descargarlos cuando los necesites.</p>
+                </div>
+                <ChevronRight className="pedir-documents-arrow" size={21} color="#00b3a6" aria-hidden="true" />
+              </Link>
+
               {/* TRUST STRIP */}
               <div className="pedir-trust">
                 {TRUST_STRIP.map(({ icon: TIcon, label, sub }) => (
@@ -564,12 +574,18 @@ export default function PedirHome() {
         .pedir-header-user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .pedir-hero { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; padding: 40px 0 36px; }
         .pedir-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+        .pedir-documents-banner { display: flex; align-items: center; gap: 16px; min-height: 92px; padding: 18px 20px; margin: -18px 0 32px; border-radius: 20px; transition: transform .15s, box-shadow .15s; }
+        .pedir-documents-banner:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,.12); }
+        .pedir-documents-icon { width: 46px; height: 46px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: rgba(0,179,166,.11); }
+        .pedir-documents-copy { min-width: 0; flex: 1; }
+        .pedir-documents-arrow { flex: 0 0 auto; }
         .pedir-trust { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
         .pedir-login { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding-top: 64px; align-items: center; min-height: calc(100vh - 64px); }
         .pedir-mobile-hero { display: none; }
         .wa-card { min-width: 220px; }
         @media (max-width: 900px) {
           .pedir-cards { grid-template-columns: 1fr; }
+          .pedir-documents-banner { margin-top: -22px; }
           .pedir-trust { grid-template-columns: repeat(2, 1fr); }
           .pedir-login { grid-template-columns: 1fr; gap: 32px; min-height: auto; padding-top: 40px; padding-bottom: 40px; }
         }
@@ -590,6 +606,11 @@ export default function PedirHome() {
           .pedir-hero { grid-template-columns: 1fr; gap: 16px; padding: 24px 0 28px; }
           .wa-card { min-width: auto; width: 100%; }
           .pedir-trust { grid-template-columns: 1fr; }
+          .pedir-documents-banner { min-height: 0; gap: 12px; padding: 16px; margin: -20px 0 28px; align-items: flex-start; }
+          .pedir-documents-icon { width: 42px; height: 42px; border-radius: 13px; }
+          .pedir-documents-banner p:first-child { font-size: 15px !important; }
+          .pedir-documents-secondary { display: none; }
+          .pedir-documents-arrow { margin-top: 10px; }
           .pedir-login { padding-top: 20px; padding-bottom: 40px; }
           .pedir-login-left { display: none; }
           .pedir-login-card { width: 100%; }
