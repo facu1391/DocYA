@@ -251,25 +251,26 @@ export default function PedirHome() {
       <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
         {/* HEADER */}
-        <header style={{ borderBottom: `1px solid ${border}`, background: headerBg, backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50, padding: "0 16px" }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto", height: 64, display: "flex", alignItems: "center", gap: 10 }}>
-            <Link href="/" style={{ display: "flex", alignItems: "center", flex: "0 0 auto", minWidth: 0 }}>
+        <header className="pedir-header" style={{ borderBottom: `1px solid ${border}`, background: headerBg, backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50 }}>
+          <div className="pedir-header-inner" style={{ maxWidth: 1200, margin: "0 auto" }}>
+            <Link href="/" className="pedir-header-logo">
               <Image src={logo} alt="DocYa" width={100} height={32} style={{ width: "clamp(76px, 22vw, 100px)", height: "auto", maxHeight: 32, objectFit: "contain", display: "block", flexShrink: 0 }} />
             </Link>
-            <div style={{ flex: 1 }} />
+            <div className="pedir-header-controls">
             {user && (
-              <Link href="/pedir/consultas" style={{ fontSize: 13, fontWeight: 600, color: muted, textDecoration: "none", padding: "8px 12px", borderRadius: 999, border: `1px solid ${border}`, transition: "all 0.15s", flexShrink: 0 }}>
+              <Link href="/pedir/consultas" className="pedir-header-consultas" style={{ fontSize: 13, fontWeight: 600, color: muted, textDecoration: "none", padding: "8px 12px", borderRadius: 999, border: `1px solid ${border}`, transition: "all 0.15s", flexShrink: 0 }}>
                 {t.pedir.misConsultas}
               </Link>
             )}
             {user ? (
-              <div style={{ position: "relative" }}>
+              <div className="pedir-header-user-menu" style={{ position: "relative" }}>
                 <button
                   onClick={() => setUserMenuOpen(o => !o)}
-                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 999, border: `1px solid ${border}`, background: "transparent", color: text, cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit", flexShrink: 0 }}
+                  className="pedir-header-user"
+                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 999, border: `1px solid ${border}`, background: "transparent", color: text, cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}
                 >
                   <User size={16} />
-                  {user.full_name.split(" ")[0]}
+                  <span className="pedir-header-user-name">{user.full_name.split(" ")[0]}</span>
                   <ChevronDown size={14} style={{ color: muted }} />
                 </button>
                 {userMenuOpen && (
@@ -285,17 +286,18 @@ export default function PedirHome() {
                 )}
               </div>
             ) : null}
-            <button onClick={() => setLocale(locale === "es" ? "en" : "es")} aria-label={locale === "es" ? "Switch to English" : "Cambiar a Español"} title={locale === "es" ? "English" : "Español"} style={{ background: "none", cursor: "pointer", color: muted, padding: 8, borderRadius: 999, display: "flex", alignItems: "center", gap: 4, border: `1px solid ${border}`, position: "relative" }}>
+            <button className="pedir-header-language" onClick={() => setLocale(locale === "es" ? "en" : "es")} aria-label={locale === "es" ? "Switch to English" : "Cambiar a Español"} title={locale === "es" ? "English" : "Español"} style={{ background: "none", cursor: "pointer", color: muted, padding: 8, borderRadius: 999, display: "flex", alignItems: "center", gap: 4, border: `1px solid ${border}`, position: "relative" }}>
               <Globe size={18} />
               <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase" }}>{locale === "es" ? "EN" : "ES"}</span>
             </button>
-            <button onClick={() => setTheme(dark ? "light" : "dark")} style={{ background: "none", cursor: "pointer", color: muted, padding: 8, borderRadius: 999, display: "flex", alignItems: "center", border: `1px solid ${border}` }}>
+            <button className="pedir-header-theme" onClick={() => setTheme(dark ? "light" : "dark")} aria-label={dark ? "Usar tema claro" : "Usar tema oscuro"} style={{ background: "none", cursor: "pointer", color: muted, padding: 8, borderRadius: 999, display: "flex", alignItems: "center", border: `1px solid ${border}` }}>
               {dark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
+            </div>
           </div>
         </header>
 
-        <main style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px", overflowX: "hidden" }}>
+        <main style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px" }}>
           <details style={{ margin: "20px 0", border: `1px solid ${border}`, borderRadius: 18, padding: 18 }}>
             <summary style={{ cursor: "pointer", fontWeight: 700 }}>¿Vas a hacer una teleconsulta? Probá tu cámara y micrófono</summary>
             <DeviceCheck onSuccess={markDevicesTested} />
@@ -554,6 +556,12 @@ export default function PedirHome() {
       }} />}
       <style>{`
         @keyframes spin { to { transform: rotate(360deg) } }
+        .pedir-header { width: 100%; padding: 0 16px; }
+        .pedir-header-inner { min-width: 0; height: 64px; display: flex; align-items: center; gap: 10px; }
+        .pedir-header-logo { display: flex; align-items: center; flex: 0 0 auto; min-width: 0; }
+        .pedir-header-controls { min-width: 0; margin-left: auto; display: flex; align-items: center; gap: 10px; }
+        .pedir-header-consultas, .pedir-header-user, .pedir-header-language, .pedir-header-theme { flex: 0 0 auto; }
+        .pedir-header-user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .pedir-hero { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; padding: 40px 0 36px; }
         .pedir-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
         .pedir-trust { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
@@ -566,6 +574,19 @@ export default function PedirHome() {
           .pedir-login { grid-template-columns: 1fr; gap: 32px; min-height: auto; padding-top: 40px; padding-bottom: 40px; }
         }
         @media (max-width: 640px) {
+          .pedir-header { padding: 10px 12px 12px; }
+          .pedir-header-inner { height: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+          .pedir-header-logo { height: 34px; justify-self: start; }
+          .pedir-header-logo img { width: 100px !important; }
+          .pedir-header-controls { width: 100%; min-width: 0; margin-left: 0; display: grid; grid-template-columns: minmax(76px, .9fr) minmax(88px, 1.1fr) 50px 44px; gap: 6px; align-items: center; }
+          .pedir-header-consultas, .pedir-header-user, .pedir-header-language, .pedir-header-theme { min-width: 0; min-height: 46px; justify-content: center; }
+          .pedir-header-consultas { padding: 8px 6px !important; font-size: 12px !important; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .pedir-header-user-menu { min-width: 0; }
+          .pedir-header-user { width: 100%; padding: 8px 8px !important; gap: 5px !important; }
+          .pedir-header-user-name { min-width: 0; flex: 1; text-align: left; }
+          .pedir-header-language { padding: 8px 6px !important; gap: 3px !important; }
+          .pedir-header-theme { padding: 8px 10px !important; }
+          .pedir-header-user-menu > div { right: 0; max-width: calc(100vw - 24px); }
           .pedir-hero { grid-template-columns: 1fr; gap: 16px; padding: 24px 0 28px; }
           .wa-card { min-width: auto; width: 100%; }
           .pedir-trust { grid-template-columns: 1fr; }
@@ -573,6 +594,12 @@ export default function PedirHome() {
           .pedir-login-left { display: none; }
           .pedir-login-card { width: 100%; }
           .pedir-mobile-hero { display: block; }
+        }
+        @media (max-width: 340px) {
+          .pedir-header-controls { grid-template-columns: minmax(70px, .85fr) minmax(76px, 1.15fr) 46px 42px; gap: 4px; }
+          .pedir-header-consultas { font-size: 11px !important; }
+          .pedir-header-user { font-size: 13px !important; padding: 8px 6px !important; }
+          .pedir-header-language { font-size: 0; }
         }
       `}</style>
     </>
