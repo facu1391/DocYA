@@ -8,8 +8,9 @@ import {
   ArrowLeft, Stethoscope, Video, HeartPulse, Baby, Gift,
   CreditCard, Wallet, Banknote, Landmark, Loader2, ChevronRight,
   Navigation, ShieldCheck, CheckCircle2, RotateCcw, UserRoundCheck,
-  ChevronDown, Globe2, MessageCircle,
+  ChevronDown, Globe2,
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import AddressInput from "./AddressInput";
 import MapView from "./MapView";
 import { usePedirTheme } from "./theme";
@@ -741,8 +742,8 @@ export default function SolicitarScreen() {
         </main>
       </div>
 
-      {tipo === "teleconsulta" && <a className="teleconsulta-whatsapp-help" href={whatsappSupportUrl} target="_blank" rel="noreferrer" aria-label="Hablar con soporte por WhatsApp">
-        <MessageCircle size={21} aria-hidden="true" /> <span>¿Necesitás ayuda?</span>
+      {tipo === "teleconsulta" && <a className="teleconsulta-whatsapp-help" href={whatsappSupportUrl} target="_blank" rel="noreferrer" aria-label="Contactar a DocYa por WhatsApp">
+        <FaWhatsapp size={25} color="#fff" aria-hidden="true" /> <span>¿Necesitás ayuda?</span>
       </a>}
 
       <style>{`
