@@ -1,5 +1,6 @@
 "use client";
 import DeviceCheck from "./DeviceCheck";
+import TeleconsultaDeviceModal from "./TeleconsultaDeviceModal";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Script from "next/script";
@@ -66,6 +67,13 @@ const notify = (msg: string, ok = true) => {
 
 export default function PedirHome() {
   const router = useRouter();
+  const [deviceModalOpen, setDeviceModalOpen] = useState(false);
+  const devicesTested = useRef(false);
+  const markDevicesTested = () => { devicesTested.current = true; };
+  const startTeleconsulta = () => {
+    if (devicesTested.current) router.push("/pedir/filtro?tipo=teleconsulta");
+    else setDeviceModalOpen(true);
+  };
   const googleRef = useRef<HTMLDivElement | null>(null);
   const googleRendered = useRef(false);
   const [googleLoaded, setGoogleLoaded] = useState(false);
@@ -290,7 +298,7 @@ export default function PedirHome() {
         <main style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px", overflowX: "hidden" }}>
           <details style={{ margin: "20px 0", border: `1px solid ${border}`, borderRadius: 18, padding: 18 }}>
             <summary style={{ cursor: "pointer", fontWeight: 700 }}>¿Vas a hacer una teleconsulta? Probá tu cámara y micrófono</summary>
-            <DeviceCheck />
+            <DeviceCheck onSuccess={markDevicesTested} />
           </details>
 
           {user ? (
@@ -324,7 +332,7 @@ export default function PedirHome() {
 
               {PATIENT_REFERRALS_ENABLED && referralSummary && (
                 <div style={{ marginBottom: 22 }}>
-                  <ReferralProgressCard summary={referralSummary} onOpen={() => router.push(referralSummary.available_rewards_count > 0 ? "/pedir/filtro?tipo=teleconsulta" : "/pedir/invitar")} compact />
+                  <ReferralProgressCard summary={referralSummary} onOpen={() => referralSummary.available_rewards_count > 0 ? startTeleconsulta() : router.push("/pedir/invitar")} compact />
                 </div>
               )}
 
@@ -360,7 +368,7 @@ export default function PedirHome() {
                         ))}
                       </div>
                       <button
-                        onClick={() => router.push(s.id === "enfermero" ? `/pedir/solicitar?tipo=enfermero` : `/pedir/filtro?tipo=${s.id}`)}
+                        onClick={() => s.id === "teleconsulta" ? startTeleconsulta() : router.push(s.id === "enfermero" ? `/pedir/solicitar?tipo=enfermero` : `/pedir/filtro?tipo=${s.id}`)}
                         style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: s.color, color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", boxShadow: `0 6px 20px ${s.color}40` }}
                       >
                         {s.btn} <ChevronRight size={18} />
@@ -540,6 +548,10 @@ export default function PedirHome() {
         </footer>
       </div>
 
+      {deviceModalOpen && <TeleconsultaDeviceModal onClose={() => setDeviceModalOpen(false)} onSuccess={markDevicesTested} onContinue={() => {
+        setDeviceModalOpen(false);
+        router.push("/pedir/filtro?tipo=teleconsulta");
+      }} />}
       <style>{`
         @keyframes spin { to { transform: rotate(360deg) } }
         .pedir-hero { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; padding: 40px 0 36px; }

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Camera, Mic, ShieldCheck } from "lucide-react";
 import { usePedirTheme } from "./theme";
 
-export default function DeviceCheck({ onContinue }: { onContinue?: () => void }) {
+export default function DeviceCheck({ onContinue, continueLabel = "Continuar a la sala", onSuccess }: { onContinue?: () => void; continueLabel?: string; onSuccess?: () => void }) {
   const { surface, text, muted, brandBorder } = usePedirTheme();
   const video = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream | null>(null);
@@ -36,7 +36,9 @@ export default function DeviceCheck({ onContinue }: { onContinue?: () => void })
       if (attempt !== generation.current) { media.getTracks().forEach(track => track.stop()); return; }
       stream.current = media;
       if (video.current) { video.current.srcObject = media; await video.current.play().catch(() => {}); }
+      if (attempt !== generation.current) return;
       setReady(true);
+      onSuccess?.();
       setMessage("Cámara y micrófono disponibles. Confirmá que te ves. Esta prueba no graba ni envía audio o video; revisá el nivel del micrófono también en la sala.");
     } catch (error) {
       if (attempt !== generation.current) return;
@@ -56,7 +58,7 @@ export default function DeviceCheck({ onContinue }: { onContinue?: () => void })
     <p role="status" style={{ lineHeight: 1.6, fontSize: 14 }}>{message || (busy ? "Esperando tu respuesta al permiso del navegador…" : "Solo se activan cuando tocás Probar. El permiso de esta página puede ser distinto del que pide la sala.")}</p>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 16 }}>
       <button type="button" disabled={busy} onClick={test} style={{ border: 0, borderRadius: 12, padding: "13px 18px", background: "#6366f1", color: "white", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}><Mic size={17} />{busy ? "Esperando permiso…" : ready ? "Volver a probar" : "Probar cámara y micrófono"}</button>
-      {(ready || onContinue || busy) && <button type="button" onClick={finish} style={{ border: `1px solid ${brandBorder}`, borderRadius: 12, padding: "13px 18px", color: text, background: "transparent", cursor: "pointer" }}>{onContinue ? "Continuar a la sala" : "Cerrar prueba"}</button>}
+      {(ready || onContinue || busy) && <button type="button" onClick={finish} style={{ border: `1px solid ${brandBorder}`, borderRadius: 12, padding: "13px 18px", color: text, background: "transparent", cursor: "pointer" }}>{onContinue ? continueLabel : "Cerrar prueba"}</button>}
     </div>
     <p style={{ display: "flex", gap: 6, alignItems: "center", color: muted, fontSize: 12, marginTop: 14 }}><ShieldCheck size={15} />Al cerrar la prueba liberamos los dispositivos.</p>
   </section>;
