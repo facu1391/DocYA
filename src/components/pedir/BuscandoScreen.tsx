@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
+import styles from "./BuscandoScreen.module.css";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 const PATIENT_APP_STORE_URL = "https://apps.apple.com/ar/app/docya/id6753604975";
@@ -310,7 +311,26 @@ export default function BuscandoScreen() {
         </div>
       </header>
 
-      <main style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 80px" }}>
+      <main className={styles.layout}>
+        <section className={`${styles.scene} ${esTeleconsulta ? styles.video : ""}`} aria-label={tipoCfg.label}>
+          <div className={styles.sceneTop}><span className={styles.badge}>{tipoCfg.label}</span><span>#{consultaId}</span></div>
+          <div className={styles.visual} aria-hidden="true">
+            <div className={`${styles.ring} ${esPendiente ? styles.pulsing : ""}`} />
+            <div className={`${styles.ring} ${styles.ringTwo} ${esPendiente ? styles.pulsing : ""}`} />
+            <div className={styles.orbit} />
+            <div className={styles.centerIcon}>
+              {esFin ? <CheckCircle2 size={48} /> : esCancelado ? <XCircle size={48} /> : esTeleconsulta ? <Video size={48} /> : <MapPin size={48} />}
+            </div>
+          </div>
+          <div className={styles.sceneCopy}>
+            <span className={styles.eyebrow}>DOCYA · {tipoCfg.label}</span>
+            <h2>{estadoTitulo}</h2>
+            <p>{estadoSub}</p>
+            {!esTeleconsulta && data?.direccion && <div className={styles.address}><MapPin size={18} /><span>{data.direccion}</span></div>}
+            {esTeleconsulta && <div className={styles.address}><Video size={18} /><span>{t.buscando.tipos.teleconsulta}</span></div>}
+          </div>
+        </section>
+        <section className={styles.panel} aria-label={estadoTitulo}>
 
         {/* ── STEPPER ── */}
         {!esCancelado && (
@@ -351,7 +371,7 @@ export default function BuscandoScreen() {
         )}
 
         {/* ── ESTADO PRINCIPAL ── */}
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <div className={styles.status} style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{
             width: 96, height: 96, borderRadius: 999,
             background: `${estadoColor}15`,
@@ -705,6 +725,7 @@ export default function BuscandoScreen() {
           )}
         </div>
 
+        </section>
       </main>
     </div>
   );
