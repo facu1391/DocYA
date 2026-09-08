@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
+import DeviceCheck from "./DeviceCheck";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -23,6 +24,7 @@ export default function VideoLlamadaScreen() {
   const medico     = params.get("medico") ?? "";
 
   const [iframeReady, setIframeReady] = useState(false);
+  const [devicesChecked, setDevicesChecked] = useState(false);
   const [fullscreen,  setFullscreen]  = useState(false);
   const [elapsed,     setElapsed]     = useState(0);
   const [finalizado,  setFinalizado]  = useState(false);
@@ -164,7 +166,7 @@ export default function VideoLlamadaScreen() {
       )}
 
       {/* VIDEO */}
-      <div style={{ flex: 1, position: "relative", background: "#000" }}>
+      {!devicesChecked ? <div style={{ width: "100%", maxWidth: 680, margin: "0 auto", padding: 20 }}><DeviceCheck onContinue={() => setDevicesChecked(true)} /></div> : <div style={{ flex: 1, position: "relative", background: "#000" }}>
         {!iframeReady && (
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: bg, zIndex: 2 }}>
             <div style={{ width: 64, height: 64, borderRadius: 999, background: "rgba(129,140,248,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -181,7 +183,11 @@ export default function VideoLlamadaScreen() {
           onLoad={() => setIframeReady(true)}
           title="Videollamada DocYa"
         />
-      </div>
+      </div>}
+      {devicesChecked && /^https:\/\//i.test(videoUrl) && <div style={{ padding: 14, textAlign: "center", background: videoBarBg }}>
+        <a href={videoUrl} style={{ color: text, textDecoration: "underline" }}>¿Problemas con audio o cámara? Abrir la sala directamente</a>
+        <p style={{ color: muted, fontSize: 12 }}>La sala puede volver a pedirte permisos. Permití cámara y micrófono también allí.</p>
+      </div>}
 
       {/* BARRA INFERIOR */}
       {!fullscreen && (

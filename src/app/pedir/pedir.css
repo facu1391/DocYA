@@ -1,0 +1,22 @@
+.pedir-experience { --pedir-focus: #14b8a6; text-rendering: optimizeLegibility; }
+.pedir-experience main { animation: pedir-enter .3s ease-out; }
+.pedir-experience h1, .pedir-experience h2, .pedir-experience h3 { text-wrap: balance; letter-spacing: -.025em; }
+.pedir-experience p { text-wrap: pretty; }
+.pedir-experience button, .pedir-experience input, .pedir-experience select { min-height: 44px; }
+.pedir-experience :is(button, a, input, select, summary):focus-visible { outline: 3px solid var(--pedir-focus); outline-offset: 4px; }
+.pedir-experience button:disabled { cursor: wait; opacity: .6; }
+.pedir-experience .pedir-hero { padding: 30px; border-radius: 28px; border: 1px solid #14b8a62b; background: radial-gradient(ellipse at top left, #14b8a618, transparent 70%); margin-bottom: 24px; }
+.pedir-experience .pedir-cards > div { border-top: 3px solid #14b8a6 !important; box-shadow: 0 8px 28px #00000008; }
+.pedir-experience .pedir-cards > div:nth-child(2) { border-top-color: #818cf8 !important; }
+.pedir-experience .pedir-cards > div:nth-child(3) { border-top-color: #f472b6 !important; }
+.pedir-experience .pedir-cards button { min-height: 50px; }
+.pedir-experience input:not([type=checkbox]):not([type=radio]), .pedir-experience select { font-size: 16px; }
+.pedir-experience details > summary { list-style-position: inside; line-height: 1.6; }
+.pedir-experience details[open] > summary { color: #0d9488; }
+@keyframes pedir-enter { from { opacity: .7; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media(max-width: 640px) {
+  .pedir-experience .pedir-hero { padding: 22px 18px; border-radius: 22px; }
+  .pedir-experience .pedir-cards { gap: 16px; }
+  .pedir-experience main { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+}
+@media(prefers-reduced-motion: reduce) { .pedir-experience main { animation: none; } }

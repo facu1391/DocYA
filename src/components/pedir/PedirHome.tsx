@@ -1,4 +1,5 @@
 "use client";
+import DeviceCheck from "./DeviceCheck";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Script from "next/script";
@@ -287,6 +288,10 @@ export default function PedirHome() {
         </header>
 
         <main style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px", overflowX: "hidden" }}>
+          <details style={{ margin: "20px 0", border: `1px solid ${border}`, borderRadius: 18, padding: 18 }}>
+            <summary style={{ cursor: "pointer", fontWeight: 700 }}>¿Vas a hacer una teleconsulta? Probá tu cámara y micrófono</summary>
+            <DeviceCheck />
+          </details>
 
           {user ? (
             /* ── LOGUEADO ─────────────────────────────────────── */

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./pedir.css";
 
 export const metadata: Metadata = {
   title: "Pedí atención médica | DocYa",
@@ -13,5 +14,5 @@ export const metadata: Metadata = {
 };
 
 export default function PedirLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return <div className="pedir-experience">{children}</div>;
 }
