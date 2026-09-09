@@ -305,6 +305,14 @@ export default function LiveKitWebViewPocPage() {
     if (!next) localVideoRef.current?.replaceChildren();
   }
 
+  async function prioritizeAudio() {
+    if (!cameraEnabled) return;
+    await roomRef.current?.localParticipant.setCameraEnabled(false);
+    setCameraEnabled(false);
+    localVideoRef.current?.replaceChildren();
+    setMessage("Cámara pausada para priorizar el audio. Podés volver a activarla cuando la conexión mejore.");
+  }
+
   async function switchCamera() {
     const room = roomRef.current;
     const publication = room?.localParticipant.getTrackPublication(Track.Source.Camera);
@@ -366,6 +374,7 @@ export default function LiveKitWebViewPocPage() {
             <div className="absolute left-3 top-3 z-30 rounded-xl bg-black/65 px-3 py-2 text-xs backdrop-blur">
               <p className={localQuality === "Conexión inestable" || localQuality === "Reconectando" ? "text-amber-300" : "text-emerald-300"}>Vos · {localQuality}</p>
               <p className="mt-1 text-white/75">{role === "doctor" ? "Paciente" : "Médico"} · {remoteQuality}</p>
+              {role === "patient" && localQuality === "Conexión inestable" && cameraEnabled && <button type="button" onClick={() => void prioritizeAudio()} className="mt-2 rounded-lg bg-amber-300 px-2.5 py-1.5 text-[11px] font-black text-black">Priorizar audio</button>}
             </div>
           )}
           <div ref={remoteMediaRef} className="absolute inset-0 [&>audio]:hidden" />
@@ -382,6 +391,7 @@ export default function LiveKitWebViewPocPage() {
             </div>
           )}
           <div ref={localVideoRef} className="absolute bottom-3 right-3 z-20 h-32 w-24 overflow-hidden rounded-2xl border-2 border-[#25d7c8]/70 bg-[#102730] shadow-2xl sm:h-44 sm:w-32" />
+          {joined && role === "patient" && <a href={`https://wa.me/5491168700607?text=${encodeURIComponent(`Hola, necesito ayuda durante la teleconsulta #${params.consultationId}.`)}`} target="_blank" rel="noreferrer" aria-label="Contactar a soporte por WhatsApp" className="absolute bottom-3 left-3 z-30 rounded-full bg-[#25d366] px-4 py-2 text-xs font-black text-white shadow-lg">WhatsApp soporte</a>}
           {needsAudioTap && (
             <button
               className="absolute left-1/2 top-3 z-30 -translate-x-1/2 rounded-full bg-amber-400 px-4 py-2 text-sm font-black text-black"
