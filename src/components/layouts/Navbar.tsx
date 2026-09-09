@@ -14,6 +14,8 @@ import ConfirmModal from "@/components/common/ConfirmModal";
 import LoadingSplash from "@/components/common/LoadingSplash";
 import { proExitCopy } from "@/components/common/confirmCopy";
 
+const DOCYA_LOGO_URL = "https://res.cloudinary.com/dqsacd9ez/image/upload/v1788908618/docyanuevo_f1ukcy.png";
+
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname() ?? "";
@@ -49,7 +51,7 @@ export default function Navbar() {
   const inProArea = !isPublicAudience;
 
   const LOGOS = isPublicAudience
-    ? { light: "/logo_puclic-light.png", dark: "/logo_puclic-light.png", alt: "DocYa" }
+    ? { light: DOCYA_LOGO_URL, dark: DOCYA_LOGO_URL, alt: "DocYa" }
     : { light: "/logo-pro-dark.png", dark: "/logo-pro-light.png", alt: "DocYa Pro" };
 
   const logoHref = isPublicAudience ? "/" : "/profesionales";
@@ -104,10 +106,10 @@ export default function Navbar() {
       >
         <nav className="container flex h-16 items-center justify-between">
           <Link href={logoHref} className="flex shrink-0 items-center gap-2" aria-label={logoAria}>
-            <div className="relative h-10 w-[150px] dark:hidden">
+            <div className="relative h-11 w-[156px] dark:hidden">
               <Image src={LOGOS.light} alt={LOGOS.alt} fill className="object-contain" priority />
             </div>
-            <div className="relative hidden h-10 w-[150px] dark:block">
+            <div className="relative hidden h-11 w-[156px] dark:block">
               <Image src={LOGOS.dark} alt={LOGOS.alt} fill className="object-contain" priority />
             </div>
           </Link>
@@ -333,7 +335,7 @@ export default function Navbar() {
         message="Abriendo Pacientes…"
         autoHideMs={2200}
         onHide={() => setLoading(false)}
-        logoSrc="/logo_puclic-light.png"
+        logoSrc={DOCYA_LOGO_URL}
       />
 
       <ConfirmModal

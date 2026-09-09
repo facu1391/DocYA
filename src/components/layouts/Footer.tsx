@@ -5,6 +5,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Instagram, Facebook, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 
+const DOCYA_LOGO_URL = "https://res.cloudinary.com/dqsacd9ez/image/upload/v1788908618/docyanuevo_f1ukcy.png";
+
 export default function Footer() {
   const year = new Date().getFullYear();
   const pathname = usePathname();
@@ -31,7 +33,7 @@ export default function Footer() {
     "Conectamos profesionales de la salud con pacientes a domicilio. Flexibilidad, herramientas digitales y pagos claros.";
 
   const logos = isPublicAudience
-    ? { light: "/logo_puclic-dark.png", dark: "/logo_puclic-light.png", alt: "DocYa" }
+    ? { light: DOCYA_LOGO_URL, dark: DOCYA_LOGO_URL, alt: "DocYa" }
     : { light: "/logo-pro-dark.png", dark: "/logo-pro-light.png", alt: "DocYa Pro" };
 
   const brandName = isPublicAudience ? "DocYa" : "DocYa Pro";
@@ -56,10 +58,10 @@ export default function Footer() {
               <div className="grid gap-10 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start lg:gap-16">
                 <div className="text-center md:text-left">
                   <Link href="/" aria-label="Ir a la Home" className="inline-block">
-                    <div className="relative mx-auto h-9 w-[150px] dark:hidden md:mx-0">
+                    <div className="relative mx-auto h-10 w-[156px] dark:hidden md:mx-0">
                       <Image src={logos.light} alt={logos.alt} fill className="object-contain" />
                     </div>
-                    <div className="relative mx-auto hidden h-9 w-[150px] dark:block md:mx-0">
+                    <div className="relative mx-auto hidden h-10 w-[156px] dark:block md:mx-0">
                       <Image src={logos.dark} alt={logos.alt} fill className="object-contain" />
                     </div>
                   </Link>

@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
+const DOCYA_LOGO_URL = "https://res.cloudinary.com/dqsacd9ez/image/upload/v1788908618/docyanuevo_f1ukcy.png";
+
 type Props = {
   show: boolean;
   message?: string;
@@ -21,7 +23,7 @@ export default function LoadingSplash({
   message = "Redirigiendo…",
   autoHideMs,
   onHide,
-  logoSrc = "/logo_puclic-light.png",
+  logoSrc = DOCYA_LOGO_URL,
 }: Props) {
   const pathname = usePathname();
 

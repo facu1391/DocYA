@@ -10,6 +10,7 @@ import { Toaster } from "react-hot-toast";
 
 const SITE_URL = "https://www.docya.com.ar";
 const OG_IMAGE = `${SITE_URL}/og/og-docya.jpg.png`;
+const DOCYA_LOGO_URL = "https://res.cloudinary.com/dqsacd9ez/image/upload/v1788908618/docyanuevo_f1ukcy.png";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -120,7 +121,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@type": "MedicalOrganization",
     name: "DocYa",
     url: SITE_URL,
-    logo: `${SITE_URL}/logo_puclic-light.png`,
+    logo: DOCYA_LOGO_URL,
     sameAs,
     areaServed: {
       "@type": "Country",
