@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 
-const LOGO_DARK = "https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logoblanco_1_qdlnog.png";
-const LOGO_LIGHT = "https://res.cloudinary.com/dqsacd9ez/image/upload/v1757197807/logo_1_svfdye.png";
+const DOCYA_LOGO_URL = "https://res.cloudinary.com/dqsacd9ez/image/upload/v1788908618/docyanuevo_f1ukcy.png";
 
 export function usePedirTheme() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -17,7 +16,7 @@ export function usePedirTheme() {
   return {
     dark,
     setTheme,
-    logo: dark ? LOGO_DARK : LOGO_LIGHT,
+    logo: DOCYA_LOGO_URL,
     bg: dark ? "#04151c" : "#f5f7fa",
     homeBg: dark ? "#04151c" : "#f0f4f8",
     cardBg: dark ? "rgba(255,255,255,0.055)" : "#ffffff",

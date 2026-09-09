@@ -254,7 +254,7 @@ export default function PedirHome() {
         <header className="pedir-header" style={{ borderBottom: `1px solid ${border}`, background: headerBg, backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50 }}>
           <div className="pedir-header-inner" style={{ maxWidth: 1200, margin: "0 auto" }}>
             <Link href="/" className="pedir-header-logo">
-              <Image src={logo} alt="DocYa" width={100} height={32} style={{ width: "clamp(76px, 22vw, 100px)", height: "auto", maxHeight: 32, objectFit: "contain", display: "block", flexShrink: 0 }} />
+              <Image src={logo} alt="DocYa" width={190} height={60} style={{ width: "clamp(150px, 22vw, 190px)", height: "auto", maxHeight: 60, objectFit: "contain", display: "block", flexShrink: 0 }} />
             </Link>
             <div className="pedir-header-controls">
             {user && (
@@ -592,8 +592,8 @@ export default function PedirHome() {
         @media (max-width: 640px) {
           .pedir-header { padding: 10px 12px 12px; }
           .pedir-header-inner { height: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
-          .pedir-header-logo { height: 34px; justify-self: start; }
-          .pedir-header-logo img { width: 100px !important; }
+          .pedir-header-logo { height: 42px; justify-self: start; }
+          .pedir-header-logo img { width: 160px !important; }
           .pedir-header-controls { width: 100%; min-width: 0; margin-left: 0; display: grid; grid-template-columns: minmax(76px, .9fr) minmax(88px, 1.1fr) 50px 44px; gap: 6px; align-items: center; }
           .pedir-header-consultas, .pedir-header-user, .pedir-header-language, .pedir-header-theme { min-width: 0; min-height: 46px; justify-content: center; }
           .pedir-header-consultas { padding: 8px 6px !important; font-size: 12px !important; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
