@@ -40,7 +40,7 @@ export const es = {
     teleconsultaDescripcion: "Tiempo promedio de aceptación",
     teleconsultaCobertura: "Disponible en toda Argentina",
     tiemposAclaracion: "Los tiempos son estimados y pueden variar según la ubicación, el horario y la disponibilidad de profesionales.",
-    confianza: "Más de 300 pacientes registrados · Plataforma registrada en el Ministerio de Salud (ID 0259)",
+    confianza: "Plataforma registrada en el Ministerio de Salud (ID 0259)",
     solicitarAhora: "Solicitar ahora",
     pedirMedicoDomicilio: "Pedir médico a domicilio",
     pedirTeleconsulta: "Pedir teleconsulta",

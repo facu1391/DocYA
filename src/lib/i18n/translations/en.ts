@@ -40,7 +40,7 @@ export const en = {
     teleconsultaDescripcion: "Average acceptance time",
     teleconsultaCobertura: "Available throughout Argentina",
     tiemposAclaracion: "Times are estimates and may vary depending on location, time of day, and professional availability.",
-    confianza: "More than 300 registered patients · Platform registered with the Ministry of Health (ID 0259)",
+    confianza: "Platform registered with the Ministry of Health (ID 0259)",
     solicitarAhora: "Request now",
     pedirMedicoDomicilio: "Request a doctor at home",
     pedirTeleconsulta: "Request a video consultation",
