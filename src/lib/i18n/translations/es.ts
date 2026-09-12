@@ -21,9 +21,15 @@ export const es = {
   // Hero
   hero: {
     badge: "PROFESIONALES VERIFICADOS EN SISA",
-    title: "Un médico en tu casa,",
-    titleHighlight: "sin esperas",
-    description: "Solicitá atención médica a domicilio en CABA, con un tiempo promedio de llegada de 45 minutos, o realizá una teleconsulta desde cualquier lugar de Argentina, aceptada generalmente en 1 a 2 minutos. Sin obra social, prepaga ni abonos mensuales: pagás únicamente cuando necesitás atenderte.",
+    title: "Pedí un médico. DocYa encuentra al más cercano.",
+    titleHighlight: "",
+    description: "Sin turnos. Solicitá atención cuando la necesitás y buscamos en tiempo real un médico disponible cerca tuyo para que vaya a tu domicilio. También podés pedir una teleconsulta inmediata desde cualquier lugar de Argentina.",
+    beneficiosLabel: "Beneficios de la atención DocYa",
+    beneficios: {
+      sinTurnos: "Sin turnos",
+      medicoCercano: "Médico cercano",
+      llegadaPromedio: "Llegada promedio 45 min",
+    },
     tiemposAtencion: "Tiempos estimados de atención",
     domicilioTitulo: "Médico a domicilio",
     domicilioTiempo: "45 min",
@@ -36,6 +42,8 @@ export const es = {
     tiemposAclaracion: "Los tiempos son estimados y pueden variar según la ubicación, el horario y la disponibilidad de profesionales.",
     confianza: "Más de 300 pacientes registrados · Plataforma registrada en el Ministerio de Salud (ID 0259)",
     solicitarAhora: "Solicitar ahora",
+    pedirMedicoDomicilio: "Pedir médico a domicilio",
+    pedirTeleconsulta: "Pedir teleconsulta",
     descargarApp: "Descargar App",
     pedirPorWhatsapp: "Pedir por WhatsApp",
     altAppStore: "Descargar en App Store",

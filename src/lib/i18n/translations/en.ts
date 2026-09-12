@@ -21,9 +21,15 @@ export const en = {
   // Hero
   hero: {
     badge: "PROFESSIONALS VERIFIED IN SISA",
-    title: "A doctor at your door,",
-    titleHighlight: "no waiting",
-    description: "Request medical care at home in Buenos Aires City, with an average arrival time of 45 minutes, or start a video consultation from anywhere in Argentina, generally accepted within 1 to 2 minutes. No health insurance or monthly subscription required: you only pay when you need care.",
+    title: "Request a doctor. DocYa finds the nearest one.",
+    titleHighlight: "",
+    description: "No appointments. Request care when you need it and we find an available doctor near you in real time to come to your home. You can also request an immediate video consultation from anywhere in Argentina.",
+    beneficiosLabel: "DocYa care benefits",
+    beneficios: {
+      sinTurnos: "No appointments",
+      medicoCercano: "Nearby doctor",
+      llegadaPromedio: "45 min average arrival",
+    },
     tiemposAtencion: "Estimated care times",
     domicilioTitulo: "Doctor at home",
     domicilioTiempo: "45 min",
@@ -36,6 +42,8 @@ export const en = {
     tiemposAclaracion: "Times are estimates and may vary depending on location, time of day, and professional availability.",
     confianza: "More than 300 registered patients · Platform registered with the Ministry of Health (ID 0259)",
     solicitarAhora: "Request now",
+    pedirMedicoDomicilio: "Request a doctor at home",
+    pedirTeleconsulta: "Request a video consultation",
     descargarApp: "Download App",
     pedirPorWhatsapp: "Order via WhatsApp",
     altAppStore: "Download on the App Store",

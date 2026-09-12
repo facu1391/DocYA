@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ShieldCheck, Stethoscope, Bot, House, Video } from "lucide-react";
+import { ShieldCheck, Stethoscope, Bot, Zap, MapPin, Clock } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
 
 export default function Hero() {
@@ -43,8 +43,7 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.15 }}
           >
-            {t.hero.title}{" "}
-            <span className="highlight-text">{t.hero.titleHighlight}</span>
+            {t.hero.title}
           </motion.h1>
 
           <motion.p
@@ -56,50 +55,26 @@ export default function Hero() {
             {t.hero.description}
           </motion.p>
 
-          <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 max-w-xl"
+          <motion.ul
+            className="flex flex-wrap gap-x-5 gap-y-3 mb-7 max-w-xl"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4 }}
-            aria-label={t.hero.tiemposAtencion}
+            aria-label={t.hero.beneficiosLabel}
           >
-            <div className="flex items-center gap-3 border-l-2 border-[var(--brand)] pl-3 py-1 min-w-0">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand)]/10 text-[var(--brand)]">
-                <House size={18} aria-hidden="true" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-text-muted">{t.hero.domicilioTitulo}</p>
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <strong className="text-2xl leading-none text-foreground">{t.hero.domicilioTiempo}</strong>
-                  <span className="text-xs text-text-muted">{t.hero.domicilioDescripcion}</span>
-                </div>
-                <p className="mt-1 text-[11px] font-medium text-[var(--brand)]">{t.hero.domicilioCobertura}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 border-l-2 border-[var(--brand)] pl-3 py-1 min-w-0">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand)]/10 text-[var(--brand)]">
-                <Video size={18} aria-hidden="true" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-text-muted">{t.hero.teleconsultaTitulo}</p>
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <strong className="text-2xl leading-none text-foreground">{t.hero.teleconsultaTiempo}</strong>
-                  <span className="text-xs text-text-muted">{t.hero.teleconsultaDescripcion}</span>
-                </div>
-                <p className="mt-1 text-[11px] font-medium text-[var(--brand)]">{t.hero.teleconsultaCobertura}</p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.p
-            className="mb-6 max-w-xl text-[11px] leading-relaxed text-text-muted"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.45 }}
-          >
-            {t.hero.tiemposAclaracion}
-          </motion.p>
+            {[
+              { icon: Zap, label: t.hero.beneficios.sinTurnos },
+              { icon: MapPin, label: t.hero.beneficios.medicoCercano },
+              { icon: Clock, label: t.hero.beneficios.llegadaPromedio },
+            ].map(({ icon: Icon, label }) => (
+              <li key={label} className="flex items-center gap-2 text-sm font-semibold text-foreground whitespace-nowrap">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--brand)]/10 text-[var(--brand)]">
+                  <Icon size={15} aria-hidden="true" />
+                </span>
+                {label}
+              </li>
+            ))}
+          </motion.ul>
 
           <motion.div
             className="flex flex-col gap-5"
@@ -113,14 +88,14 @@ export default function Hero() {
                 className="inline-flex items-center justify-center gap-2 px-10 py-4 text-lg font-bold rounded-full w-full sm:w-fit"
                 style={{ background: "linear-gradient(90deg, #00b3a6, #2dd4bf)", color: "#fff", textDecoration: "none", boxShadow: "0 8px 24px rgba(0,179,166,0.4)" }}
               >
-                {t.hero.solicitarAhora}
+                {t.hero.pedirMedicoDomicilio}
               </a>
               <a
-                href="#descargar"
+                href="/pedir?tipo=teleconsulta"
                 className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full w-full sm:w-fit"
                 style={{ border: "1.5px solid rgba(255,255,255,0.2)", color: "inherit", textDecoration: "none", backdropFilter: "blur(4px)" }}
               >
-                {t.hero.descargarApp}
+                {t.hero.pedirTeleconsulta}
               </a>
             </div>
             <div className="flex gap-4 flex-wrap">
