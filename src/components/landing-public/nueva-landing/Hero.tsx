@@ -43,7 +43,8 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.15 }}
           >
-            {t.hero.title}
+            {t.hero.title}{" "}
+            <span className="highlight-text">{t.hero.titleHighlight}</span>
           </motion.h1>
 
           <motion.p

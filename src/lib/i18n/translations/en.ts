@@ -21,9 +21,9 @@ export const en = {
   // Hero
   hero: {
     badge: "PROFESSIONALS VERIFIED IN SISA",
-    title: "Request a doctor. DocYa finds the nearest one.",
-    titleHighlight: "",
-    description: "No appointments. Request care when you need it and we find an available doctor near you in real time to come to your home. You can also request an immediate video consultation from anywhere in Argentina.",
+    title: "Request a doctor.",
+    titleHighlight: "DocYa finds the nearest one.",
+    description: "No appointments. Request care when you need it and we find an available doctor near you in real time in Buenos Aires City to come to your home. You can also request an immediate video consultation from anywhere in Argentina.",
     beneficiosLabel: "DocYa care benefits",
     beneficios: {
       sinTurnos: "No appointments",

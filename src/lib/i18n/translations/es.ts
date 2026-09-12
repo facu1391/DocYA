@@ -21,9 +21,9 @@ export const es = {
   // Hero
   hero: {
     badge: "PROFESIONALES VERIFICADOS EN SISA",
-    title: "Pedí un médico. DocYa encuentra al más cercano.",
-    titleHighlight: "",
-    description: "Sin turnos. Solicitá atención cuando la necesitás y buscamos en tiempo real un médico disponible cerca tuyo para que vaya a tu domicilio. También podés pedir una teleconsulta inmediata desde cualquier lugar de Argentina.",
+    title: "Pedí un médico.",
+    titleHighlight: "DocYa encuentra al más cercano.",
+    description: "Sin turnos. Solicitá atención cuando la necesitás y buscamos en tiempo real un médico disponible cerca tuyo, en CABA, para que vaya a tu domicilio. También podés pedir una teleconsulta inmediata desde cualquier lugar de Argentina.",
     beneficiosLabel: "Beneficios de la atención DocYa",
     beneficios: {
       sinTurnos: "Sin turnos",
