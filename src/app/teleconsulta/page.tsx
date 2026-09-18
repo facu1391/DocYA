@@ -73,7 +73,7 @@ export default function TeleconsultaPage() {
   const serviceJsonLd = buildServiceJsonLd({
     id: `${PATH}#service`,
     name: "Teleconsulta médica online",
-    alternateName: ["Teleconsulta médica", "Consulta médica online", "Médico online"],
+    alternateName: ["Teleconsulta médica", "Consulta por videollamada"],
     description:
       "Consulta médica por videollamada con médicos matriculados, disponible para pacientes de toda Argentina.",
     url: PATH,

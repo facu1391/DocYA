@@ -20,34 +20,34 @@ import SeoFinalCta from "@/components/seo/SeoFinalCta";
 const PATH = "/certificado-medico-online";
 
 export const metadata: Metadata = {
-  title: "Certificado médico online",
+  title: "Certificado médico online con evaluación médica",
   description:
-    "Certificado médico laboral, escolar o de reposo, emitido por un médico matriculado tras una teleconsulta o visita a domicilio. Sin obra social ni turno previo.",
+    "Solicitá una consulta médica online o a domicilio. Un médico matriculado evalúa tu caso y, solo si corresponde, emite un certificado médico digital.",
   alternates: { canonical: PATH },
   openGraph: {
     title: "Certificado médico online | DocYa",
     description:
-      "Certificado médico laboral, escolar o de reposo, emitido por un médico matriculado tras una consulta.",
+      "Solicitá una consulta médica. Un profesional evalúa tu caso y puede emitir un certificado si corresponde.",
     url: PATH,
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Certificado médico online | DocYa",
-    description: "Certificado laboral, escolar o de reposo, con firma digital.",
+    description: "Consulta médica con evaluación profesional y certificado digital si corresponde.",
   },
 };
 
 const FAQS = [
   {
-    question: "¿El certificado médico online sirve para presentar en mi trabajo?",
+    question: "¿Sirve un certificado médico online para el trabajo?",
     answer:
-      "Sí, el certificado incluye los datos y la firma digital del médico matriculado que te atendió, con la información necesaria para justificar la ausencia laboral.",
+      "Si el médico considera que corresponde emitirlo, el certificado para trabajo incluye sus datos y firma digital. Consultá con tu empleador qué requisitos de presentación solicita.",
   },
   {
     question: "¿Puedo pedir un certificado escolar para mi hijo?",
     answer:
-      "Sí, es uno de los motivos más frecuentes de consulta, especialmente combinado con controles pediátricos a domicilio.",
+      "Podés solicitar una consulta por ese motivo. El profesional evalúa al paciente y decide si corresponde emitir un certificado escolar.",
   },
   {
     question: "¿Necesito que un médico me revise antes de emitir el certificado?",
@@ -57,12 +57,16 @@ const FAQS = [
   {
     question: "¿Puedo pedirlo sin obra social?",
     answer:
-      "Sí, podés pagar la consulta de forma particular y obtener el certificado sin necesidad de estar afiliado a una obra social o prepaga.",
+      "Sí, podés pedir una consulta particular sin obra social ni prepaga. La emisión del certificado depende de la evaluación médica.",
   },
   {
-    question: "¿Cuánto tarda en emitirse el certificado?",
+    question: "¿Dónde encuentro el certificado si el médico lo emite?",
     answer:
-      "Se genera desde la app apenas termina la consulta, ya sea por teleconsulta o después de la visita a domicilio.",
+      "Los documentos emitidos quedan en Mis consultas, dentro de la sección Documentos y la pestaña Certificados. Desde allí podés abrir el archivo disponible.",
+  },
+  {
+    question: "¿El certificado está garantizado?",
+    answer: "No. DocYa permite solicitar una consulta; solo el médico que te evalúa decide si corresponde emitir un certificado.",
   },
 ];
 
@@ -77,7 +81,7 @@ export default function CertificadoMedicoOnlinePage() {
       "Constancia médica",
     ],
     description:
-      "Emisión de certificados médicos (laboral, escolar o de reposo) tras una consulta por teleconsulta o a domicilio con un médico matriculado.",
+      "Consulta médica por teleconsulta o a domicilio. Tras evaluar al paciente, el profesional puede emitir un certificado médico si corresponde.",
     url: PATH,
     areaServedName: "Argentina",
     areaServedType: "Country",
@@ -94,21 +98,29 @@ export default function CertificadoMedicoOnlinePage() {
       />
 
       <SeoHero
-        badge="Firma digital de médico matriculado"
-        title="Certificado médico"
-        titleHighlight="online"
-        description="Consultá con un médico por teleconsulta o a domicilio y obtené tu certificado laboral, escolar o de reposo con firma digital."
+        badge="Consulta con médico matriculado"
+        title="Certificado médico online"
+        titleHighlight="con evaluación médica"
+        description="Solicitá una consulta por teleconsulta o a domicilio. El médico evalúa tu caso y, si corresponde, puede emitir un certificado digital."
         primaryCta={{ label: "Pedir consulta ahora", href: "/pedir" }}
         secondaryCta={{ label: "Ver cómo funciona", href: "/#como-funciona" }}
       />
 
-      <DifferentiatorBanner ctaLabel="Solicitar certificado" />
+      <DifferentiatorBanner ctaLabel="Pedir consulta médica" />
 
       <SeoContentSection
         heading="Cómo conseguir un certificado médico online"
         paragraphs={[
           "El certificado médico se emite después de una consulta real: un médico matriculado evalúa tu situación por teleconsulta o en una visita a domicilio y, si corresponde, genera el certificado con firma digital desde la app. No es un trámite automático, siempre hay una evaluación médica de por medio.",
-          "Es uno de los motivos de consulta más frecuentes junto con la receta médica online: certificados laborales para justificar una ausencia, escolares para chicos que no pueden ir a clase, o de reposo domiciliario después de una consulta por un cuadro puntual.",
+          "Un certificado médico es un documento emitido por un profesional tras evaluar a un paciente. Podés pedir una consulta particular desde DocYa, indicar el motivo y elegir teleconsulta o visita a domicilio según tu necesidad. El médico decide si corresponde documentar una ausencia laboral, escolar o un reposo.",
+        ]}
+      />
+
+      <SeoContentSection
+        heading="Certificado médico digital después de la consulta"
+        paragraphs={[
+          "Si el profesional emite un certificado, el documento queda disponible en Mis consultas, dentro de Documentos > Certificados, para abrirlo desde la app. La firma digital y los datos del médico constan en el documento.",
+          "Para un certificado médico para trabajo, explicá el motivo de la consulta y los requisitos que te pida tu empleador. La aceptación del documento depende de quien lo recibe; DocYa no garantiza su emisión ni su aceptación.",
         ]}
       />
 
@@ -118,28 +130,27 @@ export default function CertificadoMedicoOnlinePage() {
           {
             icon: <Briefcase size={22} />,
             title: "Certificado laboral",
-            description: "Para justificar una ausencia al trabajo por motivos de salud.",
+            description: "Puede emitirse para documentar una ausencia al trabajo si la evaluación lo justifica.",
           },
           {
             icon: <GraduationCap size={22} />,
             title: "Certificado escolar",
-            description: "Para justificar la ausencia de un chico o adolescente a clase.",
+            description: "Puede documentar una inasistencia escolar si el profesional lo considera indicado.",
           },
           {
             icon: <Home size={22} />,
             title: "Reposo domiciliario",
-            description: "Cuando el médico indica reposo en casa después de la consulta.",
+            description: "Solo cuando el médico indica reposo después de evaluar al paciente.",
           },
           {
             icon: <FileCheck2 size={22} />,
             title: "Firma digital",
-            description: "Cada certificado queda firmado digitalmente por el médico matriculado.",
+            description: "El certificado emitido incluye la firma digital del médico matriculado.",
           },
         ]}
       />
 
       <SeoFaqSection
-        jsonLdId="ld-faq-certificado-online"
         title="Preguntas frecuentes sobre el certificado médico online"
         items={FAQS}
       />
@@ -158,9 +169,9 @@ export default function CertificadoMedicoOnlinePage() {
       />
 
       <SeoFinalCta
-        heading="Pedí tu certificado médico online"
-        subtitle="Consultá por teleconsulta o a domicilio y obtené el certificado con firma digital al finalizar."
-        ctaLabel="Solicitar consulta"
+        heading="Solicitá una consulta médica"
+        subtitle="Contale al profesional qué necesitás. Si corresponde clínicamente, podrá emitir el certificado."
+        ctaLabel="Pedir consulta"
       />
 
       <Script

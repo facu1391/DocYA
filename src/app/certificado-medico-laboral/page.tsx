@@ -43,7 +43,7 @@ const FAQS = [
   {
     question: "¿El certificado laboral es válido para presentar a mi empleador?",
     answer:
-      "Sí, incluye los datos y la firma digital del médico matriculado que evaluó tu situación, con la información habitual para justificar una ausencia laboral ante recursos humanos.",
+      "Si el profesional lo emite, incluye sus datos y firma digital. Consultá con tu empleador los requisitos de presentación y aceptación.",
   },
   {
     question: "¿Sirve para trabajadores autónomos o monotributistas?",
@@ -58,7 +58,7 @@ const FAQS = [
   {
     question: "¿Tengo un plazo para presentarlo en mi trabajo?",
     answer:
-      "El certificado queda disponible en la app apenas termina la consulta, así que podés descargarlo y enviarlo a tu empleador el mismo día que faltás.",
+      "Si el médico lo emite, queda disponible en Mis consultas > Documentos > Certificados para abrirlo desde la app.",
   },
   {
     question: "¿Puedo pedirlo por teleconsulta o necesito una visita a domicilio?",
@@ -94,18 +94,18 @@ export default function CertificadoMedicoLaboralPage() {
         badge="Válido para presentar ante tu empleador"
         title="Certificado médico"
         titleHighlight="laboral"
-        description="Consultá con un médico por teleconsulta o a domicilio y obtené tu certificado laboral con firma digital para justificar la ausencia al trabajo."
+        description="Solicitá una consulta por una ausencia laboral. El médico evalúa tu caso y puede emitir un certificado con firma digital si corresponde."
         primaryCta={{ label: "Pedir consulta ahora", href: "/pedir" }}
         secondaryCta={{ label: "Ver otros certificados", href: "/certificado-medico-online" }}
       />
 
-      <DifferentiatorBanner ctaLabel="Solicitar certificado laboral" />
+      <DifferentiatorBanner ctaLabel="Pedir consulta médica" />
 
       <SeoContentSection
         heading="Cómo conseguir un certificado médico laboral"
         paragraphs={[
           "El certificado laboral se emite después de que un médico matriculado evalúa tu situación, ya sea por teleconsulta o en una visita a domicilio. No es un documento automático: siempre hay una consulta real de por medio en la que el profesional determina si corresponde reposo o justificación de la ausencia.",
-          "Una vez terminada la consulta, el certificado queda disponible en la app con firma digital, listo para descargar y enviar a tu empleador o al área de recursos humanos, sin depender de trámites adicionales ni de la firma en papel.",
+          "Si el médico decide emitirlo, el certificado queda disponible en Mis consultas > Documentos > Certificados. Podés abrirlo desde la app y consultar con tu empleador cómo presentarlo.",
         ]}
       />
 
@@ -155,7 +155,7 @@ export default function CertificadoMedicoLaboralPage() {
 
       <SeoFinalCta
         heading="Pedí tu certificado médico laboral"
-        subtitle="Consultá por teleconsulta o a domicilio y obtené el certificado con firma digital al finalizar."
+        subtitle="Solicitá una consulta; el médico decidirá si corresponde emitir el certificado."
         ctaLabel="Solicitar consulta"
       />
 

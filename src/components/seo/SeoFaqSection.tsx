@@ -13,7 +13,7 @@ import { buildFaqJsonLd, type FaqItem } from "@/lib/seo/schema";
 
 interface SeoFaqSectionProps {
   items: FaqItem[];
-  jsonLdId: string;
+  jsonLdId?: string;
   title?: string;
   subtitle?: string;
 }
@@ -24,7 +24,7 @@ export default function SeoFaqSection({
   title = "Preguntas frecuentes",
   subtitle,
 }: SeoFaqSectionProps) {
-  const jsonLd = buildFaqJsonLd(items);
+  const jsonLd = jsonLdId ? buildFaqJsonLd(items) : null;
 
   return (
     <section className="py-16 md:py-20">
@@ -62,11 +62,13 @@ export default function SeoFaqSection({
         </Accordion>
       </div>
 
-      <Script
-        id={jsonLdId}
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      {jsonLdId && jsonLd && (
+        <Script
+          id={jsonLdId}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
     </section>
   );
 }

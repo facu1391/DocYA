@@ -42,7 +42,7 @@ const FAQS = [
   {
     question: "¿El certificado escolar sirve para cualquier colegio?",
     answer:
-      "Sí, incluye los datos y la firma digital del médico matriculado que evaluó a tu hijo, con la información habitual que piden las instituciones educativas para justificar una inasistencia.",
+      "Si el profesional emite un certificado, incluye sus datos y firma digital. Consultá con el colegio los requisitos para presentarlo.",
   },
   {
     question: "¿Necesito llevar a mi hijo a una consulta presencial?",
@@ -52,7 +52,7 @@ const FAQS = [
   {
     question: "¿Puedo pedirlo por teleconsulta?",
     answer:
-      "Sí, si el médico considera que el cuadro se puede evaluar por videollamada, emite el certificado escolar al finalizar la consulta, igual que en una visita a domicilio.",
+      "Podés solicitar una teleconsulta si el cuadro permite una evaluación por video. El médico decide si corresponde emitir un certificado escolar.",
   },
   {
     question: "¿Qué información incluye el certificado?",
@@ -93,18 +93,18 @@ export default function CertificadoMedicoEscolarPage() {
         badge="Para justificar la inasistencia a clase"
         title="Certificado médico"
         titleHighlight="escolar"
-        description="Consultá con un médico por teleconsulta o a domicilio y obtené el certificado escolar de tu hijo con firma digital, listo para presentar en el colegio."
+        description="Solicitá una consulta por una inasistencia escolar. El profesional evalúa al paciente y puede emitir un certificado si corresponde."
         primaryCta={{ label: "Pedir consulta ahora", href: "/pedir" }}
         secondaryCta={{ label: "Ver otros certificados", href: "/certificado-medico-online" }}
       />
 
-      <DifferentiatorBanner ctaLabel="Solicitar certificado escolar" />
+      <DifferentiatorBanner ctaLabel="Pedir consulta médica" />
 
       <SeoContentSection
         heading="Cómo conseguir un certificado médico escolar"
         paragraphs={[
           "Cuando un chico falta al colegio por un cuadro de salud, muchas instituciones piden un certificado médico que respalde la inasistencia. El certificado se emite después de que un médico matriculado evalúa la situación, ya sea en una consulta pediátrica a domicilio o por teleconsulta si el cuadro no requiere examen físico.",
-          "Es uno de los motivos de consulta más frecuentes junto con los controles pediátricos generales: fiebre, dolor de garganta o cuadros virales que llevan a que el chico falte a clase uno o varios días. El certificado queda disponible en la app con firma digital apenas termina la consulta.",
+          "Ante una inasistencia por motivos de salud, podés pedir una consulta. Si el profesional emite un certificado con firma digital, queda disponible en Mis consultas > Documentos > Certificados.",
         ]}
       />
 
@@ -154,7 +154,7 @@ export default function CertificadoMedicoEscolarPage() {
 
       <SeoFinalCta
         heading="Pedí el certificado escolar de tu hijo"
-        subtitle="Consultá por teleconsulta o a domicilio y obtené el certificado con firma digital al finalizar."
+        subtitle="Solicitá una consulta; el médico decidirá si corresponde emitir el certificado."
         ctaLabel="Solicitar consulta"
       />
 

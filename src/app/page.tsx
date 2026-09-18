@@ -61,10 +61,9 @@ export default function Home() {
       "Enfermería a domicilio",
     ],
     url: SITE_URL,
-    offers: {
-      "@type": "Offer",
-      url: `${SITE_URL}/pedir`,
-      availability: "https://schema.org/InStock",
+    potentialAction: {
+      "@type": "ReserveAction",
+      target: `${SITE_URL}/pedir`,
     },
   };
 

@@ -128,7 +128,7 @@ export function buildServiceJsonLd({
 }: ServiceJsonLdInput) {
   return {
     "@context": "https://schema.org",
-    "@type": "MedicalBusiness",
+    "@type": "Service",
     "@id": `${SITE_URL}${id}`,
     name,
     alternateName,
@@ -145,10 +145,9 @@ export function buildServiceJsonLd({
       name: "DocYa",
       url: SITE_URL,
     },
-    offers: {
-      "@type": "Offer",
-      url: `${SITE_URL}/pedir`,
-      availability: "https://schema.org/InStock",
+    potentialAction: {
+      "@type": "ReserveAction",
+      target: `${SITE_URL}/pedir`,
     },
   };
 }

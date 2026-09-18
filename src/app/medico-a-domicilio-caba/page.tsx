@@ -7,7 +7,7 @@
 
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Clock3, ShieldCheck, MapPin, Stethoscope, FileText, Pill } from "lucide-react";
+import { MapPin, Stethoscope, FileText, Pill } from "lucide-react";
 import { CABA_NEIGHBORHOODS } from "@/data/caba-neighborhoods";
 import { buildServiceJsonLd } from "@/lib/seo/schema";
 import Breadcrumbs from "@/components/seo/Breadcrumbs";
@@ -24,7 +24,7 @@ const PATH = "/medico-a-domicilio-caba";
 export const metadata: Metadata = {
   title: "Médico a domicilio en CABA",
   description:
-    "Médico a domicilio en toda la Ciudad de Buenos Aires. Profesionales matriculados, sin obra social ni prepaga, atención el mismo día por barrio.",
+    "Solicitá un médico a domicilio en CABA desde el celular, sin turno previo. Seguimiento del pedido y atención según disponibilidad profesional.",
   alternates: { canonical: PATH },
   openGraph: {
     title: "Médico a domicilio en CABA | DocYa",
@@ -49,7 +49,7 @@ const HUB_FAQS = [
   {
     question: "¿Cuánto tarda en llegar el médico?",
     answer:
-      "El tiempo promedio en CABA es de 30 a 60 minutos, según la zona, el horario y la demanda del momento. Vas viendo el estado del pedido en tiempo real desde la app.",
+      "Depende de tu ubicación, el horario y la disponibilidad de profesionales. Podés seguir el estado del pedido desde la app.",
   },
   {
     question: "¿Necesito obra social o prepaga para pedir un médico a domicilio?",
@@ -59,12 +59,12 @@ const HUB_FAQS = [
   {
     question: "¿Puedo elegir teleconsulta en vez de que el médico vaya a mi casa?",
     answer:
-      "Sí. Si tu consulta se puede resolver por videollamada, podés pedir una teleconsulta y hablar con un médico en minutos desde cualquier punto de CABA.",
+      "Sí. Si tu consulta se puede resolver por videollamada, podés pedir una teleconsulta desde cualquier punto de CABA, según disponibilidad profesional.",
   },
   {
     question: "¿Atienden las 24 horas en CABA?",
     answer:
-      "Tenemos profesionales disponibles todos los días de la semana, incluidos fines de semana, feriados y horarios nocturnos, sujeto a disponibilidad al momento del pedido.",
+      "Podés consultar la disponibilidad al momento de pedir atención desde la app. No se garantiza cobertura en un horario determinado.",
   },
 ];
 
@@ -112,28 +112,6 @@ export default function MedicoADomicilioCabaPage() {
           "No hace falta turno previo ni ser afiliado a ninguna obra social o prepaga: pagás la consulta de forma particular con tarjeta desde la misma app, y si tu cobertura reintegra consultas a domicilio te damos el comprobante para que gestiones el reembolso. Si el cuadro se puede resolver sin que el médico se traslade, también podés optar por una teleconsulta por videollamada.",
         ]}
       />
-
-      <section className="py-10">
-        <div className="mx-auto w-full max-w-[1200px] px-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="glass-card rounded-3xl p-6 text-center">
-              <Clock3 className="mx-auto mb-3 text-[var(--brand)]" size={28} />
-              <p className="text-2xl font-bold">30–60 min</p>
-              <p className="text-text-muted text-sm mt-1">Tiempo estimado de atención en CABA</p>
-            </div>
-            <div className="glass-card rounded-3xl p-6 text-center">
-              <ShieldCheck className="mx-auto mb-3 text-[var(--brand)]" size={28} />
-              <p className="text-2xl font-bold">100%</p>
-              <p className="text-text-muted text-sm mt-1">Médicos matriculados y verificados</p>
-            </div>
-            <div className="glass-card rounded-3xl p-6 text-center">
-              <MapPin className="mx-auto mb-3 text-[var(--brand)]" size={28} />
-              <p className="text-2xl font-bold">24/7</p>
-              <p className="text-text-muted text-sm mt-1">Disponibilidad todos los días del año</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <BenefitsGrid
         heading="Qué incluye la consulta"

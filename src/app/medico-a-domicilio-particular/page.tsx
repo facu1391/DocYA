@@ -48,7 +48,7 @@ const FAQS = [
   {
     question: "¿Atienden a pacientes sin prepaga?",
     answer:
-      "Sí. La mayoría de las consultas que recibimos son de pacientes sin prepaga que prefieren pagar de forma particular en lugar de esperar una autorización o un turno.",
+      "Sí. Podés solicitar una consulta particular sin prepaga; el precio se muestra antes de confirmar el pedido.",
   },
   {
     question: "¿Cómo pago si la consulta es privada?",
@@ -97,8 +97,7 @@ export default function MedicoADomicilioParticularPage() {
         badge="Sin obra social ni prepaga"
         title="Médico a domicilio"
         titleHighlight="particular"
-        description="Pedí un médico matriculado a domicilio en CABA, sin depender de una obra social o prepaga. Conocés el precio antes de confirmar y pagás únicamente cuando necesitás atención. El tiempo promedio de llegada es de 45 minutos."
-        descriptionNote="Tiempo estimado sujeto a ubicación, horario y disponibilidad de profesionales."
+        description="Pedí un médico matriculado a domicilio en CABA, sin depender de una obra social o prepaga. Conocés el precio antes de confirmar la consulta."
         primaryCta={{ label: "Solicitar médico ahora", href: "/pedir" }}
         secondaryCta={{ label: "Prefiero una teleconsulta", href: "/teleconsulta-particular" }}
       />

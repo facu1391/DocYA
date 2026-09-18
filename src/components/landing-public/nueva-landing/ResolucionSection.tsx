@@ -2,6 +2,7 @@
 "use client";
 
 import { FileCheck2, HeartPulse, Check, Video } from "lucide-react";
+import Link from "next/link";
 import ScrollReveal from "./ScrollReveal";
 import { useI18n } from "@/lib/i18n/context";
 
@@ -30,6 +31,10 @@ export default function ResolucionSection() {
                   </li>
                 ))}
               </ul>
+
+              <Link href="/certificado-medico-online" className="mt-auto font-semibold text-[var(--brand)] underline underline-offset-4">
+                Certificado médico online: cómo funciona la evaluación
+              </Link>
 
             </div>
           </ScrollReveal>
