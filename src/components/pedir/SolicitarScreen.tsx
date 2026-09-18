@@ -82,7 +82,7 @@ export default function SolicitarScreen() {
     { id: "transferencia", icon: Landmark, label: "Transferencia bancaria", sub: "Pago rápido y seguro" },
     { id: "saldo_mp", icon: Wallet, label: t.solicitar.metodos.saldoTitle, sub: t.solicitar.metodos.saldoSub },
     { id: "tarjeta", icon: CreditCard, label: "Tarjeta de crédito/débito", sub: t.solicitar.metodos.tarjetaSub },
-    ...(tipo === "teleconsulta" && qrEnabled ? [{ id: "qr_mp" as const, icon: QrCode, label: "QR Mercado Pago", sub: "Pagá desde este celular o escaneá el QR" }] : []),
+    ...(tipo === "teleconsulta" && qrEnabled ? [{ id: "qr_mp" as const, icon: QrCode, label: "Mercado Pago", sub: "Pagá directamente desde tu cuenta" }] : []),
     { id: "efectivo", icon: Banknote,   label: t.solicitar.metodos.efectivoTitle, sub: t.solicitar.metodos.efectivoSub },
   ];
 
@@ -807,7 +807,7 @@ export default function SolicitarScreen() {
               ) : tarifaLoading ? (
                 <><Loader2 size={20} className="animate-spin" /> {t.solicitar.cargandoPrecio}</>
               ) : (
-                <>{metodoPago === "referral_voucher" ? "Solicitar teleconsulta gratis" : metodoPago === "efectivo" ? t.solicitar.solicitarBtn : metodoPago === "qr_mp" ? `Preparar QR - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : metodoPago === "transferencia" ? `Pagar por transferencia - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : metodoPago === "saldo_mp" ? `Autorizar y pedir teleconsulta - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : `${t.solicitar.autorizarPedir} ${cfg.label.toLowerCase()} - ${formatPesos(checkoutAmount, t.solicitar.cargando)}`} <ChevronRight size={20} /></>
+                <>{metodoPago === "referral_voucher" ? "Solicitar teleconsulta gratis" : metodoPago === "efectivo" ? t.solicitar.solicitarBtn : metodoPago === "qr_mp" ? `Continuar con Mercado Pago - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : metodoPago === "transferencia" ? `Pagar por transferencia - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : metodoPago === "saldo_mp" ? `Autorizar y pedir teleconsulta - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : `${t.solicitar.autorizarPedir} ${cfg.label.toLowerCase()} - ${formatPesos(checkoutAmount, t.solicitar.cargando)}`} <ChevronRight size={20} /></>
               )}
             </button>
             {tipo === "teleconsulta" && <a href={whatsappSupportUrl} target="_blank" rel="noreferrer" style={{ alignSelf: "center", color: muted, fontSize: 13, textDecoration: "underline", textUnderlineOffset: 3 }}>¿Tenés alguna duda? Hablá con nosotros por WhatsApp</a>}

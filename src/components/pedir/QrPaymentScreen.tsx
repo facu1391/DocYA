@@ -74,12 +74,12 @@ export default function QrPaymentScreen() {
   return <main style={{ minHeight: "100vh", background: bg, color: text, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" }}>
     <div style={{ maxWidth: 460, width: "100%", background: cardBg, border: `1px solid ${brandBorder}`, borderRadius: 22, padding: 24, textAlign: "center" }}>
       {!valid ? <><h1>Enlace QR inválido</h1><Link href="/pedir">Volver a DocYa</Link></> : <>
-        <h1 style={{ fontSize: 23, margin: "0 0 8px" }}>Pagá tu teleconsulta</h1>
+        <h1 style={{ fontSize: 23, margin: "0 0 8px" }}>Pagá con Mercado Pago</h1>
         <p style={{ color: muted, margin: "0 0 18px" }}>Importe confirmado por DocYa</p>
         <p style={{ fontSize: 34, fontWeight: 800, margin: "0 0 18px" }}>{amount.toLocaleString("es-AR", { style: "currency", currency: "ARS" })}</p>
-        {!terminal && <div style={{ background: "white", borderRadius: 14, padding: 12, width: "fit-content", margin: "0 auto 18px" }}><QRCodeSVG value={url} size={204} /></div>}
         {!terminal && <a href={url} target="_blank" rel="noopener noreferrer" style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, padding: 15, borderRadius: 12, background: "#00b3a6", color: "white", fontWeight: 800, textDecoration: "none" }}>Abrir Mercado Pago en este celular <ExternalLink size={18} /></a>}
-        <p style={{ fontSize: 13, color: muted, lineHeight: 1.5 }}>Si usás otro celular, escaneá el QR. Luego regresá a esta pantalla: confirmaremos el pago automáticamente.</p>
+        {!terminal && <details style={{ marginTop: 18 }}><summary style={{ cursor: "pointer", color: muted, fontSize: 13 }}>Pagar desde otro celular</summary><div style={{ background: "white", borderRadius: 14, padding: 12, width: "fit-content", margin: "14px auto" }}><QRCodeSVG value={url} size={204} /></div><p style={{ fontSize: 13, color: muted }}>Escaneá este código desde el otro celular.</p></details>}
+        <p style={{ fontSize: 13, color: muted, lineHeight: 1.5 }}>Después de pagar, regresá a esta pantalla. Confirmaremos el pago automáticamente.</p>
         <p style={{ fontSize: 12, color: muted, overflowWrap: "anywhere" }}>Orden: {orderId}</p>
         {activating ? <p><Loader2 size={18} className="animate-spin" style={{ verticalAlign: "middle" }} /> Pago acreditado. Iniciando consulta...</p>
           : status === "processed" ? <p><CheckCircle2 size={18} style={{ verticalAlign: "middle" }} /> Pago acreditado.</p>
