@@ -8,7 +8,7 @@ import {
   ArrowLeft, Stethoscope, Video, HeartPulse, Baby, Gift,
   CreditCard, Wallet, Banknote, Landmark, Loader2, ChevronRight,
   Navigation, ShieldCheck, CheckCircle2, RotateCcw, UserRoundCheck,
-  ChevronDown, Globe2,
+  ChevronDown, Globe2, QrCode,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import AddressInput from "./AddressInput";
@@ -22,7 +22,7 @@ import { PATIENT_REFERRALS_ENABLED } from "@/lib/pedir/referralFeature";
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean; access_token?: string };
-type MetodoPago = "tarjeta" | "saldo_mp" | "transferencia" | "efectivo" | "referral_voucher";
+type MetodoPago = "tarjeta" | "saldo_mp" | "transferencia" | "efectivo" | "referral_voucher" | "qr_mp";
 type Tarifa = { tipo?: string; monto: number; descripcion?: string };
 type TranslationLanguage = "" | "en" | "pt-br";
 type TranslationQuote = {
@@ -70,6 +70,7 @@ export default function SolicitarScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const tipo = (params.get("tipo") ?? "medico") as keyof typeof TIPO_ICONS;
+  const [qrEnabled, setQrEnabled] = useState(false);
 
   const TIPO_CONFIG = {
     medico:       { label: t.solicitar.tipos.medico,     ...TIPO_ICONS.medico },
@@ -81,6 +82,7 @@ export default function SolicitarScreen() {
     { id: "transferencia", icon: Landmark, label: "Transferencia bancaria", sub: "Pago rápido y seguro" },
     { id: "saldo_mp", icon: Wallet, label: t.solicitar.metodos.saldoTitle, sub: t.solicitar.metodos.saldoSub },
     { id: "tarjeta", icon: CreditCard, label: "Tarjeta de crédito/débito", sub: t.solicitar.metodos.tarjetaSub },
+    ...(tipo === "teleconsulta" && qrEnabled ? [{ id: "qr_mp" as const, icon: QrCode, label: "QR Mercado Pago", sub: "Pagá desde este celular o escaneá el QR" }] : []),
     { id: "efectivo", icon: Banknote,   label: t.solicitar.metodos.efectivoTitle, sub: t.solicitar.metodos.efectivoSub },
   ];
 
@@ -159,6 +161,16 @@ export default function SolicitarScreen() {
   useEffect(() => {
     if (!permiteEfectivo && metodoPago === "efectivo") setMetodoPago("tarjeta");
   }, [permiteEfectivo, metodoPago]);
+
+  useEffect(() => {
+    if (tipo !== "teleconsulta") return;
+    let alive = true;
+    fetch(`${API}/pagos/qr/disponible`, { cache: "no-store" })
+      .then(res => res.ok ? res.json() : { enabled: false })
+      .then(data => { if (alive) setQrEnabled(data.enabled === true); })
+      .catch(() => { if (alive) setQrEnabled(false); });
+    return () => { alive = false; };
+  }, [tipo]);
 
   useEffect(() => {
     let alive = true;
@@ -271,6 +283,35 @@ export default function SolicitarScreen() {
     setSubmitting(true);
     try {
       const monto = tarifa.monto;
+
+      if (metodoPago === "qr_mp") {
+        if (tipo !== "teleconsulta" || !qrEnabled || !user.access_token) throw new Error("El pago QR no está disponible en este momento.");
+        const previaRes = await fetch(`${API}/consultas/crear_previa`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: "teleconsulta", metodo_pago: "qr_mp", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
+        });
+        if (!previaRes.ok) throw new Error("No pudimos preparar la teleconsulta para QR.");
+        const { consulta_id } = await previaRes.json();
+        guardarPagoPendiente({ consulta_id, tipo, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, paciente_uuid: user.id, access_token: user.access_token, categoria_consulta: categoriaConsulta, provincia: provincia ?? undefined, localidad: localidad ?? undefined, metodo_pago: "qr_mp", ...datosPediatricos });
+        const orderRes = await fetch(`${API}/pagos/qr/orden`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
+          body: JSON.stringify({ consulta_id, paciente_uuid: user.id }),
+        });
+        if (!orderRes.ok) throw new Error("No pudimos crear el cobro QR. Revisá el estado antes de volver a intentar.");
+        const order = await orderRes.json();
+        if (order.method === "checkout") {
+          limpiarPagoPendiente();
+          throw new Error("Las cajas QR están ocupadas. Elegí tarjeta u otro medio de pago.");
+        }
+        if (order.method !== "qr" || !/^https:\/\/mpago\.la\/pos\/\d+$/.test(order.url) || !order.order_id) throw new Error("Mercado Pago no confirmó el enlace QR.");
+        guardarPagoPendiente({ consulta_id, tipo, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, paciente_uuid: user.id, access_token: user.access_token, categoria_consulta: categoriaConsulta, provincia: provincia ?? undefined, localidad: localidad ?? undefined, metodo_pago: "qr_mp", qr_url: order.url, qr_order_id: order.order_id, qr_amount: String(order.amount), ...datosPediatricos });
+        const qrParams = new URLSearchParams({ consulta_id: String(consulta_id), url: order.url, monto: String(order.amount), order_id: order.order_id });
+        if (order.expires_at) qrParams.set("expires_at", order.expires_at);
+        router.push(`/pedir/qr?${qrParams.toString()}`);
+        return;
+      }
 
       if (metodoPago === "referral_voucher") {
         if (tipo !== "teleconsulta") throw new Error("Este beneficio sólo está disponible para teleconsultas.");
@@ -420,7 +461,7 @@ export default function SolicitarScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, lat, lng, categoriaConsulta, provincia, localidad, datosPediatricos, translationPayload, router, t, referralAttemptKey]);
+  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, lat, lng, categoriaConsulta, provincia, localidad, datosPediatricos, translationPayload, router, t, referralAttemptKey, qrEnabled]);
 
   if (!user) return null;
 
@@ -681,7 +722,8 @@ export default function SolicitarScreen() {
               {metodoPago === "referral_voucher" && (
                 <div style={{ borderRadius: 16, border: `1px solid ${border}`, padding: 16, background: inputBg }}><div style={{ display: "flex", justifyContent: "space-between" }}><span>Precio de la teleconsulta</span><strong>{formatPesos(tarifa?.monto)}</strong></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, color: "#a5b4fc" }}><span>Beneficio</span><strong>Teleconsulta gratis</strong></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 14, paddingTop: 14, borderTop: `1px solid ${border}`, fontSize: 18 }}><span>Total a pagar</span><strong>$0</strong></div></div>
               )}
-              {metodoPago !== "efectivo" && metodoPago !== "transferencia" && metodoPago !== "referral_voucher" && (
+              {metodoPago === "qr_mp" && <div style={{ borderRadius: 16, border: `1px solid ${border}`, padding: 16, background: inputBg, lineHeight: 1.5 }}>Se prepara un cobro por {formatPesos(checkoutAmount)}. El pago se confirma antes de enviar tu solicitud al médico. Si nadie acepta, te devolvemos el importe.</div>}
+              {metodoPago !== "efectivo" && metodoPago !== "transferencia" && metodoPago !== "referral_voucher" && metodoPago !== "qr_mp" && (
                 <div style={{ borderRadius: 18, border: `1px solid ${border}`, background: inputBg, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 14 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <ShieldCheck size={22} color={cfg.color} />
@@ -765,7 +807,7 @@ export default function SolicitarScreen() {
               ) : tarifaLoading ? (
                 <><Loader2 size={20} className="animate-spin" /> {t.solicitar.cargandoPrecio}</>
               ) : (
-                <>{metodoPago === "referral_voucher" ? "Solicitar teleconsulta gratis" : metodoPago === "efectivo" ? t.solicitar.solicitarBtn : metodoPago === "transferencia" ? `Pagar por transferencia - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : metodoPago === "saldo_mp" ? `Autorizar y pedir teleconsulta - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : `${t.solicitar.autorizarPedir} ${cfg.label.toLowerCase()} - ${formatPesos(checkoutAmount, t.solicitar.cargando)}`} <ChevronRight size={20} /></>
+                <>{metodoPago === "referral_voucher" ? "Solicitar teleconsulta gratis" : metodoPago === "efectivo" ? t.solicitar.solicitarBtn : metodoPago === "qr_mp" ? `Preparar QR - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : metodoPago === "transferencia" ? `Pagar por transferencia - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : metodoPago === "saldo_mp" ? `Autorizar y pedir teleconsulta - ${formatPesos(checkoutAmount, t.solicitar.cargando)}` : `${t.solicitar.autorizarPedir} ${cfg.label.toLowerCase()} - ${formatPesos(checkoutAmount, t.solicitar.cargando)}`} <ChevronRight size={20} /></>
               )}
             </button>
             {tipo === "teleconsulta" && <a href={whatsappSupportUrl} target="_blank" rel="noreferrer" style={{ alignSelf: "center", color: muted, fontSize: 13, textDecoration: "underline", textUnderlineOffset: 3 }}>¿Tenés alguna duda? Hablá con nosotros por WhatsApp</a>}

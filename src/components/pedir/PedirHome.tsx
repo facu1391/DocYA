@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
-import { recuperarConsultaPendienteGlobal } from "@/lib/pedir/pendingPayment";
+import { leerPagoPendienteLocal, recuperarConsultaPendienteGlobal } from "@/lib/pedir/pendingPayment";
 import { getPatientReferrals, type PatientReferralSummary } from "@/lib/pedir/patientReferrals";
 import ReferralProgressCard from "./ReferralProgressCard";
 import { PATIENT_REFERRALS_ENABLED } from "@/lib/pedir/referralFeature";
@@ -130,6 +130,12 @@ export default function PedirHome() {
   // abrir DocYa logueado.
   useEffect(() => {
     if (!user) return;
+    const qr = leerPagoPendienteLocal();
+    if (qr?.metodo_pago === "qr_mp" && qr.qr_url && qr.qr_order_id && qr.qr_amount && String(qr.paciente_uuid) === String(user.id)) {
+      const query = new URLSearchParams({ consulta_id: String(qr.consulta_id), url: qr.qr_url, order_id: qr.qr_order_id, monto: qr.qr_amount });
+      router.replace(`/pedir/qr?${query.toString()}`);
+      return;
+    }
     let cancelado = false;
     recuperarConsultaPendienteGlobal(user).then(info => {
       if (cancelado || !info) return;

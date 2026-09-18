@@ -43,6 +43,9 @@ export type PagoPendientePayload = {
   metodo_pago?: string;
   payment_id?: string;
   idempotency_key?: string;
+  qr_url?: string;
+  qr_order_id?: string;
+  qr_amount?: string;
 };
 
 export function guardarPagoPendiente(payload: PagoPendientePayload): void {
@@ -209,7 +212,7 @@ export async function recuperarConsultaPendienteGlobal(
     const data = await res.json();
     if (!data?.activa) {
       const pendiente = leerPagoPendienteLocal();
-      if (pendiente?.metodo_pago === "transferencia") return null;
+      if (pendiente?.metodo_pago === "transferencia" || pendiente?.metodo_pago === "qr_mp") return null;
       limpiarPagoPendiente();
       return null;
     }
