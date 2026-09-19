@@ -82,7 +82,7 @@ export default function SolicitarScreen() {
     { id: "transferencia", icon: Landmark, label: "Transferencia bancaria", sub: "Pago rápido y seguro" },
     { id: "saldo_mp", icon: Wallet, label: t.solicitar.metodos.saldoTitle, sub: t.solicitar.metodos.saldoSub },
     { id: "tarjeta", icon: CreditCard, label: "Tarjeta de crédito/débito", sub: t.solicitar.metodos.tarjetaSub },
-    ...(tipo === "teleconsulta" && qrEnabled ? [{ id: "qr_mp" as const, icon: QrCode, label: "Mercado Pago", sub: "Pagá directamente desde tu cuenta" }] : []),
+    ...(qrEnabled ? [{ id: "qr_mp" as const, icon: QrCode, label: "Mercado Pago", sub: "Pagá directamente desde tu cuenta" }] : []),
     { id: "efectivo", icon: Banknote,   label: t.solicitar.metodos.efectivoTitle, sub: t.solicitar.metodos.efectivoSub },
   ];
 
@@ -163,7 +163,6 @@ export default function SolicitarScreen() {
   }, [permiteEfectivo, metodoPago]);
 
   useEffect(() => {
-    if (tipo !== "teleconsulta") return;
     let alive = true;
     fetch(`${API}/pagos/qr/disponible`, { cache: "no-store" })
       .then(res => res.ok ? res.json() : { enabled: false })
@@ -285,11 +284,11 @@ export default function SolicitarScreen() {
       const monto = tarifa.monto;
 
       if (metodoPago === "qr_mp") {
-        if (tipo !== "teleconsulta" || !qrEnabled || !user.access_token) throw new Error("El pago QR no está disponible en este momento.");
+        if (!qrEnabled || !user.access_token) throw new Error("Mercado Pago no está disponible en este momento.");
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: "teleconsulta", metodo_pago: "qr_mp", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: tipo === "teleconsulta" ? "teleconsulta" : "domicilio", metodo_pago: "qr_mp", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error("No pudimos preparar la teleconsulta para QR.");
         const { consulta_id } = await previaRes.json();
@@ -722,7 +721,7 @@ export default function SolicitarScreen() {
               {metodoPago === "referral_voucher" && (
                 <div style={{ borderRadius: 16, border: `1px solid ${border}`, padding: 16, background: inputBg }}><div style={{ display: "flex", justifyContent: "space-between" }}><span>Precio de la teleconsulta</span><strong>{formatPesos(tarifa?.monto)}</strong></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, color: "#a5b4fc" }}><span>Beneficio</span><strong>Teleconsulta gratis</strong></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 14, paddingTop: 14, borderTop: `1px solid ${border}`, fontSize: 18 }}><span>Total a pagar</span><strong>$0</strong></div></div>
               )}
-              {metodoPago === "qr_mp" && <div style={{ borderRadius: 16, border: `1px solid ${border}`, padding: 16, background: inputBg, lineHeight: 1.5 }}>Se prepara un cobro por {formatPesos(checkoutAmount)}. El pago se confirma antes de enviar tu solicitud al médico. Si nadie acepta, te devolvemos el importe.</div>}
+              {metodoPago === "qr_mp" && <div style={{ borderRadius: 16, border: `1px solid ${border}`, padding: 16, background: inputBg, lineHeight: 1.5 }}>Se prepara un cobro por {formatPesos(checkoutAmount)}. El pago se confirma antes de buscar un profesional. Si nadie acepta, te devolvemos el importe.</div>}
               {metodoPago !== "efectivo" && metodoPago !== "transferencia" && metodoPago !== "referral_voucher" && metodoPago !== "qr_mp" && (
                 <div style={{ borderRadius: 18, border: `1px solid ${border}`, background: inputBg, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 14 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

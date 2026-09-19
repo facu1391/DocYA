@@ -53,7 +53,7 @@ export default function QrPaymentScreen() {
       const activated = await solicitarConsulta({ ...pending, consulta_id: consultaId, paciente_uuid: user.id, access_token: user.access_token, metodo_pago: "qr_mp", payment_id: result.payment_id });
       if (!activated.consulta_id) throw new Error("El pago se acreditó, pero no pudimos iniciar la consulta.");
       limpiarPagoPendiente();
-      router.replace(`/pedir/buscando?consulta_id=${activated.consulta_id}&tipo=teleconsulta&metodo=qr_mp`);
+      router.replace(`/pedir/buscando?consulta_id=${activated.consulta_id}&tipo=${encodeURIComponent(pending.tipo)}&metodo=qr_mp`);
     } catch (error) {
       activatingRef.current = false;
       setActivating(false);
@@ -79,7 +79,7 @@ export default function QrPaymentScreen() {
         <p style={{ fontSize: 34, fontWeight: 800, margin: "0 0 18px" }}>{amount.toLocaleString("es-AR", { style: "currency", currency: "ARS" })}</p>
         {!terminal && <a href={url} target="_blank" rel="noopener noreferrer" style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, padding: 15, borderRadius: 12, background: "#00b3a6", color: "white", fontWeight: 800, textDecoration: "none" }}>Pagar con Mercado Pago <ExternalLink size={18} /></a>}
         {!terminal && <details style={{ marginTop: 18 }}><summary style={{ cursor: "pointer", color: muted, fontSize: 13 }}>Pagar desde otro celular</summary><div style={{ background: "white", borderRadius: 14, padding: 12, width: "fit-content", margin: "14px auto" }}><QRCodeSVG value={url} size={204} /></div><p style={{ fontSize: 13, color: muted }}>Escaneá este código desde el otro celular.</p></details>}
-        <p style={{ fontSize: 14, color: muted, lineHeight: 1.6 }}><strong style={{ color: text }}>Cuando termines de pagar, volvé a DocYa.</strong><br />Confirmaremos el pago y empezaremos a buscar un médico disponible.</p>
+        <p style={{ fontSize: 14, color: muted, lineHeight: 1.6 }}><strong style={{ color: text }}>Cuando termines de pagar, volvé a DocYa.</strong><br />Confirmaremos el pago y empezaremos a buscar un profesional disponible.</p>
         <p style={{ fontSize: 12, color: muted, overflowWrap: "anywhere" }}>Orden: {orderId}</p>
         {activating ? <p><Loader2 size={18} className="animate-spin" style={{ verticalAlign: "middle" }} /> Pago acreditado. Iniciando consulta...</p>
           : status === "processed" ? <p><CheckCircle2 size={18} style={{ verticalAlign: "middle" }} /> Pago acreditado.</p>
