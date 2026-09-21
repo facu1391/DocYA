@@ -163,6 +163,7 @@ export default function MedicoOnlinePage() {
           { label: "Cobertura nacional", href: "/teleconsulta-argentina", description: "Médico online en todas las provincias" },
           { label: "Consulta por videollamada", href: "/teleconsulta", description: "Cómo funciona la modalidad" },
           { label: "Receta médica online", href: "/receta-medica-online", description: "Cuando el médico la indica" },
+          { label: "Orden médica online", href: "/orden-medica-online", description: "Estudios o derivación, si corresponde" },
           { label: "Certificado médico online", href: "/certificado-medico-online", description: "Luego de una evaluación real" },
         ]}
       />
