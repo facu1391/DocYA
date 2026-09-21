@@ -124,6 +124,11 @@ const APPLE_REDIRECT_URI =
   "https://www.docya.com.ar/registro";
 
 const PLACES_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
+const API_BASE = (
+  process.env.NEXT_PUBLIC_API_BASE ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://verificar.docya.com.ar"
+).replace(/\/$/, "");
 
 const COUNTRIES: CountryOption[] = [
   { code: "AR", name: "Argentina", phoneCode: "54" },
@@ -443,7 +448,7 @@ export default function RegistroProGoogleFlow() {
       ]);
       if (!dniFrente64 || !dniDorso64 || !selfieDni64) return;
 
-      const res = await fetch("/api/completar_perfil_medico", {
+      const res = await fetch(`${API_BASE}/auth/completar_perfil_medico`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -464,7 +469,7 @@ export default function RegistroProGoogleFlow() {
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(data?.detail || "No se pudo completar el perfil");
+        throw new Error(typeof data?.detail === "string" ? data.detail : "No se pudo completar el perfil. Intentá nuevamente.");
       }
 
       toast.success("Registro profesional enviado para revision.");
