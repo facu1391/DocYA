@@ -11,6 +11,8 @@ const noIndexHeaders = [
   "/pedir/solicitar",
   "/pedir/perfil",
   "/pedir/videollamada",
+  "/pedir/livekit-demo",
+  "/pedir/invitar",
   "/recetario/login",
   "/recetario/completar-perfil",
   "/recetario/cuenta-en-revision",

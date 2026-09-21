@@ -3,6 +3,7 @@ module.exports = {
   siteUrl: "https://www.docya.com.ar",
   generateRobotsTxt: true,
   sitemapSize: 5000,
+  autoLastmod: false,
   changefreq: "weekly",
   priority: 0.8,
   transform: async (config, path) => {
@@ -17,7 +18,6 @@ module.exports = {
       loc,
       changefreq: config.changefreq,
       priority: config.priority,
-      lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
       alternateRefs: config.alternateRefs ?? [],
     };
   },
@@ -36,6 +36,8 @@ module.exports = {
     "/pedir/solicitar",
     "/pedir/perfil",
     "/pedir/videollamada",
+    "/pedir/livekit-demo",
+    "/pedir/invitar",
     "/recetario/login",
     "/recetario/completar-perfil",
     "/recetario/cuenta-en-revision",
