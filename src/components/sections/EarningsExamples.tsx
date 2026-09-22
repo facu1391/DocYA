@@ -18,6 +18,7 @@ const API =
 
 export default function EarningsExamples() {
   const [precio, setPrecio] = useState(30000);
+  const [netoProfesional, setNetoProfesional] = useState<number | null>(null);
   const [comision, setComision] = useState(20);
 
   useEffect(() => {
@@ -28,8 +29,10 @@ export default function EarningsExamples() {
         if (!alive || !data) return;
         const monto = Number(data.monto);
         const porcentaje = Number(data.comision_porcentaje);
+        const neto = Number(data.monto_profesional ?? data.neto_profesional);
         if (Number.isFinite(monto) && monto > 0) setPrecio(monto);
         if (Number.isFinite(porcentaje)) setComision(porcentaje);
+        if (Number.isFinite(neto) && neto > 0) setNetoProfesional(neto);
       })
       .catch(() => {});
     return () => {
@@ -38,13 +41,13 @@ export default function EarningsExamples() {
   }, []);
 
   const escenarios = useMemo(() => {
-    const netoPorConsulta = precio * (1 - comision / 100);
+    const netoPorConsulta = netoProfesional ?? precio * (1 - comision / 100);
     return [
       { label: "8 consultas / semana", semanal: 8 * netoPorConsulta },
       { label: "12 consultas / semana", semanal: 12 * netoPorConsulta },
       { label: "20 consultas / semana", semanal: 20 * netoPorConsulta },
     ];
-  }, [precio, comision]);
+  }, [precio, comision, netoProfesional]);
 
   return (
     <section className="bg-[var(--hero-bg)] dark:bg-[var(--hero-bg-dark)]">

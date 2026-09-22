@@ -7,7 +7,7 @@ import { Stethoscope, Video, Syringe, Clock, Home, ShieldCheck, FileText, Chevro
 import ScrollReveal from "./ScrollReveal";
 import { useI18n } from "@/lib/i18n/context";
 
-type TarifaResponse = { monto: number; tipo: string; activa?: boolean };
+type TarifaResponse = { monto: number; monto_final?: number; tipo: string; activa?: boolean };
 
 async function getTarifas(): Promise<Record<string, TarifaResponse>> {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API_URL || "";
@@ -34,7 +34,7 @@ async function getTarifas(): Promise<Record<string, TarifaResponse>> {
 }
 
 function formatPrecio(tarifa: TarifaResponse | undefined, fallback: string) {
-  return tarifa ? `$${Number(tarifa.monto).toLocaleString("es-AR")}` : fallback;
+  return tarifa ? `$${Number(tarifa.monto_final ?? tarifa.monto).toLocaleString("es-AR")}` : fallback;
 }
 
 export default function PreciosSection() {
