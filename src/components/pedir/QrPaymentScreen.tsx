@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { CheckCircle2, ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { usePedirTheme } from "./theme";
-import { leerPagoPendienteLocal, leerPedirUser, limpiarPagoPendiente, reconstruirPagoDesdeConsulta, solicitarConsulta } from "@/lib/pedir/pendingPayment";
+import { guardarPagoPendiente, leerPagoPendienteLocal, leerPedirUser, limpiarPagoPendiente, reconstruirPagoDesdeConsulta, solicitarConsulta } from "@/lib/pedir/pendingPayment";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -22,6 +22,7 @@ export default function QrPaymentScreen() {
   const [status, setStatus] = useState("created");
   const [message, setMessage] = useState("");
   const [activating, setActivating] = useState(false);
+  const [renewing, setRenewing] = useState(false);
   const activatingRef = useRef(false);
 
   const check = useCallback(async () => {
@@ -38,7 +39,6 @@ export default function QrPaymentScreen() {
       setStatus(result.status);
       setMessage("");
       if (["expired", "canceled", "refunded"].includes(result.status)) {
-        limpiarPagoPendiente();
         return;
       }
       if (result.status !== "processed" || !result.payment_id) return;
@@ -60,6 +60,42 @@ export default function QrPaymentScreen() {
       setMessage(error instanceof Error ? error.message : "No pudimos verificar el pago.");
     }
   }, [amount, consultaId, orderId, router, valid]);
+
+  const renew = useCallback(async () => {
+    if (!valid || renewing || !["expired", "canceled"].includes(status)) return;
+    const user = leerPedirUser();
+    if (!user?.access_token) { setMessage("Ingresá nuevamente a tu cuenta para generar otro QR."); return; }
+    setRenewing(true);
+    setMessage("");
+    activatingRef.current = true;
+    try {
+      const response = await fetch(`${API}/pagos/qr/orden`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
+        body: JSON.stringify({ consulta_id: Number(consultaId), paciente_uuid: user.id }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.detail || "No pudimos generar un nuevo QR.");
+      if (result.method !== "qr" || !/^https:\/\/mpago\.la\/pos\/\d+$/.test(result.url || "") || !result.order_id) {
+        throw new Error("Mercado Pago no devolvió un QR válido.");
+      }
+      if (result.currency !== "ARS" || Number(result.amount) !== amount) {
+        throw new Error("El nuevo QR no coincide con el importe confirmado de la consulta.");
+      }
+      const pendingLocal = leerPagoPendienteLocal();
+      const pending = pendingLocal && String(pendingLocal.consulta_id) === consultaId
+        ? pendingLocal : await reconstruirPagoDesdeConsulta(consultaId, user);
+      if (pending) guardarPagoPendiente({ ...pending, metodo_pago: "qr_mp", qr_url: result.url, qr_order_id: result.order_id, qr_amount: String(result.amount) });
+      router.replace(`/pedir/qr?consulta_id=${consultaId}&url=${encodeURIComponent(result.url)}&order_id=${encodeURIComponent(result.order_id)}&monto=${encodeURIComponent(result.amount)}`);
+      setStatus("created");
+      setRenewing(false);
+      activatingRef.current = false;
+    } catch (error) {
+      activatingRef.current = false;
+      setRenewing(false);
+      setMessage(error instanceof Error ? error.message : "No pudimos generar un nuevo QR.");
+    }
+  }, [amount, consultaId, renewing, router, status, valid]);
 
   useEffect(() => {
     if (!valid) return;
@@ -86,7 +122,9 @@ export default function QrPaymentScreen() {
           : terminal ? <p>La orden terminó ({status}). No realices el pago con este QR.</p>
           : <p><Loader2 size={18} className="animate-spin" style={{ verticalAlign: "middle" }} /> Esperando confirmación del pago...</p>}
         {message && <p role="alert" style={{ color: "#ef4444", lineHeight: 1.5 }}>{message}</p>}
-        <button onClick={() => { void check(); }} disabled={activating} style={{ border: `1px solid ${brandBorder}`, background: "transparent", color: text, borderRadius: 10, padding: "10px 14px", cursor: "pointer" }}><RefreshCw size={16} style={{ verticalAlign: "middle" }} /> Verificar pago</button>
+        {["expired", "canceled"].includes(status)
+          ? <button onClick={() => { void renew(); }} disabled={renewing} style={{ border: 0, background: "#00b3a6", color: "white", borderRadius: 10, padding: "11px 16px", cursor: renewing ? "wait" : "pointer", fontWeight: 800 }}>{renewing ? <Loader2 size={16} className="animate-spin" style={{ verticalAlign: "middle" }} /> : <RefreshCw size={16} style={{ verticalAlign: "middle" }} />} {renewing ? "Generando nuevo QR..." : "Generar nuevo QR"}</button>
+          : <button onClick={() => { void check(); }} disabled={activating} style={{ border: `1px solid ${brandBorder}`, background: "transparent", color: text, borderRadius: 10, padding: "10px 14px", cursor: "pointer" }}><RefreshCw size={16} style={{ verticalAlign: "middle" }} /> Verificar pago</button>}
       </>}
     </div>
   </main>;
