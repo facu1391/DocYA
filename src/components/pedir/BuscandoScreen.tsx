@@ -11,6 +11,7 @@ import {
   AlertCircle, Activity, MessageCircle, Smartphone,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
+import PacienteChat from "./PacienteChat";
 import { useI18n } from "@/lib/i18n/context";
 import styles from "./BuscandoScreen.module.css";
 
@@ -463,6 +464,15 @@ export default function BuscandoScreen() {
               </div>
             )}
           </div>
+        )}
+
+        {hasProf && user?.id && user.access_token && !esFin && !esCancelado && (
+          <PacienteChat
+            consultaId={consultaId}
+            pacienteId={user.id}
+            token={user.access_token}
+            profesional={medicoNombre}
+          />
         )}
 
         {/* ── COUNTDOWN / PENDIENTE ── */}
