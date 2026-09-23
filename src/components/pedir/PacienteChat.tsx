@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import { Loader2, MessageCircle, Send } from "lucide-react";
+import { Bell, Loader2, MessageCircle, Send } from "lucide-react";
 import { usePedirTheme } from "./theme";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
@@ -44,10 +44,62 @@ export default function PacienteChat({ consultaId, pacienteId, token, profesiona
   const [cargando, setCargando] = useState(true);
   const [conectado, setConectado] = useState(false);
   const [error, setError] = useState("");
+  const [permisoNotificaciones, setPermisoNotificaciones] = useState<NotificationPermission | "unsupported">("default");
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const mountedRef = useRef(true);
+  const tituloOriginalRef = useRef("DocYa");
+
+  useEffect(() => {
+    tituloOriginalRef.current = document.title;
+    setPermisoNotificaciones("Notification" in window ? Notification.permission : "unsupported");
+    const restaurarTitulo = () => { document.title = tituloOriginalRef.current; };
+    window.addEventListener("focus", restaurarTitulo);
+    return () => {
+      window.removeEventListener("focus", restaurarTitulo);
+      document.title = tituloOriginalRef.current;
+    };
+  }, []);
+
+  const avisarNuevoMensaje = useCallback((mensaje: MensajeChat) => {
+    document.title = `Nuevo mensaje · ${tituloOriginalRef.current}`;
+    if ("Notification" in window && Notification.permission === "granted" && (document.hidden || !document.hasFocus())) {
+      const notification = new Notification(`Mensaje de ${profesional}`, {
+        body: mensaje.mensaje.slice(0, 140),
+        icon: "/favicon.ico",
+        tag: `docya-chat-${consultaId}`,
+      });
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+      };
+    }
+    try {
+      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const context = new AudioContextClass();
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.frequency.value = 740;
+      gain.gain.setValueAtTime(0.08, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.22);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start();
+      oscillator.stop(context.currentTime + 0.22);
+      oscillator.onended = () => void context.close();
+    } catch {}
+  }, [consultaId, profesional]);
+
+  const activarNotificaciones = async () => {
+    if (!("Notification" in window)) {
+      setPermisoNotificaciones("unsupported");
+      return;
+    }
+    const permiso = await Notification.requestPermission();
+    setPermisoNotificaciones(permiso);
+  };
 
   const agregarMensaje = useCallback((nuevo: MensajeChat) => {
     setMensajes(actuales => actuales.some(item => item.id === nuevo.id) ? actuales : [...actuales, nuevo]);
@@ -97,7 +149,10 @@ export default function PacienteChat({ consultaId, pacienteId, token, profesiona
       };
       socket.onmessage = event => {
         try {
-          agregarMensaje(JSON.parse(event.data) as MensajeChat);
+          const mensaje = JSON.parse(event.data) as MensajeChat;
+          agregarMensaje(mensaje);
+          const propio = mensaje.remitente_tipo === "paciente" && String(mensaje.remitente_id) === pacienteId;
+          if (!propio) avisarNuevoMensaje(mensaje);
         } catch {}
       };
       socket.onerror = () => {
@@ -122,7 +177,7 @@ export default function PacienteChat({ consultaId, pacienteId, token, profesiona
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       socketRef.current?.close(1000, "Vista cerrada");
     };
-  }, [agregarMensaje, consultaId, token]);
+  }, [agregarMensaje, avisarNuevoMensaje, consultaId, pacienteId, token]);
 
   const enviar = (event: FormEvent) => {
     event.preventDefault();
@@ -146,6 +201,15 @@ export default function PacienteChat({ consultaId, pacienteId, token, profesiona
           {conectado ? "En línea" : "Reconectando…"}
         </span>
       </div>
+
+      {permisoNotificaciones === "default" && (
+        <button type="button" onClick={() => void activarNotificaciones()} style={{ width: "100%", border: `1px solid ${border}`, background: softPanel, color: text, borderRadius: 12, padding: "10px 12px", marginBottom: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", fontWeight: 750, fontSize: 13 }}>
+          <Bell size={16} color="#2dd4bf" /> Activar avisos de mensajes
+        </button>
+      )}
+      {permisoNotificaciones === "denied" && (
+        <p style={{ color: "#f59e0b", fontSize: 12, margin: "0 0 12px" }}>Las notificaciones están bloqueadas en el navegador. Podés habilitarlas desde el candado de la barra de direcciones.</p>
+      )}
 
       <div style={{ height: 280, overflowY: "auto", background: softPanel, borderRadius: 16, padding: 12, display: "flex", flexDirection: "column", gap: 9 }}>
         {cargando && <div style={{ color: muted, margin: "auto", display: "flex", gap: 8, alignItems: "center" }}><Loader2 size={16} className="animate-spin" /> Cargando mensajes…</div>}
