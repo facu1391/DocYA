@@ -172,6 +172,7 @@ export default function MedicoADomicilioCabaPage() {
       <RelatedLinks
         title="Servicios relacionados"
         links={[
+          { label: "Pediatra a domicilio", href: "/pediatra-a-domicilio", description: "Consulta médica para niños en casa" },
           { label: "Médico a domicilio las 24 horas", href: "/medico-a-domicilio-24-horas", description: "Noche, madrugada, fines de semana y feriados" },
           { label: "Médico a domicilio urgente", href: "/medico-a-domicilio-urgente", description: "Atención prioritaria para cuadros agudos" },
           { label: "Médico clínico a domicilio", href: "/medico-clinico-a-domicilio", description: "Evaluación clínica general" },
