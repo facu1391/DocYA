@@ -21,6 +21,11 @@ import { PATIENT_REFERRALS_ENABLED } from "@/lib/pedir/referralFeature";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
+const fechaLocalISO = () => {
+  const ahora = new Date();
+  return new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
+};
+
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean; access_token?: string };
 type MetodoPago = "tarjeta" | "saldo_mp" | "transferencia" | "efectivo" | "referral_voucher" | "qr_mp";
 type Tarifa = { tipo?: string; monto: number; descripcion?: string };
@@ -267,7 +272,7 @@ export default function SolicitarScreen() {
       if (!pacienteMenorNombre.trim()) { notify(t.solicitar.nombreNinio, false); return false; }
       if (!pacienteMenorDni.trim()) { notify(t.solicitar.dniNinio, false); return false; }
       const fecha = pacienteMenorFechaNacimiento.trim();
-      if (fecha && (!/^\d{4}-\d{2}-\d{2}$/.test(fecha) || Number.isNaN(Date.parse(fecha)))) {
+      if (!fecha || !/^\d{4}-\d{2}-\d{2}$/.test(fecha) || Number.isNaN(Date.parse(fecha)) || fecha > fechaLocalISO()) {
         notify(t.solicitar.fechaFormato, false);
         return false;
       }
@@ -624,7 +629,7 @@ export default function SolicitarScreen() {
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
                     <input value={pacienteMenorNombre} onChange={e => setPacienteMenorNombre(e.target.value)} placeholder={t.solicitar.nombreApellido} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                     <input value={pacienteMenorDni} onChange={e => setPacienteMenorDni(e.target.value)} placeholder={t.solicitar.dniPlaceholder} inputMode="numeric" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    <input value={pacienteMenorFechaNacimiento} onChange={e => setPacienteMenorFechaNacimiento(e.target.value)} placeholder={t.solicitar.fechaNacPlaceholder} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input type="date" required max={fechaLocalISO()} value={pacienteMenorFechaNacimiento} onChange={e => setPacienteMenorFechaNacimiento(e.target.value)} aria-label={t.solicitar.fechaNacPlaceholder} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, colorScheme: "dark", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                     <input value={pacienteMenorSexo} onChange={e => setPacienteMenorSexo(e.target.value)} placeholder={t.solicitar.sexo} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                     <input value={responsableVinculo} onChange={e => setResponsableVinculo(e.target.value)} placeholder={t.solicitar.vinculo} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                   </div>
