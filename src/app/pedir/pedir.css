@@ -9,6 +9,7 @@
 .pedir-experience .pedir-cards > div { border-top: 3px solid #14b8a6 !important; box-shadow: 0 8px 28px #00000008; }
 .pedir-experience .pedir-cards > div:nth-child(2) { border-top-color: #818cf8 !important; }
 .pedir-experience .pedir-cards > div:nth-child(3) { border-top-color: #f472b6 !important; }
+.pedir-experience .pedir-cards > div:nth-child(4) { border-top-color: #38bdf8 !important; }
 .pedir-experience .pedir-cards button { min-height: 50px; }
 .pedir-experience input:not([type=checkbox]):not([type=radio]), .pedir-experience select { font-size: 16px; }
 .pedir-experience details > summary { list-style-position: inside; line-height: 1.6; }

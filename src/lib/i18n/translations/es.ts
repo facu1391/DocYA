@@ -356,10 +356,10 @@ export const es = {
         cta: "Solicitar enfermero",
       },
       {
-        badge: "Atención infantil",
+        badge: "Cuidado para los más chicos",
         title: "Pediatría",
-        subtitle: "Atención médica para tus hijos.",
-        description: "Elegí teleconsulta o atención pediátrica a domicilio y seleccioná al menor que será atendido.",
+        subtitle: "Cuidado médico con calidez para tus hijos.",
+        description: "Elegí atención online o en casa y seleccioná al menor que necesita cuidado.",
         chips: ["Perfil del menor", "Historia separada", "Documentos a su nombre"],
         cta: "Solicitar pediatra",
       },

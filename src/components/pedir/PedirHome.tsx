@@ -33,10 +33,10 @@ type ServicioId = "medico" | "teleconsulta" | "enfermero";
 type PrecioServicio = { monto: number; descripcion?: string };
 
 const SERVICIOS_ICONS = [
-  { id: "medico" as const, icon: Stethoscope, color: "#00b3a6", bgColor: "rgba(0,179,166,0.12)", badgeBg: "rgba(0,179,166,0.15)", badgeColor: "#00b3a6", trustIcons: [Clock, Home, ShieldCheck] },
-  { id: "teleconsulta" as const, icon: Video, color: "#818cf8", bgColor: "rgba(129,140,248,0.12)", badgeBg: "rgba(129,140,248,0.15)", badgeColor: "#818cf8", trustIcons: [Clock, ShieldCheck, FileText] },
-  { id: "enfermero" as const, icon: HeartPulse, color: "#f472b6", bgColor: "rgba(244,114,182,0.12)", badgeBg: "rgba(244,114,182,0.15)", badgeColor: "#f472b6", trustIcons: [Clock, Home, Star] },
-  { id: "pediatria" as const, icon: Baby, color: "#f59e0b", bgColor: "rgba(245,158,11,0.12)", badgeBg: "rgba(245,158,11,0.15)", badgeColor: "#f59e0b", trustIcons: [ShieldCheck, FileText, Star] },
+  { id: "medico" as const, translationIndex: 0, icon: Stethoscope, color: "#00b3a6", bgColor: "rgba(0,179,166,0.12)", badgeBg: "rgba(0,179,166,0.15)", badgeColor: "#00b3a6", trustIcons: [Clock, Home, ShieldCheck] },
+  { id: "teleconsulta" as const, translationIndex: 1, icon: Video, color: "#818cf8", bgColor: "rgba(129,140,248,0.12)", badgeBg: "rgba(129,140,248,0.15)", badgeColor: "#818cf8", trustIcons: [Clock, ShieldCheck, FileText] },
+  { id: "pediatria" as const, translationIndex: 3, icon: Baby, color: "#f472b6", bgColor: "rgba(244,114,182,0.16)", badgeBg: "rgba(244,114,182,0.18)", badgeColor: "#f472b6", trustIcons: [ShieldCheck, FileText, Star] },
+  { id: "enfermero" as const, translationIndex: 2, icon: HeartPulse, color: "#38bdf8", bgColor: "rgba(56,189,248,0.12)", badgeBg: "rgba(56,189,248,0.15)", badgeColor: "#38bdf8", trustIcons: [Clock, Home, Star] },
 ];
 
 const TRUST_ICONS = [ShieldCheck, Clock, CreditCard, Star];
@@ -91,14 +91,14 @@ export default function PedirHome() {
   const { dark, setTheme, homeBg: bg, cardBg, border, text, muted, headerBg, logo } = usePedirTheme();
   const { t, locale, setLocale } = useI18n();
 
-  const SERVICIOS = SERVICIOS_ICONS.map((s, i) => ({
+  const SERVICIOS = SERVICIOS_ICONS.map((s) => ({
     ...s,
-    badge: t.pedir.services[i].badge,
-    title: t.pedir.services[i].title,
-    sub: t.pedir.services[i].subtitle,
-    desc: t.pedir.services[i].description,
-    trust: s.trustIcons.map((TIcon, j) => ({ icon: TIcon, label: t.pedir.services[i].chips[j] })),
-    btn: t.pedir.services[i].cta,
+    badge: t.pedir.services[s.translationIndex].badge,
+    title: t.pedir.services[s.translationIndex].title,
+    sub: t.pedir.services[s.translationIndex].subtitle,
+    desc: t.pedir.services[s.translationIndex].description,
+    trust: s.trustIcons.map((TIcon, j) => ({ icon: TIcon, label: t.pedir.services[s.translationIndex].chips[j] })),
+    btn: t.pedir.services[s.translationIndex].cta,
   }));
 
   const TRUST_STRIP = TRUST_ICONS.map((icon, i) => ({
@@ -355,7 +355,7 @@ export default function PedirHome() {
                   return (
                     <div
                       key={s.id}
-                      style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: 24, padding: "26px 24px", display: "flex", flexDirection: "column", gap: 0, transition: "transform 0.15s, box-shadow 0.15s" }}
+                      style={{ background: s.id === "pediatria" ? (dark ? "linear-gradient(145deg, rgba(244,114,182,0.12), rgba(244,114,182,0.03) 48%, #102730 100%)" : "linear-gradient(145deg, #fff1f7, #ffffff 58%)") : cardBg, border: `1px solid ${s.id === "pediatria" ? `${s.color}55` : border}`, borderRadius: 24, padding: "26px 24px", display: "flex", flexDirection: "column", gap: 0, transition: "transform 0.15s, box-shadow 0.15s" }}
                       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)"; (e.currentTarget as HTMLElement).style.boxShadow = dark ? "0 20px 50px rgba(0,0,0,0.4)" : "0 12px 40px rgba(0,0,0,0.12)"; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
                     >
@@ -381,8 +381,8 @@ export default function PedirHome() {
                       </div>
                       {s.id === "pediatria" ? (
                         <div style={{ display: "grid", gap: 10 }}>
-                          <button onClick={() => startTeleconsulta(true)} style={{ width: "100%", padding: "12px 0", borderRadius: 14, border: "none", background: s.color, color: "#fff", fontSize: 14, fontWeight: 750, cursor: "pointer", fontFamily: "inherit" }}>Teleconsulta pediátrica</button>
-                          <button onClick={() => router.push("/pedir/filtro?tipo=medico&pediatria=1")} style={{ width: "100%", padding: "12px 0", borderRadius: 14, border: `1.5px solid ${s.color}`, background: "transparent", color: s.color, fontSize: 14, fontWeight: 750, cursor: "pointer", fontFamily: "inherit" }}>Pediatra a domicilio</button>
+                          <button onClick={() => startTeleconsulta(true)} style={{ width: "100%", padding: "12px 0", borderRadius: 14, border: "none", background: `linear-gradient(135deg, ${s.color}, #ec4899)`, color: "#fff", fontSize: 14, fontWeight: 750, cursor: "pointer", fontFamily: "inherit", boxShadow: `0 7px 22px ${s.color}45` }}>Consultar pediatra online</button>
+                          <button onClick={() => router.push("/pedir/filtro?tipo=medico&pediatria=1")} style={{ width: "100%", padding: "12px 0", borderRadius: 14, border: `1.5px solid ${s.color}`, background: "transparent", color: s.color, fontSize: 14, fontWeight: 750, cursor: "pointer", fontFamily: "inherit" }}>Pediatra en casa</button>
                         </div>
                       ) : (
                         <button
