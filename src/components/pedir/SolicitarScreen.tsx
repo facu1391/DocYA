@@ -8,7 +8,7 @@ import {
   ArrowLeft, Stethoscope, Video, HeartPulse, Baby, Gift,
   CreditCard, Wallet, Banknote, Landmark, Loader2, ChevronRight,
   Navigation, ShieldCheck, CheckCircle2, RotateCcw, UserRoundCheck,
-  ChevronDown, Globe2, QrCode,
+  ChevronDown, Globe2, QrCode, Plus, X, UsersRound,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import AddressInput from "./AddressInput";
@@ -26,6 +26,26 @@ const fechaLocalISO = () => {
   const ahora = new Date();
   return new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
 };
+
+const familiarVacio = {
+  full_name: "",
+  document_number: "",
+  birth_date: "",
+  sex: "",
+  relationship: "",
+};
+
+function fechaFamiliar(value: string) {
+  const [year, month, day] = value.split("-");
+  return year && month && day ? `${day}/${month}/${year}` : value;
+}
+
+function sexoFamiliar(value: string) {
+  const normalized = value.toLowerCase();
+  if (normalized === "masculino" || normalized === "m") return "Masculino";
+  if (normalized === "femenino" || normalized === "f") return "Femenino";
+  return value || "Sin especificar";
+}
 
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean; access_token?: string };
 type MetodoPago = "tarjeta" | "saldo_mp" | "transferencia" | "efectivo" | "referral_voucher" | "qr_mp";
@@ -115,6 +135,8 @@ export default function SolicitarScreen() {
   const [responsableVinculo, setResponsableVinculo] = useState("");
   const [familiares, setFamiliares] = useState<PatientFamilyMember[]>([]);
   const [familiarSeleccionadoId, setFamiliarSeleccionadoId] = useState<number | null>(null);
+  const [modalFamiliarAbierto, setModalFamiliarAbierto] = useState(false);
+  const [nuevoFamiliar, setNuevoFamiliar] = useState(familiarVacio);
   const [guardandoFamiliar, setGuardandoFamiliar] = useState(false);
   const [metodoPago, setMetodoPago] = useState<MetodoPago>("tarjeta");
   const [otrosMediosAbiertos, setOtrosMediosAbiertos] = useState(false);
@@ -169,30 +191,32 @@ export default function SolicitarScreen() {
 
   const guardarFamiliar = useCallback(async () => {
     if (!user?.access_token) return notify("Volvé a iniciar sesión para guardar el familiar.", false);
-    if (!pacienteMenorNombre.trim() || !pacienteMenorDni.trim() || !pacienteMenorFechaNacimiento || !pacienteMenorSexo.trim() || !responsableVinculo.trim()) {
+    if (!nuevoFamiliar.full_name.trim() || !nuevoFamiliar.document_number.trim() || !nuevoFamiliar.birth_date || !nuevoFamiliar.sex.trim() || !nuevoFamiliar.relationship.trim()) {
       return notify("Completá los datos del menor antes de guardarlo.", false);
     }
     setGuardandoFamiliar(true);
     try {
       const member = await createPatientFamilyMember(user.access_token, {
-        full_name: pacienteMenorNombre.trim(),
+        full_name: nuevoFamiliar.full_name.trim(),
         document_type: "dni",
-        document_number: pacienteMenorDni.trim(),
-        birth_date: pacienteMenorFechaNacimiento,
-        sex: pacienteMenorSexo.trim(),
-        relationship: responsableVinculo.trim(),
+        document_number: nuevoFamiliar.document_number.trim(),
+        birth_date: nuevoFamiliar.birth_date,
+        sex: nuevoFamiliar.sex.trim(),
+        relationship: nuevoFamiliar.relationship.trim(),
         health_insurance: null,
         member_number: null,
       });
       setFamiliares(current => [...current, member]);
       seleccionarFamiliar(member);
+      setModalFamiliarAbierto(false);
+      setNuevoFamiliar(familiarVacio);
       notify("Familiar guardado correctamente.");
     } catch (error) {
       notify(error instanceof Error ? error.message : "No se pudo guardar el familiar.", false);
     } finally {
       setGuardandoFamiliar(false);
     }
-  }, [user, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo, seleccionarFamiliar]);
+  }, [user, nuevoFamiliar, seleccionarFamiliar]);
 
   useEffect(() => {
     if (!PATIENT_REFERRALS_ENABLED || tipo !== "teleconsulta" || !user?.access_token) { setAvailableRewards(0); return; }
@@ -321,6 +345,7 @@ export default function SolicitarScreen() {
     if (!permiteEfectivo && metodoPago === "efectivo") { notify(t.solicitar.teleconsultaEfectivo, false); return false; }
     if (!tarifa?.monto) { notify(t.solicitar.errorPrecioRetry, false); return false; }
     if (esPediatria) {
+      if (!familiarSeleccionadoId) { notify("Elegí el menor que recibirá la atención.", false); return false; }
       if (!pacienteMenorNombre.trim()) { notify(t.solicitar.nombreNinio, false); return false; }
       if (!pacienteMenorDni.trim()) { notify(t.solicitar.dniNinio, false); return false; }
       const fecha = pacienteMenorFechaNacimiento.trim();
@@ -330,7 +355,7 @@ export default function SolicitarScreen() {
       }
     }
     return true;
-  }, [user, motivo, direccion, lat, lng, permiteEfectivo, metodoPago, tarifa, esPediatria, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, t]);
+  }, [user, motivo, direccion, lat, lng, permiteEfectivo, metodoPago, tarifa, esPediatria, familiarSeleccionadoId, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, t]);
 
   const handleSubmit = useCallback(async () => {
     if (!validarSolicitud() || !user || !tarifa?.monto) return;
@@ -670,47 +695,54 @@ export default function SolicitarScreen() {
                   <label style={{ display: "block", fontSize: 13, fontWeight: 900, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 12 }}>
                     ¿Quién recibirá la atención?
                   </label>
-                  {familiares.length > 0 && (
-                    <select
-                      value={familiarSeleccionadoId ?? ""}
-                      onChange={event => {
-                        const id = Number(event.target.value);
-                        seleccionarFamiliar(familiares.find(member => member.id === id) ?? null);
-                      }}
-                      aria-label="Elegí quién recibirá la atención"
-                      style={{ width: "100%", minHeight: 54, background: inputBg, border: `2px solid ${cfg.color}`, borderRadius: 14, padding: "14px 16px", color: text, colorScheme: dark ? "dark" : "light", fontSize: 16, fontWeight: 700, marginBottom: 14, fontFamily: "inherit", cursor: "pointer" }}
-                    >
-                      <option value="" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>Cargar los datos de otro familiar</option>
-                      {familiares.map(member => (
-                        <option key={member.id} value={member.id} style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>
-                          {member.full_name} — {member.relationship}
-                        </option>
-                      ))}
-                    </select>
+                  {familiares.length > 0 ? (
+                    <div className="family-member-grid" role="radiogroup" aria-label="Elegí quién recibirá la atención">
+                      {familiares.map(member => {
+                        const seleccionado = familiarSeleccionadoId === member.id;
+                        return (
+                          <button
+                            key={member.id}
+                            type="button"
+                            role="radio"
+                            aria-checked={seleccionado}
+                            onClick={() => seleccionarFamiliar(member)}
+                            style={{ minWidth: 0, padding: 16, borderRadius: 16, border: `2px solid ${seleccionado ? cfg.color : border}`, background: seleccionado ? `${cfg.color}14` : inputBg, color: text, cursor: "pointer", textAlign: "left", fontFamily: "inherit", boxShadow: seleccionado ? `0 8px 24px ${cfg.color}1f` : "none", transition: "border-color .15s, background .15s, transform .15s" }}
+                          >
+                            <span style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                              <span style={{ width: 40, height: 40, borderRadius: 13, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: seleccionado ? `${cfg.color}22` : `${cfg.color}10` }}>
+                                <Baby size={20} color={cfg.color} />
+                              </span>
+                              <span style={{ flex: 1, minWidth: 0 }}>
+                                <span style={{ display: "block", fontSize: 16, fontWeight: 900, overflowWrap: "anywhere" }}>{member.full_name}</span>
+                                <span style={{ display: "block", marginTop: 3, fontSize: 13, fontWeight: 750, color: cfg.color }}>{member.relationship}</span>
+                              </span>
+                              <span aria-hidden="true" style={{ width: 21, height: 21, borderRadius: 999, border: `2px solid ${seleccionado ? cfg.color : border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                {seleccionado && <span style={{ width: 11, height: 11, borderRadius: 999, background: cfg.color }} />}
+                              </span>
+                            </span>
+                            <span style={{ display: "block", marginTop: 13, paddingTop: 11, borderTop: `1px solid ${border}`, color: muted, fontSize: 12.5, lineHeight: 1.55 }}>
+                              DNI {member.document_number || "Sin informar"} · {fechaFamiliar(member.birth_date)} · {sexoFamiliar(member.sex)}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div style={{ padding: "24px 18px", borderRadius: 17, border: `1px dashed ${border}`, background: inputBg, textAlign: "center" }}>
+                      <div style={{ width: 48, height: 48, margin: "0 auto 12px", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", background: `${cfg.color}12` }}>
+                        <UsersRound size={23} color={cfg.color} />
+                      </div>
+                      <p style={{ margin: 0, color: text, fontSize: 16, fontWeight: 850 }}>Todavía no tenés familiares cargados</p>
+                      <p style={{ margin: "6px auto 0", maxWidth: 410, color: muted, fontSize: 13, lineHeight: 1.5 }}>Agregá al menor para solicitar la consulta y guardar sus documentos a su nombre.</p>
+                    </div>
                   )}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-                    <input value={pacienteMenorNombre} onChange={e => { setFamiliarSeleccionadoId(null); setPacienteMenorNombre(e.target.value); }} placeholder={t.solicitar.nombreApellido} style={{ width: "100%", minHeight: 52, background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    <input value={pacienteMenorDni} onChange={e => setPacienteMenorDni(e.target.value)} placeholder={t.solicitar.dniPlaceholder} inputMode="numeric" style={{ width: "100%", minHeight: 52, background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    <input type="date" required max={fechaLocalISO()} value={pacienteMenorFechaNacimiento} onChange={e => setPacienteMenorFechaNacimiento(e.target.value)} aria-label={t.solicitar.fechaNacPlaceholder} style={{ width: "100%", minHeight: 52, background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, colorScheme: dark ? "dark" : "light", fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    <select
-                      value={pacienteMenorSexo}
-                      onChange={e => setPacienteMenorSexo(e.target.value)}
-                      aria-label={t.solicitar.sexo}
-                      required
-                      style={{ width: "100%", minHeight: 52, background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: pacienteMenorSexo ? text : muted, colorScheme: dark ? "dark" : "light", fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit", cursor: "pointer" }}
-                    >
-                      <option value="" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#9fb6bd" : "#64748b" }}>{t.solicitar.sexo}</option>
-                      <option value="masculino" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>{t.perfil.masculino}</option>
-                      <option value="femenino" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>{t.perfil.femenino}</option>
-                      <option value="otro" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>{t.perfil.otro}</option>
-                    </select>
-                    <input value={responsableVinculo} onChange={e => setResponsableVinculo(e.target.value)} placeholder={t.solicitar.vinculo} style={{ width: "100%", minHeight: 52, background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
-                  </div>
-                  {!familiarSeleccionadoId && (
-                    <button type="button" disabled={guardandoFamiliar} onClick={() => void guardarFamiliar()} style={{ marginTop: 14, border: `1px solid ${cfg.color}`, borderRadius: 12, padding: "10px 14px", background: "transparent", color: cfg.color, fontWeight: 800, cursor: guardandoFamiliar ? "wait" : "pointer", fontFamily: "inherit" }}>
-                      {guardandoFamiliar ? "Guardando..." : "Guardar en mi grupo familiar"}
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => { setNuevoFamiliar(familiarVacio); setModalFamiliarAbierto(true); }}
+                    style={{ width: "100%", minHeight: 48, marginTop: 14, border: `1.5px solid ${cfg.color}`, borderRadius: 14, padding: "11px 16px", background: "transparent", color: cfg.color, fontSize: 14, fontWeight: 850, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                  >
+                    <Plus size={18} /> {familiares.length ? "Agregar otro familiar" : "Agregar familiar"}
+                  </button>
                 </div>
               </>
             )}
@@ -904,9 +936,72 @@ export default function SolicitarScreen() {
       <style>{`
         .teleconsulta-whatsapp-help { position: fixed; right: 20px; bottom: max(20px, env(safe-area-inset-bottom)); z-index: 40; display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; border-radius: 999px; background: #25d366; color: #063b24; text-decoration: none; font-size: 14px; font-weight: 800; box-shadow: 0 8px 24px rgba(0,0,0,.22); }
         .payment-methods-primary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
+        .family-member-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .family-modal-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
         @media (max-width: 640px) { .teleconsulta-whatsapp-help { right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); width: 52px; height: 52px; min-height: 52px; padding: 0; justify-content: center; } .teleconsulta-whatsapp-help span { display: none; } }
+        @media (max-width: 560px) { .family-member-grid, .family-modal-fields { grid-template-columns: 1fr; } }
         @media (max-width: 420px) { .payment-methods-primary { grid-template-columns: 1fr; } }
       `}</style>
+
+      {modalFamiliarAbierto && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="nuevo-familiar-titulo"
+          onMouseDown={event => { if (event.target === event.currentTarget && !guardandoFamiliar) setModalFamiliarAbierto(false); }}
+          style={{ position: "fixed", inset: 0, zIndex: 1100, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(2, 12, 20, 0.78)", backdropFilter: "blur(8px)" }}
+        >
+          <div style={{ width: "100%", maxWidth: 620, maxHeight: "calc(100vh - 36px)", overflowY: "auto", borderRadius: 26, border: `1px solid ${border}`, background: inputBg, color: text, boxShadow: "0 28px 90px rgba(0,0,0,.45)" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "22px 22px 16px", background: `linear-gradient(180deg, ${cfg.color}15, transparent)` }}>
+              <div style={{ width: 46, height: 46, borderRadius: 15, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: `${cfg.color}1e` }}>
+                <Baby size={23} color={cfg.color} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <h2 id="nuevo-familiar-titulo" style={{ margin: 0, fontSize: 21, fontWeight: 900 }}>Agregar familiar</h2>
+                <p style={{ margin: "5px 0 0", color: muted, fontSize: 13, lineHeight: 1.5 }}>Estos datos se usarán para su historia clínica, recetas, certificados y órdenes.</p>
+              </div>
+              <button type="button" aria-label="Cerrar" disabled={guardandoFamiliar} onClick={() => setModalFamiliarAbierto(false)} style={{ width: 38, height: 38, borderRadius: 12, border: `1px solid ${border}`, background: "transparent", color: muted, cursor: guardandoFamiliar ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <X size={19} />
+              </button>
+            </div>
+
+            <div className="family-modal-fields" style={{ padding: "8px 22px 22px" }}>
+              <label style={{ gridColumn: "1 / -1", color: muted, fontSize: 12, fontWeight: 750 }}>
+                Nombre y apellido
+                <input autoFocus value={nuevoFamiliar.full_name} onChange={e => setNuevoFamiliar(current => ({ ...current, full_name: e.target.value }))} placeholder={t.solicitar.nombreApellido} style={{ width: "100%", minHeight: 52, marginTop: 6, background: dark ? "#102730" : "#fff", border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+              </label>
+              <label style={{ color: muted, fontSize: 12, fontWeight: 750 }}>
+                DNI
+                <input value={nuevoFamiliar.document_number} onChange={e => setNuevoFamiliar(current => ({ ...current, document_number: e.target.value.replace(/\D/g, "") }))} placeholder={t.solicitar.dniPlaceholder} inputMode="numeric" style={{ width: "100%", minHeight: 52, marginTop: 6, background: dark ? "#102730" : "#fff", border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+              </label>
+              <label style={{ color: muted, fontSize: 12, fontWeight: 750 }}>
+                Fecha de nacimiento
+                <input type="date" required max={fechaLocalISO()} value={nuevoFamiliar.birth_date} onChange={e => setNuevoFamiliar(current => ({ ...current, birth_date: e.target.value }))} style={{ width: "100%", minHeight: 52, marginTop: 6, background: dark ? "#102730" : "#fff", border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, colorScheme: dark ? "dark" : "light", fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+              </label>
+              <label style={{ color: muted, fontSize: 12, fontWeight: 750 }}>
+                Sexo
+                <select value={nuevoFamiliar.sex} onChange={e => setNuevoFamiliar(current => ({ ...current, sex: e.target.value }))} required style={{ width: "100%", minHeight: 52, marginTop: 6, background: dark ? "#102730" : "#fff", border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: nuevoFamiliar.sex ? text : muted, colorScheme: dark ? "dark" : "light", fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit", cursor: "pointer" }}>
+                  <option value="">Seleccionar</option>
+                  <option value="masculino">{t.perfil.masculino}</option>
+                  <option value="femenino">{t.perfil.femenino}</option>
+                  <option value="otro">{t.perfil.otro}</option>
+                </select>
+              </label>
+              <label style={{ color: muted, fontSize: 12, fontWeight: 750 }}>
+                Vínculo
+                <input value={nuevoFamiliar.relationship} onChange={e => setNuevoFamiliar(current => ({ ...current, relationship: e.target.value }))} placeholder="Ej.: hijo, hija, nieto/a" style={{ width: "100%", minHeight: 52, marginTop: 6, background: dark ? "#102730" : "#fff", border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+              </label>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 10, padding: "0 22px 22px" }}>
+              <button type="button" disabled={guardandoFamiliar} onClick={() => setModalFamiliarAbierto(false)} style={{ minHeight: 50, borderRadius: 14, border: `1px solid ${border}`, background: "transparent", color: text, fontWeight: 800, cursor: guardandoFamiliar ? "not-allowed" : "pointer", fontFamily: "inherit" }}>Cancelar</button>
+              <button type="button" disabled={guardandoFamiliar} onClick={() => void guardarFamiliar()} style={{ minHeight: 50, borderRadius: 14, border: "none", background: `linear-gradient(90deg, ${cfg.color}, #2dd4bf)`, color: "#fff", fontWeight: 850, cursor: guardandoFamiliar ? "wait" : "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                {guardandoFamiliar ? <><Loader2 size={18} className="animate-spin" /> Guardando...</> : "Guardar y seleccionar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {confirmacionPaciente && (
         <div
