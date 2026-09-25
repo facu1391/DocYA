@@ -46,6 +46,11 @@ type HistoriaConsulta = {
   tipo_profesional?: string;
   historia_clinica?: string | Record<string, unknown> | null;
   fecha_nota?: string | null;
+  categoria_consulta?: string;
+  paciente_nombre?: string | null;
+  paciente_dni?: string | null;
+  paciente_fecha_nacimiento?: string | null;
+  responsable_vinculo?: string | null;
 };
 
 type ConsultaActiva = {
@@ -467,7 +472,20 @@ function ConsultaCard({ consulta, theme, t }: { consulta: HistoriaConsulta; them
             <InfoChip label={t.consultas.fecha} value={fechaCorta(consulta.fecha_consulta || consulta.creado_en)} icon={<Calendar size={15} />} color="#2dd4bf" theme={theme} />
             <InfoChip label={t.consultas.tipo} value={tipo.label} icon={<tipo.Icon size={15} />} color={tipo.color} theme={theme} />
             {consulta.fecha_nota && <InfoChip label={t.consultas.nota} value={fechaCorta(consulta.fecha_nota)} icon={<FileText size={15} />} color="#38bdf8" theme={theme} />}
+            {consulta.categoria_consulta === "pediatria" && consulta.paciente_nombre && <InfoChip label="Paciente menor" value={consulta.paciente_nombre} icon={<UserCheck size={15} />} color="#f59e0b" theme={theme} />}
           </div>
+
+          {consulta.categoria_consulta === "pediatria" && consulta.paciente_nombre && (
+            <div style={{ marginTop: 14, borderRadius: 16, border: "1px solid rgba(245,158,11,.3)", background: "rgba(245,158,11,.08)", padding: "13px 14px" }}>
+              <p style={{ color: "#f59e0b", fontSize: 12, fontWeight: 900, marginBottom: 5 }}>ATENCIÓN PEDIÁTRICA</p>
+              <p style={{ color: theme.text, fontSize: 14, fontWeight: 800 }}>{consulta.paciente_nombre}</p>
+              <p style={{ color: theme.muted, fontSize: 12, marginTop: 3 }}>
+                {consulta.paciente_dni ? `DNI ${consulta.paciente_dni}` : "Sin DNI informado"}
+                {consulta.paciente_fecha_nacimiento ? ` · Nacimiento ${fechaCorta(consulta.paciente_fecha_nacimiento)}` : ""}
+                {consulta.responsable_vinculo ? ` · Responsable: ${consulta.responsable_vinculo}` : ""}
+              </p>
+            </div>
+          )}
 
           <ClinicalBlock title={t.consultas.motivoConsulta} value={consulta.motivo || "-"} theme={theme} />
 

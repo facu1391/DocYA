@@ -355,6 +355,14 @@ export const es = {
         chips: ["En minutos", "En tu casa", "Seguridad y confianza"],
         cta: "Solicitar enfermero",
       },
+      {
+        badge: "Atención infantil",
+        title: "Pediatría",
+        subtitle: "Atención médica para tus hijos.",
+        description: "Elegí teleconsulta o atención pediátrica a domicilio y seleccioná al menor que será atendido.",
+        chips: ["Perfil del menor", "Historia separada", "Documentos a su nombre"],
+        cta: "Solicitar pediatra",
+      },
     ],
     trustStrip: [
       { title: "Profesionales verificados", description: "Todos nuestros profesionales están matriculados." },

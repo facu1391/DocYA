@@ -33,6 +33,7 @@ export default function FiltroScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const tipo = params.get("tipo") ?? "medico";
+  const pediatria = params.get("pediatria") === "1";
 
   const [respuestas, setRespuestas]     = useState<Resp>({});
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -147,7 +148,7 @@ export default function FiltroScreen() {
           )}
 
           <button
-            onClick={() => todasNo && router.push(`/pedir/solicitar?tipo=${tipo}`)}
+            onClick={() => todasNo && router.push(`/pedir/solicitar?tipo=${tipo}${pediatria ? "&pediatria=1" : ""}`)}
             disabled={!todasNo}
             style={{
               width: "100%", padding: "17px", borderRadius: 18, border: "none",

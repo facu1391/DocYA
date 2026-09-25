@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Stethoscope, Video, HeartPulse, ShieldCheck, Clock,
+  Stethoscope, Video, HeartPulse, ShieldCheck, Clock, Baby,
   Home, FileText, Star, CreditCard, ChevronRight,
   Phone, LogOut, User, ChevronDown, Sun, Moon,
   MessageCircle, AlertTriangle, Globe, Gift,
@@ -36,6 +36,7 @@ const SERVICIOS_ICONS = [
   { id: "medico" as const, icon: Stethoscope, color: "#00b3a6", bgColor: "rgba(0,179,166,0.12)", badgeBg: "rgba(0,179,166,0.15)", badgeColor: "#00b3a6", trustIcons: [Clock, Home, ShieldCheck] },
   { id: "teleconsulta" as const, icon: Video, color: "#818cf8", bgColor: "rgba(129,140,248,0.12)", badgeBg: "rgba(129,140,248,0.15)", badgeColor: "#818cf8", trustIcons: [Clock, ShieldCheck, FileText] },
   { id: "enfermero" as const, icon: HeartPulse, color: "#f472b6", bgColor: "rgba(244,114,182,0.12)", badgeBg: "rgba(244,114,182,0.15)", badgeColor: "#f472b6", trustIcons: [Clock, Home, Star] },
+  { id: "pediatria" as const, icon: Baby, color: "#f59e0b", bgColor: "rgba(245,158,11,0.12)", badgeBg: "rgba(245,158,11,0.15)", badgeColor: "#f59e0b", trustIcons: [ShieldCheck, FileText, Star] },
 ];
 
 const TRUST_ICONS = [ShieldCheck, Clock, CreditCard, Star];
@@ -68,10 +69,13 @@ const notify = (msg: string, ok = true) => {
 export default function PedirHome() {
   const router = useRouter();
   const [deviceModalOpen, setDeviceModalOpen] = useState(false);
+  const [telePediatricaPendiente, setTelePediatricaPendiente] = useState(false);
   const devicesTested = useRef(false);
   const markDevicesTested = () => { devicesTested.current = true; };
-  const startTeleconsulta = () => {
-    if (devicesTested.current) router.push("/pedir/filtro?tipo=teleconsulta");
+  const startTeleconsulta = (pediatrica = false) => {
+    setTelePediatricaPendiente(pediatrica);
+    const destino = `/pedir/filtro?tipo=teleconsulta${pediatrica ? "&pediatria=1" : ""}`;
+    if (devicesTested.current) router.push(destino);
     else setDeviceModalOpen(true);
   };
   const googleRef = useRef<HTMLDivElement | null>(null);
@@ -347,7 +351,7 @@ export default function PedirHome() {
               {/* CARDS */}
               <div className="pedir-cards">
                 {SERVICIOS.map(s => {
-                  const precio = precios[s.id as ServicioId];
+                  const precio = s.id === "pediatria" ? null : precios[s.id as ServicioId];
                   return (
                     <div
                       key={s.id}
@@ -365,7 +369,7 @@ export default function PedirHome() {
                       <p style={{ fontSize: 14, color: muted, fontWeight: 500, marginBottom: 8 }}>{s.sub}</p>
                       <div style={{ border: `1px solid ${s.color}30`, background: `${s.color}12`, borderRadius: 14, padding: "10px 12px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
                         <span style={{ fontSize: 12, color: muted, fontWeight: 800 }}>{t.pedir.precio}</span>
-                        <strong style={{ fontSize: 18, color: s.color, lineHeight: 1 }}>{formatPesos(precio?.monto, t.pedir.consultando)}</strong>
+                        <strong style={{ fontSize: 18, color: s.color, lineHeight: 1 }}>{s.id === "pediatria" ? "Según modalidad" : formatPesos(precio?.monto, t.pedir.consultando)}</strong>
                       </div>
                       <p style={{ fontSize: 14, color: muted, lineHeight: 1.55, marginBottom: 20, flex: 1 }}>{s.desc}</p>
                       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
@@ -375,12 +379,19 @@ export default function PedirHome() {
                           </div>
                         ))}
                       </div>
-                      <button
-                        onClick={() => s.id === "teleconsulta" ? startTeleconsulta() : router.push(s.id === "enfermero" ? `/pedir/solicitar?tipo=enfermero` : `/pedir/filtro?tipo=${s.id}`)}
-                        style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: s.color, color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", boxShadow: `0 6px 20px ${s.color}40` }}
-                      >
-                        {s.btn} <ChevronRight size={18} />
-                      </button>
+                      {s.id === "pediatria" ? (
+                        <div style={{ display: "grid", gap: 10 }}>
+                          <button onClick={() => startTeleconsulta(true)} style={{ width: "100%", padding: "12px 0", borderRadius: 14, border: "none", background: s.color, color: "#fff", fontSize: 14, fontWeight: 750, cursor: "pointer", fontFamily: "inherit" }}>Teleconsulta pediátrica</button>
+                          <button onClick={() => router.push("/pedir/filtro?tipo=medico&pediatria=1")} style={{ width: "100%", padding: "12px 0", borderRadius: 14, border: `1.5px solid ${s.color}`, background: "transparent", color: s.color, fontSize: 14, fontWeight: 750, cursor: "pointer", fontFamily: "inherit" }}>Pediatra a domicilio</button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => s.id === "teleconsulta" ? startTeleconsulta() : router.push(s.id === "enfermero" ? `/pedir/solicitar?tipo=enfermero` : `/pedir/filtro?tipo=${s.id}`)}
+                          style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: s.color, color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", boxShadow: `0 6px 20px ${s.color}40` }}
+                        >
+                          {s.btn} <ChevronRight size={18} />
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -568,7 +579,7 @@ export default function PedirHome() {
 
       {deviceModalOpen && <TeleconsultaDeviceModal onClose={() => setDeviceModalOpen(false)} onSuccess={markDevicesTested} onContinue={() => {
         setDeviceModalOpen(false);
-        router.push("/pedir/filtro?tipo=teleconsulta");
+        router.push(`/pedir/filtro?tipo=teleconsulta${telePediatricaPendiente ? "&pediatria=1" : ""}`);
       }} />}
       <style>{`
         @keyframes spin { to { transform: rotate(360deg) } }

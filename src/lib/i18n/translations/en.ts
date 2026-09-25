@@ -355,6 +355,14 @@ export const en = {
         chips: ["In minutes", "At your home", "Security and trust"],
         cta: "Request a nurse",
       },
+      {
+        badge: "Child care",
+        title: "Pediatrics",
+        subtitle: "Medical care for your children.",
+        description: "Choose a video consultation or home pediatric care and select the child who will be seen.",
+        chips: ["Child profile", "Separate history", "Documents in their name"],
+        cta: "Request a pediatrician",
+      },
     ],
     trustStrip: [
       { title: "Verified professionals", description: "All our professionals are licensed." },

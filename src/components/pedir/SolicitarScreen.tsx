@@ -18,6 +18,7 @@ import { useI18n } from "@/lib/i18n/context";
 import { guardarPagoPendiente, limpiarPagoPendiente, solicitarConsulta } from "@/lib/pedir/pendingPayment";
 import { getPatientReferrals, newReferralAttemptKey, reserveReferralReward } from "@/lib/pedir/patientReferrals";
 import { PATIENT_REFERRALS_ENABLED } from "@/lib/pedir/referralFeature";
+import { createPatientFamilyMember, getPatientFamily, type PatientFamilyMember } from "@/lib/pedir/patientFamily";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -75,6 +76,7 @@ export default function SolicitarScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const tipo = (params.get("tipo") ?? "medico") as keyof typeof TIPO_ICONS;
+  const esPediatria = params.get("pediatria") === "1" && tipo !== "enfermero";
   const [qrEnabled, setQrEnabled] = useState(false);
 
   const TIPO_CONFIG = {
@@ -92,8 +94,8 @@ export default function SolicitarScreen() {
   ];
 
   const METODOS_ONLINE = METODOS.filter(m => m.id !== "efectivo");
-  const METODOS_PRINCIPALES = METODOS_ONLINE.filter(m => m.id !== "saldo_mp");
-  const METODOS_SECUNDARIOS = METODOS_ONLINE.filter(m => m.id === "saldo_mp");
+  const METODOS_PRINCIPALES = METODOS_ONLINE.filter(m => m.id === "qr_mp" || m.id === "tarjeta");
+  const METODOS_SECUNDARIOS = METODOS_ONLINE.filter(m => m.id === "saldo_mp" || m.id === "transferencia");
 
   const cfg = TIPO_CONFIG[tipo] ?? TIPO_CONFIG.medico;
 
@@ -106,13 +108,15 @@ export default function SolicitarScreen() {
   const [lng, setLng] = useState<number | null>(null);
   const [provincia, setProvincia] = useState<string | null>(null);
   const [localidad, setLocalidad] = useState<string | null>(null);
-  const [esPediatria, setEsPediatria] = useState(false);
   const [pacienteMenorNombre, setPacienteMenorNombre] = useState("");
   const [pacienteMenorDni, setPacienteMenorDni] = useState("");
   const [pacienteMenorFechaNacimiento, setPacienteMenorFechaNacimiento] = useState("");
   const [pacienteMenorSexo, setPacienteMenorSexo] = useState("");
   const [responsableVinculo, setResponsableVinculo] = useState("");
-  const [metodoPago, setMetodoPago] = useState<MetodoPago>("transferencia");
+  const [familiares, setFamiliares] = useState<PatientFamilyMember[]>([]);
+  const [familiarSeleccionadoId, setFamiliarSeleccionadoId] = useState<number | null>(null);
+  const [guardandoFamiliar, setGuardandoFamiliar] = useState(false);
+  const [metodoPago, setMetodoPago] = useState<MetodoPago>("tarjeta");
   const [otrosMediosAbiertos, setOtrosMediosAbiertos] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [tarifa, setTarifa] = useState<Tarifa | null>(null);
@@ -126,7 +130,6 @@ export default function SolicitarScreen() {
   const [referralAttemptKey, setReferralAttemptKey] = useState<string | null>(null);
   const { dark, bg, brandBorder: border, text, muted, inputBg, headerBg, logo } = usePedirTheme();
   const permiteEfectivo = tipo !== "teleconsulta";
-  const permitePediatria = tipo !== "enfermero";
   const categoriaConsulta = esPediatria ? "pediatria" : "adultos";
   const datosPediatricos = useMemo(() => esPediatria
     ? {
@@ -135,8 +138,9 @@ export default function SolicitarScreen() {
         paciente_menor_fecha_nacimiento: pacienteMenorFechaNacimiento.trim() || undefined,
         paciente_menor_sexo: pacienteMenorSexo.trim() || undefined,
         responsable_vinculo: responsableVinculo.trim() || undefined,
+        family_member_id: familiarSeleccionadoId || undefined,
       }
-    : {}, [esPediatria, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo]);
+    : {}, [esPediatria, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo, familiarSeleccionadoId]);
 
   // Auth check
   useEffect(() => {
@@ -146,6 +150,49 @@ export default function SolicitarScreen() {
       setUser(JSON.parse(raw));
     } catch { router.replace("/pedir"); }
   }, [router]);
+
+  useEffect(() => {
+    if (!esPediatria || !user?.access_token) return;
+    getPatientFamily(user.access_token)
+      .then(setFamiliares)
+      .catch(() => notify("No pudimos cargar tu grupo familiar.", false));
+  }, [esPediatria, user]);
+
+  const seleccionarFamiliar = useCallback((member: PatientFamilyMember | null) => {
+    setFamiliarSeleccionadoId(member?.id ?? null);
+    setPacienteMenorNombre(member?.full_name ?? "");
+    setPacienteMenorDni(member?.document_number ?? "");
+    setPacienteMenorFechaNacimiento(member?.birth_date ?? "");
+    setPacienteMenorSexo(member?.sex ?? "");
+    setResponsableVinculo(member?.relationship ?? "");
+  }, []);
+
+  const guardarFamiliar = useCallback(async () => {
+    if (!user?.access_token) return notify("Volvé a iniciar sesión para guardar el familiar.", false);
+    if (!pacienteMenorNombre.trim() || !pacienteMenorDni.trim() || !pacienteMenorFechaNacimiento || !pacienteMenorSexo.trim() || !responsableVinculo.trim()) {
+      return notify("Completá los datos del menor antes de guardarlo.", false);
+    }
+    setGuardandoFamiliar(true);
+    try {
+      const member = await createPatientFamilyMember(user.access_token, {
+        full_name: pacienteMenorNombre.trim(),
+        document_type: "dni",
+        document_number: pacienteMenorDni.trim(),
+        birth_date: pacienteMenorFechaNacimiento,
+        sex: pacienteMenorSexo.trim(),
+        relationship: responsableVinculo.trim(),
+        health_insurance: null,
+        member_number: null,
+      });
+      setFamiliares(current => [...current, member]);
+      seleccionarFamiliar(member);
+      notify("Familiar guardado correctamente.");
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "No se pudo guardar el familiar.", false);
+    } finally {
+      setGuardandoFamiliar(false);
+    }
+  }, [user, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo, seleccionarFamiliar]);
 
   useEffect(() => {
     if (!PATIENT_REFERRALS_ENABLED || tipo !== "teleconsulta" || !user?.access_token) { setAvailableRewards(0); return; }
@@ -171,7 +218,12 @@ export default function SolicitarScreen() {
     let alive = true;
     fetch(`${API}/pagos/qr/disponible`, { cache: "no-store" })
       .then(res => res.ok ? res.json() : { enabled: false })
-      .then(data => { if (alive) setQrEnabled(data.enabled === true); })
+      .then(data => {
+        if (!alive) return;
+        const enabled = data.enabled === true;
+        setQrEnabled(enabled);
+        if (enabled) setMetodoPago(actual => actual === "tarjeta" ? "qr_mp" : actual);
+      })
       .catch(() => { if (alive) setQrEnabled(false); });
     return () => { alive = false; };
   }, [tipo]);
@@ -480,12 +532,12 @@ export default function SolicitarScreen() {
 
   const seleccionarMetodoPago = (metodo: MetodoPago) => {
     setMetodoPago(metodo);
-    if (metodo === "saldo_mp") setOtrosMediosAbiertos(true);
+    if (metodo === "saldo_mp" || metodo === "transferencia") setOtrosMediosAbiertos(true);
   };
 
   const renderMetodoOnline = (m: typeof METODOS_ONLINE[number]) => {
     const selected = metodoPago === m.id;
-    const recommended = m.id === "transferencia";
+    const recommended = m.id === "qr_mp";
     const IconPago = m.icon;
 
     return (
@@ -603,38 +655,47 @@ export default function SolicitarScreen() {
             </div>
 
             {/* PEDIATRÍA */}
-            {permitePediatria && (<>
-              <button
-                type="button"
-                onClick={() => setEsPediatria(v => !v)}
-                style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, padding: "18px 20px", borderRadius: 20, border: `1.5px solid ${esPediatria ? cfg.color : "rgba(0,179,166,0.18)"}`, background: esPediatria ? `${cfg.color}14` : "rgba(0,179,166,0.05)", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
-              >
+            {esPediatria && (<>
+              <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, padding: "18px 20px", borderRadius: 20, border: `1.5px solid ${cfg.color}`, background: `${cfg.color}14`, boxSizing: "border-box" }}>
                 <div style={{ width: 44, height: 44, borderRadius: 14, background: `${cfg.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <Baby size={21} color={cfg.color} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: text }}>{t.solicitar.pediatrica}</p>
-                  <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>{t.solicitar.pediatricaDesc}</p>
+                  <p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: text }}>Consulta pediátrica</p>
+                  <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>Los documentos y la historia clínica quedarán a nombre del menor seleccionado.</p>
                 </div>
-                <div style={{ width: 44, height: 26, borderRadius: 999, background: esPediatria ? cfg.color : border, position: "relative", flexShrink: 0, transition: "background 0.15s" }}>
-                  <div style={{ position: "absolute", top: 3, left: esPediatria ? 21 : 3, width: 20, height: 20, borderRadius: 999, background: "#fff", transition: "left 0.15s" }} />
-                </div>
-              </button>
+              </div>
 
-              {esPediatria && (
-                <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
+              <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
                   <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
-                    {t.solicitar.datosNinio}
+                    ¿Quién recibirá la atención?
                   </label>
+                  {familiares.length > 0 && (
+                    <select
+                      value={familiarSeleccionadoId ?? ""}
+                      onChange={event => {
+                        const id = Number(event.target.value);
+                        seleccionarFamiliar(familiares.find(member => member.id === id) ?? null);
+                      }}
+                      style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, marginBottom: 14, fontFamily: "inherit" }}
+                    >
+                      <option value="">Agregar un nuevo familiar</option>
+                      {familiares.map(member => <option key={member.id} value={member.id}>{member.full_name} · {member.relationship}</option>)}
+                    </select>
+                  )}
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-                    <input value={pacienteMenorNombre} onChange={e => setPacienteMenorNombre(e.target.value)} placeholder={t.solicitar.nombreApellido} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={pacienteMenorNombre} onChange={e => { setFamiliarSeleccionadoId(null); setPacienteMenorNombre(e.target.value); }} placeholder={t.solicitar.nombreApellido} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                     <input value={pacienteMenorDni} onChange={e => setPacienteMenorDni(e.target.value)} placeholder={t.solicitar.dniPlaceholder} inputMode="numeric" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                     <input type="date" required max={fechaLocalISO()} value={pacienteMenorFechaNacimiento} onChange={e => setPacienteMenorFechaNacimiento(e.target.value)} aria-label={t.solicitar.fechaNacPlaceholder} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, colorScheme: "dark", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                     <input value={pacienteMenorSexo} onChange={e => setPacienteMenorSexo(e.target.value)} placeholder={t.solicitar.sexo} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                     <input value={responsableVinculo} onChange={e => setResponsableVinculo(e.target.value)} placeholder={t.solicitar.vinculo} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                   </div>
+                  {!familiarSeleccionadoId && (
+                    <button type="button" disabled={guardandoFamiliar} onClick={() => void guardarFamiliar()} style={{ marginTop: 14, border: `1px solid ${cfg.color}`, borderRadius: 12, padding: "10px 14px", background: "transparent", color: cfg.color, fontWeight: 800, cursor: guardandoFamiliar ? "wait" : "pointer", fontFamily: "inherit" }}>
+                      {guardandoFamiliar ? "Guardando..." : "Guardar en mi grupo familiar"}
+                    </button>
+                  )}
                 </div>
-              )}
               </>
             )}
 
@@ -708,13 +769,13 @@ export default function SolicitarScreen() {
                     type="button"
                     aria-expanded={otrosMediosAbiertos}
                     onClick={() => {
-                      if (metodoPago === "saldo_mp") setOtrosMediosAbiertos(true);
+                      if (metodoPago === "saldo_mp" || metodoPago === "transferencia") setOtrosMediosAbiertos(true);
                       else setOtrosMediosAbiertos(abierto => !abierto);
                     }}
-                    style={{ width: "100%", minHeight: 48, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "11px 13px", borderRadius: 14, border: `1px solid ${metodoPago === "saldo_mp" ? cfg.color : border}`, background: metodoPago === "saldo_mp" ? `${cfg.color}10` : "transparent", color: text, cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 800, textAlign: "left" }}
+                    style={{ width: "100%", minHeight: 48, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "11px 13px", borderRadius: 14, border: `1px solid ${metodoPago === "saldo_mp" || metodoPago === "transferencia" ? cfg.color : border}`, background: metodoPago === "saldo_mp" || metodoPago === "transferencia" ? `${cfg.color}10` : "transparent", color: text, cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 800, textAlign: "left" }}
                   >
-                    <span>Otros medios de pago{metodoPago === "saldo_mp" ? " · Saldo Mercado Pago seleccionado" : ""}</span>
-                    <ChevronDown size={18} color={metodoPago === "saldo_mp" ? cfg.color : muted} style={{ flexShrink: 0, transform: otrosMediosAbiertos ? "rotate(180deg)" : "rotate(0deg)", transition: "transform .15s" }} />
+                    <span>Otros medios de pago{metodoPago === "saldo_mp" ? " · Saldo Mercado Pago seleccionado" : metodoPago === "transferencia" ? " · Transferencia seleccionada" : ""}</span>
+                    <ChevronDown size={18} color={metodoPago === "saldo_mp" || metodoPago === "transferencia" ? cfg.color : muted} style={{ flexShrink: 0, transform: otrosMediosAbiertos ? "rotate(180deg)" : "rotate(0deg)", transition: "transform .15s" }} />
                   </button>
                   {otrosMediosAbiertos && (
                     <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
