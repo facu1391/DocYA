@@ -687,7 +687,18 @@ export default function SolicitarScreen() {
                     <input value={pacienteMenorNombre} onChange={e => { setFamiliarSeleccionadoId(null); setPacienteMenorNombre(e.target.value); }} placeholder={t.solicitar.nombreApellido} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                     <input value={pacienteMenorDni} onChange={e => setPacienteMenorDni(e.target.value)} placeholder={t.solicitar.dniPlaceholder} inputMode="numeric" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                     <input type="date" required max={fechaLocalISO()} value={pacienteMenorFechaNacimiento} onChange={e => setPacienteMenorFechaNacimiento(e.target.value)} aria-label={t.solicitar.fechaNacPlaceholder} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, colorScheme: "dark", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    <input value={pacienteMenorSexo} onChange={e => setPacienteMenorSexo(e.target.value)} placeholder={t.solicitar.sexo} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <select
+                      value={pacienteMenorSexo}
+                      onChange={e => setPacienteMenorSexo(e.target.value)}
+                      aria-label={t.solicitar.sexo}
+                      required
+                      style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: pacienteMenorSexo ? text : muted, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit", cursor: "pointer" }}
+                    >
+                      <option value="">{t.solicitar.sexo}</option>
+                      <option value="masculino">{t.perfil.masculino}</option>
+                      <option value="femenino">{t.perfil.femenino}</option>
+                      <option value="otro">{t.perfil.otro}</option>
+                    </select>
                     <input value={responsableVinculo} onChange={e => setResponsableVinculo(e.target.value)} placeholder={t.solicitar.vinculo} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                   </div>
                   {!familiarSeleccionadoId && (
