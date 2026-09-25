@@ -342,9 +342,9 @@ export const en = {
       {
         badge: "No waiting",
         title: "Teleconsultation",
-        subtitle: "Video call consultation.",
-        description: "Talk to a doctor from your computer or phone, without leaving home.",
-        chips: ["In minutes", "100% secure", "Prescriptions and certificates"],
+        subtitle: "Medical care by video call.",
+        description: "The doctor evaluates your symptoms and recommends treatment. Prescriptions and certificates can also be issued when appropriate.",
+        chips: ["In minutes", "100% secure", "Treatment and documents"],
         cta: "Request teleconsultation",
       },
       {

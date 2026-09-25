@@ -342,9 +342,9 @@ export const es = {
       {
         badge: "Sin espera",
         title: "Teleconsulta",
-        subtitle: "Consulta por videollamada.",
-        description: "Hablá con un médico desde tu computadora o celular, sin salir de casa.",
-        chips: ["En minutos", "100% segura", "Recetas y certificados"],
+        subtitle: "Atención médica por videollamada.",
+        description: "El médico evalúa tus síntomas e indica el tratamiento. También puede emitir recetas y certificados cuando corresponda.",
+        chips: ["En minutos", "100% segura", "Tratamiento y documentos"],
         cta: "Solicitar teleconsulta",
       },
       {
