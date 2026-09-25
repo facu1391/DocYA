@@ -667,7 +667,7 @@ export default function SolicitarScreen() {
               </div>
 
               <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 900, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 12 }}>
                     ¿Quién recibirá la atención?
                   </label>
                   {familiares.length > 0 && (
@@ -677,29 +677,34 @@ export default function SolicitarScreen() {
                         const id = Number(event.target.value);
                         seleccionarFamiliar(familiares.find(member => member.id === id) ?? null);
                       }}
-                      style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, marginBottom: 14, fontFamily: "inherit" }}
+                      aria-label="Elegí quién recibirá la atención"
+                      style={{ width: "100%", minHeight: 54, background: inputBg, border: `2px solid ${cfg.color}`, borderRadius: 14, padding: "14px 16px", color: text, colorScheme: dark ? "dark" : "light", fontSize: 16, fontWeight: 700, marginBottom: 14, fontFamily: "inherit", cursor: "pointer" }}
                     >
-                      <option value="">Agregar un nuevo familiar</option>
-                      {familiares.map(member => <option key={member.id} value={member.id}>{member.full_name} · {member.relationship}</option>)}
+                      <option value="" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>Cargar los datos de otro familiar</option>
+                      {familiares.map(member => (
+                        <option key={member.id} value={member.id} style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>
+                          {member.full_name} — {member.relationship}
+                        </option>
+                      ))}
                     </select>
                   )}
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-                    <input value={pacienteMenorNombre} onChange={e => { setFamiliarSeleccionadoId(null); setPacienteMenorNombre(e.target.value); }} placeholder={t.solicitar.nombreApellido} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    <input value={pacienteMenorDni} onChange={e => setPacienteMenorDni(e.target.value)} placeholder={t.solicitar.dniPlaceholder} inputMode="numeric" style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    <input type="date" required max={fechaLocalISO()} value={pacienteMenorFechaNacimiento} onChange={e => setPacienteMenorFechaNacimiento(e.target.value)} aria-label={t.solicitar.fechaNacPlaceholder} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, colorScheme: "dark", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={pacienteMenorNombre} onChange={e => { setFamiliarSeleccionadoId(null); setPacienteMenorNombre(e.target.value); }} placeholder={t.solicitar.nombreApellido} style={{ width: "100%", minHeight: 52, background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={pacienteMenorDni} onChange={e => setPacienteMenorDni(e.target.value)} placeholder={t.solicitar.dniPlaceholder} inputMode="numeric" style={{ width: "100%", minHeight: 52, background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input type="date" required max={fechaLocalISO()} value={pacienteMenorFechaNacimiento} onChange={e => setPacienteMenorFechaNacimiento(e.target.value)} aria-label={t.solicitar.fechaNacPlaceholder} style={{ width: "100%", minHeight: 52, background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, colorScheme: dark ? "dark" : "light", fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                     <select
                       value={pacienteMenorSexo}
                       onChange={e => setPacienteMenorSexo(e.target.value)}
                       aria-label={t.solicitar.sexo}
                       required
-                      style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: pacienteMenorSexo ? text : muted, colorScheme: dark ? "dark" : "light", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit", cursor: "pointer" }}
+                      style={{ width: "100%", minHeight: 52, background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: pacienteMenorSexo ? text : muted, colorScheme: dark ? "dark" : "light", fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit", cursor: "pointer" }}
                     >
                       <option value="" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#9fb6bd" : "#64748b" }}>{t.solicitar.sexo}</option>
                       <option value="masculino" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>{t.perfil.masculino}</option>
                       <option value="femenino" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>{t.perfil.femenino}</option>
                       <option value="otro" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>{t.perfil.otro}</option>
                     </select>
-                    <input value={responsableVinculo} onChange={e => setResponsableVinculo(e.target.value)} placeholder={t.solicitar.vinculo} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                    <input value={responsableVinculo} onChange={e => setResponsableVinculo(e.target.value)} placeholder={t.solicitar.vinculo} style={{ width: "100%", minHeight: 52, background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                   </div>
                   {!familiarSeleccionadoId && (
                     <button type="button" disabled={guardandoFamiliar} onClick={() => void guardarFamiliar()} style={{ marginTop: 14, border: `1px solid ${cfg.color}`, borderRadius: 12, padding: "10px 14px", background: "transparent", color: cfg.color, fontWeight: 800, cursor: guardandoFamiliar ? "wait" : "pointer", fontFamily: "inherit" }}>
