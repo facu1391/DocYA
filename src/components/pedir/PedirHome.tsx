@@ -107,6 +107,50 @@ export default function PedirHome() {
     sub: t.pedir.trustStrip[i].description,
   }));
 
+  const FAQS = locale === "es" ? [
+    {
+      question: "¿Los certificados son digitales?",
+      answer: "Sí. Si el médico considera que corresponde emitirlo, el certificado queda disponible en Mis consultas para verlo, descargarlo o presentarlo desde el celular.",
+    },
+    {
+      question: "¿El certificado tiene firma y código QR?",
+      answer: "Sí. Incluye los datos y la matrícula del profesional, su firma y un código QR que permite verificar el documento emitido por DocYa.",
+    },
+    {
+      question: "¿Sirve para presentarlo en el trabajo?",
+      answer: "El certificado es emitido por un médico matriculado y puede presentarse ante el empleador. Cada empresa puede tener requisitos propios, por eso recomendamos consultar cómo debe enviarse o presentarse.",
+    },
+    {
+      question: "¿Me entregan un certificado automáticamente?",
+      answer: "No. Primero hay una consulta médica real. El profesional evalúa tu caso y decide si corresponde indicar tratamiento, reposo, emitir una receta o generar un certificado.",
+    },
+    {
+      question: "¿DocYa está registrada en el Ministerio de Salud?",
+      answer: "Sí. DocYa es una plataforma registrada ante el Ministerio de Salud de la Nación con el identificador 0259. Los profesionales que atienden también son matriculados y sus credenciales se verifican.",
+    },
+  ] : [
+    {
+      question: "Are medical certificates digital?",
+      answer: "Yes. If the doctor determines that one should be issued, it will be available under My consultations to view, download, or present from your phone.",
+    },
+    {
+      question: "Does the certificate include a signature and QR code?",
+      answer: "Yes. It includes the professional's details and license, their signature, and a QR code that allows the DocYa document to be verified.",
+    },
+    {
+      question: "Can I submit it to my employer?",
+      answer: "The certificate is issued by a licensed doctor and can be submitted to an employer. Each company may have its own requirements, so check how it should be delivered.",
+    },
+    {
+      question: "Will I automatically receive a certificate?",
+      answer: "No. A real medical consultation takes place first. The professional evaluates your case and decides whether treatment, rest, a prescription, or a certificate is appropriate.",
+    },
+    {
+      question: "Is DocYa registered with Argentina's Ministry of Health?",
+      answer: "Yes. DocYa is registered with Argentina's Ministry of Health under identifier 0259. The professionals providing care are also licensed and their credentials are verified.",
+    },
+  ];
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem("pedir_user");
@@ -421,6 +465,30 @@ export default function PedirHome() {
                   </div>
                 ))}
               </div>
+
+              <section aria-labelledby="pedir-faq-title" style={{ margin: "34px 0 40px" }}>
+                <div style={{ marginBottom: 16 }}>
+                  <h2 id="pedir-faq-title" style={{ margin: 0, color: text, fontSize: "clamp(24px, 3vw, 30px)", fontWeight: 900 }}>
+                    {locale === "es" ? "Preguntas frecuentes" : "Frequently asked questions"}
+                  </h2>
+                  <p style={{ margin: "7px 0 0", color: muted, fontSize: 16, lineHeight: 1.5 }}>
+                    {locale === "es" ? "Respuestas claras antes de pedir tu consulta." : "Clear answers before requesting your consultation."}
+                  </p>
+                </div>
+                <div style={{ display: "grid", gap: 12 }}>
+                  {FAQS.map((item) => (
+                    <details key={item.question} style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: 16, padding: "2px 18px" }}>
+                      <summary style={{ cursor: "pointer", color: text, fontSize: 17, fontWeight: 800, lineHeight: 1.45, padding: "16px 4px" }}>
+                        {item.question}
+                      </summary>
+                      <p style={{ color: muted, fontSize: 16, lineHeight: 1.65, margin: "0 4px 18px" }}>{item.answer}</p>
+                    </details>
+                  ))}
+                </div>
+                <Link href="/centro-de-ayuda/certificados" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 16, color: "#2dd4bf", fontSize: 15, fontWeight: 800, textDecoration: "none" }}>
+                  {locale === "es" ? "Ver más información sobre certificados" : "Learn more about medical certificates"} <ChevronRight size={17} />
+                </Link>
+              </section>
 
               {/* EMERGENCY STRIP */}
               <div style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.18)", borderRadius: 18, padding: "18px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
