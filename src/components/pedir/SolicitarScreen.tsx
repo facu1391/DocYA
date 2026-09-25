@@ -692,12 +692,12 @@ export default function SolicitarScreen() {
                       onChange={e => setPacienteMenorSexo(e.target.value)}
                       aria-label={t.solicitar.sexo}
                       required
-                      style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: pacienteMenorSexo ? text : muted, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit", cursor: "pointer" }}
+                      style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: pacienteMenorSexo ? text : muted, colorScheme: dark ? "dark" : "light", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit", cursor: "pointer" }}
                     >
-                      <option value="">{t.solicitar.sexo}</option>
-                      <option value="masculino">{t.perfil.masculino}</option>
-                      <option value="femenino">{t.perfil.femenino}</option>
-                      <option value="otro">{t.perfil.otro}</option>
+                      <option value="" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#9fb6bd" : "#64748b" }}>{t.solicitar.sexo}</option>
+                      <option value="masculino" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>{t.perfil.masculino}</option>
+                      <option value="femenino" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>{t.perfil.femenino}</option>
+                      <option value="otro" style={{ background: dark ? "#102730" : "#ffffff", color: dark ? "#d9ecf2" : "#0f172a" }}>{t.perfil.otro}</option>
                     </select>
                     <input value={responsableVinculo} onChange={e => setResponsableVinculo(e.target.value)} placeholder={t.solicitar.vinculo} style={{ width: "100%", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
                   </div>
