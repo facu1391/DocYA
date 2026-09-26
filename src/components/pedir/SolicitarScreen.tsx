@@ -652,7 +652,7 @@ export default function SolicitarScreen() {
             {paraOtraPersona && (<>
               <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, padding: "18px 20px", borderRadius: 20, border: `1.5px solid ${cfg.color}`, background: `${cfg.color}14`, boxSizing: "border-box" }}>
                 <div style={{ width: 44, height: 44, borderRadius: 14, background: `${cfg.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Baby size={21} color={cfg.color} />
+                  {esPediatria ? <Baby size={21} color={cfg.color} /> : <UserRoundCheck size={21} color={cfg.color} />}
                 </div>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: text }}>{esPediatria ? "Consulta pediátrica" : "Atención para otra persona"}</p>
@@ -679,7 +679,7 @@ export default function SolicitarScreen() {
                           >
                             <span style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                               <span style={{ width: 40, height: 40, borderRadius: 13, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: seleccionado ? `${cfg.color}22` : `${cfg.color}10` }}>
-                                <Baby size={20} color={cfg.color} />
+                                {esPediatria ? <Baby size={20} color={cfg.color} /> : <UserRoundCheck size={20} color={cfg.color} />}
                               </span>
                               <span style={{ flex: 1, minWidth: 0 }}>
                                 <span style={{ display: "block", fontSize: 16, fontWeight: 900, overflowWrap: "anywhere" }}>{member.full_name}</span>
@@ -974,6 +974,9 @@ export default function SolicitarScreen() {
         .payment-methods-primary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
         .family-member-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
         .family-modal-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .pac-container { z-index: 2147483647 !important; }
+        .pac-container.pac-logo { border-radius: 14px; margin-top: 6px; overflow: hidden; box-shadow: 0 18px 50px rgba(0,0,0,.48); }
+        .pac-item { min-height: 46px; padding: 10px 14px; cursor: pointer; }
         @media (max-width: 640px) { .teleconsulta-whatsapp-help { right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); width: 52px; height: 52px; min-height: 52px; padding: 0; justify-content: center; } .teleconsulta-whatsapp-help span { display: none; } }
         @media (max-width: 560px) { .family-member-grid, .family-modal-fields { grid-template-columns: 1fr; } }
         @media (max-width: 420px) { .payment-methods-primary { grid-template-columns: 1fr; } }
@@ -990,7 +993,7 @@ export default function SolicitarScreen() {
           <div style={{ width: "100%", maxWidth: 620, maxHeight: "calc(100vh - 36px)", overflowY: "auto", borderRadius: 26, border: `1px solid ${border}`, background: inputBg, color: text, boxShadow: "0 28px 90px rgba(0,0,0,.45)" }}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "22px 22px 16px", background: `linear-gradient(180deg, ${cfg.color}15, transparent)` }}>
               <div style={{ width: 46, height: 46, borderRadius: 15, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: `${cfg.color}1e` }}>
-                <Baby size={23} color={cfg.color} />
+                {esPediatria ? <Baby size={23} color={cfg.color} /> : <UsersRound size={23} color={cfg.color} />}
               </div>
               <div style={{ flex: 1 }}>
                 <h2 id="nuevo-familiar-titulo" style={{ margin: 0, fontSize: 21, fontWeight: 900 }}>Agregar familiar</h2>
