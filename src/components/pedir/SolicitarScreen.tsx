@@ -194,11 +194,6 @@ export default function SolicitarScreen() {
   const seleccionarFamiliar = useCallback((member: PatientFamilyMember | null) => {
     setRecipientAuthorized(false);
     setOtraPersona(true);
-    setDireccion(member?.address || "");
-    setLat(member?.address_lat ?? null);
-    setLng(member?.address_lng ?? null);
-    setProvincia(member?.address_province || "");
-    setLocalidad(member?.address_locality || "");
     setFamiliarSeleccionadoId(member?.id ?? null);
     setPacienteMenorNombre(member?.full_name ?? "");
     setPacienteMenorDni(member?.document_number ?? "");
@@ -652,7 +647,7 @@ export default function SolicitarScreen() {
             {paraOtraPersona && (<>
               <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, padding: "18px 20px", borderRadius: 20, border: `1.5px solid ${cfg.color}`, background: `${cfg.color}14`, boxSizing: "border-box" }}>
                 <div style={{ width: 44, height: 44, borderRadius: 14, background: `${cfg.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  {esPediatria ? <Baby size={21} color={cfg.color} /> : <UserRoundCheck size={21} color={cfg.color} />}
+                  {pacienteMenorFechaNacimiento && familyMemberAge(pacienteMenorFechaNacimiento) < 18 ? <Baby size={21} color={cfg.color} /> : <UserRoundCheck size={21} color={cfg.color} />}
                 </div>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: text }}>{esPediatria ? "Consulta pediátrica" : "Atención para otra persona"}</p>
@@ -679,7 +674,7 @@ export default function SolicitarScreen() {
                           >
                             <span style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                               <span style={{ width: 40, height: 40, borderRadius: 13, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: seleccionado ? `${cfg.color}22` : `${cfg.color}10` }}>
-                                {esPediatria ? <Baby size={20} color={cfg.color} /> : <UserRoundCheck size={20} color={cfg.color} />}
+                                {familyMemberAge(member.birth_date) < 18 ? <Baby size={20} color={cfg.color} /> : <UserRoundCheck size={20} color={cfg.color} />}
                               </span>
                               <span style={{ flex: 1, minWidth: 0 }}>
                                 <span style={{ display: "block", fontSize: 16, fontWeight: 900, overflowWrap: "anywhere" }}>{member.full_name}</span>
@@ -974,9 +969,6 @@ export default function SolicitarScreen() {
         .payment-methods-primary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
         .family-member-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
         .family-modal-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-        .pac-container { z-index: 2147483647 !important; }
-        .pac-container.pac-logo { border-radius: 14px; margin-top: 6px; overflow: hidden; box-shadow: 0 18px 50px rgba(0,0,0,.48); }
-        .pac-item { min-height: 46px; padding: 10px 14px; cursor: pointer; }
         @media (max-width: 640px) { .teleconsulta-whatsapp-help { right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); width: 52px; height: 52px; min-height: 52px; padding: 0; justify-content: center; } .teleconsulta-whatsapp-help span { display: none; } }
         @media (max-width: 560px) { .family-member-grid, .family-modal-fields { grid-template-columns: 1fr; } }
         @media (max-width: 420px) { .payment-methods-primary { grid-template-columns: 1fr; } }
@@ -1032,17 +1024,6 @@ export default function SolicitarScreen() {
                 <input value={nuevoFamiliar.relationship} onChange={e => setNuevoFamiliar(current => ({ ...current, relationship: e.target.value }))} placeholder="Ej.: hijo, hija, nieto/a" style={{ width: "100%", minHeight: 52, marginTop: 6, background: dark ? "#102730" : "#fff", border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
               </label>
               <label style={{ color: muted, fontWeight: 750, fontSize: 12 }}>Teléfono del paciente (opcional)<input type="tel" value={nuevoFamiliar.phone} onChange={e => setNuevoFamiliar(current => ({...current, phone: e.target.value}))} style={{ width: "100%", minHeight: 52, marginTop: 6, padding: 14, borderRadius: 14, border: `1px solid ${border}`, background: dark ? "#102730" : "#fff", color: text, fontSize: 16, boxSizing: "border-box" }} /></label>
-              <label style={{ gridColumn: "1 / -1", color: muted, fontWeight: 750, fontSize: 12 }}>Domicilio donde recibirá atención (opcional)
-                <AddressInput
-                  value={nuevoFamiliar.address}
-                  onChange={value => setNuevoFamiliar(current => ({ ...current, address: value, address_lat: null, address_lng: null, address_province: "", address_locality: "" }))}
-                  onPlaceSelect={(address, selectedLat, selectedLng, selectedProvince, selectedLocality) => setNuevoFamiliar(current => ({ ...current, address, address_lat: selectedLat ?? null, address_lng: selectedLng ?? null, address_province: selectedProvince || "", address_locality: selectedLocality || "" }))}
-                  placeholder="Empezá a escribir y elegí una dirección"
-                  dark={dark}
-                  style={{ marginTop: 6 }}
-                />
-                <span style={{ display: "block", marginTop: 6, color: muted, fontSize: 11.5, lineHeight: 1.4 }}>La usaremos como dirección sugerida al pedir atención a domicilio. Podrás cambiarla antes de confirmar.</span>
-              </label>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 10, padding: "0 22px 22px" }}>
