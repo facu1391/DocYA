@@ -8,6 +8,10 @@ export type PatientFamilyMember = {
   relationship: string;
   phone?: string | null;
   address?: string | null;
+  address_lat?: number | null;
+  address_lng?: number | null;
+  address_province?: string | null;
+  address_locality?: string | null;
   health_insurance?: string | null;
   member_number?: string | null;
 };

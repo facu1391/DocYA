@@ -36,6 +36,10 @@ const familiarVacio = {
   relationship: "",
   phone: "",
   address: "",
+  address_lat: null as number | null,
+  address_lng: null as number | null,
+  address_province: "",
+  address_locality: "",
 };
 
 function fechaFamiliar(value: string) {
@@ -191,8 +195,10 @@ export default function SolicitarScreen() {
     setRecipientAuthorized(false);
     setOtraPersona(true);
     setDireccion(member?.address || "");
-    setLat(null);
-    setLng(null);
+    setLat(member?.address_lat ?? null);
+    setLng(member?.address_lng ?? null);
+    setProvincia(member?.address_province || "");
+    setLocalidad(member?.address_locality || "");
     setFamiliarSeleccionadoId(member?.id ?? null);
     setPacienteMenorNombre(member?.full_name ?? "");
     setPacienteMenorDni(member?.document_number ?? "");
@@ -217,6 +223,10 @@ export default function SolicitarScreen() {
         relationship: nuevoFamiliar.relationship.trim(),
         phone: nuevoFamiliar.phone.trim() || null,
         address: nuevoFamiliar.address.trim() || null,
+        address_lat: nuevoFamiliar.address_lat,
+        address_lng: nuevoFamiliar.address_lng,
+        address_province: nuevoFamiliar.address_province.trim() || null,
+        address_locality: nuevoFamiliar.address_locality.trim() || null,
         health_insurance: null,
         member_number: null,
       });
@@ -999,7 +1009,7 @@ export default function SolicitarScreen() {
               </label>
               <label style={{ color: muted, fontSize: 12, fontWeight: 750 }}>
                 DNI
-                <input value={nuevoFamiliar.document_number} onChange={e => setNuevoFamiliar(current => ({ ...current, document_number: e.target.value.replace(/\D/g, "") }))} placeholder={t.solicitar.dniPlaceholder} inputMode="numeric" style={{ width: "100%", minHeight: 52, marginTop: 6, background: dark ? "#102730" : "#fff", border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+                <input value={nuevoFamiliar.document_number} onChange={e => setNuevoFamiliar(current => ({ ...current, document_number: e.target.value.replace(/\D/g, "") }))} placeholder="DNI" inputMode="numeric" style={{ width: "100%", minHeight: 52, marginTop: 6, background: dark ? "#102730" : "#fff", border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
               </label>
               <label style={{ color: muted, fontSize: 12, fontWeight: 750 }}>
                 Fecha de nacimiento
@@ -1018,7 +1028,18 @@ export default function SolicitarScreen() {
                 Vínculo
                 <input value={nuevoFamiliar.relationship} onChange={e => setNuevoFamiliar(current => ({ ...current, relationship: e.target.value }))} placeholder="Ej.: hijo, hija, nieto/a" style={{ width: "100%", minHeight: 52, marginTop: 6, background: dark ? "#102730" : "#fff", border: `1px solid ${border}`, borderRadius: 14, padding: "13px 14px", color: text, fontSize: 16, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
               </label>
-              {[{key: "phone" as const, label: "Teléfono del paciente (opcional)", type: "tel"}, {key: "address" as const, label: "Domicilio del paciente", type: "text"}].map(field => <label key={field.key} style={{ color: muted, fontWeight: 750, fontSize: 12 }}>{field.label}<input type={field.type} value={nuevoFamiliar[field.key]} onChange={e => setNuevoFamiliar(current => ({...current, [field.key]: e.target.value}))} style={{ width: "100%", minHeight: 52, marginTop: 6, padding: 14, borderRadius: 14, border: `1px solid ${border}`, background: dark ? "#102730" : "#fff", color: text, fontSize: 16, boxSizing: "border-box" }} /></label>)}
+              <label style={{ color: muted, fontWeight: 750, fontSize: 12 }}>Teléfono del paciente (opcional)<input type="tel" value={nuevoFamiliar.phone} onChange={e => setNuevoFamiliar(current => ({...current, phone: e.target.value}))} style={{ width: "100%", minHeight: 52, marginTop: 6, padding: 14, borderRadius: 14, border: `1px solid ${border}`, background: dark ? "#102730" : "#fff", color: text, fontSize: 16, boxSizing: "border-box" }} /></label>
+              <label style={{ gridColumn: "1 / -1", color: muted, fontWeight: 750, fontSize: 12 }}>Domicilio donde recibirá atención (opcional)
+                <AddressInput
+                  value={nuevoFamiliar.address}
+                  onChange={value => setNuevoFamiliar(current => ({ ...current, address: value, address_lat: null, address_lng: null, address_province: "", address_locality: "" }))}
+                  onPlaceSelect={(address, selectedLat, selectedLng, selectedProvince, selectedLocality) => setNuevoFamiliar(current => ({ ...current, address, address_lat: selectedLat ?? null, address_lng: selectedLng ?? null, address_province: selectedProvince || "", address_locality: selectedLocality || "" }))}
+                  placeholder="Empezá a escribir y elegí una dirección"
+                  dark={dark}
+                  style={{ marginTop: 6 }}
+                />
+                <span style={{ display: "block", marginTop: 6, color: muted, fontSize: 11.5, lineHeight: 1.4 }}>La usaremos como dirección sugerida al pedir atención a domicilio. Podrás cambiarla antes de confirmar.</span>
+              </label>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 10, padding: "0 22px 22px" }}>
