@@ -78,6 +78,8 @@ export default function PagoResultadoScreen() {
           paciente_menor_fecha_nacimiento: pending.paciente_menor_fecha_nacimiento,
           paciente_menor_sexo: pending.paciente_menor_sexo,
           responsable_vinculo: pending.responsable_vinculo,
+          family_member_id: pending.family_member_id,
+          recipient_authorized: pending.recipient_authorized,
         });
 
         limpiarPagoPendiente();

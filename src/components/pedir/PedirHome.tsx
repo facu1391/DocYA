@@ -1,5 +1,6 @@
 "use client";
 import DeviceCheck from "./DeviceCheck";
+import RecipientChoice from "./RecipientChoice";
 import TeleconsultaDeviceModal from "./TeleconsultaDeviceModal";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -67,6 +68,7 @@ const notify = (msg: string, ok = true) => {
 };
 
 export default function PedirHome() {
+  const [forOther, setForOther] = useState(false);
   const router = useRouter();
   const [deviceModalOpen, setDeviceModalOpen] = useState(false);
   const [telePediatricaPendiente, setTelePediatricaPendiente] = useState(false);
@@ -74,7 +76,7 @@ export default function PedirHome() {
   const markDevicesTested = () => { devicesTested.current = true; };
   const startTeleconsulta = (pediatrica = false) => {
     setTelePediatricaPendiente(pediatrica);
-    const destino = `/pedir/filtro?tipo=teleconsulta${pediatrica ? "&pediatria=1" : ""}`;
+    const destino = `/pedir/filtro?tipo=teleconsulta${pediatrica ? "&pediatria=1" : ""}${forOther ? "&recipient=other" : ""}`;
     if (devicesTested.current) router.push(destino);
     else setDeviceModalOpen(true);
   };
@@ -393,6 +395,7 @@ export default function PedirHome() {
               )}
 
               {/* CARDS */}
+              <RecipientChoice other={forOther} onChange={setForOther} />
               <div className="pedir-cards">
                 {SERVICIOS.map(s => {
                   const precio = s.id === "pediatria" ? null : precios[s.id as ServicioId];
@@ -430,7 +433,7 @@ export default function PedirHome() {
                         </div>
                       ) : (
                         <button
-                          onClick={() => s.id === "teleconsulta" ? startTeleconsulta() : router.push(s.id === "enfermero" ? `/pedir/solicitar?tipo=enfermero` : `/pedir/filtro?tipo=${s.id}`)}
+                          onClick={() => s.id === "teleconsulta" ? startTeleconsulta() : router.push(s.id === "enfermero" ? `/pedir/solicitar?tipo=enfermero${forOther ? "&recipient=other" : ""}` : `/pedir/filtro?tipo=${s.id}${forOther ? "&recipient=other" : ""}`)}
                           style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: s.color, color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", boxShadow: `0 6px 20px ${s.color}40` }}
                         >
                           {s.btn} <ChevronRight size={18} />
@@ -647,7 +650,7 @@ export default function PedirHome() {
 
       {deviceModalOpen && <TeleconsultaDeviceModal onClose={() => setDeviceModalOpen(false)} onSuccess={markDevicesTested} onContinue={() => {
         setDeviceModalOpen(false);
-        router.push(`/pedir/filtro?tipo=teleconsulta${telePediatricaPendiente ? "&pediatria=1" : ""}`);
+        router.push(`/pedir/filtro?tipo=teleconsulta${telePediatricaPendiente ? "&pediatria=1" : ""}${forOther ? "&recipient=other" : ""}`);
       }} />}
       <style>{`
         @keyframes spin { to { transform: rotate(360deg) } }

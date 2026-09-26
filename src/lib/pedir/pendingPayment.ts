@@ -40,6 +40,8 @@ export type PagoPendientePayload = {
   paciente_menor_fecha_nacimiento?: string;
   paciente_menor_sexo?: string;
   responsable_vinculo?: string;
+  family_member_id?: number;
+  recipient_authorized?: boolean;
   metodo_pago?: string;
   payment_id?: string;
   idempotency_key?: string;
@@ -127,6 +129,8 @@ export async function reconstruirPagoDesdeConsulta(
     paciente_menor_fecha_nacimiento: consulta.paciente_menor_fecha_nacimiento,
     paciente_menor_sexo: consulta.paciente_menor_sexo,
     responsable_vinculo: consulta.responsable_vinculo,
+    family_member_id: consulta.family_member_id,
+    recipient_authorized: consulta.recipient_authorized,
     metodo_pago: estado.metodo_pago || (estado.mp_preautorizado ? "tarjeta" : "saldo_mp"),
     payment_id: estado.payment_id,
   };
@@ -144,6 +148,7 @@ export async function solicitarConsulta(body: Record<string, unknown>) {
   const tipo = String(body.tipo ?? "");
   const endpoint = tipo === "teleconsulta" ? "/teleconsultas" : "/consultas/solicitar";
   const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (body.access_token) headers.Authorization = `Bearer ${body.access_token}`;
   const payload = tipo === "teleconsulta"
     ? {
         consulta_id: body.consulta_id,
@@ -161,6 +166,8 @@ export async function solicitarConsulta(body: Record<string, unknown>) {
         paciente_menor_fecha_nacimiento: body.paciente_menor_fecha_nacimiento,
         paciente_menor_sexo: body.paciente_menor_sexo,
         responsable_vinculo: body.responsable_vinculo,
+        family_member_id: body.family_member_id,
+        recipient_authorized: body.recipient_authorized,
         necesita_certificado: false,
         consentimiento_teleconsulta: true,
         metodo_pago: body.metodo_pago,

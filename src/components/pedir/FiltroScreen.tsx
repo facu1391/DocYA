@@ -148,7 +148,7 @@ export default function FiltroScreen() {
           )}
 
           <button
-            onClick={() => todasNo && router.push(`/pedir/solicitar?tipo=${tipo}${pediatria ? "&pediatria=1" : ""}`)}
+            onClick={() => todasNo && router.push(`/pedir/solicitar?tipo=${tipo}${pediatria ? "&pediatria=1" : ""}${params.get("recipient") === "other" ? "&recipient=other" : ""}`)}
             disabled={!todasNo}
             style={{
               width: "100%", padding: "17px", borderRadius: 18, border: "none",

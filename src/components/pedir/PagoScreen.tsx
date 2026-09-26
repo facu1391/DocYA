@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, ShieldCheck, Loader2, RefreshCw } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
-import { limpiarPagoPendiente, solicitarConsulta } from "@/lib/pedir/pendingPayment";
+import { leerPagoPendienteLocal, limpiarPagoPendiente, solicitarConsulta } from "@/lib/pedir/pendingPayment";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 type PedirUser = { id: string; full_name: string; email: string; perfil_completo: boolean; access_token?: string };
@@ -62,6 +62,7 @@ export default function PagoScreen() {
     if (pollRef.current) clearInterval(pollRef.current);
     setProcesando(true);
     try {
+      const pending = leerPagoPendienteLocal();
       const body: Record<string, unknown> = {
         paciente_uuid: user?.id,
         motivo, direccion, lat, lng,
@@ -77,6 +78,8 @@ export default function PagoScreen() {
         paciente_menor_fecha_nacimiento: pacienteMenorFechaNacimiento,
         paciente_menor_sexo: pacienteMenorSexo,
         responsable_vinculo: responsableVinculo,
+        family_member_id: pending && String(pending.consulta_id) === consultaId ? pending.family_member_id : undefined,
+        recipient_authorized: pending && String(pending.consulta_id) === consultaId ? pending.recipient_authorized : undefined,
       };
       if (paymentId) body.payment_id = paymentId;
 

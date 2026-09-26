@@ -6,11 +6,19 @@ export type PatientFamilyMember = {
   birth_date: string;
   sex: string;
   relationship: string;
+  phone?: string | null;
+  address?: string | null;
   health_insurance?: string | null;
   member_number?: string | null;
 };
 
 export type PatientFamilyMemberInput = Omit<PatientFamilyMember, "id">;
+
+export function familyMemberAge(birthDate: string): number {
+  const [year, month, day] = birthDate.split("-").map(Number);
+  const today = new Date();
+  return today.getFullYear() - year - (today.getMonth() + 1 < month || (today.getMonth() + 1 === month && today.getDate() < day) ? 1 : 0);
+}
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
