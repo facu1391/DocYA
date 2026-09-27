@@ -148,7 +148,7 @@ export default function SolicitarScreen() {
   const [modalFamiliarAbierto, setModalFamiliarAbierto] = useState(false);
   const [nuevoFamiliar, setNuevoFamiliar] = useState(familiarVacio);
   const [guardandoFamiliar, setGuardandoFamiliar] = useState(false);
-  const [metodoPago, setMetodoPago] = useState<MetodoPago>("tarjeta");
+  const [metodoPago, setMetodoPago] = useState<MetodoPago>(tipo === "teleconsulta" ? "tarjeta" : "efectivo");
   const [otrosMediosAbiertos, setOtrosMediosAbiertos] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [tarifa, setTarifa] = useState<Tarifa | null>(null);
@@ -585,7 +585,7 @@ export default function SolicitarScreen() {
 
   const renderMetodoOnline = (m: typeof METODOS_ONLINE[number]) => {
     const selected = metodoPago === m.id;
-    const recommended = m.id === "qr_mp";
+    const recommended = m.id === "qr_mp" && !permiteEfectivo;
     const IconPago = m.icon;
 
     return (
@@ -611,6 +611,22 @@ export default function SolicitarScreen() {
       </button>
     );
   };
+
+  const renderMetodoEfectivo = () => permiteEfectivo ? (
+    <button
+      type="button"
+      onClick={() => setMetodoPago("efectivo")}
+      aria-pressed={metodoPago === "efectivo"}
+      style={{ width: "100%", marginBottom: 12, display: "flex", alignItems: "center", gap: 14, padding: "16px", borderRadius: 16, border: `1.5px solid ${metodoPago === "efectivo" ? cfg.color : border}`, background: metodoPago === "efectivo" ? `${cfg.color}14` : inputBg, color: text, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
+    >
+      <div style={{ width: 42, height: 42, borderRadius: 14, background: metodoPago === "efectivo" ? `${cfg.color}20` : `${border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Banknote size={20} color={metodoPago === "efectivo" ? cfg.color : muted} /></div>
+      <div style={{ flex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}><p style={{ fontSize: 15, fontWeight: 800, margin: 0 }}>Efectivo o transferencia al profesional</p><span style={{ borderRadius: 999, background: cfg.color, color: "#fff", padding: "3px 7px", fontSize: 9, fontWeight: 900, letterSpacing: ".55px" }}>RECOMENDADO</span></div>
+        <p style={{ fontSize: 12, color: muted, margin: "4px 0 0" }}>Pagale directamente al profesional cuando llegue, en efectivo o por transferencia.</p>
+      </div>
+      <div style={{ width: 20, height: 20, borderRadius: 999, border: `2px solid ${metodoPago === "efectivo" ? cfg.color : border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{metodoPago === "efectivo" && <div style={{ width: 10, height: 10, borderRadius: 999, background: cfg.color }} />}</div>
+    </button>
+  ) : null;
 
   return (
     <>
@@ -840,6 +856,7 @@ export default function SolicitarScreen() {
                 {t.solicitar.metodoPago}
               </label>
               {metodoPago !== "referral_voucher" && <>
+                {renderMetodoEfectivo()}
                 <div className="payment-methods-primary">
                   {METODOS_PRINCIPALES.map(renderMetodoOnline)}
                 </div>
@@ -912,25 +929,6 @@ export default function SolicitarScreen() {
                   ))}
                 </div>
               )}
-              {permiteEfectivo && (
-                <button
-                  type="button"
-                  onClick={() => setMetodoPago("efectivo")}
-                  style={{ width: "100%", marginTop: 12, display: "flex", alignItems: "center", gap: 14, padding: "16px", borderRadius: 16, border: `1.5px solid ${metodoPago === "efectivo" ? cfg.color : border}`, background: metodoPago === "efectivo" ? `${cfg.color}14` : inputBg, color: text, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
-                >
-                  <div style={{ width: 42, height: 42, borderRadius: 14, background: metodoPago === "efectivo" ? `${cfg.color}20` : `${border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <Banknote size={20} color={metodoPago === "efectivo" ? cfg.color : muted} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 15, fontWeight: 800, margin: 0 }}>{t.solicitar.metodos.efectivoTitle}</p>
-                    <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>{t.solicitar.efectivoDesc}</p>
-                  </div>
-                  <div style={{ width: 20, height: 20, borderRadius: 999, border: `2px solid ${metodoPago === "efectivo" ? cfg.color : border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    {metodoPago === "efectivo" && <div style={{ width: 10, height: 10, borderRadius: 999, background: cfg.color }} />}
-                  </div>
-                </button>
-              )}
-
               {!permiteEfectivo && (
                 <p style={{ fontSize: 12, color: muted, marginTop: 12, lineHeight: 1.5 }}>
                   {t.solicitar.teleconsultaEfectivoDisabled}
