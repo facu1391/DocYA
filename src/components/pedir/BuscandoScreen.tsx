@@ -18,6 +18,7 @@ import styles from "./BuscandoScreen.module.css";
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 const PATIENT_APP_STORE_URL = "https://apps.apple.com/ar/app/docya/id6753604975";
 const PATIENT_PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.docya.paciente";
+const SEARCH_WINDOW_SECONDS = 10 * 60;
 
 type Estado =
   | "pendiente" | "aceptada" | "en_camino" | "en_domicilio"
@@ -42,6 +43,9 @@ type ConsultaData = {
   motivo?: string;
   direccion?: string;
   tipo?: string;
+  expira_en?: string;
+  expires_at?: string;
+  segundos_restantes?: number;
 };
 
 type PedirUser = { id: string; access_token?: string };
@@ -79,7 +83,7 @@ export default function BuscandoScreen() {
   const [data, setData]             = useState<ConsultaData | null>(null);
   const [cancelando, setCancelando] = useState(false);
   const [dots, setDots]             = useState(".");
-  const [countdown, setCountdown]   = useState(300);
+  const [countdown, setCountdown]   = useState(SEARCH_WINDOW_SECONDS);
   const [rating, setRating]         = useState(0);
   const [ratingEnviado, setRatingEnviado] = useState(false);
   const [user, setUser]             = useState<PedirUser | null>(null);
@@ -178,13 +182,24 @@ export default function BuscandoScreen() {
       if (!res.ok) return;
       const d = await res.json();
       setData(d);
+      const segundosServidor = Number(d.segundos_restantes);
+      const vencimiento = d.expires_at ?? d.expira_en;
+      const segundosPorFecha = vencimiento
+        ? Math.max(0, Math.ceil((new Date(vencimiento).getTime() - Date.now()) / 1000))
+        : Number.NaN;
+      const restantes = Number.isFinite(segundosServidor)
+        ? segundosServidor
+        : segundosPorFecha;
+      if (Number.isFinite(restantes)) {
+        setCountdown(Math.min(SEARCH_WINDOW_SECONDS, Math.max(0, restantes)));
+      }
       if (ESTADOS_TERMINADOS.includes(d.estado)) {
         if (pollRef.current) clearInterval(pollRef.current);
         if (countRef.current) clearInterval(countRef.current);
         // Limpiar localStorage al finalizar o cancelar
         localStorage.removeItem("docya_consulta_activa");
       }
-      if (d.estado !== "pendiente" && countRef.current) {
+      if (d.estado !== "pendiente" && d.estado !== "buscando_medico" && countRef.current) {
         clearInterval(countRef.current);
       }
     } catch {}
@@ -491,7 +506,7 @@ export default function BuscandoScreen() {
                       stroke={tipoCfg.color}
                       strokeWidth="6"
                       strokeDasharray={`${2 * Math.PI * 34}`}
-                      strokeDashoffset={`${2 * Math.PI * 34 * (1 - countdown / 300)}`}
+                      strokeDashoffset={`${2 * Math.PI * 34 * (1 - countdown / SEARCH_WINDOW_SECONDS)}`}
                       strokeLinecap="round"
                       style={{ transition: "stroke-dashoffset 1s linear" }}
                     />
