@@ -135,6 +135,7 @@ export default function SolicitarScreen() {
   const [user, setUser] = useState<PedirUser | null>(null);
   const [motivo, setMotivo] = useState("");
   const [direccion, setDireccion] = useState("");
+  const [indicacionesDomicilio, setIndicacionesDomicilio] = useState("");
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
   const [provincia, setProvincia] = useState<string | null>(null);
@@ -444,13 +445,14 @@ export default function SolicitarScreen() {
     setSubmitting(true);
     try {
       const monto = tarifa.monto;
+      const datosAcceso = tipo === "teleconsulta" ? {} : { indicaciones_domicilio: indicacionesDomicilio.trim() || undefined };
 
       if (metodoPago === "qr_mp") {
         if (!qrEnabled || !user.access_token) throw new Error("Mercado Pago no está disponible en este momento.");
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: tipo === "teleconsulta" ? "teleconsulta" : "domicilio", metodo_pago: "qr_mp", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: tipo === "teleconsulta" ? "teleconsulta" : "domicilio", metodo_pago: "qr_mp", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...datosAcceso, ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error("No pudimos preparar la teleconsulta para QR.");
         const { consulta_id } = await previaRes.json();
@@ -481,7 +483,7 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: "teleconsulta", metodo_pago: "referral_voucher", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: "teleconsulta", metodo_pago: "referral_voucher", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...datosAcceso, ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
@@ -500,7 +502,7 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: tipo === "teleconsulta" ? "teleconsulta" : "domicilio", metodo_pago: "transferencia", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: tipo === "teleconsulta" ? "teleconsulta" : "domicilio", metodo_pago: "transferencia", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...datosAcceso, ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
@@ -519,7 +521,7 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...datosAcceso, ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
@@ -568,7 +570,7 @@ export default function SolicitarScreen() {
         const previaRes = await fetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
-          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...translationPayload, ...datosPediatricos }),
+          body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...datosAcceso, ...translationPayload, ...datosPediatricos }),
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
@@ -609,7 +611,7 @@ export default function SolicitarScreen() {
       const res = await fetch(`${API}/consultas/solicitar`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
-        body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, metodo_pago: "efectivo", tipo, categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...datosPediatricos }),
+        body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, metodo_pago: "efectivo", tipo, categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...datosAcceso, ...datosPediatricos }),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -622,7 +624,7 @@ export default function SolicitarScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, lat, lng, categoriaConsulta, provincia, localidad, datosPediatricos, translationPayload, router, t, referralAttemptKey, qrEnabled]);
+  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, indicacionesDomicilio, lat, lng, categoriaConsulta, provincia, localidad, datosPediatricos, translationPayload, router, t, referralAttemptKey, qrEnabled]);
 
   if (!user) return null;
 
@@ -831,6 +833,11 @@ export default function SolicitarScreen() {
                 placeholder={t.solicitar.direccionPlaceholder}
                 dark={dark}
               />
+              {tipo !== "teleconsulta" && <div style={{ marginTop: 12 }}>
+                <label htmlFor="indicaciones-domicilio" style={{ display: "block", color: text, fontSize: 13, fontWeight: 750, marginBottom: 7 }}>Piso, departamento o indicaciones para llegar <span style={{ color: muted, fontWeight: 500 }}>(opcional)</span></label>
+                <textarea id="indicaciones-domicilio" value={indicacionesDomicilio} onChange={(event) => setIndicacionesDomicilio(event.target.value.slice(0, 500))} rows={2} maxLength={500} placeholder="Ej.: piso 4, depto B, tocar timbre 2 o avisar en recepción" style={{ width: "100%", boxSizing: "border-box", resize: "vertical", background: inputBg, border: `1px solid ${border}`, borderRadius: 14, padding: "13px 16px", color: text, fontSize: 15, lineHeight: 1.45, outline: "none", fontFamily: "inherit" }} />
+                <p style={{ margin: "6px 0 0", color: muted, fontSize: 12, lineHeight: 1.4 }}>El médico verá esta información junto con la dirección.</p>
+              </div>}
               <button
                 onClick={usarUbicacionActual}
                 style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10, fontSize: 13, color: cfg.color, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}
