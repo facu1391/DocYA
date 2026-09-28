@@ -66,6 +66,7 @@ type TranslationQuote = {
   translation_charged: boolean;
   total_amount: number;
 };
+type CoverageResult = { cobertura: boolean; zona?: string | null; teleconsulta_disponible: boolean };
 
 const TIPO_ICONS = {
   medico:       { icon: Stethoscope, color: "#00b3a6" },
@@ -158,6 +159,8 @@ export default function SolicitarScreen() {
   const [translationLanguage, setTranslationLanguage] = useState<TranslationLanguage>("");
   const [translationOpen, setTranslationOpen] = useState(false);
   const [confirmacionPaciente, setConfirmacionPaciente] = useState(false);
+  const [fueraCobertura, setFueraCobertura] = useState<CoverageResult | null>(null);
+  const [verificandoCobertura, setVerificandoCobertura] = useState(false);
   const [availableRewards, setAvailableRewards] = useState(0);
   const [referralAttemptKey, setReferralAttemptKey] = useState<string | null>(null);
   const { dark, bg, brandBorder: border, text, muted, inputBg, headerBg, logo } = usePedirTheme();
@@ -183,6 +186,59 @@ export default function SolicitarScreen() {
       setUser(JSON.parse(raw));
     } catch { router.replace("/pedir"); }
   }, [router]);
+
+  useEffect(() => {
+    if (tipo !== "teleconsulta") return;
+    try {
+      const raw = sessionStorage.getItem("docya_coverage_handoff");
+      if (!raw) return;
+      sessionStorage.removeItem("docya_coverage_handoff");
+      const data = JSON.parse(raw);
+      setMotivo(data.motivo ?? "");
+      setDireccion(data.direccion ?? "");
+      setLat(data.lat ?? null); setLng(data.lng ?? null);
+      setProvincia(data.provincia ?? null); setLocalidad(data.localidad ?? null);
+      if (data.paraOtraPersona) {
+        setOtraPersona(true);
+        setFamiliarSeleccionadoId(data.familiarSeleccionadoId ?? null);
+        setPacienteMenorNombre(data.pacienteMenorNombre ?? "");
+        setPacienteMenorDni(data.pacienteMenorDni ?? "");
+        setPacienteMenorFechaNacimiento(data.pacienteMenorFechaNacimiento ?? "");
+        setPacienteMenorSexo(data.pacienteMenorSexo ?? "");
+        setResponsableVinculo(data.responsableVinculo ?? "");
+        setRecipientAuthorized(data.recipientAuthorized === true);
+      }
+    } catch {}
+  }, [tipo]);
+
+  const verificarCobertura = useCallback(async (addr: string, latitude: number, longitude: number, province?: string, city?: string) => {
+    if (tipo === "teleconsulta") return;
+    setVerificandoCobertura(true);
+    try {
+      const response = await fetch(`${API}/zonas-cobertura/verificar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lat: latitude, lng: longitude, direccion: addr, provincia: province, localidad: city, servicio: esPediatria ? "pediatria" : tipo, canal_origen: "web" }),
+      });
+      if (!response.ok) return;
+      const result = await response.json() as CoverageResult;
+      setFueraCobertura(result.cobertura ? null : result);
+    } catch {
+      // No bloqueamos el flujo productivo si el verificador no responde.
+    } finally {
+      setVerificandoCobertura(false);
+    }
+  }, [tipo, esPediatria]);
+
+  const continuarComoTeleconsulta = useCallback(() => {
+    sessionStorage.setItem("docya_coverage_handoff", JSON.stringify({
+      motivo, direccion, lat, lng, provincia, localidad, paraOtraPersona,
+      familiarSeleccionadoId, pacienteMenorNombre, pacienteMenorDni,
+      pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo,
+      recipientAuthorized,
+    }));
+    router.push(`/pedir/solicitar?tipo=teleconsulta${esPediatria ? "&pediatria=1&recipient=other" : paraOtraPersona ? "&recipient=other" : ""}`);
+  }, [motivo, direccion, lat, lng, provincia, localidad, paraOtraPersona, familiarSeleccionadoId, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo, recipientAuthorized, esPediatria, router]);
 
   useEffect(() => {
     if (!user?.access_token) return;
@@ -350,11 +406,12 @@ export default function SolicitarScreen() {
           );
           if (provinciaComp?.long_name) setProvincia(provinciaComp.long_name);
           if (localidadComp?.long_name) setLocalidad(localidadComp.long_name);
+          if (addr) void verificarCobertura(addr, pos.coords.latitude, pos.coords.longitude, provinciaComp?.long_name, localidadComp?.long_name);
         } catch {}
       },
       () => notify(t.solicitar.geoError, false)
     );
-  }, [PLACES_KEY, t]);
+  }, [PLACES_KEY, t, verificarCobertura]);
 
   const validarSolicitud = useCallback(() => {
     if (!user) return false;
@@ -769,6 +826,7 @@ export default function SolicitarScreen() {
                   if (lng !== undefined) setLng(lng);
                   if (provincia) setProvincia(provincia);
                   if (localidad) setLocalidad(localidad);
+                  if (lat !== undefined && lng !== undefined) void verificarCobertura(addr, lat, lng, provincia, localidad);
                 }}
                 placeholder={t.solicitar.direccionPlaceholder}
                 dark={dark}
@@ -790,6 +848,12 @@ export default function SolicitarScreen() {
               {/* Mini mapa Leaflet */}
               {lat !== null && lng !== null && (
                 <MapView lat={lat} lng={lng} height={180} />
+              )}
+              {verificandoCobertura && tipo !== "teleconsulta" && (
+                <p style={{ margin: "12px 0 0", color: muted, fontSize: 12 }}>
+                  <Loader2 size={14} className="animate-spin" style={{ verticalAlign: "middle", marginRight: 6 }} />
+                  Verificando cobertura...
+                </p>
               )}
             </div>
 
@@ -961,6 +1025,21 @@ export default function SolicitarScreen() {
       {tipo === "teleconsulta" && <a className="teleconsulta-whatsapp-help" href={whatsappSupportUrl} target="_blank" rel="noreferrer" aria-label="Contactar a DocYa por WhatsApp">
         <FaWhatsapp size={25} color="#fff" aria-hidden="true" /> <span>¿Necesitás ayuda?</span>
       </a>}
+
+      {fueraCobertura && (
+        <div role="dialog" aria-modal="true" aria-labelledby="fuera-cobertura-titulo" style={{ position: "fixed", inset: 0, zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, background: "rgba(2,12,20,.78)", backdropFilter: "blur(8px)" }}>
+          <div style={{ width: "100%", maxWidth: 480, padding: 26, borderRadius: 26, border: `1px solid ${border}`, background: inputBg, color: text, boxShadow: "0 28px 80px rgba(0,0,0,.42)" }}>
+            <div style={{ width: 62, height: 62, borderRadius: 20, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(245,158,11,.14)", marginBottom: 18 }}><Navigation size={30} color="#f59e0b" /></div>
+            <h2 id="fuera-cobertura-titulo" style={{ margin: 0, fontSize: 23, fontWeight: 900 }}>Todavía no llegamos a tu zona</h2>
+            <p style={{ margin: "12px 0 20px", color: muted, lineHeight: 1.6 }}>Por el momento no contamos con atención a domicilio en esta ubicación.</p>
+            {fueraCobertura.teleconsulta_disponible && <div style={{ padding: 16, borderRadius: 16, background: "rgba(129,140,248,.10)", border: "1px solid rgba(129,140,248,.28)", marginBottom: 18 }}><strong style={{ display: "block", marginBottom: 5 }}>Podemos atenderte por teleconsulta</strong><span style={{ color: muted, fontSize: 13, lineHeight: 1.5 }}>Hablá con un médico y recibí tratamiento y, cuando corresponda, recetas, certificados u órdenes médicas digitales.</span></div>}
+            <div style={{ display: "grid", gap: 10 }}>
+              {fueraCobertura.teleconsulta_disponible && <button type="button" onClick={continuarComoTeleconsulta} style={{ minHeight: 52, border: 0, borderRadius: 15, background: "linear-gradient(90deg,#818cf8,#2dd4bf)", color: "#fff", fontWeight: 850, cursor: "pointer" }}>Continuar con teleconsulta</button>}
+              <button type="button" onClick={() => { setFueraCobertura(null); setLat(null); setLng(null); }} style={{ minHeight: 48, borderRadius: 15, border: `1px solid ${border}`, background: "transparent", color: text, fontWeight: 800, cursor: "pointer" }}>Cambiar dirección</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .teleconsulta-whatsapp-help { position: fixed; right: 20px; bottom: max(20px, env(safe-area-inset-bottom)); z-index: 40; display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; border-radius: 999px; background: #25d366; color: #063b24; text-decoration: none; font-size: 14px; font-weight: 800; box-shadow: 0 8px 24px rgba(0,0,0,.22); }
