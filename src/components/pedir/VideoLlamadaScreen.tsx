@@ -31,6 +31,8 @@ export default function VideoLlamadaScreen() {
   const [user,        setUser]        = useState<PedirUser | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollRef  = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollInFlightRef = useRef(false);
+  const pollBackoffUntilRef = useRef(0);
 
   const { bg, border, text, muted, logo, videoChromeBg, videoBarBg, softPanel } = usePedirTheme();
 
@@ -57,11 +59,18 @@ export default function VideoLlamadaScreen() {
   const checkEstado = useCallback(async () => {
     if (!consultaId) return;
     if (!user?.id || !user.access_token) return;
+    if (pollInFlightRef.current || Date.now() < pollBackoffUntilRef.current) return;
+    pollInFlightRef.current = true;
     try {
       const url = `${API}/teleconsultas/${consultaId}?paciente_uuid=${encodeURIComponent(user.id)}`;
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${user.access_token}` },
       });
+      if (res.status === 503) {
+        const retrySeconds = Number(res.headers.get("retry-after") ?? "8");
+        pollBackoffUntilRef.current = Date.now() + retrySeconds * 1000;
+        return;
+      }
       if (!res.ok) return;
       const d = await res.json();
       if (d.estado === "finalizada" || d.estado === "cancelada") {
@@ -70,6 +79,7 @@ export default function VideoLlamadaScreen() {
         setFinalizado(true);
       }
     } catch {}
+    finally { pollInFlightRef.current = false; }
   }, [consultaId, user]);
 
   useEffect(() => {

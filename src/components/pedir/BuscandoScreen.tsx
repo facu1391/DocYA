@@ -90,6 +90,8 @@ export default function BuscandoScreen() {
   const [appDownloadUrl, setAppDownloadUrl] = useState("/descargas");
 
   const pollRef   = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollInFlightRef = useRef(false);
+  const pollBackoffUntilRef = useRef(0);
   const dotsRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const countRef  = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -161,6 +163,8 @@ export default function BuscandoScreen() {
   const fetchEstado = useCallback(async () => {
     if (!consultaId) return;
     if (esTeleconsulta && (!user?.id || !user.access_token)) return;
+    if (pollInFlightRef.current || Date.now() < pollBackoffUntilRef.current) return;
+    pollInFlightRef.current = true;
     try {
       const url = esTeleconsulta
         ? `${API}/teleconsultas/${consultaId}?paciente_uuid=${encodeURIComponent(user!.id)}`
@@ -177,6 +181,11 @@ export default function BuscandoScreen() {
         if (pollRef.current) clearInterval(pollRef.current);
         if (countRef.current) clearInterval(countRef.current);
         router.replace("/pedir");
+        return;
+      }
+      if (res.status === 503) {
+        const retrySeconds = Number(res.headers.get("retry-after") ?? "8");
+        pollBackoffUntilRef.current = Date.now() + retrySeconds * 1000;
         return;
       }
       if (!res.ok) return;
@@ -203,6 +212,7 @@ export default function BuscandoScreen() {
         clearInterval(countRef.current);
       }
     } catch {}
+    finally { pollInFlightRef.current = false; }
   }, [consultaId, esTeleconsulta, router, user]);
 
   useEffect(() => {
