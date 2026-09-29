@@ -40,6 +40,7 @@ type ConsultaData = {
   mp_preautorizado?: boolean;
   video_url?: string;
   daily_room_url?: string;
+  paciente_nombre?: string;
   motivo?: string;
   direccion?: string;
   tipo?: string;
@@ -88,6 +89,7 @@ export default function BuscandoScreen() {
   const [ratingEnviado, setRatingEnviado] = useState(false);
   const [user, setUser]             = useState<PedirUser | null>(null);
   const [appDownloadUrl, setAppDownloadUrl] = useState("/descargas");
+  const [sharingAccess, setSharingAccess] = useState(false);
 
   const pollRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollInFlightRef = useRef(false);
@@ -100,6 +102,23 @@ export default function BuscandoScreen() {
     softPanel, softPanelBorder, inactiveStep, inactiveStepBg,
     inactiveStepBorder, inactiveText, doneText,
   } = usePedirTheme();
+
+  const compartirAcceso = async (role: "paciente" | "acompanante") => {
+    if (!user?.access_token || !consultaId || sharingAccess) return;
+    setSharingAccess(true);
+    try {
+      const res = await fetch(`${API}/teleconsultas/${consultaId}/shared-access`, {
+        method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
+        body: JSON.stringify({ role }),
+      });
+      const access = await res.json();
+      if (!res.ok) throw new Error(access.detail || "No pudimos generar el acceso");
+      const text = `DocYa: ingresá a tu teleconsulta con ${access.doctor_name}. Este acceso es temporal: ${access.url}`;
+      if (navigator.share) await navigator.share({ title: "Acceso a teleconsulta DocYa", text, url: access.url });
+      else { await navigator.clipboard.writeText(access.url); alert("Enlace copiado. Podés enviárselo por WhatsApp."); }
+    } catch (error) { alert(error instanceof Error ? error.message : "No pudimos generar el acceso"); }
+    finally { setSharingAccess(false); }
+  };
 
   const TIPO_CONFIG: Record<string, { label: string; icon: typeof Stethoscope; color: string; colorLight: string }> = {
     medico:       { label: t.buscando.tipos.medico,       icon: Stethoscope, color: "#00b3a6", colorLight: "rgba(0,179,166,0.14)" },
@@ -668,6 +687,12 @@ export default function BuscandoScreen() {
               <Video size={22} />
               {t.buscando.unirmeVideoLlamada}
             </Link>
+            <button onClick={() => compartirAcceso("paciente")} disabled={sharingAccess} style={{ width: "100%", marginTop: 10, padding: "13px", borderRadius: 14, border: "1px solid rgba(45,212,191,.45)", background: "rgba(45,212,191,.08)", color: "#5eead4", fontWeight: 800 }}>
+              {sharingAccess ? "Generando acceso..." : `Compartir acceso con ${data?.paciente_nombre || "el paciente"}`}
+            </button>
+            <button onClick={() => compartirAcceso("acompanante")} disabled={sharingAccess} style={{ width: "100%", marginTop: 8, padding: "11px", borderRadius: 14, border: "1px solid rgba(255,255,255,.16)", background: "transparent", color: muted, fontWeight: 750 }}>
+              Entrar también como acompañante
+            </button>
             <p style={{ fontSize: 12, color: muted, textAlign: "center", marginTop: 10 }}>
               {t.buscando.salaLista}
             </p>
