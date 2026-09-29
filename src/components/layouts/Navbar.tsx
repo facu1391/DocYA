@@ -39,6 +39,7 @@ export default function Navbar() {
     "/receta-medica-online",
     "/certificado-medico-online",
     "/centro-de-ayuda",
+    "/como-funciona",
   ];
 
   const aud = (searchParams?.get("aud") || "").toLowerCase();
