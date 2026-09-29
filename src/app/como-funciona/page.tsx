@@ -78,7 +78,7 @@ export default function ComoFuncionaPage() {
 
       <section className="mx-auto grid max-w-6xl gap-4 px-5 py-10 sm:grid-cols-3">
         <InfoCard icon={<House size={23} />} title="Médico a domicilio" text="Para una atención presencial en tu domicilio, dentro de las zonas de cobertura disponibles." />
-        <InfoCard icon={<Video size={23} />} title="Teleconsulta" text="Hablá por videollamada con un médico desde donde estés. Es ideal para orientación, recetas, certificados, órdenes y seguimiento, según evaluación profesional." />
+        <InfoCard icon={<Video size={23} />} title="Teleconsulta" text="Hablá por videollamada con un médico desde donde estés. Podés recibir orientación, indicaciones de tratamiento, recetas, certificados, órdenes y seguimiento, según evaluación profesional." />
         <InfoCard icon={<MapPin size={23} />} title="Te mantenemos informado" text="Ves el estado de tu solicitud y recibís avisos cuando el profesional acepta o está en camino." />
       </section>
 
