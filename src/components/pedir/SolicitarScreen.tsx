@@ -729,6 +729,11 @@ export default function SolicitarScreen() {
                   <p style={{ fontSize: 12, color: muted, margin: "2px 0 0" }}>Los documentos y la historia clínica quedarán a nombre del paciente seleccionado.</p>
                 </div>
               </div>
+              {tipo === "teleconsulta" && pacienteMenorNombre && <div style={{ padding: "18px 20px", borderRadius: 18, border: "1px solid rgba(129,140,248,.35)", background: "rgba(129,140,248,.10)", color: text }}>
+                <p style={{ margin: 0, fontSize: 15, fontWeight: 900 }}>Teleconsulta para {pacienteMenorNombre}</p>
+                <p style={{ margin: "7px 0 0", color: muted, fontSize: 13, lineHeight: 1.55 }}>Cuando el médico acepte, vas a poder enviarle un acceso temporal. No necesita tener cuenta ni instalar DocYa para ingresar.</p>
+                <p style={{ margin: "8px 0 0", color: "#c4b5fd", fontSize: 13, fontWeight: 750 }}>La historia clínica, recetas, certificados y órdenes se emitirán a nombre de {pacienteMenorNombre}.</p>
+              </div>}
 
               <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
                   <label style={{ display: "block", fontSize: 13, fontWeight: 900, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 12 }}>
