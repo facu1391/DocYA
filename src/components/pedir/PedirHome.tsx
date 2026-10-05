@@ -116,7 +116,7 @@ export default function PedirHome() {
     },
     {
       question: "¿El certificado tiene firma y código QR?",
-      answer: "Sí. Incluye los datos y la matrícula del profesional, su firma y un código QR que permite verificar el documento emitido por DocYa.",
+      answer: "Sí. Si el médico decide emitirlo, incluye sus datos y matrícula, su firma digital y un código QR para verificarlo en DocYa. Después queda guardado en la plataforma para consultarlo o descargarlo desde la app o la web. La institución que lo recibe puede tener requisitos propios.",
     },
     {
       question: "¿Sirve para presentarlo en el trabajo?",
@@ -137,7 +137,7 @@ export default function PedirHome() {
     },
     {
       question: "Does the certificate include a signature and QR code?",
-      answer: "Yes. It includes the professional's details and license, their signature, and a QR code that allows the DocYa document to be verified.",
+      answer: "Yes. If the doctor decides to issue one, it includes their details and license, their digital signature, and a QR code to verify it with DocYa. It is then saved on the platform to view or download from the app or website. The recipient may have its own requirements.",
     },
     {
       question: "Can I submit it to my employer?",
@@ -448,8 +448,8 @@ export default function PedirHome() {
                 <div className="pedir-documents-icon"><FileText size={22} color="#00b3a6" /></div>
                 <div className="pedir-documents-copy">
                   <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Tus documentos siempre disponibles</p>
-                  <p style={{ margin: "4px 0 0", fontSize: 13, color: muted, lineHeight: 1.5 }}>Las recetas, certificados y órdenes médicas que genere el profesional quedan guardados automáticamente en <strong style={{ color: text }}>Mis consultas</strong>.</p>
-                  <p className="pedir-documents-secondary" style={{ margin: "3px 0 0", fontSize: 12, color: muted }}>Podés consultarlos o descargarlos cuando los necesites.</p>
+                  <p style={{ margin: "4px 0 0", fontSize: 13, color: muted, lineHeight: 1.5 }}>{locale === "es" ? <>Las recetas, certificados y órdenes que genere el profesional quedan guardados para consultar o descargar. En la app: <strong style={{ color: text }}>Perfil &gt; Documentos</strong>. En la web: <strong style={{ color: text }}>Mis consultas &gt; Documentos</strong>.</> : <>Prescriptions, certificates, and orders issued by the professional are saved to view or download. In the app: <strong style={{ color: text }}>Profile &gt; Documents</strong>. On the website: <strong style={{ color: text }}>My consultations &gt; Documents</strong>.</>}</p>
+                  <p className="pedir-documents-secondary" style={{ margin: "3px 0 0", fontSize: 12, color: muted }}>{locale === "es" ? "La emisión de cada documento depende de la evaluación del profesional." : "Whether a document is issued depends on the professional’s evaluation."}</p>
                 </div>
                 <ChevronRight className="pedir-documents-arrow" size={21} color="#00b3a6" aria-hidden="true" />
               </Link>
@@ -530,6 +530,42 @@ export default function PedirHome() {
                     <span style={{ color: s.color, fontSize: 13, fontWeight: 850 }}>{formatPesos(precios[s.id as ServicioId]?.monto, t.pedir.consultando)}</span>
                   </div>
                 ))}
+                <div style={{ marginTop: 28, padding: 20, borderRadius: 20, background: cardBg, border: `1px solid ${border}` }}>
+                  <h2 style={{ margin: "0 0 14px", color: text, fontSize: 18, fontWeight: 850 }}>
+                    {locale === "es" ? "Atención para el momento, sin turnos" : "Care when you need it, no appointments"}
+                  </h2>
+                  <p style={{ margin: "0 0 16px", color: muted, fontSize: 14, lineHeight: 1.55 }}>
+                    {locale === "es"
+                      ? "Pedís cuando necesitás atención. DocYa busca en tiempo real profesionales disponibles: un médico puede ir a tu domicilio en las zonas con cobertura, o podés pedir una teleconsulta desde cualquier lugar de Argentina. No necesitás sacar turno ni elegir una agenda."
+                      : "Request care when you need it. DocYa searches in real time for available professionals: a doctor can visit your home in covered areas, or you can request a teleconsultation from anywhere in Argentina. No appointment or schedule selection needed."}
+                  </p>
+                  <div style={{ display: "grid", gap: 13 }}>
+                    <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                      <ShieldCheck size={18} color="#00b3a6" style={{ flexShrink: 0, marginTop: 2 }} />
+                      <p style={{ margin: 0, color: muted, fontSize: 13, lineHeight: 1.55 }}>
+                        {locale === "es"
+                          ? "DocYa está registrada en el Ministerio de Salud de la Nación (ID 0259) y los profesionales se verifican en SISA."
+                          : "DocYa is registered with Argentina’s Ministry of Health (ID 0259), and professionals are verified in SISA."}
+                      </p>
+                    </div>
+                    <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                      <FileText size={18} color="#00b3a6" style={{ flexShrink: 0, marginTop: 2 }} />
+                      <p style={{ margin: 0, color: muted, fontSize: 13, lineHeight: 1.55 }}>
+                        {locale === "es"
+                          ? "Si el médico lo considera indicado y lo emite, incluye sus datos, matrícula, firma digital y un QR verificable en DocYa. Queda guardado para descargarlo desde la app o la web. Quien lo recibe puede tener requisitos propios."
+                          : "If the doctor considers it appropriate and issues it, it includes their details, license, digital signature, and a QR code verifiable with DocYa. It is saved for download from the app or website. The recipient may have its own requirements."}
+                      </p>
+                    </div>
+                    <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                      <FileText size={18} color="#00b3a6" style={{ flexShrink: 0, marginTop: 2 }} />
+                      <p style={{ margin: 0, color: muted, fontSize: 13, lineHeight: 1.55 }}>
+                        {locale === "es"
+                          ? "Después de la teleconsulta, podés consultar y descargar las recetas, órdenes y certificados que genere el profesional. En la app: Perfil > Documentos. En la web: Mis consultas > Documentos."
+                          : "After a teleconsultation, you can view and download prescriptions, orders, and certificates issued by the professional. In the app: Profile > Documents. On the website: My consultations > Documents."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Right — login card */}
@@ -549,10 +585,27 @@ export default function PedirHome() {
                 <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "60%", height: 3, background: "linear-gradient(90deg, transparent, #00b3a6, #2dd4bf, transparent)", borderRadius: 999 }} />
 
                 {/* Mini hero visible solo en mobile */}
-                <div className="pedir-mobile-hero" style={{ marginBottom: 28, paddingBottom: 22, borderBottom: "1px solid rgba(0,179,166,0.2)" }}>
+                <div className="pedir-mobile-hero" style={{ marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid rgba(0,179,166,0.2)" }}>
                   <Image src={logo} alt="DocYa" width={90} height={28} style={{ width: 90, height: "auto", maxHeight: 28, objectFit: "contain", marginBottom: 16, display: "block" }} />
-                  <p style={{ fontSize: 22, fontWeight: 900, marginBottom: 6, lineHeight: 1.2, color: "#2dd4bf" }}>{t.pedir.loginMobileTitle}</p>
-                  <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>{t.pedir.loginMobileDescription}</p>
+                  <p style={{ fontSize: 23, fontWeight: 900, marginBottom: 6, lineHeight: 1.15, color: "#2dd4bf" }}>{t.pedir.loginMobileTitle}</p>
+                  <p style={{ fontSize: 14, color: muted, lineHeight: 1.5, marginBottom: 10 }}>{t.pedir.loginMobileDescription}</p>
+                  <p className="pedir-mobile-registration" style={{ fontSize: 11, fontWeight: 700, color: muted, margin: "0 0 16px" }}>
+                    {locale === "es" ? "Registrada en el Ministerio de Salud · ID 0259 · Profesionales verificados en SISA" : "Registered with the Ministry of Health · ID 0259 · Professionals verified in SISA"}
+                  </p>
+                  <div className="pedir-mobile-faq">
+                    <details>
+                      <summary>{locale === "es" ? "¿Cómo funciona?" : "How does it work?"}</summary>
+                      <p>{locale === "es" ? "Pedís atención cuando la necesitás, sin turnos ni agenda. Buscamos profesionales disponibles en tiempo real. Domicilio en zonas con cobertura; teleconsulta desde cualquier lugar de Argentina." : "Request care when you need it, with no appointments. We search for available professionals in real time. Home visits in covered areas; teleconsultations anywhere in Argentina."}</p>
+                    </details>
+                    <details>
+                      <summary>{locale === "es" ? "¿Dónde quedan mis documentos?" : "Where can I find my documents?"}</summary>
+                      <p>{locale === "es" ? "Las recetas, órdenes y certificados que emita el profesional quedan disponibles para consultar y descargar. App: Perfil > Documentos. Web: Mis consultas > Documentos." : "Prescriptions, orders, and certificates issued by the professional are available to view and download. App: Profile > Documents. Website: My consultations > Documents."}</p>
+                    </details>
+                    <details>
+                      <summary>{locale === "es" ? "¿Cómo verifico un certificado?" : "How do I verify a certificate?"}</summary>
+                      <p>{locale === "es" ? "Si el médico considera que corresponde emitirlo, incluye sus datos, matrícula, firma digital y un QR para verificarlo en DocYa. Queda guardado para descargarlo desde la app o la web. La entidad que lo recibe puede tener requisitos propios." : "If the doctor decides to issue one, it includes their details, license, digital signature, and a QR code to verify it with DocYa. It is saved for download from the app or website. The recipient may have its own requirements."}</p>
+                    </details>
+                  </div>
                 </div>
 
                 {/* Título */}
@@ -670,6 +723,11 @@ export default function PedirHome() {
         .pedir-trust { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
         .pedir-login { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding-top: 64px; align-items: center; min-height: calc(100vh - 64px); }
         .pedir-mobile-hero { display: none; }
+        .pedir-mobile-faq { display: grid; gap: 8px; }
+        .pedir-mobile-faq details { border: 1px solid rgba(20,184,166,.2); border-radius: 12px; background: rgba(20,184,166,.045); padding: 0 12px; }
+        .pedir-mobile-faq summary { min-height: 42px; display: flex; align-items: center; cursor: pointer; color: ${text}; font-size: 12px; font-weight: 750; list-style-position: inside; }
+        .pedir-mobile-faq details[open] summary { color: #2dd4bf; }
+        .pedir-mobile-faq p { margin: 0 0 12px; color: ${muted}; font-size: 12px; line-height: 1.5; }
         .wa-card { min-width: 220px; }
         @media (max-width: 900px) {
           .pedir-cards { grid-template-columns: 1fr; }
@@ -678,6 +736,7 @@ export default function PedirHome() {
           .pedir-login { grid-template-columns: 1fr; gap: 32px; min-height: auto; padding-top: 40px; padding-bottom: 40px; }
         }
         @media (max-width: 640px) {
+          .pedir-mobile-registration { line-height: 1.45; }
           .pedir-header { padding: 10px 12px 12px; }
           .pedir-header-inner { height: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
           .pedir-header-logo { height: 42px; justify-self: start; }

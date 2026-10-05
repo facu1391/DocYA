@@ -4,11 +4,11 @@ import "./pedir.css";
 export const metadata: Metadata = {
   title: "Pedí atención médica | DocYa",
   description:
-    "Solicitá un médico a domicilio, una teleconsulta o un enfermero desde el navegador. Sin descargar nada.",
+    "Pedí atención cuando la necesitás, sin turnos. Buscamos profesionales disponibles en tiempo real. Médico a domicilio en zonas de cobertura o teleconsulta en Argentina.",
   alternates: { canonical: "/pedir" },
   openGraph: {
     title: "DocYa — Pedí atención médica ahora",
-    description: "Médico a domicilio o por video sin instalar ninguna app.",
+    description: "Atención médica para el momento, sin turnos. Médico a domicilio en zonas de cobertura o teleconsulta desde cualquier lugar de Argentina.",
     url: "/pedir",
   },
 };
