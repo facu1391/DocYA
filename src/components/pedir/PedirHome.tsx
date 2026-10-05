@@ -1,5 +1,4 @@
 "use client";
-import DeviceCheck from "./DeviceCheck";
 import RecipientChoice from "./RecipientChoice";
 import TeleconsultaDeviceModal from "./TeleconsultaDeviceModal";
 
@@ -354,11 +353,6 @@ export default function PedirHome() {
         </header>
 
         <main style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px" }}>
-          <details style={{ margin: "20px 0", border: `1px solid ${border}`, borderRadius: 18, padding: 18 }}>
-            <summary style={{ cursor: "pointer", fontWeight: 700 }}>¿Vas a hacer una teleconsulta? Probá tu cámara y micrófono</summary>
-            <DeviceCheck onSuccess={markDevicesTested} />
-          </details>
-
           {user ? (
             /* ── LOGUEADO ─────────────────────────────────────── */
             <>
