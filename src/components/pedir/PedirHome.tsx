@@ -726,8 +726,10 @@ export default function PedirHome() {
         .pedir-mobile-faq { display: grid; gap: 8px; }
         .pedir-mobile-faq details { border: 1px solid rgba(20,184,166,.2); border-radius: 12px; background: rgba(20,184,166,.045); padding: 0 12px; }
         .pedir-mobile-faq summary { min-height: 46px; display: flex; align-items: center; cursor: pointer; color: ${text}; font-size: 14px; font-weight: 750; list-style-position: inside; }
-        .pedir-mobile-faq details[open] summary { color: #2dd4bf; }
+        .pedir-mobile-faq details[open] { background: #fff; border-color: #fff; }
+        .pedir-mobile-faq details[open] summary { color: #102a2d; }
         .pedir-mobile-faq p { margin: 0 0 14px; color: ${muted}; font-size: 14px; line-height: 1.6; }
+        .pedir-mobile-faq details[open] p { color: #24383b; font-size: 15px; line-height: 1.65; }
         .wa-card { min-width: 220px; }
         @media (max-width: 900px) {
           .pedir-cards { grid-template-columns: 1fr; }
