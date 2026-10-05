@@ -111,7 +111,7 @@ export default function PedirHome() {
   const FAQS = locale === "es" ? [
     {
       question: "¿Puedo pedir para otra persona?",
-      answer: "Sí. Al iniciar el pedido, elegí “Otra persona” y seleccioná su perfil familiar. Cargá y revisá correctamente sus datos, porque se usan para generar los documentos médicos. La consulta y los documentos quedan a nombre de quien recibe la atención. Si es una persona adulta, necesitás contar con su autorización.",
+      answer: "Sí. Elegí “Otra persona” y seleccioná su perfil familiar. Revisá que sus datos estén correctos: la consulta y los documentos médicos se registran a su nombre. Para un adulto, necesitás su autorización.",
     },
     {
       question: "¿Entregan recetas, órdenes y certificados?",
@@ -140,7 +140,7 @@ export default function PedirHome() {
   ] : [
     {
       question: "Can I request care for someone else?",
-      answer: "Yes. When you start a request, choose “Someone else” and select their family profile. Enter and check their details carefully, because they are used to create medical documents. The consultation and documents will be in the name of the person receiving care. For an adult, you must have their authorization.",
+      answer: "Yes. Choose “Someone else” and select their family profile. Check that their details are correct: the consultation and medical documents will be in their name. For an adult, you must have their authorization.",
     },
     {
       question: "Do you provide prescriptions, medical orders, and certificates?",
@@ -609,7 +609,7 @@ export default function PedirHome() {
                     </details>
                     <details>
                       <summary>{locale === "es" ? "¿Puedo pedir para otra persona?" : "Can I request care for someone else?"}</summary>
-                      <p>{locale === "es" ? "Sí. Elegí “Otra persona” al iniciar el pedido y seleccioná su perfil familiar. Cargá y revisá bien sus datos, porque se usan para generar los documentos médicos. La consulta y los documentos quedan a su nombre. Para una persona adulta, necesitás contar con su autorización." : "Yes. Choose “Someone else” when starting the request and select their family profile. Enter and check their details carefully, because they are used to create medical documents. The consultation and documents will be in their name. For an adult, you must have their authorization."}</p>
+                      <p>{locale === "es" ? "Elegí “Otra persona” y seleccioná su perfil familiar. Revisá que sus datos estén correctos: la consulta y los documentos médicos se registran a su nombre. Para un adulto, necesitás su autorización." : "Choose “Someone else” and select their family profile. Check that their details are correct: the consultation and medical documents will be in their name. For an adult, you must have their authorization."}</p>
                     </details>
                     <details>
                       <summary>{locale === "es" ? "¿Entregan recetas, órdenes y certificados?" : "Do you provide prescriptions, orders, and certificates?"}</summary>
@@ -742,12 +742,15 @@ export default function PedirHome() {
         .pedir-login { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding-top: 64px; align-items: center; min-height: calc(100vh - 64px); }
         .pedir-mobile-hero { display: none; }
         .pedir-mobile-faq { display: grid; gap: 8px; }
-        .pedir-mobile-faq details { border: 1px solid rgba(20,184,166,.2); border-radius: 12px; background: rgba(20,184,166,.045); padding: 0 12px; }
-        .pedir-mobile-faq summary { min-height: 46px; display: flex; align-items: center; cursor: pointer; color: ${text}; font-size: 14px; font-weight: 750; list-style-position: inside; }
-        .pedir-mobile-faq details[open] { background: #fff; border-color: #fff; }
+        .pedir-mobile-faq details { border: 1px solid rgba(20,184,166,.2); border-radius: 14px; background: rgba(20,184,166,.045); padding: 0 14px; transition: background .18s ease, box-shadow .18s ease, border-color .18s ease; }
+        .pedir-mobile-faq summary { min-height: 50px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: ${text}; font-size: 14px; font-weight: 750; list-style: none; }
+        .pedir-mobile-faq summary::-webkit-details-marker { display: none; }
+        .pedir-mobile-faq summary::after { content: "+"; margin-left: auto; color: #0f9f95; font-size: 20px; font-weight: 500; line-height: 1; }
+        .pedir-mobile-faq details[open] { background: #fff; border-color: #dce9e8; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
         .pedir-mobile-faq details[open] summary { color: #102a2d; }
-        .pedir-mobile-faq p { margin: 0 0 14px; color: ${muted}; font-size: 14px; line-height: 1.6; }
-        .pedir-mobile-faq details[open] p { color: #24383b; font-size: 15px; line-height: 1.65; }
+        .pedir-mobile-faq details[open] summary::after { content: "−"; color: #526568; }
+        .pedir-mobile-faq p { margin: 0 0 14px; color: ${muted}; font-size: 14px; line-height: 1.55; }
+        .pedir-mobile-faq details[open] p { border-top: 1px solid #e6eeee; padding-top: 11px; color: #34484a; font-size: 14px; line-height: 1.55; }
         .wa-card { min-width: 220px; }
         @media (max-width: 900px) {
           .pedir-cards { grid-template-columns: 1fr; }
