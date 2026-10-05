@@ -116,7 +116,7 @@ export default function PedirHome() {
     },
     {
       question: "¿El certificado tiene firma y código QR?",
-      answer: "Sí. Si el médico decide emitirlo, incluye sus datos y matrícula, su firma digital y un código QR para verificarlo en DocYa. Después queda guardado en la plataforma para consultarlo o descargarlo desde la app o la web. La institución que lo recibe puede tener requisitos propios.",
+      answer: "Sí. Si el médico decide emitirlo, incluye sus datos y matrícula, su firma digital y un código QR para verificarlo en DocYa. Después queda guardado en la plataforma para consultarlo o descargarlo desde la app o la web.",
     },
     {
       question: "¿Sirve para presentarlo en el trabajo?",
@@ -552,8 +552,8 @@ export default function PedirHome() {
                       <FileText size={18} color="#00b3a6" style={{ flexShrink: 0, marginTop: 2 }} />
                       <p style={{ margin: 0, color: muted, fontSize: 13, lineHeight: 1.55 }}>
                         {locale === "es"
-                          ? "Si el médico lo considera indicado y lo emite, incluye sus datos, matrícula, firma digital y un QR verificable en DocYa. Queda guardado para descargarlo desde la app o la web. Quien lo recibe puede tener requisitos propios."
-                          : "If the doctor considers it appropriate and issues it, it includes their details, license, digital signature, and a QR code verifiable with DocYa. It is saved for download from the app or website. The recipient may have its own requirements."}
+                          ? "Si el médico lo considera indicado y lo emite, incluye sus datos, matrícula, firma digital y un QR verificable en DocYa. Queda guardado para descargarlo desde la app o la web."
+                          : "If the doctor considers it appropriate and issues it, it includes their details, license, digital signature, and a QR code verifiable with DocYa. It is saved for download from the app or website."}
                       </p>
                     </div>
                     <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
@@ -603,7 +603,7 @@ export default function PedirHome() {
                     </details>
                     <details>
                       <summary>{locale === "es" ? "¿Cómo verifico un certificado?" : "How do I verify a certificate?"}</summary>
-                      <p>{locale === "es" ? "Si el médico considera que corresponde emitirlo, incluye sus datos, matrícula, firma digital y un QR para verificarlo en DocYa. Queda guardado para descargarlo desde la app o la web. La entidad que lo recibe puede tener requisitos propios." : "If the doctor decides to issue one, it includes their details, license, digital signature, and a QR code to verify it with DocYa. It is saved for download from the app or website. The recipient may have its own requirements."}</p>
+                      <p>{locale === "es" ? "Si el médico considera que corresponde emitirlo, incluye sus datos, matrícula, firma digital y un QR para verificarlo en DocYa. Queda guardado para descargarlo desde la app o la web." : "If the doctor decides to issue one, it includes their details, license, digital signature, and a QR code to verify it with DocYa. It is saved for download from the app or website."}</p>
                     </details>
                   </div>
                 </div>
@@ -725,9 +725,9 @@ export default function PedirHome() {
         .pedir-mobile-hero { display: none; }
         .pedir-mobile-faq { display: grid; gap: 8px; }
         .pedir-mobile-faq details { border: 1px solid rgba(20,184,166,.2); border-radius: 12px; background: rgba(20,184,166,.045); padding: 0 12px; }
-        .pedir-mobile-faq summary { min-height: 42px; display: flex; align-items: center; cursor: pointer; color: ${text}; font-size: 12px; font-weight: 750; list-style-position: inside; }
+        .pedir-mobile-faq summary { min-height: 46px; display: flex; align-items: center; cursor: pointer; color: ${text}; font-size: 14px; font-weight: 750; list-style-position: inside; }
         .pedir-mobile-faq details[open] summary { color: #2dd4bf; }
-        .pedir-mobile-faq p { margin: 0 0 12px; color: ${muted}; font-size: 12px; line-height: 1.5; }
+        .pedir-mobile-faq p { margin: 0 0 14px; color: ${muted}; font-size: 14px; line-height: 1.6; }
         .wa-card { min-width: 220px; }
         @media (max-width: 900px) {
           .pedir-cards { grid-template-columns: 1fr; }
