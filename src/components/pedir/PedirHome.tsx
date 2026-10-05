@@ -111,7 +111,7 @@ export default function PedirHome() {
   const FAQS = locale === "es" ? [
     {
       question: "¿Puedo pedir para otra persona?",
-      answer: "Sí. Al iniciar el pedido, elegí “Otra persona” y seleccioná su perfil familiar. La consulta y los documentos quedan a nombre de quien recibe la atención. Si es una persona adulta, necesitás contar con su autorización.",
+      answer: "Sí. Al iniciar el pedido, elegí “Otra persona” y seleccioná su perfil familiar. Cargá y revisá correctamente sus datos, porque se usan para generar los documentos médicos. La consulta y los documentos quedan a nombre de quien recibe la atención. Si es una persona adulta, necesitás contar con su autorización.",
     },
     {
       question: "¿Entregan recetas, órdenes y certificados?",
@@ -140,7 +140,7 @@ export default function PedirHome() {
   ] : [
     {
       question: "Can I request care for someone else?",
-      answer: "Yes. When you start a request, choose “Someone else” and select their family profile. The consultation and documents will be in the name of the person receiving care. For an adult, you must have their authorization.",
+      answer: "Yes. When you start a request, choose “Someone else” and select their family profile. Enter and check their details carefully, because they are used to create medical documents. The consultation and documents will be in the name of the person receiving care. For an adult, you must have their authorization.",
     },
     {
       question: "Do you provide prescriptions, medical orders, and certificates?",
@@ -609,7 +609,7 @@ export default function PedirHome() {
                     </details>
                     <details>
                       <summary>{locale === "es" ? "¿Puedo pedir para otra persona?" : "Can I request care for someone else?"}</summary>
-                      <p>{locale === "es" ? "Sí. Elegí “Otra persona” al iniciar el pedido y seleccioná su perfil familiar. La consulta y los documentos quedan a nombre de quien recibe la atención. Para una persona adulta, necesitás contar con su autorización." : "Yes. Choose “Someone else” when starting the request and select their family profile. The consultation and documents will be in the name of the person receiving care. For an adult, you must have their authorization."}</p>
+                      <p>{locale === "es" ? "Sí. Elegí “Otra persona” al iniciar el pedido y seleccioná su perfil familiar. Cargá y revisá bien sus datos, porque se usan para generar los documentos médicos. La consulta y los documentos quedan a su nombre. Para una persona adulta, necesitás contar con su autorización." : "Yes. Choose “Someone else” when starting the request and select their family profile. Enter and check their details carefully, because they are used to create medical documents. The consultation and documents will be in their name. For an adult, you must have their authorization."}</p>
                     </details>
                     <details>
                       <summary>{locale === "es" ? "¿Entregan recetas, órdenes y certificados?" : "Do you provide prescriptions, orders, and certificates?"}</summary>
