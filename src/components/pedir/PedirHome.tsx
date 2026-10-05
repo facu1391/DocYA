@@ -110,6 +110,14 @@ export default function PedirHome() {
 
   const FAQS = locale === "es" ? [
     {
+      question: "¿Puedo pedir para otra persona?",
+      answer: "Sí. Al iniciar el pedido, elegí “Otra persona” y seleccioná su perfil familiar. La consulta y los documentos quedan a nombre de quien recibe la atención. Si es una persona adulta, necesitás contar con su autorización.",
+    },
+    {
+      question: "¿Entregan recetas, órdenes y certificados?",
+      answer: "Después de la consulta, el profesional puede emitir recetas, órdenes o certificados si los considera necesarios. Los documentos que emita quedan guardados para consultar o descargar desde la app, en Perfil > Documentos, o desde la web, en Mis consultas > Documentos.",
+    },
+    {
       question: "¿Los certificados son digitales?",
       answer: "Sí. Si el médico considera que corresponde emitirlo, el certificado queda disponible en Mis consultas para verlo, descargarlo o presentarlo desde el celular.",
     },
@@ -130,6 +138,14 @@ export default function PedirHome() {
       answer: "Sí. DocYa es una plataforma registrada ante el Ministerio de Salud de la Nación con el identificador 0259. Los profesionales que atienden también son matriculados y sus credenciales se verifican.",
     },
   ] : [
+    {
+      question: "Can I request care for someone else?",
+      answer: "Yes. When you start a request, choose “Someone else” and select their family profile. The consultation and documents will be in the name of the person receiving care. For an adult, you must have their authorization.",
+    },
+    {
+      question: "Do you provide prescriptions, medical orders, and certificates?",
+      answer: "After the consultation, the professional may issue prescriptions, medical orders, or certificates if they consider them appropriate. Issued documents are saved to view or download in the app under Profile > Documents, or on the website under My consultations > Documents.",
+    },
     {
       question: "Are medical certificates digital?",
       answer: "Yes. If the doctor determines that one should be issued, it will be available under My consultations to view, download, or present from your phone.",
@@ -590,6 +606,14 @@ export default function PedirHome() {
                     <details>
                       <summary>{locale === "es" ? "¿Cómo funciona?" : "How does it work?"}</summary>
                       <p>{locale === "es" ? "Pedís atención cuando la necesitás, sin turnos ni agenda. Buscamos profesionales disponibles en tiempo real. Domicilio en zonas con cobertura; teleconsulta desde cualquier lugar de Argentina." : "Request care when you need it, with no appointments. We search for available professionals in real time. Home visits in covered areas; teleconsultations anywhere in Argentina."}</p>
+                    </details>
+                    <details>
+                      <summary>{locale === "es" ? "¿Puedo pedir para otra persona?" : "Can I request care for someone else?"}</summary>
+                      <p>{locale === "es" ? "Sí. Elegí “Otra persona” al iniciar el pedido y seleccioná su perfil familiar. La consulta y los documentos quedan a nombre de quien recibe la atención. Para una persona adulta, necesitás contar con su autorización." : "Yes. Choose “Someone else” when starting the request and select their family profile. The consultation and documents will be in the name of the person receiving care. For an adult, you must have their authorization."}</p>
+                    </details>
+                    <details>
+                      <summary>{locale === "es" ? "¿Entregan recetas, órdenes y certificados?" : "Do you provide prescriptions, orders, and certificates?"}</summary>
+                      <p>{locale === "es" ? "El profesional puede emitirlos después de la consulta si los considera necesarios. Quedan guardados para consultar o descargar. App: Perfil > Documentos. Web: Mis consultas > Documentos." : "The professional may issue them after the consultation if they consider them appropriate. Issued documents are saved to view or download. App: Profile > Documents. Website: My consultations > Documents."}</p>
                     </details>
                     <details>
                       <summary>{locale === "es" ? "¿Dónde quedan mis documentos?" : "Where can I find my documents?"}</summary>
