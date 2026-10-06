@@ -20,7 +20,7 @@ export default function VideoLlamadaScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const consultaId = params.get("consulta_id") ?? "";
-  const videoUrl   = params.get("video_url") ?? "";
+  const [videoUrl, setVideoUrl] = useState(params.get("video_url") ?? "");
   const medico     = params.get("medico") ?? "";
 
   const [iframeReady, setIframeReady] = useState(false);
@@ -29,6 +29,11 @@ export default function VideoLlamadaScreen() {
   const [elapsed,     setElapsed]     = useState(0);
   const [finalizado,  setFinalizado]  = useState(false);
   const [user,        setUser]        = useState<PedirUser | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const mediaRef = useRef<Record<string, unknown> | null>(null);
+  const lastMediaPingRef = useRef(0);
+  const [recovering, setRecovering] = useState(false);
+  const [recoveryError, setRecoveryError] = useState("");
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollRef  = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollInFlightRef = useRef(false);
@@ -55,6 +60,45 @@ export default function VideoLlamadaScreen() {
     } catch {}
   }, []);
 
+  useEffect(() => {
+    setIframeReady(false);
+    mediaRef.current = null;
+    const onMessage = (event: MessageEvent) => {
+      if (!videoUrl || event.origin !== new URL(videoUrl).origin ||
+          event.source !== iframeRef.current?.contentWindow ||
+          event.data?.type !== "docya-video-media" ||
+          String(event.data.consultationId) !== consultaId) return;
+      const media = event.data.media;
+      if (media && ["connecting", "connected", "reconnecting", "disconnected", "error"].includes(media.connection_state)) {
+        mediaRef.current = {
+          connection_state: media.connection_state,
+          microphone_published: media.microphone_published === true,
+          remote_audio_subscribed: media.remote_audio_subscribed === true,
+        };
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [videoUrl, consultaId]);
+
+  async function recoverVideo() {
+    if (!user?.access_token || recovering) return;
+    setRecovering(true);
+    setRecoveryError("");
+    try {
+      const res = await fetch(`${API}/teleconsultas/${consultaId}/video/recover`, {
+        method: "POST", signal: AbortSignal.timeout(25000),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
+        body: JSON.stringify({ rol: "paciente", paciente_uuid: user.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "No se pudo recuperar la sala");
+      if (typeof data.video_url === "string" && data.video_url.startsWith("https://")) setVideoUrl(data.video_url);
+    } catch (error) {
+      setRecoveryError(error instanceof Error ? error.message : "No se pudo recuperar la sala");
+    } finally { setRecovering(false); }
+  }
+
   // Polling para detectar fin de la consulta
   const checkEstado = useCallback(async () => {
     if (!consultaId) return;
@@ -72,7 +116,22 @@ export default function VideoLlamadaScreen() {
         return;
       }
       if (!res.ok) return;
+      if (mediaRef.current && Date.now() - lastMediaPingRef.current >= 15000) {
+        lastMediaPingRef.current = Date.now();
+        void fetch(`${API}/teleconsultas/${consultaId}/ping`, {
+          method: "POST", signal: AbortSignal.timeout(8000),
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
+          body: JSON.stringify({ rol: "paciente", paciente_uuid: user.id, media: mediaRef.current }),
+        }).catch(() => {});
+      }
       const d = await res.json();
+      const nextUrl = d.video_url || d.daily_room_url;
+      if (typeof nextUrl === "string" && nextUrl.startsWith("https://")) {
+        setVideoUrl(current => {
+          const sameRoom = current.split("#")[0] === nextUrl.split("#")[0];
+          return sameRoom ? current : nextUrl;
+        });
+      }
       if (d.estado === "finalizada" || d.estado === "cancelada") {
         if (pollRef.current) clearInterval(pollRef.current);
         if (timerRef.current) clearInterval(timerRef.current);
@@ -187,6 +246,7 @@ export default function VideoLlamadaScreen() {
           </div>
         )}
         <iframe
+          ref={iframeRef}
           src={videoUrl}
           allow="camera; microphone; fullscreen; speaker; display-capture; autoplay"
           style={{ width: "100%", height: "100%", minHeight: fullscreen ? "100vh" : "calc(100vh - 60px - 80px)", border: "none", display: "block" }}
@@ -195,6 +255,11 @@ export default function VideoLlamadaScreen() {
         />
       </div>}
       {devicesChecked && /^https:\/\//i.test(videoUrl) && <div style={{ padding: 14, textAlign: "center", background: videoBarBg }}>
+        {videoUrl.includes("/livekit-demo/room/") && <button onClick={recoverVideo} disabled={recovering}
+          style={{ display: "block", margin: "0 auto 12px", padding: "10px 18px", borderRadius: 12, cursor: "pointer" }}>
+          {recovering ? "Recuperando…" : "Recuperar llamada"}
+        </button>}
+        {recoveryError && <p role="alert" style={{ color: "#f87171" }}>{recoveryError}</p>}
         <a href={videoUrl} style={{ color: text, textDecoration: "underline" }}>¿Problemas con audio o cámara? Abrir la sala directamente</a>
         <p style={{ color: muted, fontSize: 12 }}>La sala puede volver a pedirte permisos. Permití cámara y micrófono también allí.</p>
       </div>}
