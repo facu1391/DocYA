@@ -35,42 +35,42 @@
 .pedir-ai-launcher-copy strong { font-size: 14px; line-height: 1.35; }
 .pedir-ai-launcher-copy small { font-size: 12px; line-height: 1.35; }
 .pedir-ai-launcher-arrow { margin-left: auto; color: #14b8a6; font-size: 27px; line-height: 1; }
-.pedir-ai-overlay { position: fixed; z-index: 1000; inset: 0; display: grid; place-items: center; padding: 18px; background: #031116bd; backdrop-filter: blur(7px); }
-.pedir-ai-dialog { display: flex; flex-direction: column; width: min(100%, 520px); max-height: min(780px, calc(100dvh - 36px)); overflow: hidden; border: 1px solid; border-radius: 24px; box-shadow: 0 28px 90px #0008; }
-.pedir-ai-header { display: flex; align-items: center; gap: 12px; padding: 18px 20px 14px; border-bottom: 1px solid; }
-.pedir-ai-mark { width: 44px; height: 44px; border-radius: 14px; }
+.pedir-ai-overlay { position: fixed; z-index: 1000; inset: 0; background: #0c222a; }
+.pedir-ai-dialog { display: flex; flex-direction: column; width: 100%; height: 100%; height: 100dvh; overflow: hidden; border: 0; border-radius: 0; }
+.pedir-ai-header { display: flex; flex: 0 0 auto; align-items: center; gap: 12px; padding: max(12px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 14px max(20px, env(safe-area-inset-left)); border-bottom: 1px solid; }
+.pedir-ai-back { display: grid; flex: 0 0 auto; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; cursor: pointer; color: inherit; background: #8798a21c; }
+.pedir-ai-mark { width: 48px; height: 48px; border-radius: 14px; object-fit: contain; }
 .pedir-ai-heading { flex: 1; min-width: 0; }
 .pedir-ai-heading h2 { margin: 0; font-size: 17px; font-weight: 800; }
 .pedir-ai-heading p { margin: 3px 0 0; font-size: 12px; }
-.pedir-ai-close { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; cursor: pointer; color: inherit; background: #8798a21c; }
 .pedir-ai-notice { display: flex; gap: 8px; align-items: flex-start; margin: 12px 16px 0; padding: 10px 12px; border-radius: 12px; font-size: 11px; line-height: 1.45; }
 .pedir-ai-notice svg { flex: 0 0 auto; margin-top: 1px; }
-.pedir-ai-messages { display: flex; flex: 1; flex-direction: column; gap: 10px; min-height: 150px; max-height: 390px; overflow-y: auto; padding: 16px; overscroll-behavior: contain; }
+.pedir-ai-messages { display: flex; flex: 1; flex-direction: column; gap: 12px; width: min(100% - 32px, 860px); min-height: 0; margin: 0 auto; overflow-y: auto; padding: 20px 0; overscroll-behavior: contain; }
 .pedir-ai-message { max-width: 88%; padding: 11px 14px; border-radius: 17px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .pedir-ai-message.assistant { align-self: flex-start; border-bottom-left-radius: 5px; }
 .pedir-ai-message.user { align-self: flex-end; border-bottom-right-radius: 5px; }
 .pedir-ai-loading { display: flex; align-items: center; gap: 9px; }
 .pedir-ai-dots { width: 7px; height: 7px; border-radius: 50%; background: #14b8a6; box-shadow: 11px 0 #14b8a699, 22px 0 #14b8a64d; margin-right: 19px; animation: pedir-ai-pulse 1s infinite ease-in-out; }
-.pedir-ai-suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 12px; }
+.pedir-ai-suggestions { display: flex; flex-wrap: wrap; gap: 8px; width: min(100% - 32px, 860px); margin: 0 auto; padding: 0 0 12px; }
 .pedir-ai-suggestions button { min-height: 38px !important; padding: 8px 11px; border: 1px solid; border-radius: 999px; cursor: pointer; font: inherit; font-size: 12px; text-align: left; }
-.pedir-ai-actions { display: flex; gap: 8px; padding: 0 16px 12px; }
+.pedir-ai-actions { display: flex; flex-wrap: wrap; gap: 8px; width: min(100% - 32px, 860px); margin: 0 auto; padding: 0 0 12px; }
 .pedir-ai-actions button { display: flex; flex: 1; align-items: center; justify-content: center; gap: 7px; min-height: 42px !important; padding: 8px 10px; border: 0; border-radius: 12px; background: #14b8a6; color: #032329; cursor: pointer; font: inherit; font-size: 12px; font-weight: 750; }
-.pedir-ai-emergency { margin: 0 16px 12px; padding: 12px; border: 1px solid #f87171aa; border-radius: 12px; background: #ef44441a; color: #fecaca; font-size: 13px; line-height: 1.5; }
-.pedir-ai-form { display: flex; align-items: center; gap: 8px; margin: 0 14px; padding: 6px 7px 6px 14px; border: 1px solid; border-radius: 16px; }
+.pedir-ai-emergency { width: min(100% - 32px, 860px); margin: 0 auto 12px; padding: 12px; border: 1px solid #f87171aa; border-radius: 12px; background: #ef44441a; color: #fecaca; font-size: 13px; line-height: 1.5; }
+.pedir-ai-form { display: flex; flex: 0 0 auto; align-items: center; gap: 8px; width: min(100% - 32px, 860px); margin: 0 auto; padding: 6px 7px 6px 14px; border: 1px solid; border-radius: 18px; }
 .pedir-ai-form input { flex: 1; width: 0; min-height: 42px !important; padding: 8px 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; font-size: 16px !important; }
 .pedir-ai-form input::placeholder { color: #82939b; }
 .pedir-ai-form button { display: grid; flex: 0 0 auto; place-items: center; width: 42px; height: 42px; min-height: 42px !important; border: 0; border-radius: 12px; background: #14b8a6; color: #032329; cursor: pointer; }
-.pedir-ai-whatsapp { display: flex; justify-content: center; align-items: center; gap: 7px; min-height: 42px; padding: 8px 12px max(12px, env(safe-area-inset-bottom)); text-decoration: none; font-size: 12px; text-align: center; }
+.pedir-ai-whatsapp { display: flex; justify-content: center; align-items: center; gap: 7px; flex: 0 0 auto; min-height: 42px; padding: 8px 12px max(12px, env(safe-area-inset-bottom)); text-decoration: none; font-size: 12px; text-align: center; }
 .pedir-ai-spin { animation: pedir-ai-spin .8s linear infinite; }
 @keyframes pedir-ai-spin { to { transform: rotate(360deg); } }
 @keyframes pedir-ai-pulse { 50% { opacity: .45; } }
 @media(max-width: 640px) {
   .pedir-ai-launcher { width: 100%; max-width: none; min-height: 70px; }
-  .pedir-ai-overlay { align-items: end; padding: 0; }
-  .pedir-ai-dialog { width: 100%; max-height: min(88dvh, 780px); border-radius: 24px 24px 0 0; padding-bottom: env(safe-area-inset-bottom); }
-  .pedir-ai-messages { min-height: 120px; max-height: 34dvh; }
-  .pedir-ai-actions { flex-direction: column; }
-  .pedir-ai-actions button { min-height: 46px !important; }
-  .pedir-ai-whatsapp { padding-bottom: 12px; }
+  .pedir-ai-header { gap: 9px; padding-right: 14px; padding-left: max(12px, env(safe-area-inset-left)); }
+  .pedir-ai-notice { margin: 10px 12px 0; }
+  .pedir-ai-messages, .pedir-ai-suggestions, .pedir-ai-actions, .pedir-ai-emergency, .pedir-ai-form { width: calc(100% - 24px); }
+  .pedir-ai-messages { padding: 14px 0; }
+  .pedir-ai-actions button { min-width: 0; min-height: 44px !important; }
+  .pedir-ai-whatsapp { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
 }
 @media(prefers-reduced-motion: reduce) { .pedir-ai-launcher, .pedir-ai-spin, .pedir-ai-dots { animation: none; transition: none; } }

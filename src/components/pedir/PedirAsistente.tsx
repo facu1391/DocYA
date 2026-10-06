@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { Bot, X, Send, Sparkles, LoaderCircle, MessageCircle, Video, Stethoscope } from "lucide-react";
+import Image from "next/image";
+import { ArrowLeft, Bot, Send, Sparkles, LoaderCircle, MessageCircle, Video, Stethoscope } from "lucide-react";
 
 type Role = "user" | "assistant";
 type Message = { role: Role; content: string };
@@ -133,17 +134,17 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
       </button>
 
       {open && (
-        <div className="pedir-ai-overlay" onMouseDown={event => { if (event.target === event.currentTarget) setOpen(false); }}>
+        <div className="pedir-ai-overlay">
           <section className="pedir-ai-dialog" role="dialog" aria-modal="true" aria-labelledby="pedir-ai-title" style={{ color: text, background: panel, borderColor: border }}>
             <header className="pedir-ai-header" style={{ borderColor: border }}>
-              <div className="pedir-ai-mark"><Sparkles size={22} /></div>
+              <button type="button" className="pedir-ai-back" onClick={() => setOpen(false)} aria-label={isEnglish ? "Back to request" : "Volver a pedir atención"}>
+                <ArrowLeft size={22} />
+              </button>
+              <Image className="pedir-ai-mark" src="/docya-ai-icon.png" alt="DocYa IA" width={48} height={48} priority />
               <div className="pedir-ai-heading">
                 <h2 id="pedir-ai-title">DocYa IA</h2>
-                <p style={{ color: muted }}>{isEnglish ? "Help and guidance for patients" : "Ayuda y orientación para pacientes"}</p>
+                <p style={{ color: muted }}>{isEnglish ? "Online · Here to help" : "En línea · Estoy para ayudarte"}</p>
               </div>
-              <button type="button" className="pedir-ai-close" onClick={() => setOpen(false)} aria-label={isEnglish ? "Close chat" : "Cerrar chat"}>
-                <X size={20} />
-              </button>
             </header>
 
             <div className="pedir-ai-notice" style={{ color: muted, background: surface }}>
