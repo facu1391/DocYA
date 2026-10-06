@@ -18,6 +18,7 @@ import { useI18n } from "@/lib/i18n/context";
 import { leerPagoPendienteLocal, recuperarConsultaPendienteGlobal } from "@/lib/pedir/pendingPayment";
 import { getPatientReferrals, type PatientReferralSummary } from "@/lib/pedir/patientReferrals";
 import ReferralProgressCard from "./ReferralProgressCard";
+import PedirAsistente from "./PedirAsistente";
 import { PATIENT_REFERRALS_ENABLED } from "@/lib/pedir/referralFeature";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
@@ -381,21 +382,21 @@ export default function PedirHome() {
                   <p style={{ fontSize: 18, fontWeight: 700, color: "#00b3a6", marginBottom: 8 }}>{t.pedir.queNecesitas}</p>
                   <p style={{ color: muted, fontSize: 15 }}>{t.pedir.conectamos}</p>
                 </div>
-                <a
-                  href="https://wa.me/5491168700607"
-                  target="_blank" rel="noreferrer"
-                  className="wa-card"
-                  style={{ display: "flex", alignItems: "center", gap: 16, background: "rgba(37,211,102,0.12)", border: "1px solid rgba(37,211,102,0.25)", borderRadius: 20, padding: "16px 20px", textDecoration: "none", color: text, transition: "all 0.15s" }}
-                >
-                  <div style={{ width: 44, height: 44, borderRadius: 999, background: "rgba(37,211,102,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <MessageCircle size={22} color="#25d366" />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>{t.pedir.ayuda}</p>
-                    <p style={{ fontSize: 13, color: muted, margin: 0 }}>{t.pedir.ayudaWa}</p>
-                  </div>
-                  <ChevronRight size={18} color={muted} />
-                </a>
+                <PedirAsistente
+                  apiUrl={API}
+                  locale={locale}
+                  dark={dark}
+                  muted={muted}
+                  text={text}
+                  border={border}
+                  onRequest={(service) => {
+                    if (service === "teleconsulta") {
+                      startTeleconsulta();
+                    } else {
+                      router.push(`/pedir/filtro?tipo=medico${forOther ? "&recipient=other" : ""}`);
+                    }
+                  }}
+                />
               </div>
 
               {PATIENT_REFERRALS_ENABLED && referralSummary && (
