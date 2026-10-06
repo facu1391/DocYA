@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Video, PhoneOff,
+  Video, PhoneOff, UserPlus,
   Maximize2, Minimize2, Shield, Clock, User, FileText,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
@@ -34,6 +34,8 @@ export default function VideoLlamadaScreen() {
   const lastMediaPingRef = useRef(0);
   const [recovering, setRecovering] = useState(false);
   const [recoveryError, setRecoveryError] = useState("");
+  const [sharingCompanion, setSharingCompanion] = useState(false);
+  const [companionMessage, setCompanionMessage] = useState("");
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollRef  = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollInFlightRef = useRef(false);
@@ -97,6 +99,48 @@ export default function VideoLlamadaScreen() {
     } catch (error) {
       setRecoveryError(error instanceof Error ? error.message : "No se pudo recuperar la sala");
     } finally { setRecovering(false); }
+  }
+
+  async function inviteCompanion() {
+    if (!user?.access_token || !consultaId || sharingCompanion) return;
+    setSharingCompanion(true);
+    setCompanionMessage("");
+    try {
+      const res = await fetch(`${API}/teleconsultas/${consultaId}/shared-access`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.access_token}`,
+        },
+        body: JSON.stringify({ role: "acompanante" }),
+      });
+      const access = await res.json();
+      if (!res.ok) throw new Error(access.detail || "No pudimos generar la invitación");
+      if (typeof access.url !== "string" || !access.url) {
+        throw new Error("No recibimos el enlace de invitación");
+      }
+
+      const message = `DocYa: te invito a acompañarme en mi teleconsulta con ${access.doctor_name || medico || "mi médico"}. Este acceso es temporal: ${access.url}`;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: "Invitación a teleconsulta DocYa", text: message, url: access.url });
+          setCompanionMessage("Invitación lista para compartir.");
+        } catch (error) {
+          if (error instanceof Error && error.name === "AbortError") return;
+          throw error;
+        }
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(message);
+        setCompanionMessage("Invitación copiada. Ya podés enviarla por WhatsApp.");
+      } else {
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+        setCompanionMessage("Abrimos WhatsApp para compartir la invitación.");
+      }
+    } catch (error) {
+      setCompanionMessage(error instanceof Error ? error.message : "No pudimos generar la invitación");
+    } finally {
+      setSharingCompanion(false);
+    }
   }
 
   // Polling para detectar fin de la consulta
@@ -267,7 +311,8 @@ export default function VideoLlamadaScreen() {
       {/* BARRA INFERIOR */}
       {!fullscreen && (
         <div style={{ background: videoBarBg, backdropFilter: "blur(12px)", borderTop: `1px solid ${border}`, padding: "0 20px", flexShrink: 0 }}>
-          <div style={{ maxWidth: 900, margin: "0 auto", height: 80, display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
+          {companionMessage && <p role="status" aria-live="polite" style={{ maxWidth: 900, margin: "8px auto 0", color: muted, textAlign: "center", fontSize: 12 }}>{companionMessage}</p>}
+          <div style={{ maxWidth: 900, margin: "0 auto", minHeight: 80, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "10px 0" }}>
 
             {/* Nota: los controles de mic/cam/video los maneja el propio SDK de Daily.co dentro del iframe */}
             {/* Solo mostramos fullscreen y salir */}
@@ -281,6 +326,15 @@ export default function VideoLlamadaScreen() {
             </button>
 
             <button
+              onClick={inviteCompanion}
+              disabled={sharingCompanion || !user?.access_token || finalizado}
+              style={{ minHeight: 50, borderRadius: 999, border: `1px solid ${border}`, background: softPanel, color: text, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "0 14px", cursor: sharingCompanion ? "wait" : "pointer", fontSize: 13, fontWeight: 700, fontFamily: "inherit", opacity: sharingCompanion || !user?.access_token ? 0.6 : 1, whiteSpace: "nowrap" }}
+              title="Invitar a un acompañante"
+            >
+              <UserPlus size={18} /> {sharingCompanion ? "Generando…" : "Acompañante"}
+            </button>
+
+            <button
               onClick={salir}
               style={{ width: 64, height: 64, borderRadius: 999, background: "#ef4444", color: "#fff", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 20px rgba(239,68,68,0.45)" }}
               title={t.videoLlamada.salirLlamada}
@@ -288,7 +342,6 @@ export default function VideoLlamadaScreen() {
               <PhoneOff size={26} />
             </button>
 
-            <div style={{ width: 52 }} /> {/* Espaciado simétrico */}
           </div>
         </div>
       )}
