@@ -11,6 +11,7 @@ import {
   AlertCircle, Activity, MessageCircle, Smartphone,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
+import GoogleReviewModal, { useGoogleReviewPrompt } from "./GoogleReviewModal";
 import PacienteChat from "./PacienteChat";
 import { useI18n } from "@/lib/i18n/context";
 import styles from "./BuscandoScreen.module.css";
@@ -293,6 +294,10 @@ export default function BuscandoScreen() {
   const estado    = data?.estado ?? "pendiente";
   const stepIdx   = pasoIndex(estado, esTeleconsulta);
   const esFin     = estado === "finalizada";
+  const googleReview = useGoogleReviewPrompt(
+    consultaId,
+    esFin && (esTeleconsulta || tipo === "medico"),
+  );
   const esCancelado = ["cancelada", "cancelada_paciente", "cancelada_sin_medico", "pago_no_autorizado"].includes(estado);
   const tieneCreditoTransferencia = data?.mp_status === "transfer_credit_available";
   const esPendiente = estado === "pendiente" || estado === "buscando_medico";
@@ -787,6 +792,7 @@ export default function BuscandoScreen() {
 
         </section>
       </main>
+      <GoogleReviewModal open={googleReview.open} onClose={googleReview.close} />
     </div>
   );
 }

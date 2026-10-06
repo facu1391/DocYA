@@ -8,6 +8,7 @@ import {
   Maximize2, Minimize2, Shield, Clock, User, FileText,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
+import GoogleReviewModal, { useGoogleReviewPrompt } from "./GoogleReviewModal";
 import { useI18n } from "@/lib/i18n/context";
 import DeviceCheck from "./DeviceCheck";
 
@@ -28,6 +29,7 @@ export default function VideoLlamadaScreen() {
   const [fullscreen,  setFullscreen]  = useState(false);
   const [elapsed,     setElapsed]     = useState(0);
   const [finalizado,  setFinalizado]  = useState(false);
+  const [finalizadaCorrectamente, setFinalizadaCorrectamente] = useState(false);
   const [user,        setUser]        = useState<PedirUser | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const mediaRef = useRef<Record<string, unknown> | null>(null);
@@ -42,6 +44,7 @@ export default function VideoLlamadaScreen() {
   const pollBackoffUntilRef = useRef(0);
 
   const { bg, border, text, muted, logo, videoChromeBg, videoBarBg, softPanel } = usePedirTheme();
+  const googleReview = useGoogleReviewPrompt(consultaId, finalizadaCorrectamente);
 
   // Timer de duración
   useEffect(() => {
@@ -179,6 +182,7 @@ export default function VideoLlamadaScreen() {
       if (d.estado === "finalizada" || d.estado === "cancelada") {
         if (pollRef.current) clearInterval(pollRef.current);
         if (timerRef.current) clearInterval(timerRef.current);
+        setFinalizadaCorrectamente(d.estado === "finalizada");
         setFinalizado(true);
       }
     } catch {}
@@ -214,6 +218,7 @@ export default function VideoLlamadaScreen() {
             {t.videoLlamada.volverInicio}
           </button>
         </div>
+        <GoogleReviewModal open={googleReview.open} onClose={googleReview.close} />
       </div>
     );
   }
