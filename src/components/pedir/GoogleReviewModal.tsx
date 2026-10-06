@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Star } from "lucide-react";
 import { usePedirTheme } from "./theme";
 
@@ -25,7 +26,7 @@ export function useGoogleReviewPrompt(consultaId: string, finalizada: boolean) {
 }
 
 export default function GoogleReviewModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { bg, text, muted, border, dark } = usePedirTheme();
+  const { bg, text, muted, border, dark, logo } = usePedirTheme();
   if (!open) return null;
 
   return (
@@ -41,12 +42,15 @@ export default function GoogleReviewModal({ open, onClose }: { open: boolean; on
         className="w-full max-w-md rounded-[28px] p-6 shadow-2xl sm:p-8"
         style={{ background: bg, color: text, border: `1px solid ${border}` }}
       >
-        <div
-          aria-hidden="true"
-          className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl"
-          style={{ background: "rgba(0,179,166,.14)", color: "#00b3a6" }}
-        >
-          <Star size={27} fill="currentColor" />
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <Image src={logo} alt="DocYa" width={156} height={50} className="h-10 w-auto max-w-[170px] object-contain object-left" />
+          <div
+            aria-hidden="true"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
+            style={{ background: "rgba(0,179,166,.14)", color: "#00b3a6" }}
+          >
+            <Star size={24} fill="currentColor" />
+          </div>
         </div>
         <h2 id="google-review-title" className="text-xl font-extrabold leading-tight sm:text-2xl">
           ¡Gracias por confiar en DocYa! 💙
