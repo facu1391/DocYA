@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import Image from "next/image";
-import { ArrowLeft, Bot, Send, Sparkles, LoaderCircle, MessageCircle, Video, Stethoscope } from "lucide-react";
+import { ArrowLeft, Bot, Send, LoaderCircle, MessageCircle, Video, Stethoscope } from "lucide-react";
 
 type Role = "user" | "assistant";
 type Message = { role: Role; content: string };
@@ -125,10 +125,10 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
         aria-expanded={open}
         style={{ color: text, borderColor: "rgba(20,184,166,.3)", background: dark ? "rgba(20,184,166,.10)" : "rgba(20,184,166,.08)" }}
       >
-        <span className="pedir-ai-launcher-icon"><Sparkles size={22} /></span>
+        <span className="pedir-ai-launcher-icon"><Image src="/docya-ai-icon.png" alt="" width={46} height={46} /></span>
         <span className="pedir-ai-launcher-copy">
-          <strong>{isEnglish ? "Need help? Ask DocYa AI" : "¿Necesitás ayuda? Preguntale a DocYa IA"}</strong>
-          <small style={{ color: muted }}>{isEnglish ? "Answers about care, prices and documents" : "Respuestas sobre atención, precios y documentos"}</small>
+          <strong>{isEnglish ? "Chat with DocYa AI" : "Chateá con DocYa IA"}</strong>
+          <small style={{ color: muted }}>{isEnglish ? "Ask a question or get help requesting care" : "Resolvé dudas o recibí ayuda para pedir atención"}</small>
         </span>
         <span className="pedir-ai-launcher-arrow" aria-hidden="true">›</span>
       </button>
@@ -195,7 +195,7 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
             </form>
 
             <a className="pedir-ai-whatsapp" href="https://wa.me/5491168700607" target="_blank" rel="noreferrer" style={{ color: muted }}>
-              <MessageCircle size={15} color="#25d366" />{isEnglish ? "Need a person? Contact us on WhatsApp" : "¿Necesitás hablar con alguien? Escribinos por WhatsApp"}
+              <MessageCircle size={15} color="#25d366" />{isEnglish ? "Prefer to talk to a person? Contact us on WhatsApp" : "¿Preferís hablar con una persona? Contactanos por WhatsApp"}
             </a>
           </section>
         </div>
