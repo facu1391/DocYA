@@ -86,24 +86,6 @@ export default function VideoLlamadaScreen() {
     return () => window.removeEventListener("message", onMessage);
   }, [videoUrl, consultaId]);
 
-  async function recoverVideo() {
-    if (!user?.access_token || recovering) return;
-    setRecovering(true);
-    setRecoveryError("");
-    try {
-      const res = await fetch(`${API}/teleconsultas/${consultaId}/video/recover`, {
-        method: "POST", signal: AbortSignal.timeout(25000),
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
-        body: JSON.stringify({ rol: "paciente", paciente_uuid: user.id }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "No se pudo recuperar la sala");
-      if (typeof data.video_url === "string" && data.video_url.startsWith("https://")) setVideoUrl(data.video_url);
-    } catch (error) {
-      setRecoveryError(error instanceof Error ? error.message : "No se pudo recuperar la sala");
-    } finally { setRecovering(false); }
-  }
-
   async function inviteCompanion() {
     if (!user?.access_token || !consultaId || sharingCompanion) return;
     setSharingCompanion(true);
@@ -304,11 +286,6 @@ export default function VideoLlamadaScreen() {
         />
       </div>}
       {devicesChecked && /^https:\/\//i.test(videoUrl) && <div style={{ padding: 14, textAlign: "center", background: videoBarBg }}>
-        {videoUrl.includes("/livekit-demo/room/") && <button onClick={recoverVideo} disabled={recovering}
-          style={{ display: "block", margin: "0 auto 12px", padding: "10px 18px", borderRadius: 12, cursor: "pointer" }}>
-          {recovering ? "Recuperando…" : "Recuperar llamada"}
-        </button>}
-        {recoveryError && <p role="alert" style={{ color: "#f87171" }}>{recoveryError}</p>}
         <a href={videoUrl} style={{ color: text, textDecoration: "underline" }}>¿Problemas con audio o cámara? Abrir la sala directamente</a>
         <p style={{ color: muted, fontSize: 12 }}>La sala puede volver a pedirte permisos. Permití cámara y micrófono también allí.</p>
       </div>}
