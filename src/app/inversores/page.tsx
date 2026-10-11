@@ -26,6 +26,8 @@ import ScrollReveal from "@/components/clinic-landing/shared/ScrollReveal";
 import InvestorAnalyticsLoader from "./investor-analytics-loader";
 import { MarketplaceModel, RegionalThesis, YCombinatorCase } from "./investor-thesis";
 
+const DOCYA_LOGO_URL = "https://res.cloudinary.com/dqsacd9ez/image/upload/v1788908618/docyanuevo_f1ukcy.png";
+
 export const metadata: Metadata = {
   title: "DocYa para inversores | Atención médica bajo demanda",
   description:
@@ -84,7 +86,7 @@ export default function InvestorsPage() {
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#0a272c]/85 backdrop-blur-xl">
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-6">
           <Link href="/" aria-label="DocYa, inicio" className="flex items-center gap-2 text-white">
-            <Image src="/logo_puclic-light.png" alt="DocYa" width={128} height={38} priority className="h-8 w-auto" />
+            <Image src={DOCYA_LOGO_URL} alt="DocYa" width={128} height={38} priority className="h-8 w-auto" />
             <span className="hidden rounded-full border border-white/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/55 sm:inline">Inversores</span>
           </Link>
           <div className="hidden items-center gap-6 lg:flex">
@@ -202,7 +204,7 @@ export default function InvestorsPage() {
       </section>
 
       <YCombinatorCase />
-      <footer className="footer-surface"><div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8 text-sm text-white/55 sm:flex-row sm:items-center sm:justify-between"><Link href="/" className="font-bold text-white">DocYa</Link><p>Atención médica bajo demanda, conectada de principio a fin.</p><div className="flex gap-5"><Link href="/clinic" className="hover:text-white">DocYa Clinic</Link><Link href="/profesionales" className="hover:text-white">Profesionales</Link><Link href="/contacto" className="hover:text-white">Contacto</Link></div></div></footer>
+      <footer className="footer-surface"><div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8 text-sm text-white/55 sm:flex-row sm:items-center sm:justify-between"><Link href="/" aria-label="DocYa, inicio"><Image src={DOCYA_LOGO_URL} alt="DocYa" width={128} height={38} className="h-8 w-auto" /></Link><p>Atención médica bajo demanda, conectada de principio a fin.</p><div className="flex gap-5"><Link href="/clinic" className="hover:text-white">DocYa Clinic</Link><Link href="/profesionales" className="hover:text-white">Profesionales</Link><Link href="/contacto" className="hover:text-white">Contacto</Link></div></div></footer>
     </main>
   );
 }
