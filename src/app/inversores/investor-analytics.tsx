@@ -1,130 +1,112 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { CheckCircle2, MapPin, UsersRound, Video } from "lucide-react";
-import ScrollReveal from "@/components/clinic-landing/shared/ScrollReveal";
-import SectionHeading from "@/components/clinic-landing/shared/SectionHeading";
+
+import { useEffect, useState } from "react";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { ArrowUpRight, CheckCircle2, MapPin, Repeat2, Stethoscope, UsersRound, Video } from "lucide-react";
+import styles from "./analytics.module.css";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || "https://docya-railway-production.up.railway.app").replace(/\/$/, "");
 const REFRESH_MS = 60_000;
-const CHART_COLORS = ["#00b3a6", "#39b9e6", "#8b7cf6", "#f5a64a", "#ee7183", "#5eaf78"];
-
-type InvestorMetrics = {
+// Historical reference supplied by DocYa for this landing. Never label these as
+// live, completed consultations, or active doctors.
+const REFERENCE_DATE = "8 de octubre de 2026";
+const HISTORICAL = {
+  patients: 1200, consultations: 450, doctors: 161, recurringPatients: 58,
+  monthly: [
+    { mes: "2026-06", total: 17 },
+    { mes: "2026-07", total: 36 },
+    { mes: "2026-08", total: 109 },
+    { mes: "2026-09", total: 196 },
+  ],
+};
+type Metrics = {
   pacientes: number;
   consultas_finalizadas: number;
   domicilio: number;
   teleconsulta: number;
   mensual: Array<{ mes: string; total: number; domicilio: number; teleconsulta: number }>;
-  provincias: Array<{ provincia: string; total: number; domicilio: number; teleconsulta: number }>;
-  provincias_mensual: Array<{ mes: string; provincia: string; total: number }>;
-  actualizado_en: string;
+  actualizado_en?: string;
 };
 
-function formatCompact(value: number) {
-  return new Intl.NumberFormat("es-AR", { notation: value >= 10_000 ? "compact" : "standard", maximumFractionDigits: 1 }).format(value);
+function isMetrics(value: unknown): value is Metrics {
+  if (!value || typeof value !== "object") return false;
+  const data = value as Record<string, unknown>;
+  const count = (n: unknown) => typeof n === "number" && Number.isFinite(n) && n >= 0 && Number.isInteger(n);
+  return ["pacientes", "consultas_finalizadas", "domicilio", "teleconsulta"].every((key) => count(data[key])) &&
+    Array.isArray(data.mensual) && data.mensual.every((month: unknown) => {
+      if (!month || typeof month !== "object") return false;
+      const row = month as Record<string, unknown>;
+      return typeof row.mes === "string" && /^\d{4}-(0[1-9]|1[0-2])$/.test(row.mes) && count(row.total) && count(row.domicilio) && count(row.teleconsulta);
+    });
 }
 
-function formatMonth(value: string) {
-  const date = new Date(`${value}-01T12:00:00`);
-  return date.toLocaleDateString("es-AR", { month: "short", year: "2-digit" });
+function formatMonth(month: string) {
+  return new Date(month + "-01T12:00:00").toLocaleDateString("es-AR", { month: "short" });
 }
 
 export default function InvestorAnalytics() {
-  const [metrics, setMetrics] = useState<InvestorMetrics | null>(null);
+  const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [error, setError] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     let active = true;
+    let controller: AbortController | null = null;
     const load = async () => {
+      controller = new AbortController();
+      const timeout = window.setTimeout(() => controller?.abort(), 8_000);
       try {
-        const response = await fetch(`${API_BASE}/monitoreo/inversores/resumen`, { cache: "no-store" });
-        if (!response.ok) throw new Error(`metrics:${response.status}`);
-        const data = await response.json() as InvestorMetrics;
+        const response = await fetch(API_BASE + "/monitoreo/inversores/resumen", { cache: "no-store", signal: controller.signal });
+        if (!response.ok) throw new Error("Metrics unavailable");
+        const data: unknown = await response.json();
+        if (!isMetrics(data)) throw new Error("Invalid metrics");
         if (!active) return;
+        const date = data.actualizado_en ? new Date(data.actualizado_en) : new Date();
         setMetrics(data);
-        setUpdatedAt(data.actualizado_en ? new Date(data.actualizado_en) : new Date());
+        setUpdatedAt(Number.isNaN(date.getTime()) ? new Date() : date);
         setError(false);
       } catch {
         if (active) setError(true);
+      } finally {
+        window.clearTimeout(timeout);
       }
     };
     void load();
     const timer = window.setInterval(() => void load(), REFRESH_MS);
-    return () => {
-      active = false;
-      window.clearInterval(timer);
-    };
+    return () => { active = false; controller?.abort(); window.clearInterval(timer); };
   }, []);
 
-  const monthly = metrics?.mensual ?? [];
-  const provinces = metrics?.provincias ?? [];
-  const provinceNames = useMemo(() => {
-    const selected = provinces.filter((item) => item.provincia !== "Sin provincia informada").slice(0, 5);
-    return selected.map((item) => item.provincia);
-  }, [provinces]);
-  const provinceTrend = useMemo(() => {
-    const byMonth = new Map<string, Record<string, number | string>>();
-    for (const item of metrics?.provincias_mensual ?? []) {
-      const current = byMonth.get(item.mes) ?? { mes: item.mes };
-      current[item.provincia] = Number(item.total || 0);
-      byMonth.set(item.mes, current);
-    }
-    return Array.from(byMonth.values()).sort((a, b) => String(a.mes).localeCompare(String(b.mes)));
-  }, [metrics]);
-  const modality = metrics ? [
-    { name: "A domicilio", value: Number(metrics.domicilio || 0) },
-    { name: "Teleconsulta", value: Number(metrics.teleconsulta || 0) },
-  ] : [];
-
-  const cards = [
-    { label: "Pacientes registrados", value: metrics?.pacientes, icon: UsersRound, note: "Cuentas de pacientes" },
-    { label: "Consultas finalizadas", value: metrics?.consultas_finalizadas, icon: CheckCircle2, note: "Atenciones completadas" },
-    { label: "A domicilio", value: metrics?.domicilio, icon: MapPin, note: "Consultas finalizadas" },
-    { label: "Por teleconsulta", value: metrics?.teleconsulta, icon: Video, note: "Consultas finalizadas" },
+  const cards = metrics ? [
+    { value: metrics.pacientes, label: "Pacientes registrados", note: "Cuentas de pacientes", icon: UsersRound },
+    { value: metrics.consultas_finalizadas, label: "Consultas finalizadas", note: "Atenciones completadas", icon: CheckCircle2 },
+    { value: metrics.domicilio, label: "A domicilio", note: "Consultas finalizadas", icon: MapPin },
+    { value: metrics.teleconsulta, label: "Teleconsultas", note: "Consultas finalizadas", icon: Video },
+  ] : [
+    { value: HISTORICAL.patients, label: "Pacientes registrados", note: "Referencia histórica", icon: UsersRound },
+    { value: HISTORICAL.consultations, label: "Consultas reportadas", note: "Referencia histórica", icon: CheckCircle2 },
+    { value: HISTORICAL.doctors, label: "Médicos registrados", note: "No equivale a médicos activos", icon: Stethoscope },
+    { value: HISTORICAL.recurringPatients, label: "Pacientes recurrentes", note: "Referencia histórica", icon: Repeat2 },
   ];
-
-  if (error && !metrics) {
-    return (
-      <section id="metricas" className="bg-[var(--background)] px-6 py-12">
-        <div className="mx-auto max-w-6xl rounded-3xl border border-[var(--border)] bg-[var(--card)] p-6 md:p-8">
-          <p className="text-xs font-bold uppercase tracking-wider text-[var(--brand)]">Actividad de la red</p>
-          <h2 className="mt-2 text-2xl font-semibold text-foreground">La tracción se mide en pacientes y atenciones completadas.</h2>
-          <p className="mt-3 text-sm leading-relaxed text-text-muted">Seguimos la cantidad de pacientes registrados, las consultas a domicilio y por teleconsulta, y el crecimiento por provincia. Los indicadores no están disponibles en este momento. La actualización se reintentará automáticamente.</p>
-        </div>
-      </section>
-    );
-  }
+  const monthly = metrics ? metrics.mensual : HISTORICAL.monthly;
+  const source = metrics
+    ? (error ? "Últimos datos recibidos · actualización pendiente" : "Estadísticas actualizadas automáticamente")
+    : "Referencia histórica · " + REFERENCE_DATE;
 
   return (
-    <section id="metricas" className="bg-[var(--background)] px-6 py-24 md:py-28">
-      <SectionHeading eyebrow="Actividad de la red" title="La evolución de DocYa, en cifras." subtitle="Pacientes registrados, atenciones completadas y crecimiento por provincia. Indicadores actualizados automáticamente cada minuto." />
-      <div className="mx-auto mt-12 max-w-7xl">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 text-xs text-text-muted">
-          <span className="inline-flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${error ? "bg-amber-500" : metrics ? "animate-pulse bg-emerald-500" : "bg-slate-400"}`} />{error ? "No se pudo actualizar. Se muestran los últimos datos recibidos." : metrics ? "Conectado al backend DocYa" : "Cargando métricas…"}</span>
-          {updatedAt && <span>Última actualización: {updatedAt.toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}</span>}
+    <section id="metricas" className={styles.section} aria-label="Tracción y estadísticas de DocYa">
+      <div className={styles.container}>
+        <div className={styles.heading}><div><p>TRACCIÓN REAL</p><h2>Una plataforma que <span>ya atiende.</span></h2></div><span className={styles.source}><i className={metrics && !error ? styles.liveDot : styles.referenceDot} aria-hidden="true" />{source}</span></div>
+        <div className={styles.metrics}>
+          {cards.map(({ value, label, note, icon: Icon }) => <article key={label}><div className={styles.metricTop}><Icon size={19} aria-hidden="true" /><span>{metrics ? "REGISTRO ACTUAL" : "8 OCT 2026"}</span></div><strong>{value.toLocaleString("es-AR")}</strong><h3>{label}</h3><p>{note}</p></article>)}
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {cards.map(({ label, value, icon: Icon, note }, index) => <ScrollReveal key={label} delay={index * .04}><article className="glass-card rounded-3xl p-5"><div className="flex items-start justify-between"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-[color-mix(in_srgb,var(--brand)_12%,transparent)] text-[var(--brand)]"><Icon className="h-5 w-5" /></span><span className="rounded-full bg-[color-mix(in_srgb,var(--brand)_10%,transparent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--brand)]">En vivo</span></div><p className="mt-5 text-xs font-semibold uppercase tracking-wider text-text-muted">{label}</p><p className="mt-1 text-3xl font-bold tabular-nums text-foreground">{value == null ? <span className="inline-block h-8 w-20 animate-pulse rounded bg-slate-200 dark:bg-white/10" /> : formatCompact(value)}</p><p className="mt-1 text-xs text-text-muted">{note}</p></article></ScrollReveal>)}
+        <div className={styles.chartRow}>
+          <div className={styles.chartCopy}><span className={styles.chartIcon}><ArrowUpRight size={23} aria-hidden="true" /></span><h3>{metrics ? "Actividad mensual" : "Un producto en crecimiento."}</h3><p>{metrics ? "Consultas finalizadas por mes. Actividad registrada, sin proyecciones." : "17 consultas en junio. 196 en septiembre. Evolución histórica reportada por DocYa."}</p><span className={styles.chartPeriod}>{metrics ? "Serie mensual del registro de DocYa" : "Junio — septiembre 2026"}</span></div>
+          <div className={styles.chart} role="img" aria-label={monthly.length ? monthly.map((month) => formatMonth(month.mes) + ": " + month.total + " consultas").join("; ") : "Sin consultas finalizadas con fecha en la serie mensual"}>
+            {monthly.length ? <ResponsiveContainer width="100%" height="100%"><AreaChart data={monthly} margin={{ top: 15, right: 12, left: -15, bottom: 0 }}><defs><linearGradient id="investorGrowthFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#36d6c2" stopOpacity={.25} /><stop offset="100%" stopColor="#36d6c2" stopOpacity={0} /></linearGradient></defs><CartesianGrid vertical={false} stroke="#ffffff0c" /><XAxis dataKey="mes" tickFormatter={formatMonth} axisLine={false} tickLine={false} tick={{ fill: "#98b0bc", fontSize: 11 }} /><YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: "#98b0bc", fontSize: 10 }} width={40} /><Tooltip labelFormatter={(value) => formatMonth(String(value))} formatter={(value) => [value, "Consultas"]} contentStyle={{ background: "#0d2835", border: "1px solid #234856", borderRadius: 10, color: "#f2f8fa", fontSize: 12 }} /><Area dataKey="total" name="Consultas" type="linear" stroke="#36d6c2" strokeWidth={3} fill="url(#investorGrowthFill)" isAnimationActive={false} dot={{ r: 4, fill: "#36d6c2", stroke: "#071b25", strokeWidth: 3 }} /></AreaChart></ResponsiveContainer> : <p className={styles.emptyChart}>No hay actividad mensual fechada para mostrar.</p>}
+          </div>
         </div>
-
-        <div className="mt-5 grid gap-5 xl:grid-cols-[1.25fr_.75fr]">
-          <article className="glass-card min-w-0 rounded-3xl p-5 md:p-7"><div><p className="text-xs font-bold uppercase tracking-[.15em] text-[var(--brand)]">Crecimiento de actividad</p><h3 className="mt-2 text-xl font-semibold text-foreground">Consultas finalizadas por mes</h3><p className="mt-1 text-sm text-text-muted">Últimos 12 meses, separadas por modalidad.</p></div><div className="mt-6 h-[300px] w-full">{monthly.length ? <ResponsiveContainer width="100%" height="100%"><AreaChart data={monthly} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}><defs><linearGradient id="investorHomeFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00b3a6" stopOpacity={.32} /><stop offset="95%" stopColor="#00b3a6" stopOpacity={0} /></linearGradient><linearGradient id="investorVideoFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#39b9e6" stopOpacity={.28} /><stop offset="95%" stopColor="#39b9e6" stopOpacity={0} /></linearGradient></defs><CartesianGrid stroke="currentColor" strokeOpacity={.08} vertical={false} /><XAxis dataKey="mes" tickFormatter={formatMonth} tick={{ fontSize: 11, fill: "#718096" }} axisLine={false} tickLine={false} /><YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#718096" }} axisLine={false} tickLine={false} /><Tooltip labelFormatter={(value) => formatMonth(String(value))} contentStyle={{ borderRadius: 14, border: "1px solid rgba(0,0,0,.08)", background: "var(--card)", color: "var(--foreground)" }} /><Legend /><Area type="monotone" dataKey="domicilio" name="A domicilio" stroke="#00b3a6" strokeWidth={2.5} fill="url(#investorHomeFill)" /><Area type="monotone" dataKey="teleconsulta" name="Teleconsulta" stroke="#39b9e6" strokeWidth={2.5} fill="url(#investorVideoFill)" /></AreaChart></ResponsiveContainer> : <ChartEmpty error={error} />}</div></article>
-          <article className="glass-card min-w-0 rounded-3xl p-5 md:p-7"><div><p className="text-xs font-bold uppercase tracking-[.15em] text-[var(--brand)]">Composición de la red</p><h3 className="mt-2 text-xl font-semibold text-foreground">Modalidad de atención</h3><p className="mt-1 text-sm text-text-muted">Distribución histórica de consultas finalizadas.</p></div><div className="relative mt-4 h-[250px]">{metrics && metrics.consultas_finalizadas > 0 ? <><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={modality} dataKey="value" nameKey="name" innerRadius={68} outerRadius={98} paddingAngle={4} stroke="none">{modality.map((item, index) => <Cell key={item.name} fill={index === 0 ? "#00b3a6" : "#39b9e6"} />)}</Pie><Tooltip contentStyle={{ borderRadius: 14, border: "1px solid rgba(0,0,0,.08)", background: "var(--card)", color: "var(--foreground)" }} /></PieChart></ResponsiveContainer><div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"><span className="text-3xl font-bold tabular-nums text-foreground">{formatCompact(metrics.consultas_finalizadas)}</span><span className="text-xs text-text-muted">finalizadas</span></div></> : <ChartEmpty error={error} />}</div><div className="flex justify-center gap-5 text-sm"><span className="flex items-center gap-2 text-text-muted"><i className="h-2.5 w-2.5 rounded-full bg-[#00b3a6]" />Domicilio</span><span className="flex items-center gap-2 text-text-muted"><i className="h-2.5 w-2.5 rounded-full bg-[#39b9e6]" />Teleconsulta</span></div></article>
-        </div>
-
-        <div className="mt-5 grid gap-5 xl:grid-cols-[.8fr_1.2fr]">
-          <article className="glass-card min-w-0 rounded-3xl p-5 md:p-7"><div><p className="text-xs font-bold uppercase tracking-[.15em] text-[var(--brand)]">Cobertura observada</p><h3 className="mt-2 text-xl font-semibold text-foreground">Consultas finalizadas por provincia</h3><p className="mt-1 text-sm text-text-muted">Distribución acumulada según provincia informada en la solicitud.</p></div><div className="mt-6 h-[330px]">{provinces.length ? <ResponsiveContainer width="100%" height="100%"><BarChart data={provinces.slice(0, 8)} layout="vertical" margin={{ top: 2, right: 12, left: 4, bottom: 2 }}><CartesianGrid stroke="currentColor" strokeOpacity={.08} horizontal={false} /><XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: "#718096" }} axisLine={false} tickLine={false} /><YAxis type="category" dataKey="provincia" width={112} tick={{ fontSize: 11, fill: "#718096" }} axisLine={false} tickLine={false} /><Tooltip contentStyle={{ borderRadius: 14, border: "1px solid rgba(0,0,0,.08)", background: "var(--card)", color: "var(--foreground)" }} /><Bar dataKey="total" name="Finalizadas" radius={[0, 8, 8, 0]}>{provinces.slice(0, 8).map((item, index) => <Cell key={item.provincia} fill={CHART_COLORS[index % CHART_COLORS.length]} />)}</Bar></BarChart></ResponsiveContainer> : <ChartEmpty error={error} />}</div></article>
-          <article className="glass-card min-w-0 rounded-3xl p-5 md:p-7"><div><p className="text-xs font-bold uppercase tracking-[.15em] text-[var(--brand)]">Expansión geográfica</p><h3 className="mt-2 text-xl font-semibold text-foreground">Crecimiento mensual por provincia</h3><p className="mt-1 text-sm text-text-muted">Consultas finalizadas por mes en las cinco provincias con mayor volumen.</p></div><div className="mt-6 h-[330px]">{provinceTrend.length && provinceNames.length ? <ResponsiveContainer width="100%" height="100%"><LineChart data={provinceTrend} margin={{ top: 8, right: 12, left: -18, bottom: 0 }}><CartesianGrid stroke="currentColor" strokeOpacity={.08} vertical={false} /><XAxis dataKey="mes" tickFormatter={formatMonth} tick={{ fontSize: 11, fill: "#718096" }} axisLine={false} tickLine={false} /><YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#718096" }} axisLine={false} tickLine={false} /><Tooltip labelFormatter={(value) => formatMonth(String(value))} contentStyle={{ borderRadius: 14, border: "1px solid rgba(0,0,0,.08)", background: "var(--card)", color: "var(--foreground)" }} /><Legend />{provinceNames.map((name, index) => <Line key={name} type="monotone" dataKey={name} name={name} stroke={CHART_COLORS[index % CHART_COLORS.length]} strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />)}</LineChart></ResponsiveContainer> : <ChartEmpty error={error} />}</div></article>
-        </div>
-        <p className="mx-auto mt-5 max-w-5xl text-center text-xs leading-relaxed text-text-muted">Datos agregados del backend DocYa. “Pacientes” cuenta usuarios con rol paciente; las atenciones se cuentan cuando su estado es finalizado. La cobertura provincial refleja únicamente consultas con provincia informada. Actualización periódica; las métricas no representan una certificación independiente.</p>
+        <p className={styles.footnote}>{metrics ? "Pacientes registrados: cuentas con rol paciente. Consultas: estado finalizada. " : "Cifras históricas de referencia facilitadas por DocYa al " + REFERENCE_DATE + ". Las consultas reportadas no se desglosan aquí por estado. "}{updatedAt && "Actualizado: " + updatedAt.toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" }) + ". "}{!metrics && error && "La actualización automática no está disponible en este momento."}</p>
       </div>
     </section>
   );
 }
-
-function ChartEmpty({ error }: { error: boolean }) {
-  return <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-[var(--border)] px-6 text-center text-sm text-text-muted">{error ? "No se pudieron cargar los datos. Se reintentará automáticamente." : "Esperando datos del backend…"}</div>;
-}
-
-

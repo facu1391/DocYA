@@ -11,8 +11,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isLiveKitRoom = pathname?.startsWith("/livekit-demo/room/");
   const isClinic    = pathname?.startsWith("/clinic");
   const isSoftware  = pathname?.startsWith("/software");
+  const isInvestors = pathname === "/inversores";
 
-  if (isRecetario || isPedir || isClinic || isSoftware || isLiveKitRoom) {
+  if (isRecetario || isPedir || isClinic || isSoftware || isLiveKitRoom || isInvestors) {
     return <>{children}</>;
   }
 

@@ -1,0 +1,46 @@
+.section { scroll-margin-top: 88px; padding: 46px 0 44px; background: #0a2431; border-top: 1px solid #ffffff10; border-bottom: 1px solid #ffffff10; color: #f2f8fa; }
+.container { width: min(1200px, calc(100% - 48px)); margin-inline: auto; }
+.heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.heading p { font-size: 10px; letter-spacing: .14em; font-weight: 600; color: #36d6c2; margin: 0 0 9px; }
+.heading h2 { margin: 0; font-size: 29px; letter-spacing: -.035em; font-weight: 600; line-height: 1.25; }
+.heading h2 span { color: #36d6c2; }
+.source { font-size: 10px; color: #a2b9c3; display: inline-flex; align-items: center; gap: 8px; line-height: 1.7; max-width: 300px; }
+.source i { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.liveDot { background: #36d6c2; box-shadow: 0 0 12px #36d6c250; }
+.referenceDot { background: #8ca9b7; }
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-top: 28px; }
+.metrics article { padding: 21px 22px; border: 1px solid #ffffff0e; border-radius: 16px; background: #ffffff03; }
+.metricTop { display: flex; justify-content: space-between; align-items: center; color: #62cbbe; }
+.metricTop > span { font-size: 8px; letter-spacing: .08em; color: #829da9; }
+.metrics strong { display: block; font-size: 44px; line-height: 1.15; letter-spacing: -.055em; font-weight: 500; font-variant-numeric: tabular-nums; margin: 18px 0 8px; }
+.metrics h3 { font-size: 12px; font-weight: 500; margin: 0; color: #d3e5eb; }
+.metrics p { font-size: 10px; color: #91a9b4; margin: 6px 0 0; line-height: 1.6; }
+.chartRow { display: grid; grid-template-columns: .8fr 1.5fr; align-items: center; gap: 50px; margin-top: 32px; }
+.chartCopy h3 { font-size: 20px; font-weight: 500; letter-spacing: -.03em; margin: 10px 0; }
+.chartCopy p { font-size: 12px; line-height: 1.8; color: #a2b9c3; margin: 0; max-width: 290px; }
+.chartIcon { color: #36d6c2; }
+.chartPeriod { display: block; font-size: 10px; color: #7f9eac; margin-top: 16px; }
+.chart { width: 100%; min-width: 0; height: 200px; }
+.footnote { margin: 22px 0 0; font-size: 10px; line-height: 1.8; color: #8aabba; }
+.emptyChart { height: 100%; display: grid; place-items: center; font-size: 12px; color: #a2b9c3; border: 1px dashed #ffffff15; border-radius: 14px; }
+@media (max-width: 760px) {
+  .section { padding: 30px 0; }
+  .container { width: calc(100% - 40px); }
+  .heading { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .heading h2 { font-size: 25px; }
+  .source { font-size: 10px; max-width: none; }
+  .metrics { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 9px; margin-top: 22px; }
+  .metrics article { padding: 16px; }
+  .metricTop > span { font-size: 7px; }
+  .metricTop svg { width: 16px; height: 16px; }
+  .metrics strong { font-size: 37px; margin-top: 16px; }
+  .metrics h3 { font-size: 11px; line-height: 1.5; }
+  .metrics p { font-size: 10px; }
+  .chartRow { grid-template-columns: 1fr; gap: 16px; margin-top: 26px; }
+  .chartCopy h3 { font-size: 18px; }
+  .chartCopy p { font-size: 11px; max-width: none; }
+  .chartPeriod { font-size: 9px; margin-top: 9px; }
+  .chartIcon { display: none; }
+  .chart { height: 170px; }
+  .footnote { font-size: 10px; }
+}

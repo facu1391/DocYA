@@ -7,11 +7,11 @@ import { Instagram, Facebook, Linkedin, Mail, MapPin, Phone } from "lucide-react
 
 const DOCYA_LOGO_URL = "https://res.cloudinary.com/dqsacd9ez/image/upload/v1788908618/docyanuevo_f1ukcy.png";
 
-export default function Footer() {
+export default function Footer({ audience }: { audience?: "public" | "pro" } = {}) {
   const year = new Date().getFullYear();
   const pathname = usePathname();
 
-  const isPublicAudience =
+  const isPublicAudience = audience ? audience === "public" :
     pathname === "/" ||
     pathname.startsWith("/legal/pacientes") ||
     pathname.startsWith("/registro/paciente") ||
