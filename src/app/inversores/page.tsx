@@ -36,9 +36,9 @@ export const metadata: Metadata = {
 };
 
 const steps = [
-  { number: "01", title: "Solicitás", copy: "Pedís atención a domicilio o una teleconsulta desde DocYa.", src: assets.app, alt: "DocYa Paciente busca un profesional cerca del domicilio" },
-  { number: "02", title: "DocYa conecta", copy: "Ubicación y disponibilidad conectan la solicitud con el profesional.", src: "/how/experiencia3.png", alt: "Captura de DocYa Pro: solicitud con motivo, ubicación y opción de aceptar" },
-  { number: "03", title: "Recibís atención", copy: "El médico acepta. En domicilio, seguís su llegada en tiempo real.", src: assets.tracking, alt: "Captura de DocYa con seguimiento del médico en camino" },
+  { number: "01", title: "Solicitás", copy: "Pedís atención a domicilio o una teleconsulta desde DocYa.", src: "/inversores/solicitud.png", alt: "DocYa Paciente busca un profesional cerca del domicilio" },
+  { number: "02", title: "DocYa conecta", copy: "Ubicación y disponibilidad conectan la solicitud con el profesional.", src: "/inversores/conexion.png", alt: "Captura de DocYa Pro: solicitud con motivo, ubicación y opción de aceptar" },
+  { number: "03", title: "Recibís atención", copy: "El médico acepta. En domicilio, seguís su llegada en tiempo real.", src: "/inversores/seguimiento.png", alt: "Captura de DocYa con seguimiento del médico en camino" },
 ];
 
 export default function InvestorsPage() {
@@ -93,7 +93,7 @@ export default function InvestorsPage() {
             <div className={styles.technologyGrid}>
               <article className={styles.geoFeature}>
                 <div className={styles.featureCopy}><span className={styles.featureLabel}>COORDINACIÓN EN TIEMPO REAL</span><h3>Del mapa a la puerta.</h3><p>Geolocalización y seguimiento del profesional durante la visita.</p><div className={styles.capabilityLine}><Network size={18} aria-hidden="true" /><span>Matching y asignación según ubicación y disponibilidad.</span></div></div>
-                <DomicilioVideo />
+                <DomicilioVideo vertical />
               </article>
               <article className={styles.aiFeature}>
                 <div className={styles.featureCopy}><Image src="/docya-ai-icon.png" alt="DocYa IA" width={48} height={48} /><h3>Orientación con IA.</h3><p>Ayuda al paciente a entender el servicio y elegir cómo solicitar atención.</p><span className={styles.caution}>La decisión clínica corresponde al profesional.</span></div>

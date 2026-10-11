@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 const DESKTOP_VIDEO = "/videos/docya-medico-desktop.mp4";
 const MOBILE_VIDEO = "/videos/docya-medico-mobile.mp4";
 
-export default function DomicilioVideo() {
+export default function DomicilioVideo({ vertical = false }: { vertical?: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function DomicilioVideo() {
         return;
       }
 
-      const source = desktopQuery.matches ? DESKTOP_VIDEO : MOBILE_VIDEO;
+      const source = vertical || !desktopQuery.matches ? MOBILE_VIDEO : DESKTOP_VIDEO;
       if (video.dataset.source !== source) {
         video.src = source;
         video.dataset.source = source;
@@ -59,10 +59,10 @@ export default function DomicilioVideo() {
       reducedMotionQuery.removeEventListener("change", syncVideo);
       removeSource();
     };
-  }, []);
+  }, [vertical]);
 
   return (
-    <div className="glass-card relative mx-auto aspect-[9/16] w-full max-w-[320px] overflow-hidden rounded-3xl bg-background/60 p-0 md:aspect-video md:max-w-none">
+    <div className={`glass-card relative mx-auto aspect-[9/16] w-full max-w-[320px] overflow-hidden rounded-3xl bg-background/60 p-0 ${vertical ? "" : "md:aspect-video md:max-w-none"}`}>
       <video
         ref={videoRef}
         className="h-full w-full object-cover"
