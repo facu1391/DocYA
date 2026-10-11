@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { CheckCircle2, MapPin, UsersRound, Video } from "lucide-react";
 import ScrollReveal from "@/components/clinic-landing/shared/ScrollReveal";
+import SectionHeading from "@/components/clinic-landing/shared/SectionHeading";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || "https://docya-railway-production.up.railway.app").replace(/\/$/, "");
 const REFRESH_MS = 60_000;
@@ -28,7 +29,7 @@ function formatMonth(value: string) {
   return date.toLocaleDateString("es-AR", { month: "short", year: "2-digit" });
 }
 
-function InvestorAnalytics() {
+export default function InvestorAnalytics() {
   const [metrics, setMetrics] = useState<InvestorMetrics | null>(null);
   const [error, setError] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
@@ -85,7 +86,7 @@ function InvestorAnalytics() {
 
   return (
     <section id="metricas" className="bg-[var(--background)] px-6 py-24 md:py-28">
-      <SectionTitle eyebrow="Actividad de la red" title="La evolución de DocYa, con datos del backend." subtitle="Indicadores agregados de pacientes y consultas finalizadas. Las tarjetas se actualizan automáticamente cada minuto." />
+      <SectionHeading eyebrow="Actividad de la red" title="La evolución de DocYa, con datos del backend." subtitle="Indicadores agregados de pacientes y consultas finalizadas. Las tarjetas se actualizan automáticamente cada minuto." />
       <div className="mx-auto mt-12 max-w-7xl">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 text-xs text-text-muted">
           <span className="inline-flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${error ? "bg-amber-500" : metrics ? "animate-pulse bg-emerald-500" : "bg-slate-400"}`} />{error ? "No se pudo actualizar. Se muestran los últimos datos recibidos." : metrics ? "Conectado al backend DocYa" : "Cargando métricas…"}</span>
