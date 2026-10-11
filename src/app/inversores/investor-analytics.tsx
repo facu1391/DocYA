@@ -64,7 +64,7 @@ export default function InvestorAnalytics() {
     return selected.map((item) => item.provincia);
   }, [provinces]);
   const provinceTrend = useMemo(() => {
-    const byMonth = new Map<string, Record<string, number>>();
+    const byMonth = new Map<string, Record<string, number | string>>();
     for (const item of metrics?.provincias_mensual ?? []) {
       const current = byMonth.get(item.mes) ?? { mes: item.mes };
       current[item.provincia] = Number(item.total || 0);
@@ -84,9 +84,21 @@ export default function InvestorAnalytics() {
     { label: "Por teleconsulta", value: metrics?.teleconsulta, icon: Video, note: "Consultas finalizadas" },
   ];
 
+  if (error && !metrics) {
+    return (
+      <section id="metricas" className="bg-[var(--background)] px-6 py-12">
+        <div className="mx-auto max-w-6xl rounded-3xl border border-[var(--border)] bg-[var(--card)] p-6 md:p-8">
+          <p className="text-xs font-bold uppercase tracking-wider text-[var(--brand)]">Actividad de la red</p>
+          <h2 className="mt-2 text-2xl font-semibold text-foreground">La tracción se mide en pacientes y atenciones completadas.</h2>
+          <p className="mt-3 text-sm leading-relaxed text-text-muted">Seguimos la cantidad de pacientes registrados, las consultas a domicilio y por teleconsulta, y el crecimiento por provincia. Los indicadores no están disponibles en este momento. La actualización se reintentará automáticamente.</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="metricas" className="bg-[var(--background)] px-6 py-24 md:py-28">
-      <SectionHeading eyebrow="Actividad de la red" title="La evolución de DocYa, con datos del backend." subtitle="Indicadores agregados de pacientes y consultas finalizadas. Las tarjetas se actualizan automáticamente cada minuto." />
+      <SectionHeading eyebrow="Actividad de la red" title="La evolución de DocYa, en cifras." subtitle="Pacientes registrados, atenciones completadas y crecimiento por provincia. Indicadores actualizados automáticamente cada minuto." />
       <div className="mx-auto mt-12 max-w-7xl">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 text-xs text-text-muted">
           <span className="inline-flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${error ? "bg-amber-500" : metrics ? "animate-pulse bg-emerald-500" : "bg-slate-400"}`} />{error ? "No se pudo actualizar. Se muestran los últimos datos recibidos." : metrics ? "Conectado al backend DocYa" : "Cargando métricas…"}</span>

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   Activity,
@@ -25,6 +24,7 @@ import {
 import Image from "next/image";
 import ScrollReveal from "@/components/clinic-landing/shared/ScrollReveal";
 import InvestorAnalyticsLoader from "./investor-analytics-loader";
+import { MarketplaceModel, RegionalThesis, YCombinatorCase } from "./investor-thesis";
 
 export const metadata: Metadata = {
   title: "DocYa para inversores | Atención médica bajo demanda",
@@ -40,10 +40,10 @@ export const metadata: Metadata = {
 };
 
 const flow = [
-  { icon: Bot, title: "La IA orienta", text: "El paciente cuenta qué necesita. DocYa IA explica el servicio, ayuda a elegir teleconsulta o visita y reconoce señales que requieren atención urgente." },
+  { icon: Bot, title: "La IA orienta", text: "El paciente cuenta qué necesita. DocYa IA explica el servicio, ayuda a elegir teleconsulta o visita, orienta ante señales de alarma y acompaña mientras espera al médico." },
   { icon: MapPin, title: "DocYa encuentra", text: "Para una visita, la app usa la ubicación y busca médicos cercanos que estén conectados y disponibles en ese momento." },
   { icon: Stethoscope, title: "El profesional acepta", text: "El médico independiente decide cuándo conectarse y qué solicitudes atender. El paciente puede seguir el estado y la ubicación durante el viaje." },
-  { icon: FileText, title: "La consulta continúa", text: "El médico documenta con dictado por voz y asistencia de IA; puede emitir documentos y el paciente los consulta desde su app." },
+  { icon: FileText, title: "La consulta continúa", text: "El médico carga la historia clínica con dictado por voz y asistencia de IA, y emite recetas, certificados y órdenes firmados. El paciente conserva la historia y los documentos en su app." },
 ];
 
 const patientTools = [
@@ -61,9 +61,9 @@ const proTools = [
 ];
 
 const businessLines = [
-  { icon: Activity, label: "Marketplace de atención", text: "Ingresos por consulta o comisión por servicio, sujetos a los precios y condiciones vigentes en cada mercado." },
-  { icon: Smartphone, label: "Software para clínicas", text: "Suscripción SaaS para agenda, pacientes, documentos, teleconsulta, gestión e IA clínica." },
-  { icon: UsersRound, label: "Servicios conectados", text: "Farmacia, pagos, mensajería y otras integraciones que pueden ampliar el valor por paciente y profesional." },
+  { icon: Activity, label: "Comisión por atención", text: "En el modelo del marketplace, el paciente paga la consulta y el profesional recibe sus honorarios. DocYa obtiene una comisión por facilitar y coordinar el servicio, según las condiciones aplicables." },
+  { icon: Smartphone, label: "Suscripción de software clínico", text: "DocYa Clinic propone ingresos recurrentes por las herramientas que médicos y consultorios usan para agenda, historia clínica, documentos, teleconsulta y asistencia con IA." },
+  { icon: UsersRound, label: "Economía por ciudad", text: "Más consultas generan más oportunidades de ingresos para la red. La sostenibilidad se evalúa con comisión neta, costos de pago y operación, adquisición de pacientes y frecuencia de uso." },
 ];
 
 const metrics = ["Solicitudes atendidas y consultas completadas", "Tiempo desde el pedido hasta la aceptación y la llegada", "Médicos activos y frecuencia de conexión", "Pacientes que vuelven y recomiendan DocYa", "Ingresos netos y margen por consulta", "Retención e ingresos recurrentes de clínicas"];
@@ -89,8 +89,9 @@ export default function InvestorsPage() {
           </Link>
           <div className="hidden items-center gap-6 lg:flex">
             <a className="text-sm text-white/75 hover:text-white" href="#experiencia">Cómo funciona</a>
+            <a className="text-sm text-white/75 hover:text-white" href="#modelo">Modelo</a>
             <a className="text-sm text-white/75 hover:text-white" href="#producto">Producto</a>
-            <a className="text-sm text-white/75 hover:text-white" href="#oportunidad">Oportunidad</a>
+            <a className="text-sm text-white/75 hover:text-white" href="#yc">Por qué invertir</a>
           </div>
           <Link href="mailto:soporte@docya.com.ar?subject=Inversi%C3%B3n%20en%20DocYa" className="btn-primary h-10 px-4 text-sm">Conversemos <ArrowRight className="h-4 w-4" /></Link>
         </nav>
@@ -103,6 +104,7 @@ export default function InvestorsPage() {
             <span className="badge-trusted">Atención médica bajo demanda</span>
             <h1 className="hero-title mt-6 max-w-3xl text-white">La experiencia de Uber, aplicada a la atención médica.</h1>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/75 md:text-xl">El paciente comparte dónde está. DocYa busca al médico más cercano que esté conectado y disponible. Profesionales independientes eligen cuándo trabajar; la tecnología coordina el encuentro y acompaña la atención.</p>
+            <p className="mt-4 max-w-2xl leading-relaxed text-white/65">Construido en Argentina, con la visión de conectar atención a domicilio y online en América Latina. Un marketplace de profesionales con herramientas clínicas e IA en la misma experiencia.</p>
             <div className="mt-7 flex flex-wrap gap-2">
               {["Geolocalización en tiempo real", "Médicos independientes", "Domicilio + teleconsulta", "IA integrada"].map((item) => <span key={item} className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 sm:text-sm">{item}</span>)}
             </div>
@@ -130,11 +132,11 @@ export default function InvestorsPage() {
       </section>
 
       <section id="problema" className="bg-[var(--background)] px-6 py-24 md:py-28">
-        <SectionTitle eyebrow="El problema" title="Acceder a atención y organizarla sigue siendo difícil." subtitle="Pacientes y profesionales enfrentan fricciones distintas dentro de un mismo sistema fragmentado." />
+        <SectionTitle eyebrow="El problema" title="Necesitar un médico es simple. Encontrar uno disponible puede ser difícil." subtitle="El paciente necesita saber quién puede atenderlo y cuándo. El profesional necesita encontrar demanda compatible con su disponibilidad. DocYa conecta esas dos necesidades." />
         <div className="mx-auto mt-14 grid max-w-6xl gap-5 md:grid-cols-3">
           {[
-            { icon: UserRound, title: "Para el paciente", text: "Buscar un profesional, confirmar disponibilidad, explicar dónde está y coordinar la consulta puede implicar varias llamadas y herramientas." },
-            { icon: Stethoscope, title: "Para el médico", text: "Conseguir pacientes y administrar solicitudes, traslados, cobros y documentos resta tiempo al trabajo clínico." },
+            { icon: UserRound, title: "Incertidumbre para el paciente", text: "Cuando necesita atención, puede tener que llamar, buscar turnos, trasladarse o coordinar por mensajes. Después, su historia y sus documentos quedan dispersos." },
+            { icon: Stethoscope, title: "Disponibilidad difícil de aprovechar", text: "Un médico puede tener tiempo para atender, pero necesita encontrar pacientes cercanos y organizar solicitudes, traslados, cobros y documentación para que trabajar sea conveniente." },
             { icon: Activity, title: "Para el consultorio", text: "Agenda, historia clínica, mensajes, teleconsulta y finanzas suelen quedar repartidos entre sistemas y planillas." },
           ].map(({ icon: Icon, title, text }, i) => <ScrollReveal key={title} delay={i * .08}><article className="glass-card h-full rounded-3xl p-7"><span className="grid h-12 w-12 place-items-center rounded-2xl bg-[color-mix(in_srgb,var(--brand)_12%,transparent)] text-[var(--brand)]"><Icon className="h-6 w-6" /></span><h3 className="mt-5 text-xl font-semibold text-foreground">{title}</h3><p className="mt-3 leading-relaxed text-text-muted">{text}</p></article></ScrollReveal>)}
         </div>
@@ -147,6 +149,8 @@ export default function InvestorsPage() {
         </div>
         <p className="mx-auto mt-8 max-w-3xl text-center text-xs leading-relaxed text-white/45">DocYa IA brinda orientación inicial y ayuda a dirigir señales de alarma a emergencias. No realiza diagnósticos ni sustituye a un profesional o servicio de emergencias. La disponibilidad de visitas depende de la zona y del momento.</p>
       </section>
+
+      <MarketplaceModel />
 
       <InvestorAnalyticsLoader />
 
@@ -183,10 +187,12 @@ export default function InvestorsPage() {
       </section>
 
       <section id="oportunidad" className="dark-section px-6 py-24 text-white md:py-28">
-        <SectionTitle eyebrow="La oportunidad" title="Una red flexible, con más de una vía para crear valor." subtitle="El marketplace coordina la atención. El software clínico acompaña el trabajo profesional antes y después del encuentro." light />
+        <SectionTitle eyebrow="Cómo genera ingresos" title="Atenciones que generan ingresos. Software que acompaña cada consulta." subtitle="El núcleo del negocio es conectar pacientes con profesionales. Las herramientas clínicas suman una vía de ingresos recurrentes y utilidad diaria para médicos y consultorios." light />
         <div className="mx-auto mt-14 grid max-w-6xl gap-5 md:grid-cols-3">{businessLines.map(({ icon: Icon, label, text }, i) => <ScrollReveal key={label} delay={i * .08}><article className="h-full rounded-3xl border border-white/10 bg-white/[.045] p-7"><span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#00b3a6]/15 text-[#4debd8]"><Icon className="h-6 w-6" /></span><h3 className="mt-5 text-lg font-semibold text-white">{label}</h3><p className="mt-3 text-sm leading-relaxed text-white/65">{text}</p></article></ScrollReveal>)}</div>
-        <div className="mx-auto mt-12 grid max-w-6xl gap-8 rounded-[2rem] border border-white/10 bg-white/[.035] p-7 md:grid-cols-[.85fr_1.15fr] md:p-10"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[#4debd8]">La tesis</p><h3 className="mt-3 text-2xl font-bold text-white">Convertir disponibilidad profesional en acceso oportuno.</h3><p className="mt-4 text-sm leading-relaxed text-white/60">Cada profesional decide cuándo conectarse. DocYa busca acercar esa capacidad a pacientes que necesitan atención y dar continuidad con herramientas digitales.</p></div><div><p className="text-sm font-semibold text-white">Las métricas que validan la oportunidad</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{metrics.map((metric) => <div key={metric} className="flex gap-2.5 text-sm text-white/70"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#4debd8]" />{metric}</div>)}</div><p className="mt-5 text-xs leading-relaxed text-white/40">No publicamos aquí cifras de tracción que no estén verificadas. La escala debe demostrarse ciudad por ciudad, con cobertura y economía unitaria medibles.</p></div></div>
+        <div className="mx-auto mt-12 grid max-w-6xl gap-8 rounded-[2rem] border border-white/10 bg-white/[.035] p-7 md:grid-cols-[.85fr_1.15fr] md:p-10"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[#4debd8]">La tesis</p><h3 className="mt-3 text-2xl font-bold text-white">Convertir disponibilidad profesional en acceso oportuno.</h3><p className="mt-4 text-sm leading-relaxed text-white/60">Cada profesional decide cuándo conectarse. DocYa busca acercar esa capacidad a pacientes que necesitan atención y dar continuidad con herramientas digitales.</p></div><div><p className="text-sm font-semibold text-white">Las métricas que validan la oportunidad</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{metrics.map((metric) => <div key={metric} className="flex gap-2.5 text-sm text-white/70"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#4debd8]" />{metric}</div>)}</div><p className="mt-5 text-xs leading-relaxed text-white/55">El crecimiento sostenible se demuestra con pacientes que vuelven, profesionales activos y un margen que permite sostener la operación en cada ciudad.</p></div></div>
       </section>
+
+      <RegionalThesis />
 
       <section className="bg-[var(--background)] px-6 py-24 md:py-28">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
@@ -195,10 +201,7 @@ export default function InvestorsPage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-[#0a272c] px-6 py-24 text-white md:py-28">
-        <div className="pointer-events-none absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 50% 120%, rgba(0,179,166,.18), transparent 55%)" }} />
-        <ScrollReveal className="relative mx-auto max-w-4xl text-center"><span className="badge-trusted">Construyendo la próxima capa de acceso</span><h2 className="section-title mt-5 text-white">Una solicitud. El profesional cercano. La atención conectada.</h2><p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/65">Estamos construyendo una red que combina geolocalización, profesionales independientes, atención online y a domicilio, software clínico e IA.</p><div className="mt-9 flex flex-wrap justify-center gap-3"><Link href="mailto:soporte@docya.com.ar?subject=Inversi%C3%B3n%20en%20DocYa" className="btn-primary h-12 px-6">Conversemos sobre DocYa <ArrowRight className="h-4 w-4" /></Link><Link href="/" className="inline-flex h-12 items-center gap-2 rounded-xl border border-white/15 px-5 text-sm font-semibold text-white/85 hover:bg-white/5">Explorar el servicio <ArrowRight className="h-4 w-4" /></Link></div><p className="mt-7 text-xs text-white/35">DocYa · Argentina · Atención médica conectada</p></ScrollReveal>
-      </section>
+      <YCombinatorCase />
       <footer className="footer-surface"><div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8 text-sm text-white/55 sm:flex-row sm:items-center sm:justify-between"><Link href="/" className="font-bold text-white">DocYa</Link><p>Atención médica bajo demanda, conectada de principio a fin.</p><div className="flex gap-5"><Link href="/clinic" className="hover:text-white">DocYa Clinic</Link><Link href="/profesionales" className="hover:text-white">Profesionales</Link><Link href="/contacto" className="hover:text-white">Contacto</Link></div></div></footer>
     </main>
   );
