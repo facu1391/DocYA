@@ -84,8 +84,7 @@ export default function InvestorsPage() {
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#0a272c]/85 backdrop-blur-xl">
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-6">
           <Link href="/" aria-label="DocYa, inicio" className="flex items-center gap-2 text-white">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#00b3a6] text-white"><Stethoscope className="h-5 w-5" /></span>
-            <span className="text-lg font-bold tracking-tight">DocYa</span>
+            <Image src="/logo_puclic-light.png" alt="DocYa" width={128} height={38} priority className="h-8 w-auto" />
             <span className="hidden rounded-full border border-white/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/55 sm:inline">Inversores</span>
           </Link>
           <div className="hidden items-center gap-6 lg:flex">
@@ -154,8 +153,31 @@ export default function InvestorsPage() {
       <section id="producto" className="bg-[var(--background)] px-6 py-24 md:py-28">
         <SectionTitle eyebrow="Un producto conectado" title="Una app para el paciente. Herramientas para quien atiende." subtitle="La red conecta la experiencia del paciente con la operación del profesional y las herramientas clínicas." />
         <div className="mx-auto mt-14 grid max-w-6xl gap-8 lg:grid-cols-2">
-          <ScrollReveal><div className="h-full rounded-[2rem] border border-[var(--border)] bg-[var(--card)] p-7 shadow-sm md:p-9"><div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-[color-mix(in_srgb,var(--brand)_12%,transparent)] text-[var(--brand)]"><Smartphone className="h-5 w-5" /></span><div><p className="text-xs font-semibold uppercase tracking-wider text-text-muted">DocYa Paciente</p><h3 className="text-xl font-bold text-foreground">Orientación, atención y seguimiento</h3></div></div><div className="mt-7 space-y-4">{patientTools.map(({ icon: Icon, title, text }) => <div key={title} className="flex gap-4"><Icon className="mt-1 h-5 w-5 shrink-0 text-[var(--brand)]" /><div><p className="font-semibold text-foreground">{title}</p><p className="mt-1 text-sm leading-relaxed text-text-muted">{text}</p></div></div>)}</div></div></ScrollReveal>
-          <ScrollReveal delay={.1}><div className="h-full rounded-[2rem] border border-white/10 bg-[#0a272c] p-7 shadow-xl md:p-9"><div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#00b3a6]/15 text-[#4debd8]"><Stethoscope className="h-5 w-5" /></span><div><p className="text-xs font-semibold uppercase tracking-wider text-white/45">DocYa Pro</p><h3 className="text-xl font-bold text-white">Una práctica más conectada y flexible</h3></div></div><div className="mt-7 space-y-4">{proTools.map(({ icon: Icon, title, text }) => <div key={title} className="flex gap-4"><Icon className="mt-1 h-5 w-5 shrink-0 text-[#4debd8]" /><div><p className="font-semibold text-white">{title}</p><p className="mt-1 text-sm leading-relaxed text-white/60">{text}</p></div></div>)}</div><div className="mt-7 rounded-2xl border border-white/10 bg-white/[.04] p-4"><p className="flex items-center gap-2 text-sm font-semibold text-[#4debd8]"><ShieldCheck className="h-4 w-4" />Decisión clínica del profesional</p><p className="mt-2 text-xs leading-relaxed text-white/55">La IA prepara borradores editables. El médico revisa, decide y emite la documentación que corresponda. La firma configurada se incorpora al documento.</p></div></div></ScrollReveal>
+          <ScrollReveal>
+            <div className="h-full rounded-[2rem] border border-[var(--border)] bg-[var(--card)] p-7 shadow-sm md:p-9">
+              <div className="flex items-center gap-3">
+                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[color-mix(in_srgb,var(--brand)_12%,transparent)] text-[var(--brand)]"><Smartphone className="h-5 w-5" /></span>
+                <div><p className="text-xs font-semibold uppercase tracking-wider text-text-muted">DocYa Paciente</p><h3 className="text-xl font-bold text-foreground">Orientación, atención y seguimiento</h3></div>
+              </div>
+              <div className="mt-6 flex h-[270px] items-center justify-center overflow-hidden rounded-2xl bg-[#071d21] px-4">
+                <Image src="/images/clinic/docya-patient-app.webp" alt="Vista de la app DocYa para pacientes" width={1200} height={2364} sizes="(max-width: 1024px) 100vw, 520px" className="h-[258px] w-auto max-w-full object-contain" />
+              </div>
+              <div className="mt-7 space-y-4">{patientTools.map(({ icon: Icon, title, text }) => <div key={title} className="flex gap-4"><Icon className="mt-1 h-5 w-5 shrink-0 text-[var(--brand)]" /><div><p className="font-semibold text-foreground">{title}</p><p className="mt-1 text-sm leading-relaxed text-text-muted">{text}</p></div></div>)}</div>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal delay={.1}>
+            <div className="h-full rounded-[2rem] border border-white/10 bg-[#0a272c] p-7 shadow-xl md:p-9">
+              <div className="flex items-center gap-3">
+                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#00b3a6]/15 text-[#4debd8]"><Stethoscope className="h-5 w-5" /></span>
+                <div><p className="text-xs font-semibold uppercase tracking-wider text-white/45">DocYa Pro</p><h3 className="text-xl font-bold text-white">Una práctica más conectada y flexible</h3></div>
+              </div>
+              <div className="relative mt-6 h-[270px] overflow-hidden rounded-2xl bg-white">
+                <Image src="/images/clinic/docya-clinic-hero-mockup.jpg" alt="Panel DocYa Clinic en computadora y dispositivos móviles" fill sizes="(max-width: 1024px) 100vw, 520px" className="object-contain" />
+              </div>
+              <div className="mt-7 space-y-4">{proTools.map(({ icon: Icon, title, text }) => <div key={title} className="flex gap-4"><Icon className="mt-1 h-5 w-5 shrink-0 text-[#4debd8]" /><div><p className="font-semibold text-white">{title}</p><p className="mt-1 text-sm leading-relaxed text-white/60">{text}</p></div></div>)}</div>
+              <div className="mt-7 rounded-2xl border border-white/10 bg-white/[.04] p-4"><p className="flex items-center gap-2 text-sm font-semibold text-[#4debd8]"><ShieldCheck className="h-4 w-4" />Decisión clínica del profesional</p><p className="mt-2 text-xs leading-relaxed text-white/55">La IA prepara borradores editables. El médico revisa, decide y emite la documentación que corresponda. La firma configurada se incorpora al documento.</p></div>
+            </div>
+          </ScrollReveal>
         </div>
         <div className="mx-auto mt-6 max-w-6xl rounded-3xl border border-[var(--border)] bg-[var(--card)] p-6 md:flex md:items-center md:justify-between"><div><p className="font-semibold text-foreground">DocYa IA para consultorios</p><p className="mt-1 text-sm text-text-muted">Agenda, pacientes, historia clínica, documentos, teleconsulta y asistencia por WhatsApp configurable.</p></div><Link href="/clinic" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand)] hover:underline md:mt-0">Ver producto para clínicas <ArrowRight className="h-4 w-4" /></Link></div>
       </section>
