@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -20,6 +20,7 @@ import { guardarPagoPendiente, limpiarPagoPendiente, solicitarConsulta } from "@
 import { getPatientReferrals, newReferralAttemptKey, reserveReferralReward } from "@/lib/pedir/patientReferrals";
 import { PATIENT_REFERRALS_ENABLED } from "@/lib/pedir/referralFeature";
 import { createPatientFamilyMember, getPatientFamily, familyMemberAge, type PatientFamilyMember } from "@/lib/pedir/patientFamily";
+import { paymentStatusMessage, RETRY_REQUEST_HANDOFF_KEY, saveRetryDraft, type RetryRequestDraft, type RetryRequestHandoff } from "@/lib/pedir/retryRequest";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -104,6 +105,7 @@ export default function SolicitarScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const tipo = (params.get("tipo") ?? "medico") as keyof typeof TIPO_ICONS;
+  const retrySourceId = params.get("retry") ?? "";
   const esPediatria = params.get("pediatria") === "1" && tipo !== "enfermero";
   const [otraPersona, setOtraPersona] = useState(esPediatria || params.get("recipient") === "other");
   const [recipientAuthorized, setRecipientAuthorized] = useState(false);
@@ -153,6 +155,10 @@ export default function SolicitarScreen() {
   const [metodoPago, setMetodoPago] = useState<MetodoPago>(tipo === "teleconsulta" ? "tarjeta" : "efectivo");
   const [otrosMediosAbiertos, setOtrosMediosAbiertos] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
+  const [retryHandoff, setRetryHandoff] = useState<RetryRequestHandoff | null>(null);
+  const [retryReady, setRetryReady] = useState(!retrySourceId);
+  const [retryError, setRetryError] = useState("");
   const [tarifa, setTarifa] = useState<Tarifa | null>(null);
   const [tarifaLoading, setTarifaLoading] = useState(true);
   const [tarifaError, setTarifaError] = useState("");
@@ -187,6 +193,41 @@ export default function SolicitarScreen() {
       setUser(JSON.parse(raw));
     } catch { router.replace("/pedir"); }
   }, [router]);
+
+  useEffect(() => {
+    if (!retrySourceId || !user?.id) return;
+    try {
+      const raw = sessionStorage.getItem(RETRY_REQUEST_HANDOFF_KEY);
+      const handoff = raw ? JSON.parse(raw) as RetryRequestHandoff : null;
+      if (!handoff || handoff.ownerId !== user.id || handoff.sourceConsultationId !== retrySourceId || handoff.targetType !== tipo) {
+        setRetryError("No pudimos recuperar los datos de tu solicitud. Volvé al inicio y probá nuevamente.");
+        setRetryReady(true);
+        return;
+      }
+      setRetryHandoff(handoff);
+      setMotivo(handoff.motivo ?? "");
+      setDireccion(handoff.direccion ?? "");
+      setLat(handoff.lat ?? null); setLng(handoff.lng ?? null);
+      setProvincia(handoff.provincia ?? null); setLocalidad(handoff.localidad ?? null);
+      setIndicacionesDomicilio(handoff.indicacionesDomicilio ?? "");
+      setOtraPersona(handoff.paraOtraPersona === true);
+      setRecipientAuthorized(handoff.recipientAuthorized === true);
+      setFamiliarSeleccionadoId(handoff.familiarSeleccionadoId ?? null);
+      setPacienteMenorNombre(handoff.pacienteMenorNombre ?? "");
+      setPacienteMenorDni(handoff.pacienteMenorDni ?? "");
+      setPacienteMenorFechaNacimiento(handoff.pacienteMenorFechaNacimiento ?? "");
+      setPacienteMenorSexo(handoff.pacienteMenorSexo ?? "");
+      setResponsableVinculo(handoff.responsableVinculo ?? "");
+      const previousMethod = handoff.metodoPago;
+      setMetodoPago(previousMethod === "transferencia" || previousMethod === "transfer_credit_available"
+        ? "transferencia"
+        : previousMethod === "efectivo" && tipo !== "teleconsulta" ? "efectivo" : "tarjeta");
+      setRetryReady(true);
+    } catch {
+      setRetryError("No pudimos recuperar los datos de tu solicitud. Volvé al inicio y probá nuevamente.");
+      setRetryReady(true);
+    }
+  }, [retrySourceId, tipo, user]);
 
   useEffect(() => {
     if (tipo !== "teleconsulta") return;
@@ -303,12 +344,13 @@ export default function SolicitarScreen() {
 
   // Geolocalización inicial
   useEffect(() => {
+    if (retrySourceId) return;
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => { setLat(pos.coords.latitude); setLng(pos.coords.longitude); },
       () => {}
     );
-  }, []);
+  }, [retrySourceId]);
 
   useEffect(() => {
     if (!permiteEfectivo && metodoPago === "efectivo") setMetodoPago("tarjeta");
@@ -439,13 +481,27 @@ export default function SolicitarScreen() {
   }, [user, motivo, direccion, lat, lng, permiteEfectivo, metodoPago, tarifa, esPediatria, paraOtraPersona, recipientAuthorized, tipo, familiarSeleccionadoId, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, t]);
 
   const handleSubmit = useCallback(async () => {
-    if (!validarSolicitud() || !user || !tarifa?.monto) return;
+    if (submittingRef.current || !validarSolicitud() || !user || !tarifa?.monto) return;
     setConfirmacionPaciente(false);
 
+    submittingRef.current = true;
     setSubmitting(true);
     try {
       const monto = tarifa.monto;
       const datosAcceso = tipo === "teleconsulta" ? {} : { indicaciones_domicilio: indicacionesDomicilio.trim() || undefined };
+      const rememberRequest = (sourceConsultationId: number | string, method: string) => {
+        const draft: RetryRequestDraft = {
+          ownerId: user.id, sourceConsultationId: String(sourceConsultationId),
+          tipo: tipo === "teleconsulta" ? "teleconsulta" : tipo === "enfermero" ? "enfermero" : "medico",
+          motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, provincia, localidad,
+          indicacionesDomicilio: indicacionesDomicilio.trim(), categoriaConsulta,
+          paraOtraPersona, familiarSeleccionadoId, pacienteMenorNombre, pacienteMenorDni,
+          pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo,
+          recipientAuthorized, metodoPago: method,
+        };
+        saveRetryDraft(draft);
+        if (retrySourceId) sessionStorage.removeItem(RETRY_REQUEST_HANDOFF_KEY);
+      };
 
       if (metodoPago === "qr_mp") {
         if (!qrEnabled || !user.access_token) throw new Error("Mercado Pago no está disponible en este momento.");
@@ -456,6 +512,7 @@ export default function SolicitarScreen() {
         });
         if (!previaRes.ok) throw new Error("No pudimos preparar la teleconsulta para QR.");
         const { consulta_id } = await previaRes.json();
+        rememberRequest(consulta_id, "qr_mp");
         guardarPagoPendiente({ consulta_id, tipo, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, paciente_uuid: user.id, access_token: user.access_token, categoria_consulta: categoriaConsulta, provincia: provincia ?? undefined, localidad: localidad ?? undefined, metodo_pago: "qr_mp", ...datosPediatricos });
         const orderRes = await fetch(`${API}/pagos/qr/orden`, {
           method: "POST",
@@ -487,6 +544,7 @@ export default function SolicitarScreen() {
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
+        rememberRequest(consulta_id, "referral_voucher");
         const pending = { consulta_id, tipo, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, paciente_uuid: user.id, access_token: user.access_token, categoria_consulta: categoriaConsulta, provincia: provincia ?? undefined, localidad: localidad ?? undefined, metodo_pago: "referral_voucher", idempotency_key: attemptKey, ...translationPayload, ...datosPediatricos };
         guardarPagoPendiente(pending);
         await reserveReferralReward(user.access_token, Number(consulta_id), attemptKey);
@@ -506,6 +564,7 @@ export default function SolicitarScreen() {
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
+        rememberRequest(consulta_id, "transferencia");
         guardarPagoPendiente({
           consulta_id, tipo, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng,
           paciente_uuid: user.id, access_token: user.access_token,
@@ -525,6 +584,7 @@ export default function SolicitarScreen() {
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
+        rememberRequest(consulta_id, "tarjeta");
 
         // Guardar datos para recuperarlos si se cierra/refresca la pestaña
         // después de autorizar la tarjeta pero antes de que el iframe
@@ -574,6 +634,7 @@ export default function SolicitarScreen() {
         });
         if (!previaRes.ok) throw new Error(t.solicitar.errorPreparar);
         const { consulta_id } = await previaRes.json();
+        rememberRequest(consulta_id, "saldo_mp");
 
         const return_base_url = window.location.origin;
         const prefRes = await fetch(`${API}/pagos/saldo-mp/preferencia`, {
@@ -618,15 +679,18 @@ export default function SolicitarScreen() {
         throw new Error(err.detail?.mensaje || err.detail || t.solicitar.errorIniciar);
       }
       const data = await res.json();
+      rememberRequest(data.consulta_id, "efectivo");
       router.push(`/pedir/buscando?consulta_id=${data.consulta_id}&tipo=${tipo}&metodo=efectivo`);
     } catch (e) {
       notify(e instanceof Error ? e.message : t.solicitar.errorSolicitar, false);
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
-  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, indicacionesDomicilio, lat, lng, categoriaConsulta, provincia, localidad, datosPediatricos, translationPayload, router, t, referralAttemptKey, qrEnabled]);
+  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, indicacionesDomicilio, lat, lng, categoriaConsulta, provincia, localidad, datosPediatricos, translationPayload, router, t, referralAttemptKey, qrEnabled, paraOtraPersona, familiarSeleccionadoId, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo, recipientAuthorized, retrySourceId]);
 
-  if (!user) return null;
+  if (!user || (retrySourceId && !retryReady)) return null;
+  if (retryError) return <main style={{ maxWidth: 560, margin: "12vh auto", padding: 24, color: text, background: inputBg, border: `1px solid ${border}`, borderRadius: 22 }}><h1 style={{ fontSize: 22 }}>No pudimos recuperar tu solicitud</h1><p>{retryError}</p><Link href="/pedir" style={{ color: "#2dd4bf", fontWeight: 800 }}>Volver al inicio</Link></main>;
 
   const Icon = cfg.icon;
   const checkoutAmount = translationLanguage && translationQuote?.available
@@ -708,14 +772,24 @@ export default function SolicitarScreen() {
 
         <main style={{ maxWidth: 720, margin: "0 auto", padding: tipo === "teleconsulta" ? "32px 20px 150px" : "32px 20px 80px" }}>
           <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: 900, marginBottom: 8, color: "#2dd4bf" }}>
-            {t.solicitar.pageTitle} {cfg.label.toLowerCase()}
+            {retryHandoff ? `Nueva solicitud de ${cfg.label.toLowerCase()}` : `${t.solicitar.pageTitle} ${cfg.label.toLowerCase()}`}
           </h1>
           <p style={{ color: muted, fontSize: 15, marginBottom: 32 }}>
-            {t.solicitar.hola} <strong style={{ color: text }}>{user.full_name.split(" ")[0]}</strong>{t.solicitar.completaDatos}
+            {retryHandoff ? "Revisá el precio actualizado y confirmá el nuevo pago para iniciar otra búsqueda." : <>{t.solicitar.hola} <strong style={{ color: text }}>{user.full_name.split(" ")[0]}</strong>{t.solicitar.completaDatos}</>}
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
+            {retryError && <div role="alert" style={{ padding: 16, borderRadius: 16, background: "rgba(239,68,68,.12)", color: text }}>{retryError} <Link href="/pedir" style={{ color: cfg.color, fontWeight: 800 }}>Volver al inicio</Link></div>}
+            {retryHandoff ? (
+              <div style={{ padding: 20, borderRadius: 20, border: `1.5px solid ${cfg.color}55`, background: `${cfg.color}10`, color: text }}>
+                <p style={{ margin: "0 0 10px", color: cfg.color, fontWeight: 900 }}>Nueva solicitud · datos recuperados</p>
+                <p style={{ margin: "0 0 7px", lineHeight: 1.5 }}><strong>Paciente:</strong> {retryHandoff.paraOtraPersona ? retryHandoff.pacienteMenorNombre || "Persona seleccionada" : user.full_name}</p>
+                <p style={{ margin: "0 0 7px", lineHeight: 1.5 }}><strong>Motivo:</strong> {motivo}</p>
+                {tipo !== "teleconsulta" && <p style={{ margin: "0 0 7px", lineHeight: 1.5 }}><strong>Dirección:</strong> {direccion}</p>}
+                <p style={{ margin: "10px 0 0", color: muted, fontSize: 13, lineHeight: 1.5 }}>{paymentStatusMessage(retryHandoff.previousPaymentStatus, retryHandoff.metodoPago)}</p>
+              </div>
+            ) : <>
             <RecipientChoice other={paraOtraPersona} pediatrics={esPediatria} onChange={value => { setOtraPersona(value); setRecipientAuthorized(false); if (!value) { setFamiliarSeleccionadoId(null); setDireccion(""); setLat(null); setLng(null); } }} />
             {paraOtraPersona && pacienteMenorNombre && <p>Paciente: <strong>{pacienteMenorNombre}</strong> · {familyMemberAge(pacienteMenorFechaNacimiento)} años<br />Solicitado por: {user.full_name}</p>}
             {/* PEDIATRÍA */}
@@ -796,8 +870,9 @@ export default function SolicitarScreen() {
                 {pacienteMenorFechaNacimiento && familyMemberAge(pacienteMenorFechaNacimiento) >= 18 && <label style={{ display: "flex", gap: 12, padding: 16, border: `1px solid ${border}`, borderRadius: 16, lineHeight: 1.5 }}><input type="checkbox" checked={recipientAuthorized} onChange={e => setRecipientAuthorized(e.target.checked)} style={{ width: 22, height: 22, flexShrink: 0 }} />Confirmo que cuento con autorización del paciente para solicitar esta atención y gestionar desde mi cuenta la información y los documentos de esta consulta. El profesional confirmará el consentimiento para la atención.</label>}
               </>
             )}
+            </>}
             {/* MOTIVO */}
-            <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
+            {!retryHandoff && <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
               <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
                 {t.solicitar.motivoLabel}
               </label>
@@ -811,10 +886,10 @@ export default function SolicitarScreen() {
               <p style={{ fontSize: 12, color: muted, marginTop: 8 }}>
                 {t.solicitar.motivoHint}
               </p>
-            </div>
+            </div>}
 
             {/* DIRECCIÓN */}
-            <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
+            {!retryHandoff && <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
               <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
                 {tipo === "teleconsulta" ? t.solicitar.ubicacionTeleconsulta : t.solicitar.direccionLabel}
               </label>
@@ -867,7 +942,7 @@ export default function SolicitarScreen() {
                   Verificando cobertura...
                 </p>
               )}
-            </div>
+            </div>}
 
 
             <div style={{ background: inputBg, border: `1.5px solid ${tarifaError ? "rgba(239,68,68,0.35)" : border}`, borderRadius: 20, padding: "18px 20px", display: "flex", alignItems: "center", gap: 14 }}>

@@ -13,7 +13,16 @@ import {
 import { usePedirTheme } from "./theme";
 import GoogleReviewModal, { useGoogleReviewPrompt } from "./GoogleReviewModal";
 import PacienteChat from "./PacienteChat";
+import NoDoctorAvailableModal from "./NoDoctorAvailableModal";
 import { useI18n } from "@/lib/i18n/context";
+import {
+  clearRetryDraft,
+  paymentStatusMessage,
+  readRetryDraft,
+  RETRY_REQUEST_HANDOFF_KEY,
+  type RetryRequestDraft,
+  type RetryService,
+} from "@/lib/pedir/retryRequest";
 import styles from "./BuscandoScreen.module.css";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
@@ -30,6 +39,7 @@ type Estado =
 type ConsultaData = {
   estado: Estado;
   medico_id?: number;
+  paciente_uuid?: string;
   medico_nombre?: string;
   medico_matricula?: string;
   medico_foto_perfil?: string;
@@ -39,6 +49,8 @@ type ConsultaData = {
   medico_lng?: number;
   mp_status?: string;
   mp_preautorizado?: boolean;
+  metodo_pago?: string;
+  creado_en?: string;
   video_url?: string;
   daily_room_url?: string;
   paciente_nombre?: string;
@@ -75,6 +87,10 @@ function nombreProfesional(nombre?: string, esEnfermeria = false): string {
 const ESTADOS_TERMINADOS = ["finalizada", "cancelada", "cancelada_paciente", "cancelada_sin_medico", "pago_no_autorizado"];
 const ESTADOS_CRITICOS = ["aceptada", "asignada", "en_camino", "en_domicilio", "en_curso", "en_videollamada"];
 
+const notify = (message: string) => {
+  if (typeof window !== "undefined") window.alert(message);
+};
+
 export default function BuscandoScreen() {
   const { t } = useI18n();
   const router = useRouter();
@@ -91,12 +107,19 @@ export default function BuscandoScreen() {
   const [user, setUser]             = useState<PedirUser | null>(null);
   const [appDownloadUrl, setAppDownloadUrl] = useState("/descargas");
   const [sharingAccess, setSharingAccess] = useState(false);
+  const [noDoctorModalOpen, setNoDoctorModalOpen] = useState(false);
+  const [retryBusy, setRetryBusy] = useState(false);
+  const [retryDraft, setRetryDraft] = useState<RetryRequestDraft | null>(null);
+  const [homePrice, setHomePrice] = useState<number | null>(null);
+  const [teleconsultPrice, setTeleconsultPrice] = useState<number | null>(null);
 
   const pollRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollInFlightRef = useRef(false);
   const pollBackoffUntilRef = useRef(0);
   const dotsRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const countRef  = useRef<ReturnType<typeof setInterval> | null>(null);
+  const canceledByPatientRef = useRef(false);
+  const noDoctorPromptShownRef = useRef(false);
 
   const {
     bg, surface, brandBorder: border, text, muted, headerBg, logo,
@@ -157,6 +180,29 @@ export default function BuscandoScreen() {
     const ua = navigator.userAgent.toLowerCase();
     if (/iphone|ipad|ipod/.test(ua)) setAppDownloadUrl(PATIENT_APP_STORE_URL);
     else if (/android/.test(ua)) setAppDownloadUrl(PATIENT_PLAY_STORE_URL);
+  }, []);
+
+  useEffect(() => {
+    if (!user?.id || !consultaId) return;
+    const draft = readRetryDraft();
+    if (draft?.ownerId === user.id && draft.sourceConsultationId === consultaId) {
+      setRetryDraft(draft);
+    }
+  }, [consultaId, user]);
+
+  useEffect(() => {
+    let alive = true;
+    Promise.all([
+      fetch(`${API}/tarifas/consulta-medico`, { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch(`${API}/tarifas/teleconsulta`, { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([home, video]) => {
+      if (!alive) return;
+      const homeAmount = Number(home?.monto);
+      const videoAmount = Number(video?.monto);
+      if (Number.isFinite(homeAmount) && homeAmount > 0) setHomePrice(Math.round(homeAmount));
+      if (Number.isFinite(videoAmount) && videoAmount > 0) setTeleconsultPrice(Math.round(videoAmount));
+    });
+    return () => { alive = false; };
   }, []);
 
   // Guardar consulta activa en localStorage para recuperación si el paciente navega atrás
@@ -255,6 +301,11 @@ export default function BuscandoScreen() {
   const cancelar = useCallback(async () => {
     if (!consultaId) return;
     if (esTeleconsulta && (!user?.id || !user.access_token)) return;
+    canceledByPatientRef.current = true;
+    if (retryDraft?.sourceConsultationId === consultaId) {
+      clearRetryDraft();
+      setRetryDraft(null);
+    }
     setCancelando(true);
     try {
       const url = esTeleconsulta
@@ -276,7 +327,45 @@ export default function BuscandoScreen() {
       fetchEstado();
     } catch {}
     setCancelando(false);
-  }, [consultaId, esTeleconsulta, fetchEstado, user]);
+  }, [consultaId, esTeleconsulta, fetchEstado, retryDraft, user]);
+
+  const abrirReintento = useCallback(async (service: RetryService) => {
+    if (retryBusy || !user?.id || !user.access_token || !retryDraft || retryDraft.ownerId !== user.id || retryDraft.sourceConsultationId !== consultaId) {
+      notify("No pudimos recuperar los datos de esta solicitud. Volvé al inicio para pedir atención.");
+      return;
+    }
+    setRetryBusy(true);
+    try {
+      const activeRes = await fetch(`${API}/pacientes/${encodeURIComponent(user.id)}/consulta_en_curso`, {
+        headers: { Authorization: `Bearer ${user.access_token}` },
+        cache: "no-store",
+      });
+      if (!activeRes.ok) throw new Error("No pudimos verificar si ya tenés otra consulta activa. Intentá de nuevo.");
+      const active = await activeRes.json();
+      if (active?.activa === true) {
+        const activeId = String(active.consulta_id ?? "");
+        const activeType = active.canal_atencion === "teleconsulta" ? "teleconsulta" : (active.tipo || "medico");
+        if (activeId) router.replace(`/pedir/buscando?consulta_id=${encodeURIComponent(activeId)}&tipo=${encodeURIComponent(activeType)}`);
+        throw new Error("Ya tenés una consulta activa. Abrimos su seguimiento para evitar crear otra solicitud.");
+      }
+
+      sessionStorage.setItem(RETRY_REQUEST_HANDOFF_KEY, JSON.stringify({
+        ...retryDraft,
+        targetType: service,
+        previousPaymentStatus: data?.mp_status ?? "",
+      }));
+      const nextParams = new URLSearchParams({ tipo: service, retry: consultaId });
+      if (retryDraft.categoriaConsulta === "pediatria") nextParams.set("pediatria", "1");
+      if (retryDraft.paraOtraPersona) nextParams.set("recipient", "other");
+      router.push(`/pedir/solicitar?${nextParams.toString()}`);
+    } catch (error) {
+      if (!(error instanceof Error && error.message.includes("Abrimos su seguimiento"))) {
+        notify(error instanceof Error ? error.message : "No pudimos preparar una nueva solicitud.");
+      }
+    } finally {
+      setRetryBusy(false);
+    }
+  }, [consultaId, data?.mp_status, retryBusy, retryDraft, router, user]);
 
   const enviarRating = useCallback(async (stars: number) => {
     if (!consultaId || ratingEnviado) return;
@@ -299,6 +388,18 @@ export default function BuscandoScreen() {
     esFin && (esTeleconsulta || tipo === "medico"),
   );
   const esCancelado = ["cancelada", "cancelada_paciente", "cancelada_sin_medico", "pago_no_autorizado"].includes(estado);
+  const noSeEncontroMedico = tipo === "medico" && !data?.medico_id && estado !== "pago_no_autorizado" &&
+    ["cancelada", "cancelada_sin_medico", "expirada", "sin_profesionales", "sin_medicos"].includes(estado) &&
+    countdown <= 0 && !canceledByPatientRef.current && !!retryDraft &&
+    retryDraft.ownerId === user?.id && retryDraft.sourceConsultationId === consultaId &&
+    !!user?.id && data?.paciente_uuid === user.id;
+
+  useEffect(() => {
+    if (noSeEncontroMedico && !noDoctorPromptShownRef.current) {
+      noDoctorPromptShownRef.current = true;
+      setNoDoctorModalOpen(true);
+    }
+  }, [noSeEncontroMedico]);
   const tieneCreditoTransferencia = data?.mp_status === "transfer_credit_available";
   const esPendiente = estado === "pendiente" || estado === "buscando_medico";
   const esMedicoEnCamino = ["aceptada", "asignada", "en_camino"].includes(estado);
@@ -793,6 +894,15 @@ export default function BuscandoScreen() {
         </section>
       </main>
       <GoogleReviewModal open={googleReview.open} onClose={googleReview.close} />
+      <NoDoctorAvailableModal
+        open={noDoctorModalOpen && noSeEncontroMedico}
+        homePrice={homePrice}
+        teleconsultPrice={teleconsultPrice}
+        paymentNotice={paymentStatusMessage(data?.mp_status ?? "", retryDraft?.metodoPago ?? "")}
+        busy={retryBusy}
+        onRetry={abrirReintento}
+        onClose={() => setNoDoctorModalOpen(false)}
+      />
     </div>
   );
 }
