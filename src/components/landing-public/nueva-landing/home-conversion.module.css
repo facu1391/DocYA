@@ -8,11 +8,16 @@
 .hero h1 { font-size: clamp(38px,4.15vw,58px); line-height: 1.1; letter-spacing: -.045em; font-weight: 600; margin: 0 0 24px; }
 .hero h1 span { color: #36d6c2; }
 .lead { font-size: 18px; line-height: 1.65; max-width: 520px; color: #c2d5dd; margin: 0 0 28px; }
-.actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.homeButton, .videoButton { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 52px; padding: 15px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; text-decoration: none; transition: transform .2s; }
-.homeButton { background: linear-gradient(105deg,#00b3a6,#2dd4bf); color: #031c20; }
-.videoButton { background: #2563eb; color: #fff; }
-.homeButton:hover, .videoButton:hover { transform: translateY(-2px); }
+.actions { display: flex; flex-wrap: wrap; align-items: stretch; gap: 12px; }
+.homeButton, .videoButton { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 52px; padding: 14px 22px; border: 1px solid transparent; border-radius: 12px; font-family: inherit; font-size: 14px; line-height: 22px; font-weight: 600; text-align: center; text-decoration: none; cursor: pointer; transition: background-color .18s ease, border-color .18s ease, color .18s ease; }
+.homeButton { background: #36d6c2; color: #031c20; border-color: #36d6c2; }
+.videoButton { background: #102b36; color: #f2f8fa; border-color: #46616d; }
+.homeButton:hover { background: #51e0cf; border-color: #51e0cf; }
+.videoButton:hover { background: #193b48; border-color: #78909c; }
+.homeButton:active { background: #20bba8; border-color: #20bba8; }
+.videoButton:active { background: #071b25; border-color: #9fb6c3; }
+.homeButton:focus-visible, .videoButton:focus-visible { outline: 3px solid var(--home-accent, #36d6c2); outline-offset: 4px; }
+.homeButton:disabled, .videoButton:disabled, .homeButton[aria-disabled="true"], .videoButton[aria-disabled="true"] { background: #d3dddf; color: #53636a; border-color: #a7b7be; cursor: not-allowed; }
 .hero a:focus-visible, .content a:focus-visible, .content button:focus-visible, .content summary:focus-visible { outline: 3px solid var(--home-accent); outline-offset: 5px; }
 .caption { font-size: 12px; line-height: 1.7; margin: 24px 0 0; color: #bdcfd8; }
 .small { font-size: 11px; line-height: 1.8; color: var(--muted-foreground); margin: 14px 0 0; }
@@ -32,13 +37,13 @@
 .intro p { font-size: 14px; line-height: 1.8; color: var(--muted-foreground); margin: 18px 0 0; }
 .videoSection, .trustSection { background: #091e2b; }
 .aiSection { background: #071b25; border-block: 1px solid #ffffff18; }
-.aiGrid { display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: center; }
+.aiGrid { display: grid; grid-template-columns: minmax(0, 740px); gap: 24px; }
 .aiLogo { margin-bottom: 22px; border-radius: 16px; }
 .aiGrid h2 { max-width: 680px; }
 .aiDescription { max-width: 660px; margin: 20px 0 0; color: #9fb6c3; font-size: 14px; line-height: 1.8; }
-.aiAccess { text-align: center; }
-.aiAccess button { border: 0; cursor: pointer; font-family: inherit; }
-@media (max-width: 760px) { .aiGrid { grid-template-columns: 1fr; gap: 26px; } .aiAccess { text-align: left; } }
+.aiAccess { text-align: left; }
+.aiAccess .small { margin-top: 10px; }
+@media (max-width: 760px) { .aiGrid { grid-template-columns: 1fr; gap: 22px; } }
 .videoGrid { display: grid; grid-template-columns: 1fr .8fr; gap: 80px; align-items: center; }
 .videoCopy { max-width: 530px; }
 .videoCopy > p { font-size: 16px; line-height: 1.8; color: #a8becb; margin: 24px 0 0; }
@@ -108,7 +113,7 @@
   .hero h1 { font-size: clamp(32px,8.3vw,40px); line-height: 1.12; margin-bottom: 20px; }
   .lead { font-size: 15px; line-height: 1.7; }
   .actions { flex-direction: column; }
-  .homeButton, .videoButton { font-size: 13px; width: 100%; }
+  .homeButton, .videoButton { width: 100%; }
   .heroPhone { height: 350px; width: min(330px,100%); margin-inline: auto; }
   .mainPhone { width: 47%; left: 7%; }
   .trackingPhone { width: 42%; top: 32px; right: 5%; }
