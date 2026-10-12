@@ -27,6 +27,14 @@
 .intro { max-width: 740px; margin: 0 0 34px; text-align: left; }
 .intro p { font-size: 14px; line-height: 1.8; color: var(--muted-foreground); margin: 18px 0 0; }
 .videoSection, .trustSection { background: #091e2b; }
+.aiSection { background: #071b25; border-block: 1px solid #ffffff18; }
+.aiGrid { display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: center; }
+.aiLogo { margin-bottom: 22px; border-radius: 16px; }
+.aiGrid h2 { max-width: 680px; }
+.aiDescription { max-width: 660px; margin: 20px 0 0; color: #9fb6c3; font-size: 14px; line-height: 1.8; }
+.aiAccess { text-align: center; }
+.aiAccess button { border: 0; cursor: pointer; font-family: inherit; }
+@media (max-width: 760px) { .aiGrid { grid-template-columns: 1fr; gap: 26px; } .aiAccess { text-align: left; } }
 .videoGrid { display: grid; grid-template-columns: 1fr .8fr; gap: 80px; align-items: center; }
 .videoCopy { max-width: 530px; }
 .videoCopy > p { font-size: 16px; line-height: 1.8; color: #a8becb; margin: 24px 0 0; }
