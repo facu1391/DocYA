@@ -2,21 +2,8 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import Hero from "@/components/landing-public/nueva-landing/Hero";
-import ConsultaCompletaSection from "@/components/landing-public/nueva-landing/ConsultaCompletaSection";
-import IASection from "@/components/landing-public/nueva-landing/IASection";
-import GeoSection from "@/components/landing-public/nueva-landing/GeoSection";
-import DomicilioSection from "@/components/landing-public/nueva-landing/DomicilioSection";
-import TeleconsultaSection from "@/components/landing-public/nueva-landing/TeleconsultaSection";
-import TouristTranslationSection from "@/components/landing-public/nueva-landing/TouristTranslationSection";
-import ResolucionSection from "@/components/landing-public/nueva-landing/ResolucionSection";
-import PastilleroSection from "@/components/landing-public/nueva-landing/PastilleroSection";
-import BeneficiosSection from "@/components/landing-public/nueva-landing/BeneficiosSection";
-import ComoFunciona from "@/components/landing-public/nueva-landing/ComoFunciona";
-import CoberturaSection from "@/components/landing-public/nueva-landing/CoberturaSection";
-import PreciosSection from "@/components/landing-public/nueva-landing/PreciosSection";
-import DocYaProCTA from "@/components/landing-public/nueva-landing/DocYaProCTA";
-import FinalCTA from "@/components/landing-public/nueva-landing/FinalCTA";
-import DifferentiatorBanner from "@/components/seo/DifferentiatorBanner";
+
+import HomeConversion from "@/components/landing-public/nueva-landing/HomeConversion";
 
 const SITE_URL = "https://www.docya.com.ar";
 
@@ -75,21 +62,7 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(medicalServiceJsonLd) }}
       />
       <Hero />
-      <ConsultaCompletaSection />
-      <ComoFunciona />
-      <GeoSection />
-      <DomicilioSection />
-      <TeleconsultaSection />
-      <TouristTranslationSection />
-      <ResolucionSection />
-      <PastilleroSection />
-      <BeneficiosSection />
-      <IASection />
-      <CoberturaSection />
-      <DifferentiatorBanner ctaHref="/medico-a-domicilio-particular" ctaLabel="Conocé cómo funciona el pago" />
-      <PreciosSection />
-      <DocYaProCTA />
-      <FinalCTA mode="paciente" />
+      <HomeConversion />
     </>
   );
 }

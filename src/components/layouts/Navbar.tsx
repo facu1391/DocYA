@@ -116,14 +116,14 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+          <div className={`${pathname === "/" ? "hidden lg:flex" : "hidden md:flex"} items-center gap-6 text-sm font-medium`}>
             {isPublicAudience ? (
               <>
                 <a href="#inicio" className={publicSectionCls}>
                   {t.nav.inicio}
                 </a>
-                <a href="#ia" className={publicSectionCls}>
-                  {t.nav.iaMedica}
+                <a href={pathname === "/" ? "#consulta" : "#ia"} className={publicSectionCls}>
+                  {pathname === "/" ? (locale === "es" ? "Servicios" : "Services") : t.nav.iaMedica}
                 </a>
                 <a href="#como-funciona" className={publicSectionCls}>
                   {t.nav.comoFunciona}
@@ -147,7 +147,7 @@ export default function Navbar() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setLocale(locale === "es" ? "en" : "es")}
-                  className="text-white hover:bg-white/10 cursor-pointer"
+                  className={`text-white hover:bg-white/10 cursor-pointer ${pathname === "/" ? "relative" : ""}`}
                   aria-label={locale === "es" ? "Switch to English" : "Cambiar a Español"}
                   title={locale === "es" ? "English" : "Español"}
                 >
@@ -215,7 +215,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile toggles */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className={`${pathname === "/" ? "lg:hidden" : "md:hidden"} flex items-center gap-2`}>
             <Button
               variant="ghost"
               size="icon"
@@ -257,7 +257,7 @@ export default function Navbar() {
         {!isPublicAudience && (
           <div
             className={[
-              "md:hidden overflow-hidden transition-[max-height] duration-300",
+              `${pathname === "/" ? "lg:hidden" : "md:hidden"} overflow-hidden transition-[max-height] duration-300`,
               open ? "max-h-96" : "max-h-0",
             ].join(" ")}
           >
@@ -300,7 +300,7 @@ export default function Navbar() {
         {isPublicAudience && (
           <div
             className={[
-              "md:hidden overflow-hidden transition-[max-height] duration-300",
+              `${pathname === "/" ? "lg:hidden" : "md:hidden"} overflow-hidden transition-[max-height] duration-300`,
               open ? "max-h-[420px]" : "max-h-0",
             ].join(" ")}
           >
@@ -308,8 +308,8 @@ export default function Navbar() {
               <a href="#inicio" className={publicMobileSectionCls}>
                 {t.nav.inicio}
               </a>
-              <a href="#ia" className={publicMobileSectionCls}>
-                {t.nav.iaMedica}
+              <a href={pathname === "/" ? "#consulta" : "#ia"} className={publicMobileSectionCls}>
+                {pathname === "/" ? (locale === "es" ? "Servicios" : "Services") : t.nav.iaMedica}
               </a>
               <a href="#como-funciona" className={publicMobileSectionCls}>
                 {t.nav.comoFunciona}

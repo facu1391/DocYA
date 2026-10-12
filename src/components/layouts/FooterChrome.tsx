@@ -16,7 +16,7 @@ export default function FooterChrome() {
   return (
     <>
       <Footer />
-      <FloatingCTA />
+      {pathname !== "/" && <FloatingCTA />}
       <ScrollToTopButton />
     </>
   );
