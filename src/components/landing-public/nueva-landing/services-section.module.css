@@ -1,0 +1,31 @@
+.services { background: #eff5f4; color: #112c36; padding: 72px 0 56px; scroll-margin-top: 88px; --home-accent: #087c72; }
+.container { width: min(1100px, calc(100% - 48px)); margin-inline: auto; }
+.heading { max-width: 740px; margin-bottom: 36px !important; }
+.service { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: "copy phone" "action phone"; grid-template-rows: auto auto; align-content: center; column-gap: 96px; row-gap: 24px; padding: 40px 0; min-height: 520px; }
+.copy { grid-area: copy; align-self: end; max-width: 470px; }
+.copy h3 { font-size: clamp(28px, 3vw, 36px); line-height: 1.2; letter-spacing: -.035em; margin: 0; }
+.copy p { color: #4b666d; font-size: 15px; line-height: 1.8; margin: 20px 0 0; }
+.phone { grid-area: phone; display: flex; align-items: center; justify-content: center; }
+.phone img { display: block; height: 470px; width: auto; max-width: 100%; object-fit: contain; }
+.action { grid-area: action; align-self: start; }
+.reverse { grid-template-areas: "phone copy" "phone action"; }
+.documents { grid-template-areas: "copy phone"; grid-template-rows: auto; }
+.documents .copy { align-self: center; }
+.documentLinks { list-style: none; display: grid; gap: 10px; margin: 24px 0 0; padding: 0; }
+.documentLinks a { display: inline-flex; gap: 12px; align-items: center; color: #087c72; font-size: 14px; font-weight: 500; text-decoration: none; }
+.documentLinks a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.copy .disclaimer { font-size: 12px; line-height: 1.7; margin-top: 20px; }
+.services a:focus-visible { outline: 3px solid #087c72; outline-offset: 5px; }
+@media(max-width: 1100px) { .service { column-gap: 48px; } .phone img { height: 430px; } }
+@media(max-width: 760px) {
+  .services { padding: 48px 0 36px; }
+  .container { width: calc(100% - 40px); }
+  .heading { margin-bottom: 30px !important; }
+  .service, .reverse { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "phone" "action"; grid-template-rows: auto; gap: 24px; padding: 24px 0 32px; min-height: 0; }
+  .documents { grid-template-areas: "copy" "phone"; padding-bottom: 12px; }
+  .copy { max-width: none; }
+  .copy h3 { font-size: 27px; }
+  .copy p { font-size: 14px; line-height: 1.7; margin-top: 14px; }
+  .phone img { height: 390px; max-width: 100%; }
+  .documentLinks { margin-top: 20px; }
+}

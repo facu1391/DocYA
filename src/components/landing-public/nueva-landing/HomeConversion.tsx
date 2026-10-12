@@ -6,17 +6,13 @@ import { Stethoscope, Video } from "lucide-react";
 import DomicilioVideo from "./DomicilioVideo";
 import PreciosSection from "./PreciosSection";
 import PublicAIChat from "./PublicAIChat";
+import ServicesSection from "./ServicesSection";
 import { useI18n } from "@/lib/i18n/context";
 import styles from "./home-conversion.module.css";
 
 export default function HomeConversion() {
   const { locale } = useI18n();
   const en = locale === "en";
-  const documents = [
-    { title: en ? "Electronic prescriptions" : "Recetas electrónicas", href: "/receta-medica-online" },
-    { title: en ? "Medical certificates" : "Certificados médicos", href: "/certificado-medico-online" },
-    { title: en ? "Medical test orders" : "Órdenes de estudios", href: "/orden-medica-online" },
-  ];
   const faqs = en ? [
     ["Do I need health insurance?", "No. You can request private medical care and pay per consultation, without a monthly subscription."],
     ["How much does a consultation cost?", "Current daytime and nighttime prices are listed above. The request flow confirms the final amount before payment."],
@@ -45,17 +41,7 @@ export default function HomeConversion() {
       </div>
     </section>
     <PublicAIChat />
-    <section id="consulta" className={`${styles.section} ${styles.servicesSection}`}>
-      <div className={styles.container}>
-        <div className={styles.intro}><h2>{en ? "The care you need, wherever you are." : "La atención que necesitás, desde donde estés."}</h2></div>
-        <div className={styles.serviceGrid}>
-          <article><h3>{en ? "Doctor at home" : "Médico a domicilio"}</h3><p>{en ? "An available professional visits your home in the areas we serve." : "Un profesional disponible se dirige a tu domicilio en las zonas habilitadas."}</p><Link className={styles.homeButton} href="/pedir">{en ? "Request a doctor at home" : "Pedir médico a domicilio"}</Link></article>
-          <article><h3>{en ? "Teleconsultation" : "Teleconsulta"}</h3><p>{en ? "Medical care by video call from anywhere in Argentina." : "Atención médica por videollamada desde cualquier lugar de Argentina."}</p><Link className={styles.videoButton} href="/pedir?tipo=teleconsulta">{en ? "Request a teleconsultation" : "Pedir teleconsulta"}</Link></article>
-        </div>
-        <div className={styles.documentStrip}><div><h3>{en ? "Your care, with the documents you need." : "Tu atención, con la documentación que necesitás."}</h3><p>{en ? "During the consultation, your doctor may issue documents when clinically appropriate, according to their assessment and professional judgment." : "Durante la consulta, el médico puede emitir documentación cuando sea clínicamente apropiado, según su evaluación y criterio profesional."}</p></div><div className={styles.documentLinks}>{documents.map(({title,href}) => <Link key={href} href={href}>{title}<span aria-hidden> ↗</span></Link>)}</div></div>
-        <p className={styles.small}>{en ? "Documents are not separate consultations and are not issued automatically." : "No son consultas independientes ni se emiten automáticamente."}</p>
-      </div>
-    </section>
+    <ServicesSection en={en} />
     <PreciosSection />
     <section id="cobertura" className={`${styles.section} ${styles.trustSection}`}>
       <div className={`${styles.container} ${styles.trustGrid}`}>
