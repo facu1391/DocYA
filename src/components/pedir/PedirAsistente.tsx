@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import Image from "next/image";
+import { chatTelemetry, chatAuthHeaders, chatAction, chatConversationId } from "@/lib/chat-analytics";
 import { ArrowLeft, Bot, Send, LoaderCircle, MessageCircle, Video, Stethoscope } from "lucide-react";
 
 type Role = "user" | "assistant";
@@ -36,6 +37,7 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
   const [loading, setLoading] = useState(false);
   const [emergency, setEmergency] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+  const conversationRef = useRef<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
   const isEnglish = locale === "en";
   const panel = dark ? "#0c222a" : "#ffffff";
@@ -83,8 +85,8 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
     try {
       const response = await fetch(`${apiUrl}/chat-ia`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next.slice(-8) }),
+        headers: { "Content-Type": "application/json", ...chatAuthHeaders() },
+        body: JSON.stringify({ messages: next.slice(-8), telemetry: chatTelemetry(conversationRef.current ||= chatConversationId()) }),
       });
       if (!response.ok) throw new Error("chat request failed");
       const data = await response.json() as { response?: string; emergencia?: boolean };
@@ -111,6 +113,7 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
   };
 
   const startRequest = (service: Service) => {
+    if (conversationRef.current) chatAction(apiUrl, conversationRef.current, service);
     setOpen(false);
     onRequest(service, motivoDesdeChat());
   };
@@ -194,7 +197,7 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
               </button>
             </form>
 
-            <a className="pedir-ai-whatsapp" href="https://wa.me/5491168700607" target="_blank" rel="noreferrer" style={{ color: muted }}>
+            <a className="pedir-ai-whatsapp" onClick={() => { if (conversationRef.current) chatAction(apiUrl, conversationRef.current, "whatsapp"); }} href="https://wa.me/5491168700607" target="_blank" rel="noreferrer" style={{ color: muted }}>
               <MessageCircle size={15} color="#25d366" />{isEnglish ? "Prefer to talk to a person? Contact us on WhatsApp" : "¿Preferís hablar con una persona? Contactanos por WhatsApp"}
             </a>
           </section>
