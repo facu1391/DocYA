@@ -97,6 +97,7 @@ export default function Navbar() {
   return (
     <>
       <header
+        style={pathname === "/" ? { background: "#071b25ed", borderColor: "#ffffff12", backdropFilter: "blur(18px)" } : undefined}
         className={[
           "sticky top-0 z-50 w-full border-b",
           "border-[var(--nav-border)]",

@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ClipboardPlus, FileCheck2, FileHeart, FolderHeart, MapPin, ShieldCheck, Stethoscope, Video, WalletCards } from "lucide-react";
-import ScrollReveal from "./ScrollReveal";
+import { Stethoscope, Video } from "lucide-react";
+import DomicilioVideo from "./DomicilioVideo";
 import PreciosSection from "./PreciosSection";
 import { useI18n } from "@/lib/i18n/context";
 import styles from "./home-conversion.module.css";
@@ -12,20 +12,9 @@ export default function HomeConversion() {
   const { locale } = useI18n();
   const en = locale === "en";
   const documents = [
-    { icon: FileHeart, title: en ? "Electronic prescriptions" : "Recetas electrónicas", href: "/receta-medica-online" },
-    { icon: FileCheck2, title: en ? "Medical certificates" : "Certificados médicos", href: "/certificado-medico-online" },
-    { icon: ClipboardPlus, title: en ? "Medical test orders" : "Órdenes de estudios", href: "/orden-medica-online" },
-  ];
-  const steps = [
-    { title: en ? "Choose your type of care." : "Elegí cómo querés atenderte.", copy: en ? "Choose a home visit or a teleconsultation." : "Seleccioná médico a domicilio o teleconsulta.", image: "/how/solicitar-portrait.png", alt: en ? "DocYa patient app" : "Aplicación DocYa Paciente" },
-    { title: en ? "DocYa looks for a professional." : "DocYa busca un profesional.", copy: en ? "We connect your request with available registered doctors." : "Nuestro sistema conecta tu solicitud con médicos matriculados disponibles.", image: "/how/experiencia3.png", alt: en ? "Doctor receives a care request" : "El profesional recibe la solicitud de atención" },
-    { title: en ? "Receive care." : "Recibí atención.", copy: en ? "At home or by video call. Track the doctor’s arrival in the app for home visits." : "Atendete desde tu casa o por videollamada. Si solicitaste domicilio, seguí la llegada del profesional desde la app.", image: "https://res.cloudinary.com/dqsacd9ez/image/upload/v1776468713/Captura_de_pantalla_2026-04-09_144113-portrait_vagywd.png", alt: en ? "Doctor arrival tracking in DocYa" : "Seguimiento del médico en camino desde DocYa" },
-  ];
-  const trust = [
-    { icon: ShieldCheck, title: en ? "Registered professionals" : "Profesionales matriculados", text: en ? "Medical care provided by a real professional." : "Atención médica real a cargo de un profesional." },
-    { icon: MapPin, title: en ? "Care you can follow" : "Seguimiento de consultas", text: en ? "Check your request and track a home visit in the app." : "Consultá tu solicitud y seguí al médico en camino desde la app." },
-    { icon: WalletCards, title: en ? "Secure payments" : "Pagos seguros", text: en ? "See your payment options and final amount before confirming." : "Revisá las opciones de pago y el importe final antes de confirmar." },
-    { icon: FolderHeart, title: en ? "Digital medical records" : "Historia clínica digital", text: en ? "Your consultations and medical documents in your account." : "Tus consultas y documentos médicos organizados en tu cuenta." },
+    { title: en ? "Electronic prescriptions" : "Recetas electrónicas", href: "/receta-medica-online" },
+    { title: en ? "Medical certificates" : "Certificados médicos", href: "/certificado-medico-online" },
+    { title: en ? "Medical test orders" : "Órdenes de estudios", href: "/orden-medica-online" },
   ];
   const faqs = en ? [
     ["Do I need health insurance?", "No. You can request private medical care and pay per consultation, without a monthly subscription."],
@@ -43,25 +32,40 @@ export default function HomeConversion() {
     ["¿Qué pasa si ningún médico acepta mi solicitud?", "Si ningún profesional acepta dentro del plazo de búsqueda informado, la solicitud se cancela y se gestiona la devolución que corresponda. Podés consultar el estado desde tu cuenta o comunicarte con soporte."],
   ];
   return <div className={styles.content}>
-    <section id="consulta" className={styles.section}>
-      <div className={styles.container}>
-        <ScrollReveal className={styles.intro}><h2>{en ? "Much more than a medical consultation." : "Mucho más que una consulta médica."}</h2><p>{en ? "Receive professional care and, when appropriate, the medical documents you need." : "Recibí atención profesional y, cuando corresponda, obtené la documentación médica que necesitás."}</p></ScrollReveal>
-        <div className={styles.documents}>{documents.map(({ icon: Icon, title, href }) => <article key={href}><Icon size={26} aria-hidden /><h3>{title}</h3><Link href="/pedir?tipo=teleconsulta">{en ? "Request a consultation" : "Solicitar una consulta"}</Link><Link className={styles.guide} href={href}>{en ? "How it works" : "Cómo funciona"}</Link></article>)}</div>
-        <p className={styles.small}>{en ? "Medical documents depend on the doctor’s assessment and professional judgment. They are not issued automatically." : "La documentación depende de la evaluación y el criterio del profesional médico. No se emite automáticamente."}</p>
+    <section id="como-funciona" className={`${styles.section} ${styles.videoSection}`}>
+      <div className={`${styles.container} ${styles.videoGrid}`}>
+        <div className={styles.videoCopy}>
+          <h2>{en ? "This is how easy DocYa is." : "Así de fácil funciona DocYa."}</h2>
+          <p>{en ? "Request care, we look for an available professional, and you can track their arrival on your phone." : "Solicitás atención, buscamos un profesional disponible y podés seguir su llegada desde tu celular."}</p>
+          <p className={styles.videoAlternative}>{en ? "Prefer care online? You can also request a teleconsultation by video call." : "¿Preferís atenderte online? También podés pedir una teleconsulta por videollamada."}</p>
+          <Link className={styles.inlineLink} href="/pedir">{en ? "Request care" : "Solicitar atención"}<span aria-hidden> →</span></Link>
+        </div>
+        <div className={styles.processVideo}><DomicilioVideo vertical /><div className={styles.motionPoster}><Image src="/inversores/seguimiento.png" alt={en ? "Doctor arrival tracking" : "Seguimiento de la llegada del médico"} width={1042} height={2048} sizes="240px" /><p>{en ? "Animation paused to respect your reduced motion preference." : "Animación pausada según tu preferencia de movimiento reducido."}</p></div></div>
       </div>
     </section>
-    <section id="como-funciona" className={`${styles.section} ${styles.soft}`}>
-      <div className={styles.container}><ScrollReveal className={styles.intro}><h2>{en ? "Requesting care has never been so simple." : "Pedir atención médica nunca fue tan simple."}</h2></ScrollReveal><div className={styles.steps}>{steps.map((step, i) => <article key={step.title}><span className={styles.stepNumber}>0{i + 1}</span><h3>{step.title}</h3><p>{step.copy}</p><div className={styles.stepImage}><Image src={step.image} alt={step.alt} width={220} height={450} sizes="(max-width: 760px) 110px, 180px" /></div></article>)}</div></div>
+    <section id="consulta" className={`${styles.section} ${styles.servicesSection}`}>
+      <div className={styles.container}>
+        <div className={styles.intro}><h2>{en ? "The care you need, wherever you are." : "La atención que necesitás, desde donde estés."}</h2></div>
+        <div className={styles.serviceGrid}>
+          <article><h3>{en ? "Doctor at home" : "Médico a domicilio"}</h3><p>{en ? "An available professional visits your home in the areas we serve." : "Un profesional disponible se dirige a tu domicilio en las zonas habilitadas."}</p><Link className={styles.homeButton} href="/pedir">{en ? "Request a doctor at home" : "Pedir médico a domicilio"}</Link></article>
+          <article><h3>{en ? "Teleconsultation" : "Teleconsulta"}</h3><p>{en ? "Medical care by video call from anywhere in Argentina." : "Atención médica por videollamada desde cualquier lugar de Argentina."}</p><Link className={styles.videoButton} href="/pedir?tipo=teleconsulta">{en ? "Request a teleconsultation" : "Pedir teleconsulta"}</Link></article>
+        </div>
+        <div className={styles.documentStrip}><div><h3>{en ? "Your care, with the documents you need." : "Tu atención, con la documentación que necesitás."}</h3><p>{en ? "During the consultation, your doctor may issue documents when clinically appropriate, according to their assessment and professional judgment." : "Durante la consulta, el médico puede emitir documentación cuando sea clínicamente apropiado, según su evaluación y criterio profesional."}</p></div><div className={styles.documentLinks}>{documents.map(({title,href}) => <Link key={href} href={href}>{title}<span aria-hidden> ↗</span></Link>)}</div></div>
+        <p className={styles.small}>{en ? "Documents are not separate consultations and are not issued automatically." : "No son consultas independientes ni se emiten automáticamente."}</p>
+      </div>
     </section>
     <PreciosSection />
-    <section id="cobertura" className={`${styles.section} ${styles.soft}`}>
-      <div className={styles.container}><div className={styles.intro}><h2>{en ? "Care from real professionals." : "Atención real, con profesionales de salud."}</h2><p>{en ? "Home visits in CABA and video consultations across Argentina, subject to professional and location availability." : "Médico a domicilio en CABA y teleconsulta en Argentina, según zona y disponibilidad de profesionales."}</p></div><div className={styles.trust}>{trust.map(({ icon: Icon, title, text }) => <article key={title}><Icon size={24} aria-hidden /><h3>{title}</h3><p>{text}</p></article>)}</div><div className={styles.contextLinks}><Link href="/medico-a-domicilio-caba">{en ? "Home care in CABA" : "Atención a domicilio en CABA"}</Link><Link href="/medico-online">{en ? "Online doctor" : "Cómo funciona el médico online"}</Link><Link href="/medico-a-domicilio-particular">{en ? "Private medical care" : "Atención particular sin obra social"}</Link></div></div>
+    <section id="cobertura" className={`${styles.section} ${styles.trustSection}`}>
+      <div className={`${styles.container} ${styles.trustGrid}`}>
+        <div><h2>{en ? "Real medical care. Clear information." : "Atención médica real. Información clara."}</h2><p>{en ? "Registered professionals, medical registration verified in SISA. Home visits in CABA and teleconsultations across Argentina, subject to availability." : "Profesionales con matrícula verificada en SISA. Domicilio en CABA y teleconsulta en Argentina, según zona y disponibilidad."}</p></div>
+        <ul className={styles.trustList}><li>{en ? "Track your requests and the doctor's arrival" : "Seguimiento de solicitudes y llegada del médico"}</li><li>{en ? "Secure payments, final amount before confirmation" : "Pagos seguros, con el importe final antes de confirmar"}</li><li>{en ? "Digital medical records and documents in your account" : "Historia clínica digital y documentos en tu cuenta"}</li></ul>
+      </div><div className={styles.contextLinks}><Link href="/medico-a-domicilio-caba">{en ? "Home care in CABA" : "Atención a domicilio en CABA"}</Link><Link href="/medico-online">{en ? "Online doctor" : "Cómo funciona el médico online"}</Link><Link href="/medico-a-domicilio-particular">{en ? "Private medical care" : "Atención particular sin obra social"}</Link></div>
     </section>
     <section id="preguntas" className={styles.section}>
       <div className={styles.narrow}><div className={styles.intro}><h2>{en ? "Answers before you request care." : "Tus dudas, antes de pedir atención."}</h2></div><div className={styles.faqs}>{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span aria-hidden>+</span></summary><p>{answer}</p></details>)}</div><div className={styles.contextLinks}><Link href="/centro-de-ayuda">{en ? "Help centre" : "Centro de ayuda"}</Link><Link href="/teleconsulta">{en ? "About teleconsultations" : "Más sobre teleconsulta"}</Link><Link href="/doctor-in-buenos-aires">{en ? "Care for tourists in Buenos Aires" : "Atención para turistas en Buenos Aires"}</Link><Link href="/medical-care-tourists-argentina">{en ? "Medical care for tourists in Argentina" : "Consultas para turistas en Argentina"}</Link></div></div>
     </section>
-    <section id="descargar" className={`${styles.section} ${styles.soft}`}>
-      <div className={styles.narrow}><div className={styles.intro}><h2>{en ? "Choose how you want to receive care." : "Elegí cómo querés atenderte."}</h2><p>{en ? "Request care on the web or from the DocYa app." : "Solicitá atención desde la web o desde la app de DocYa."}</p></div><div className={`${styles.actions} ${styles.center}`}><Link className={styles.homeButton} href="/pedir"><Stethoscope size={20} aria-hidden />{en ? "Doctor at home" : "Médico a domicilio"}</Link><Link className={styles.videoButton} href="/pedir?tipo=teleconsulta"><Video size={20} aria-hidden />{en ? "Teleconsultation" : "Teleconsulta"}</Link></div><div className={styles.downloads}><a href="https://apps.apple.com/ar/app/docya/id6753604975" target="_blank" rel="noopener noreferrer"><Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774467671/Download_on_the_App_Store_Badge_ES_RGB_blk_100217_p2sw34.svg" alt="App Store" width={150} height={45} /></a><a href="https://play.google.com/store/apps/details?id=com.docya.paciente" target="_blank" rel="noopener noreferrer"><Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774467963/GetItOnGooglePlay_Badge_Web_color_Spanish-LATAM_cbr148.svg" alt="Google Play" width={150} height={45} /></a></div><p className={styles.small}>{en ? "For emergencies, contact local emergency services." : "Ante una emergencia, llamá al 107 o al 911, o acudí a una guardia."}</p></div>
+    <section id="descargar" className={`${styles.section} ${styles.closing}`}>
+      <div className={styles.narrow}><div className={styles.intro}><h2>{en ? "Your doctor, a tap away." : "Tu médico, a un toque de distancia."}</h2><p>{en ? "Choose how you want to receive care and DocYa looks for an available professional." : "Elegí cómo querés atenderte y DocYa busca un profesional disponible para vos."}</p></div><div className={`${styles.actions} ${styles.center}`}><Link className={styles.homeButton} href="/pedir"><Stethoscope size={20} aria-hidden />{en ? "Request a doctor at home" : "Pedir médico a domicilio"}</Link><Link className={styles.videoButton} href="/pedir?tipo=teleconsulta"><Video size={20} aria-hidden />{en ? "Request a teleconsultation" : "Pedir teleconsulta"}</Link></div><div className={styles.downloads}><a href="https://apps.apple.com/ar/app/docya/id6753604975" target="_blank" rel="noopener noreferrer"><Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774467671/Download_on_the_App_Store_Badge_ES_RGB_blk_100217_p2sw34.svg" alt="App Store" width={150} height={45} /></a><a href="https://play.google.com/store/apps/details?id=com.docya.paciente" target="_blank" rel="noopener noreferrer"><Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774467963/GetItOnGooglePlay_Badge_Web_color_Spanish-LATAM_cbr148.svg" alt="Google Play" width={150} height={45} /></a></div><p className={styles.small}>{en ? "For emergencies, contact local emergency services." : "Ante una emergencia, llamá al 107 o al 911, o acudí a una guardia."}</p></div>
     </section>
   </div>;
 }
