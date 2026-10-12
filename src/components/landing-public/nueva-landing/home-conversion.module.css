@@ -21,6 +21,10 @@
 .mainPhone { width: 46%; top: 0; left: 7%; transform: rotate(-7deg); z-index: 2; }
 .trackingPhone { width: 40%; right: 4%; top: 48px; transform: rotate(8deg); }
 .heroPhone figcaption { position: absolute; bottom: 0; left: 0; right: 0; text-align: center; font-size: 11px; color: #a5c3cc; }
+.heroDownloads { text-align: center; margin-top: 22px; }
+.heroDownloads p { font-size: 12px; color: #a5c3cc; margin: 0; }
+.heroDownloads .downloads { margin-top: 14px; }
+.heroDownloads img { position: static; filter: none; }
 .section { padding: 72px 0; scroll-margin-top: 88px; }
 .content h2 { font-size: clamp(29px,3vw,42px); line-height: 1.17; font-weight: 600; letter-spacing: -.035em; margin: 0; }
 .content h3 { font-weight: 600; letter-spacing: -.02em; }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Stethoscope, Video } from "lucide-react";
 import DomicilioVideo from "./DomicilioVideo";
 import PreciosSection from "./PreciosSection";
+import PublicAIChat from "./PublicAIChat";
 import { useI18n } from "@/lib/i18n/context";
 import styles from "./home-conversion.module.css";
 
@@ -43,6 +44,7 @@ export default function HomeConversion() {
         <div className={styles.processVideo}><DomicilioVideo vertical /><div className={styles.motionPoster}><Image src="/inversores/seguimiento.png" alt={en ? "Doctor arrival tracking" : "Seguimiento de la llegada del médico"} width={1042} height={2048} sizes="240px" /><p>{en ? "Animation paused to respect your reduced motion preference." : "Animación pausada según tu preferencia de movimiento reducido."}</p></div></div>
       </div>
     </section>
+    <PublicAIChat />
     <section id="consulta" className={`${styles.section} ${styles.servicesSection}`}>
       <div className={styles.container}>
         <div className={styles.intro}><h2>{en ? "The care you need, wherever you are." : "La atención que necesitás, desde donde estés."}</h2></div>

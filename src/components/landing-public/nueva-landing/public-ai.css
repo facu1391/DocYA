@@ -1,0 +1,6 @@
+.public-ai-overlay { background: #0008; display: flex; justify-content: flex-end; }
+.public-ai-overlay .pedir-ai-dialog { width: min(100%, 480px); box-shadow: -16px 0 60px #0004; }
+.public-ai-overlay .pedir-ai-heading h2 { font-size: 17px; font-weight: 600; letter-spacing: normal; }
+.public-ai-overlay button:disabled { opacity: .5; cursor: not-allowed; }
+.public-ai-overlay :is(button, input, a):focus-visible { outline: 2px solid #36d6c2; outline-offset: 3px; }
+@media(max-width:640px) { .public-ai-overlay .pedir-ai-dialog { width: 100%; } }

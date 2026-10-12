@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import type { ReactNode } from "react";
 import Image from "next/image";
 import { chatTelemetry, chatAuthHeaders, chatAction, chatConversationId } from "@/lib/chat-analytics";
 import { ArrowLeft, Bot, Send, LoaderCircle, MessageCircle, Video, Stethoscope } from "lucide-react";
@@ -18,6 +19,10 @@ type Props = {
   text: string;
   border: string;
   onRequest: (service: Service, motivo: string) => void;
+  publicChat?: {
+    send: (messages: Message[]) => Promise<{ response?: string; emergencia?: boolean }>;
+    launcher: (open: () => void) => ReactNode;
+  };
 };
 
 const QUICK_QUESTIONS = {
@@ -30,7 +35,7 @@ const WELCOME = {
   en: "Hi! I'm DocYa AI. I can answer questions about our services, prices, prescriptions and certificates, or help you choose what type of care to request. What would you like to know?",
 };
 
-export default function PedirAsistente({ apiUrl, locale, dark, muted, text, border, onRequest }: Props) {
+export default function PedirAsistente({ apiUrl, locale, dark, muted, text, border, onRequest, publicChat }: Props) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -83,22 +88,24 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
     setInput("");
     setLoading(true);
     try {
+      const data = publicChat ? await publicChat.send(next.slice(-8)) : await (async () => {
       const response = await fetch(`${apiUrl}/chat-ia`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...chatAuthHeaders() },
         body: JSON.stringify({ messages: next.slice(-8), telemetry: chatTelemetry(conversationRef.current ||= chatConversationId()) }),
       });
       if (!response.ok) throw new Error("chat request failed");
-      const data = await response.json() as { response?: string; emergencia?: boolean };
+      return await response.json() as { response?: string; emergencia?: boolean };
+      })();
       const answer = typeof data.response === "string" && data.response.trim()
         ? data.response
         : (isEnglish ? "I couldn't prepare an answer right now. Please try again." : "No pude preparar una respuesta ahora. Intentá de nuevo.");
       setMessages([...next, { role: "assistant", content: answer }]);
       setEmergency(previous => previous || data.emergencia === true);
-    } catch {
+    } catch (error) {
       setMessages([...next, {
         role: "assistant",
-        content: isEnglish
+        content: publicChat && error instanceof Error ? error.message : isEnglish
           ? "I couldn't connect right now. Please try again in a moment, or contact our support team on WhatsApp."
           : "No pude conectarme ahora. Intentá de nuevo en un momento o escribinos por WhatsApp.",
       }]);
@@ -113,14 +120,14 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
   };
 
   const startRequest = (service: Service) => {
-    if (conversationRef.current) chatAction(apiUrl, conversationRef.current, service);
+    if (!publicChat && conversationRef.current) chatAction(apiUrl, conversationRef.current, service);
     setOpen(false);
     onRequest(service, motivoDesdeChat());
   };
 
   return (
     <>
-      <button
+      {publicChat ? publicChat.launcher(() => setOpen(true)) : <button
         type="button"
         className="pedir-ai-launcher wa-card"
         onClick={() => setOpen(true)}
@@ -134,13 +141,13 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
           <small style={{ color: muted }}>{isEnglish ? "Ask a question or get help requesting care" : "Resolvé dudas o recibí ayuda para pedir atención"}</small>
         </span>
         <span className="pedir-ai-launcher-arrow" aria-hidden="true">›</span>
-      </button>
+      </button>}
 
       {open && (
-        <div className="pedir-ai-overlay">
+        <div className={`pedir-ai-overlay${publicChat ? " public-ai-overlay" : ""}`}>
           <section className="pedir-ai-dialog" role="dialog" aria-modal="true" aria-labelledby="pedir-ai-title" style={{ color: text, background: panel, borderColor: border }}>
             <header className="pedir-ai-header" style={{ borderColor: border }}>
-              <button type="button" className="pedir-ai-back" onClick={() => setOpen(false)} aria-label={isEnglish ? "Back to request" : "Volver a pedir atención"}>
+              <button type="button" className="pedir-ai-back" onClick={() => setOpen(false)} aria-label={publicChat ? "Volver al inicio" : isEnglish ? "Back to request" : "Volver a pedir atención"}>
                 <ArrowLeft size={22} />
               </button>
               <Image className="pedir-ai-mark" src="/docya-ai-icon.png" alt="DocYa IA" width={48} height={48} priority />
@@ -156,7 +163,7 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
             </div>
 
             <div className="pedir-ai-messages" ref={listRef} aria-live="polite">
-              <div className="pedir-ai-message assistant" style={{ background: bubble }}>{WELCOME[locale]}</div>
+              <div className="pedir-ai-message assistant" style={{ background: bubble }}>{publicChat ? "¡Hola! Soy DocYa IA. Puedo ayudarte a conocer nuestros servicios y resolver dudas sobre precios, cobertura, recetas, certificados, órdenes y cómo solicitar atención. ¿Qué necesitás saber?" : WELCOME[locale]}</div>
               {messages.map((message, index) => (
                 <div key={`${index}-${message.role}`} className={`pedir-ai-message ${message.role}`} style={{ background: message.role === "user" ? teal : bubble, color: message.role === "user" ? "#fff" : text }}>
                   {message.content}
@@ -167,7 +174,7 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
 
             {messages.length === 0 && (
               <div className="pedir-ai-suggestions">
-                {QUICK_QUESTIONS[locale].map(question => (
+                {(publicChat ? ["Necesito un médico.", "Quiero una receta.", "¿Cuánto cuesta?", "¿Cómo funciona DocYa?"] : QUICK_QUESTIONS[locale]).map(question => (
                   <button type="button" key={question} onClick={() => void send(question)} disabled={loading} style={{ color: text, borderColor: border, background: surface }}>{question}</button>
                 ))}
               </div>
@@ -197,7 +204,7 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
               </button>
             </form>
 
-            <a className="pedir-ai-whatsapp" onClick={() => { if (conversationRef.current) chatAction(apiUrl, conversationRef.current, "whatsapp"); }} href="https://wa.me/5491168700607" target="_blank" rel="noreferrer" style={{ color: muted }}>
+            <a className="pedir-ai-whatsapp" onClick={() => { if (!publicChat && conversationRef.current) chatAction(apiUrl, conversationRef.current, "whatsapp"); }} href="https://wa.me/5491168700607" target="_blank" rel="noreferrer" style={{ color: muted }}>
               <MessageCircle size={15} color="#25d366" />{isEnglish ? "Prefer to talk to a person? Contact us on WhatsApp" : "¿Preferís hablar con una persona? Contactanos por WhatsApp"}
             </a>
           </section>

@@ -1,38 +1,36 @@
-# Acceso público de DocYa IA: cambios mínimos propuestos
+# DocYa IA pública: implementación simple
 
-Estado: nuevo pedido del 12/10/2026. Autorización para los controles de backend
-solicitada y pendiente. La sección visual está preparada en `PublicAISection.tsx`,
-pero no se incorpora a la landing ni se habilita el acceso hasta contar con
-protección del backend. No se modifica el chat del paciente registrado.
+Actualizado el 12/10/2026 según la instrucción del usuario de simplificar los controles.
 
-Reutilizar el prompt, conocimiento, modelo y función existentes de `/chat-ia`.
-El visitante no recibe ni usa credenciales de pacientes. No hay acceso a historias
-clínicas, consultas individuales ni datos privados.
+La landing reutiliza `PedirAsistente` mediante un adaptador público. Los valores
+por defecto y la ruta `/chat-ia` del paciente registrado conservan su comportamiento.
+El nuevo ingreso `/chat-ia/public/message` utiliza el mismo modelo, conocimiento,
+tarifas e implementación de respuesta. Agrega un contexto de alcance limitado a
+preguntas sobre los servicios y funcionamiento de DocYa.
 
-Agregar un ingreso público separado con controles previos a invocar el mismo chat:
-- sesión anónima firmada y de corta duración, emitida sólo tras desafío antibot;
-- validación del desafío en servidor, por ejemplo Cloudflare Turnstile;
-- límites persistentes por sesión y por origen de red (hash temporal, nunca IP
-  cruda), para que cambiar el UUID del navegador no eluda el control;
-- hasta 5 mensajes por sesión anónima, configurable desde backend;
-- límites de frecuencia por sesión y red, tolerantes a redes compartidas;
-- tope global diario configurable, bloqueo sin invocar al proveedor al agotarse;
-- máximo 8 mensajes de historial, 1.200 caracteres por mensaje y 512 tokens
-  de salida; reutilizar reglas de emergencia e instrucciones actuales;
-- conservar sólo contadores, identificadores pseudónimos y consumo; no mensajes;
-- si el proveedor o el control no están disponibles, informar y ofrecer WhatsApp.
+## Controles del backend
 
-El chat privado conserva su ruta y comportamiento actuales. Las métricas ya
-existentes pueden recibir los eventos del ingreso público sin conservar contenido.
-Para producción se requieren las claves del desafío y la configuración de los
-límites. Ningún secreto se incluye en código cliente.
+- 10 solicitudes por minuto por IP; configurable mediante
+  `CHAT_IA_PUBLIC_REQUESTS_PER_MINUTE`.
+- Contador atómico PostgreSQL compartido entre réplicas, con expiración de dos
+  minutos. La dirección IP se transforma en HMAC con ventana temporal y no se guarda.
+- Hasta 8 mensajes de contexto, 1200 caracteres por mensaje y 512 tokens de salida.
+- Contexto total (sistema + mensajes) de hasta 20000 bytes UTF-8.
+- El endpoint no utiliza Authorization, cookies ni credenciales de pacientes.
+- No dispone de herramientas privadas, acceso a historias clínicas ni documentos.
+- Las métricas existentes reciben sólo identificadores anónimos y consumo, nunca
+  el contenido de las conversaciones. Ante indisponibilidad de los contadores se
+  rechaza la solicitud pública; el chat registrado sigue independiente.
 
-El control de presupuesto debe reservar el costo máximo de cada solicitud antes
-de invocar al proveedor, de forma atómica, para que solicitudes concurrentes no
-superen el límite. Los contadores deben persistir entre reinicios y réplicas.
-La clave de firma y las claves antibot se configuran en producción. Si faltan,
-el acceso público debe permanecer cerrado.
+No hay CAPTCHA, Turnstile, registro obligatorio, cuota total por visitante ni
+presupuesto global. El límite de frecuencia es temporal: tras esperar puede
+continuarse la conversación. No requiere nuevas claves ni servicios externos.
 
-El modo público no debe leer tokens de pacientes del navegador. Sus acciones
-redirigen a los flujos actuales `/pedir` y `/pedir?tipo=teleconsulta`; no puede
-seleccionar médicos, emitir documentos ni acceder a datos privados.
+En Railway se usa X-Real-IP, sobrescrito con la IP remota del cliente por el proxy
+perimetral. En otros despliegues se usa request.client; su proxy debe configurarse
+para entregar una dirección de cliente fiable, sin aceptar encabezados arbitrarios.
+
+El modo público no brinda evaluación clínica. Explica servicios, precios, cobertura,
+recetas, certificados y órdenes según evaluación y criterio del profesional.
+Si se mencionan señales de emergencia mantiene la indicación de emergencias.
+Los botones llevan a los flujos actuales /pedir y /pedir?tipo=teleconsulta.

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import styles from "./home-conversion.module.css";
 
-/** The public chat must only be enabled after its server protections are deployed. */
+/** Public FAQ entry, using the same assistant with server-side frequency limits. */
 export default function PublicAISection({ onOpen }: { onOpen: () => void }) {
   return (
     <section id="docya-ia" className={`${styles.section} ${styles.aiSection}`} aria-labelledby="public-ai-heading">
