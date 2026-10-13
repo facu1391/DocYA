@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 const DESKTOP_VIDEO = "/videos/docya-medico-desktop.mp4";
 const MOBILE_VIDEO = "/videos/docya-medico-mobile.mp4";
 
-export default function DomicilioVideo({ vertical = false }: { vertical?: boolean }) {
+export default function DomicilioVideo({ vertical = false, label = "Animación del proceso de asignación del médico disponible más cercano y su recorrido hacia el domicilio del paciente" }: { vertical?: boolean; label?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export default function DomicilioVideo({ vertical = false }: { vertical?: boolea
         loop
         playsInline
         preload="none"
-        aria-label="Animación del proceso de asignación del médico disponible más cercano y su recorrido hacia el domicilio del paciente"
+        aria-label={label}
       />
     </div>
   );

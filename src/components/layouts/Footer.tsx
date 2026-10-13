@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { translateInvestor, type InvestorLocale } from "@/lib/i18n/investors";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Instagram, Facebook, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 
 const DOCYA_LOGO_URL = "https://res.cloudinary.com/dqsacd9ez/image/upload/v1788908618/docyanuevo_f1ukcy.png";
 
-export default function Footer({ audience }: { audience?: "public" | "pro" } = {}) {
+export default function Footer({ audience, locale = "es" }: { audience?: "public" | "pro"; locale?: InvestorLocale } = {}) {
+  const t = (text: string) => translateInvestor(locale, text);
   const year = new Date().getFullYear();
   const pathname = usePathname();
 
@@ -57,7 +59,7 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
             <div className="mx-auto max-w-5xl">
               <div className="grid gap-10 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start lg:gap-16">
                 <div className="text-center md:text-left">
-                  <Link href="/" aria-label="Ir a la Home" className="inline-block">
+                  <Link href="/" aria-label={t("Ir a la Home")} className="inline-block">
                     <div className="relative mx-auto h-10 w-[156px] dark:hidden md:mx-0">
                       <Image src={logos.light} alt={logos.alt} fill className="object-contain" />
                     </div>
@@ -67,7 +69,7 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
                   </Link>
 
                   <p className="mx-auto mt-4 max-w-sm text-sm leading-7 text-white/60 md:mx-0">
-                    {publicCopy}
+                    {t(publicCopy)}
                   </p>
 
                   <ul className="mt-5 flex items-center justify-center gap-3 md:justify-start">
@@ -76,7 +78,7 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
                         href="https://www.linkedin.com/company/docya"
                         target="_blank"
                         rel="noopener noreferrer"
-                        aria-label="LinkedIn"
+                        aria-label={t("LinkedIn")}
                         className={socialIconCls}
                       >
                         <Linkedin className="h-4.5 w-4.5" />
@@ -87,7 +89,7 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
                         href="https://instagram.com/docya.argentina"
                         target="_blank"
                         rel="noopener noreferrer"
-                        aria-label="Instagram"
+                        aria-label={t("Instagram")}
                         className={socialIconCls}
                       >
                         <Instagram className="h-4.5 w-4.5" />
@@ -98,14 +100,14 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
                         href="https://facebook.com/docya"
                         target="_blank"
                         rel="noopener noreferrer"
-                        aria-label="Facebook"
+                        aria-label={t("Facebook")}
                         className={socialIconCls}
                       >
                         <Facebook className="h-4.5 w-4.5" />
                       </a>
                     </li>
                     <li>
-                      <a href="mailto:soporte@docya.com.ar" aria-label="Email" className={socialIconCls}>
+                      <a href="mailto:soporte@docya.com.ar" aria-label={t("Email")} className={socialIconCls}>
                         <Mail className="h-4.5 w-4.5" />
                       </a>
                     </li>
@@ -115,44 +117,44 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
                 <div className="border-t border-white/10 pt-6 lg:pt-1">
                   <div className="grid gap-8 sm:grid-cols-3">
                     <div className="text-center md:text-left">
-                      <h4 className={sectionTitleCls}>Legal</h4>
+                      <h4 className={sectionTitleCls}>{t("Legal")}</h4>
                       <ul className="mt-3 flex flex-wrap justify-center gap-2 text-sm md:block md:space-y-2">
                         <li>
                           <Link href={`${legalBase}/terminos`} className={chipLinkCls}>
-                            Terminos y Condiciones
+                            {t("Terminos y Condiciones")}
                           </Link>
                         </li>
                         <li>
                           <Link href={`${legalBase}/privacidad`} className={chipLinkCls}>
-                            Politica de Privacidad
+                            {t("Politica de Privacidad")}
                           </Link>
                         </li>
                       </ul>
                     </div>
 
                     <div className="text-center md:text-left">
-                      <h4 className={sectionTitleCls}>Descargas</h4>
+                      <h4 className={sectionTitleCls}>{t("Descargas")}</h4>
                       <ul className="mt-3 flex flex-wrap justify-center gap-2 text-sm md:block md:space-y-2">
                         <li>
                           <Link href="/descargas" className={chipLinkCls}>
-                            Descargar DocYa
+                            {t("Descargar DocYa")}
                           </Link>
                         </li>
                         <li>
                           <Link href="/centro-de-ayuda" className={chipLinkCls}>
-                            Centro de Ayuda
+                            {t("Centro de Ayuda")}
                           </Link>
                         </li>
                       </ul>
                     </div>
 
                     <div className="text-center md:text-left">
-                      <h4 className={sectionTitleCls}>Contacto</h4>
+                      <h4 className={sectionTitleCls}>{t("Contacto")}</h4>
                       <ul className="mt-3 space-y-3 text-sm">
                         <li className="flex justify-center gap-2 text-white/75 md:justify-start">
                           <Mail className="h-4 w-4 text-[#0AE6C7]" />
                           <a href="mailto:soporte@docya.com.ar" className="transition hover:text-[#0AE6C7]">
-                            soporte@docya.com.ar
+                            {t("soporte@docya.com.ar")}
                           </a>
                         </li>
                         <li className="flex justify-center gap-2 text-white/75 md:justify-start">
@@ -168,38 +170,38 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
                         </li>
                         <li className="flex justify-center gap-2 text-white/75 md:justify-start">
                           <MapPin className="h-4 w-4 text-[#0AE6C7]" />
-                          <span className="text-white/60">CABA</span>
+                          <span className="text-white/60">{t("CABA")}</span>
                         </li>
                       </ul>
                     </div>
                   </div>
 
                   <div className="mt-8 border-t border-white/10 pt-6 text-center md:text-left">
-                    <h4 className={sectionTitleCls}>Respaldo institucional</h4>
+                    <h4 className={sectionTitleCls}>{t("Respaldo institucional")}</h4>
                     <div className="mt-4 grid gap-8 sm:grid-cols-2">
                       <div className="mx-auto w-full max-w-[250px] md:mx-0">
                         <Image
                           src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1776466341/Dise%C3%B1o_sin_t%C3%ADtulo_31_zqxiuz.png"
-                          alt="Logo del Ministerio de Salud de la Nacion"
+                          alt={t("Logo del Ministerio de Salud de la Nacion")}
                           width={250}
                           height={80}
                           className="h-20 w-full object-contain object-center md:object-left"
                         />
                         <p className="mt-3 text-sm leading-6 text-white/70">
-                          DocYa se encuentra registrada en el Ministerio de Salud de la Nacion (ID 0259).
+                          {t("DocYa se encuentra registrada en el Ministerio de Salud de la Nacion (ID 0259).")}
                         </p>
                       </div>
 
                       <div className="mx-auto w-full max-w-[250px] md:mx-0">
                         <Image
                           src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1775043651/logosisa_dxtx66.png"
-                          alt="Logo SISA"
+                          alt={t("Logo SISA")}
                           width={250}
                           height={64}
                           className="h-16 w-full object-contain object-center md:object-left"
                         />
                         <p className="mt-3 text-sm leading-6 text-white/70">
-                          Todos nuestros profesionales estan validados en SISA.
+                          {t("Todos nuestros profesionales estan validados en SISA.")}
                         </p>
                       </div>
                     </div>
@@ -210,7 +212,7 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
           ) : (
             <div className="grid gap-8 md:grid-cols-2 md:gap-10 lg:grid-cols-4">
               <div className="text-center md:text-left">
-                <Link href="/" aria-label="Ir a la Home" className="inline-block">
+                <Link href="/" aria-label={t("Ir a la Home")} className="inline-block">
                   <div className="relative mx-auto h-9 w-[150px] dark:hidden md:mx-0">
                     <Image src={logos.light} alt={logos.alt} fill className="object-contain" />
                   </div>
@@ -220,7 +222,7 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
                 </Link>
 
                 <p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-white/60 md:mx-0">
-                  {proCopy}
+                  {t(proCopy)}
                 </p>
 
                 <ul className="mt-5 flex items-center justify-center gap-3 md:justify-start">
@@ -229,7 +231,7 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
                       href="https://www.linkedin.com/company/docya"
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label="LinkedIn"
+                      aria-label={t("LinkedIn")}
                       className={socialIconCls}
                     >
                       <Linkedin className="h-4.5 w-4.5" />
@@ -240,7 +242,7 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
                       href="https://instagram.com/docya.argentina"
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label="Instagram"
+                      aria-label={t("Instagram")}
                       className={socialIconCls}
                     >
                       <Instagram className="h-4.5 w-4.5" />
@@ -251,14 +253,14 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
                       href="https://facebook.com/docya"
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label="Facebook"
+                      aria-label={t("Facebook")}
                       className={socialIconCls}
                     >
                       <Facebook className="h-4.5 w-4.5" />
                     </a>
                   </li>
                   <li>
-                    <a href="mailto:soporte@docya.com.ar" aria-label="Email" className={socialIconCls}>
+                    <a href="mailto:soporte@docya.com.ar" aria-label={t("Email")} className={socialIconCls}>
                       <Mail className="h-4.5 w-4.5" />
                     </a>
                   </li>
@@ -266,39 +268,39 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
               </div>
 
               <div className="border-t border-white/10 pt-6 text-center md:border-0 md:pt-0 md:text-left">
-                <h4 className={sectionTitleCls}>Producto</h4>
+                <h4 className={sectionTitleCls}>{t("Producto")}</h4>
                 <ul className="mt-3 flex flex-wrap justify-center gap-2 text-sm md:block md:space-y-2">
-                  <li><Link href="/ingresos" className={chipLinkCls}>Ingresos</Link></li>
-                  <li><Link href="/faqs" className={chipLinkCls}>FAQs</Link></li>
-                  <li><Link href="/contacto" className={chipLinkCls}>Contacto</Link></li>
-                  <li><Link href="/descargas" className={chipLinkCls}>Descargas</Link></li>
-                  <li><Link href="/registro" className={chipLinkCls}>Registrate</Link></li>
+                  <li><Link href="/ingresos" className={chipLinkCls}>{t("Ingresos")}</Link></li>
+                  <li><Link href="/faqs" className={chipLinkCls}>{t("FAQs")}</Link></li>
+                  <li><Link href="/contacto" className={chipLinkCls}>{t("Contacto")}</Link></li>
+                  <li><Link href="/descargas" className={chipLinkCls}>{t("Descargas")}</Link></li>
+                  <li><Link href="/registro" className={chipLinkCls}>{t("Registrate")}</Link></li>
                 </ul>
               </div>
 
               <div className="border-t border-white/10 pt-6 text-center md:border-0 md:pt-0 md:text-left">
-                <h4 className={sectionTitleCls}>Legal</h4>
+                <h4 className={sectionTitleCls}>{t("Legal")}</h4>
                 <ul className="mt-3 flex flex-wrap justify-center gap-2 text-sm md:block md:space-y-2">
                   <li>
                     <Link href={`${legalBase}/terminos`} className={chipLinkCls}>
-                      Terminos y Condiciones
+                      {t("Terminos y Condiciones")}
                     </Link>
                   </li>
                   <li>
                     <Link href={`${legalBase}/privacidad`} className={chipLinkCls}>
-                      Politica de Privacidad
+                      {t("Politica de Privacidad")}
                     </Link>
                   </li>
                 </ul>
               </div>
 
               <div className="border-t border-white/10 pt-6 text-center md:border-0 md:pt-0 md:text-left">
-                <h4 className={sectionTitleCls}>Contacto</h4>
+                <h4 className={sectionTitleCls}>{t("Contacto")}</h4>
                 <ul className="mt-3 space-y-3 text-sm">
                   <li className="flex justify-center gap-2 text-white/75 md:justify-start">
                     <Mail className="h-4 w-4 text-[#0AE6C7]" />
                     <a href="mailto:soporte@docya.com.ar" className="transition hover:text-[#0AE6C7]">
-                      soporte@docya.com.ar
+                      {t("soporte@docya.com.ar")}
                     </a>
                   </li>
                   <li className="flex justify-center gap-2 text-white/75 md:justify-start">
@@ -314,7 +316,7 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
                   </li>
                   <li className="flex justify-center gap-2 text-white/75 md:justify-start">
                     <MapPin className="h-4 w-4 text-[#0AE6C7]" />
-                    <span className="text-white/60">CABA</span>
+                    <span className="text-white/60">{t("CABA")}</span>
                   </li>
                 </ul>
               </div>
@@ -324,14 +326,14 @@ export default function Footer({ audience }: { audience?: "public" | "pro" } = {
           <div className="mt-10 border-t border-white/10 pt-6">
             <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-3 text-center text-xs text-white/55">
               <p>
-                © {year} <span className="text-white">{brandName}</span> - Todos los derechos reservados.
+                © {year} <span className="text-white">{brandName}</span> {t("- Todos los derechos reservados.")}
               </p>
               <span className="hidden opacity-40 sm:block">•</span>
               <Link href={`${legalBase}/privacidad`} className="transition hover:text-[#0AE6C7]">
-                Privacidad
+                {t("Privacidad")}
               </Link>
               <Link href={`${legalBase}/terminos`} className="transition hover:text-[#0AE6C7]">
-                Terminos
+                {t("Terminos")}
               </Link>
             </div>
           </div>
