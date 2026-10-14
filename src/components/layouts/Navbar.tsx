@@ -53,7 +53,9 @@ export default function Navbar() {
 
   const LOGOS = isPublicAudience
     ? { light: DOCYA_LOGO_URL, dark: DOCYA_LOGO_URL, alt: "DocYa" }
-    : { light: "/logo-pro-dark.png", dark: "/logo-pro-light.png", alt: "DocYa Pro" };
+    : pathname === "/profesionales"
+      ? { light: "/profesionales/logo-docya-pro.webp", dark: "/profesionales/logo-docya-pro.webp", alt: "DocYa Pro" }
+      : { light: "/logo-pro-dark.png", dark: "/logo-pro-light.png", alt: "DocYa Pro" };
 
   const logoHref = isPublicAudience ? "/" : "/profesionales";
   const logoAria = isPublicAudience ? "Ir a la Home pública" : "Ir a la Home de Profesionales";

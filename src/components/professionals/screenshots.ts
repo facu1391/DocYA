@@ -1,9 +1,8 @@
-// Add real PNG/WebP screenshots, without another device frame, here.
-// Undefined src renders a neutral surface; no empty image files are loaded.
+// Mockups include their complete iPhone frame and are served as optimized WebP.
 export const professionalScreenshots: Record<string, { src?: string; alt: string }> = {
-  heroProfessional: { alt: "Solicitud entrante en DocYa Pro" },
-  professionalProfile: { alt: "Perfil profesional en DocYa Pro" },
-  professionalAvailability: { alt: "Disponibilidad y solicitudes en DocYa Pro" },
-  professionalConsultation: { alt: "Gestión de una consulta en DocYa Pro" },
-  professionalClinicalTools: { alt: "Herramientas clínicas de DocYa Pro" },
+  heroProfessional: { src: "/profesionales/hero-disponibilidad.webp", alt: "Inicio de DocYa Pro con disponibilidad, mapa y resumen de consultas e ingresos" },
+  professionalProfile: { src: "/profesionales/paso-1-conexion.webp", alt: "Mapa de DocYa Pro con la conexión entre paciente y profesional" },
+  professionalAvailability: { src: "/profesionales/paso-2-consulta.webp", alt: "Solicitud de consulta entrante en DocYa Pro, con opciones para aceptar o rechazar" },
+  professionalConsultation: { src: "/profesionales/paso-3-pagos.webp", alt: "Pantalla de DocYa Pro para consultar pagos y honorarios" },
+  professionalClinicalTools: { src: "/profesionales/herramientas-clinicas.webp", alt: "Inicio de DocYa Pro con accesos al recetario y a las herramientas clínicas" },
 };

@@ -36,7 +36,9 @@ export default function Footer({ audience, locale = "es" }: { audience?: "public
 
   const logos = isPublicAudience
     ? { light: DOCYA_LOGO_URL, dark: DOCYA_LOGO_URL, alt: "DocYa" }
-    : { light: "/logo-pro-dark.png", dark: "/logo-pro-light.png", alt: "DocYa Pro" };
+    : pathname === "/profesionales"
+      ? { light: "/profesionales/logo-docya-pro.webp", dark: "/profesionales/logo-docya-pro.webp", alt: "DocYa Pro" }
+      : { light: "/logo-pro-dark.png", dark: "/logo-pro-light.png", alt: "DocYa Pro" };
 
   const brandName = isPublicAudience ? "DocYa" : "DocYa Pro";
 
