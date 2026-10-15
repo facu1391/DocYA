@@ -9,6 +9,7 @@ import InvestorAnalyticsLoader from "./investor-analytics-loader";
 import styles from "./investors.module.css";
 import InvestorLanguageSwitch from "./investor-language-switch";
 import InvestorGrowthSections from "./investor-growth-sections";
+import InvestorMedicalNetwork from "./investor-medical-network";
 import { translateInvestor, type InvestorLocale } from "@/lib/i18n/investors";
 
 const assets = {
@@ -119,6 +120,7 @@ export default async function InvestorsPage({ searchParams }: PageProps) {
               <ScrollReveal y={16}><p className={styles.eyebrow}>{t("EL MODELO DE NEGOCIO")}</p><h2>{t("Un marketplace")}<br /><span>{t("diseñado para escalar.")}</span></h2><p className={styles.businessDescription}>{t("El paciente paga por consulta. El profesional independiente atiende. DocYa conecta y coordina el servicio.")}</p><p className={styles.smallNote}>{t("Cada nueva ciudad requiere red profesional, demanda y operación local. El modelo permite expandirse sin construir hospitales propios.")}</p></ScrollReveal>
               <ScrollReveal y={16} delay={.08}><div className={styles.moneyFlow} aria-label={t("Distribución base: 80 por ciento para el profesional y 20 por ciento de comisión para DocYa")}><div className={styles.flowStart}><span>{t("Paciente")}</span><strong>{t("Paga por consulta")}</strong><ArrowDown size={20} aria-hidden="true" /></div><div className={styles.splitBar}><span /><span /></div><div className={styles.splitNumbers}><div><strong>80<span>%</span></strong><p>{t("Profesional")}</p><small>{t("Atención médica")}</small></div><div><strong>20<span>%</span></strong><p>{t("DocYa")}</p><small>{t("Comisión de intermediación")}</small></div></div><p className={styles.splitNote}>{t("Reparto base según términos vigentes, antes de otros conceptos aplicables. El GMV es el total transaccionado; la comisión es ingreso de DocYa. Los costos operativos determinan la rentabilidad.")}</p></div></ScrollReveal>
             </div>
+            <InvestorMedicalNetwork locale={locale} />
             <div className={styles.clinicNote}><span>{t("Un ecosistema conectado")}</span><p>{t("DocYa Clinic complementa el marketplace con herramientas para la práctica clínica.")}</p><Link href="/clinic">{t("Conocer DocYa Clinic")} <ArrowRight size={15} aria-hidden="true" /></Link></div>
           </div>
         </section>

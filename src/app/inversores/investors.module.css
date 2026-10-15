@@ -51,7 +51,7 @@
 .stepHeading > span { color: #078b7d; font-size: 13px; font-weight: 600; }
 .stepHeading h3 { margin: 0; font-size: 20px; }
 .step > p { font-size: 13px; line-height: 1.7; color: #4b666d; max-width: 300px; min-height: 66px; margin: 14px 0 24px; }
-.stepPhone { height: 320px; overflow: hidden; display: flex; justify-content: center; border-radius: 20px; background: linear-gradient(150deg, #d8e7e6, #e6efed); padding-top: 20px; }
+.stepPhone { overflow: hidden; display: flex; justify-content: center; border-radius: 20px; background: linear-gradient(150deg, #d8e7e6, #e6efed); padding: 20px 0; }
 .stepPhone img { width: 178px; height: auto; object-fit: contain; object-position: top; align-self: flex-start; filter: drop-shadow(0 12px 14px #194a4d24); }
 .productNote { font-size: 10px; line-height: 1.7; color: #607a7f; margin: 18px 0 0; }
 .technology { padding: 78px 0; background: #091e2b; }
@@ -81,6 +81,17 @@
 .businessGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
 .businessDescription { font-size: 16px; color: #466369; line-height: 1.8; margin: 22px 0 0; max-width: 440px; }
 .business .smallNote { color: #607a7f; max-width: 450px; margin-top: 18px; font-size: 12px; }
+.networkModel { border-top:1px solid #16444724; padding-top:48px; margin-top:54px; }
+.networkDescription { color:#466369; font-size:14px; line-height:1.8; margin:22px 0 0; }
+.networkCards { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-top:30px; }
+.networkCards>div { height:100%; }
+.networkCards article { height:100%; background:#fff; border:1px solid #16444714; border-radius:20px; padding:24px; }
+.networkCards svg { color:#087c72; }
+.networkCards h3 { font-size:16px; line-height:1.5; margin:20px 0 12px; }
+.networkCards p { color:#466369; font-size:12px; line-height:1.8; margin:0; }
+.networkClosing { color:#466369; font-size:13px; line-height:1.8; margin:26px 0 0; max-width:920px; }
+@media(max-width:1000px) { .networkCards { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:640px) { .networkModel { padding-top:32px; margin-top:36px; }.networkCards { grid-template-columns:minmax(0,1fr); gap:12px; }.networkCards article { padding:24px; } }
 .moneyFlow { padding: 32px; border-radius: 24px; background: #fff; box-shadow: 0 14px 45px #133c3c08; }
 .flowStart { display: flex; align-items: center; flex-direction: column; gap: 9px; }
 .flowStart > span { text-transform: uppercase; color: #648079; font-size: 10px; letter-spacing: .12em; }
@@ -171,7 +182,7 @@
   .stepHeading h3 { font-size: 18px; }
   .stepHeading > span { font-size: 11px; }
   .step > p { min-height: 0; font-size: 12px; margin: 12px 0 22px; }
-  .stepPhone { grid-column: 2; grid-row: 1/3; height: 220px; padding-top: 0; border-radius: 0; background: transparent; }
+  .stepPhone { grid-column: 2; grid-row: 1/3; min-height: 220px; padding: 0; border-radius: 0; background: transparent; }
   .stepPhone img { width: 108px; max-width: 100%; }
   .technologyGrid, .businessGrid, .expansionGrid, .teamGrid { grid-template-columns: 1fr; gap: 24px; }
   .technologyGrid { margin-top: 30px; gap: 14px; }
