@@ -8,6 +8,7 @@ import DomicilioVideo from "@/components/landing-public/nueva-landing/DomicilioV
 import InvestorAnalyticsLoader from "./investor-analytics-loader";
 import styles from "./investors.module.css";
 import InvestorLanguageSwitch from "./investor-language-switch";
+import InvestorGrowthSections from "./investor-growth-sections";
 import { translateInvestor, type InvestorLocale } from "@/lib/i18n/investors";
 
 const assets = {
@@ -135,6 +136,8 @@ export default async function InvestorsPage({ searchParams }: PageProps) {
             </div>
           </div>
         </section>
+
+        <InvestorGrowthSections locale={locale} />
 
         <section id="equipo" className={styles.team}>
           <div className={styles.container}><div className={styles.teamGrid}><div><p className={styles.eyebrow}>{t("EQUIPO FUNDADOR")}</p><h2>{t("Producto y operación.")}<br /><span>{t("Criterio clínico.")}</span></h2></div><div className={styles.founders}><article><span className={styles.founderPortrait}><Image src="/inversores/nahun-menem.jpeg" alt="Nahun Menem" width={112} height={112} className={styles.founderPhoto} /></span><div><h3>{t("Nahun Menem")}</h3><p>{t("Fundador y CEO")}</p></div></article><article><span className={styles.founderPortrait}><Image src="/inversores/guadalupe-murcia-gonzalez.jpeg" alt="Guadalupe Murcia González" width={112} height={112} className={styles.founderPhoto} /></span><div><h3>{t("Guadalupe Murcia González")}</h3><p>{t("Cofundadora y directora médica")}</p></div></article></div></div></div>
