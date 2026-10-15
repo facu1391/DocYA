@@ -1,0 +1,7 @@
+.button { display: none; }
+@media (max-width: 760px) {
+  .button { position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 40; display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; background: #25d366; color: #fff; box-shadow: 0 4px 14px #0003; text-decoration: none; transition: background-color .18s ease; }
+  .button:hover { background: #1eae55; }
+  .button:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { .button { transition: none; } }

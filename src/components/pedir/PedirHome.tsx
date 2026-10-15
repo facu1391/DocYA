@@ -6,12 +6,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Script from "next/script";
 import Image from "next/image";
 import Link from "next/link";
+import { FaWhatsapp } from "react-icons/fa";
+import WhatsAppSupportButton from "@/components/fab/WhatsAppSupportButton";
 import { useRouter } from "next/navigation";
 import {
   Stethoscope, Video, HeartPulse, ShieldCheck, Clock, Baby,
   Home, FileText, Star, CreditCard, ChevronRight,
   Phone, LogOut, User, ChevronDown, Sun, Moon,
-  MessageCircle, AlertTriangle, Globe, Gift,
+  AlertTriangle, Globe, Gift,
 } from "lucide-react";
 import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
@@ -315,6 +317,23 @@ export default function PedirHome() {
     } finally { setAppleBusy(false); }
   }, [router, t]);
 
+  const whatsappSupport = (
+    <a
+      className="pedir-whatsapp-support"
+      href={`https://wa.me/5491168700607?text=${encodeURIComponent(locale === "es" ? "Hola DocYa, tengo una duda antes de solicitar atención médica." : "Hi DocYa, I have a question before requesting medical care.")}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ color: text, background: dark ? "#25d36614" : "#25d3660d" }}
+    >
+      <FaWhatsapp size={27} color={dark ? "#70e5a0" : "#167c42"} aria-hidden="true" />
+      <span>
+        <strong>{locale === "es" ? "Hablá con nosotros por WhatsApp" : "Talk to us on WhatsApp"}</strong>
+        <small style={{ color: muted }}>{locale === "es" ? "Nuestro equipo te ayuda con tus dudas antes de pedir atención" : "Our team can answer your questions before you request care"}</small>
+      </span>
+      <ChevronRight size={18} aria-hidden="true" />
+    </a>
+  );
+
   return (
     <>
       <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onLoad={() => setGoogleLoaded(true)} />
@@ -369,6 +388,7 @@ export default function PedirHome() {
           </div>
         </header>
 
+        <WhatsAppSupportButton english={locale === "en"} />
         <main style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px" }}>
           {user ? (
             /* ── LOGUEADO ─────────────────────────────────────── */
@@ -382,6 +402,7 @@ export default function PedirHome() {
                   <p style={{ fontSize: 18, fontWeight: 700, color: "#00b3a6", marginBottom: 8 }}>{t.pedir.queNecesitas}</p>
                   <p style={{ color: muted, fontSize: 15 }}>{t.pedir.conectamos}</p>
                 </div>
+                <div className="pedir-help-options">
                 <PedirAsistente
                   apiUrl={API}
                   locale={locale}
@@ -397,6 +418,8 @@ export default function PedirHome() {
                     }
                   }}
                 />
+                {whatsappSupport}
+                </div>
               </div>
 
               {PATIENT_REFERRALS_ENABLED && referralSummary && (
@@ -640,6 +663,8 @@ export default function PedirHome() {
                   </p>
                 </div>
 
+                <div style={{ marginBottom: 20 }}>{whatsappSupport}</div>
+
                 {/* Google */}
                 <div style={{ background: "rgba(0,179,166,0.06)", border: "1px solid rgba(0,179,166,0.18)", borderRadius: 18, padding: "16px", marginBottom: 12 }}>
                   <p style={{ fontSize: 11, fontWeight: 800, color: "#2dd4bf", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12, textAlign: "center" }}>{t.pedir.continuarGoogle}</p>
@@ -753,6 +778,13 @@ export default function PedirHome() {
         .pedir-mobile-faq p { margin: 0 0 14px; color: ${muted}; font-size: 14px; line-height: 1.55; }
         .pedir-mobile-faq details[open] p { border-top: 1px solid #e6eeee; padding-top: 11px; color: #34484a; font-size: 14px; line-height: 1.55; }
         .wa-card { min-width: 220px; }
+        .pedir-help-options { display: grid; gap: 12px; width: 340px; max-width: 100%; min-width: 0; }
+        .pedir-whatsapp-support { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 78px; padding: 14px 16px; border: 1px solid #25a85c70; border-radius: 20px; text-decoration: none; transition: border-color .18s ease, background-color .18s ease; }
+        .pedir-whatsapp-support:hover { border-color: #25a85c; }
+        .pedir-whatsapp-support > :global(svg) { flex-shrink: 0; }
+        .pedir-whatsapp-support > span { display: grid; gap: 4px; min-width: 0; flex: 1; }
+        .pedir-whatsapp-support strong { font-size: 14px; line-height: 1.35; }
+        .pedir-whatsapp-support small { font-size: 12px; line-height: 1.4; }
         @media (max-width: 900px) {
           .pedir-cards { grid-template-columns: 1fr; }
           .pedir-documents-banner { margin-top: -22px; }
@@ -776,6 +808,8 @@ export default function PedirHome() {
           .pedir-header-user-menu > div { right: 0; max-width: calc(100vw - 24px); }
           .pedir-hero { grid-template-columns: 1fr; gap: 16px; padding: 24px 0 28px; }
           .wa-card { min-width: auto; width: 100%; }
+          .pedir-help-options { width: 100%; }
+          .pedir-help-options :global(.pedir-ai-launcher) { width: 100%; }
           .pedir-trust { grid-template-columns: 1fr; }
           .pedir-documents-banner { min-height: 0; gap: 12px; padding: 16px; margin: -20px 0 28px; align-items: flex-start; }
           .pedir-documents-icon { width: 42px; height: 42px; border-radius: 13px; }

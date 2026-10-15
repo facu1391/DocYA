@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import Hero from "@/components/landing-public/nueva-landing/Hero";
+import WhatsAppSupportButton from "@/components/fab/WhatsAppSupportButton";
 
 import HomeConversion from "@/components/landing-public/nueva-landing/HomeConversion";
 
@@ -63,6 +64,7 @@ export default function Home() {
       />
       <Hero />
       <HomeConversion />
+      <WhatsAppSupportButton />
     </>
   );
 }

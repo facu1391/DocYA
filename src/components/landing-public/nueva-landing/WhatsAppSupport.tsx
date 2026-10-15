@@ -1,4 +1,4 @@
-import { MessageCircle } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import styles from "./home-conversion.module.css";
 
 export default function WhatsAppSupport({ english = false }: { english?: boolean }) {
@@ -10,7 +10,7 @@ export default function WhatsAppSupport({ english = false }: { english?: boolean
     <div className={styles.whatsappSupport}>
       <p>{english ? "Questions before requesting care? Talk to our team." : "¿Tenés dudas antes de pedir? Hablá con nuestro equipo."}</p>
       <a href={`https://wa.me/5491168700607?text=${encodeURIComponent(message)}`} target="_blank" rel="noopener noreferrer">
-        <MessageCircle size={20} aria-hidden="true" />
+        <FaWhatsapp size={21} aria-hidden="true" />
         {english ? "Contact us on WhatsApp" : "Hablar por WhatsApp"}
       </a>
     </div>
