@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import WhatsAppSupport from "./WhatsAppSupport";
 import styles from "./home-conversion.module.css";
 
 /** Public FAQ entry, using the same assistant with server-side frequency limits. */
@@ -16,6 +17,7 @@ export default function PublicAISection({ onOpen }: { onOpen: () => void }) {
         <div className={styles.aiAccess}>
           <button type="button" className={styles.homeButton} onClick={onOpen} aria-haspopup="dialog">Hablar con DocYa IA</button>
           <p className={styles.small}>Gratis y sin registrarte.</p>
+          <WhatsAppSupport />
         </div>
       </div>
     </section>

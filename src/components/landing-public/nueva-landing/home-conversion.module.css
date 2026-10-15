@@ -20,6 +20,13 @@
 .homeButton:disabled, .videoButton:disabled, .homeButton[aria-disabled="true"], .videoButton[aria-disabled="true"] { background: #d3dddf; color: #53636a; border-color: #a7b7be; cursor: not-allowed; }
 .hero a:focus-visible, .content a:focus-visible, .content button:focus-visible, .content summary:focus-visible { outline: 3px solid var(--home-accent); outline-offset: 5px; }
 .caption { font-size: 12px; line-height: 1.7; margin: 24px 0 0; color: #bdcfd8; }
+.whatsappSupport { margin-top: 22px; }
+.whatsappSupport p { margin: 0 0 8px; color: #bdcfd8; font-size: 13px; line-height: 1.7; }
+.whatsappSupport a { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 46px; padding: 11px 16px; border: 1px solid #3e786d; border-radius: 12px; background: #102e32; color: #b6f5d0; font-size: 14px; font-weight: 600; line-height: 22px; text-decoration: none; transition: background-color .18s ease, border-color .18s ease; }
+.whatsappSupport a:hover { background: #173d3c; border-color: #74c69a; }
+.whatsappSupport a:active { background: #0b2529; }
+.whatsappSupport svg { flex-shrink: 0; }
+@media (max-width: 760px) { .whatsappSupport a { width: 100%; } }
 .small { font-size: 11px; line-height: 1.8; color: var(--muted-foreground); margin: 14px 0 0; }
 .heroPhone { position: relative; height: 550px; margin: 0; isolation: isolate; }
 .heroPhone img { position: absolute; height: auto; object-fit: contain; filter: drop-shadow(0 24px 26px #0006); }
