@@ -16,7 +16,7 @@ const assets = {
   logo: "https://res.cloudinary.com/dqsacd9ez/image/upload/v1788908618/docyanuevo_f1ukcy.png",
   app: "https://res.cloudinary.com/dqsacd9ez/image/upload/v1774886286/Screenshot_20260330-105015-portrait_ihblq7.png",
   tracking: "https://res.cloudinary.com/dqsacd9ez/image/upload/v1776468713/Captura_de_pantalla_2026-04-09_144113-portrait_vagywd.png",
-  ai: "https://res.cloudinary.com/dqsacd9ez/image/upload/v1776467625/Green_Minimalist_Q_A_Phone_Chatting_Instagram_Story_1_cjt2p0.png",
+  ai: "/inversores/docya-ia-portrait.webp",
   expansion: "https://res.cloudinary.com/dqsacd9ez/image/upload/v1774897108/Dise%C3%B1o_sin_t%C3%ADtulo_25_fyhkln.png",
 };
 
@@ -107,7 +107,7 @@ export default async function InvestorsPage({ searchParams }: PageProps) {
               </article>
               <article className={styles.aiFeature}>
                 <div className={styles.featureCopy}><Image src="/docya-ai-icon.png" alt={t("DocYa IA")} width={48} height={48} /><h3>{t("Orientación con IA.")}</h3><p>{t("Ayuda al paciente a entender el servicio y elegir cómo solicitar atención.")}</p><span className={styles.caution}>{t("La decisión clínica corresponde al profesional.")}</span></div>
-                <Image src={assets.ai} alt={t("Recurso original de DocYa con la experiencia del asistente virtual")} width={320} height={650} sizes="(max-width: 640px) 170px, 210px" className={styles.aiPhone} />
+                <Image src={assets.ai} alt={t("Recurso original de DocYa con la experiencia del asistente virtual")} width={840} height={1655} sizes="(max-width: 640px) 260px, 280px" className={styles.aiPhone} />
               </article>
               <article className={styles.clinicalFeature}><FileHeart size={27} aria-hidden="true" /><div><h3>{t("La consulta deja un registro.")}</h3><p>{t("Historia clínica y documentos organizados en DocYa. Recetas, órdenes y certificados según evaluación médica.")}</p></div><div className={styles.clinicalTags}><span><Video size={15} aria-hidden="true" />{t("Teleconsulta")}</span><span><Check size={15} aria-hidden="true" />{t("Historia clínica")}</span><span><FileHeart size={15} aria-hidden="true" />{t("Documentación")}</span></div></article>
             </div>

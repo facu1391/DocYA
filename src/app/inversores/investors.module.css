@@ -65,10 +65,10 @@
 .capabilityLine { margin-top: 20px; font-size: 12px; line-height: 1.7; color: #d2e3e7; display: flex; gap: 10px; max-width: 350px; }
 .capabilityLine svg { color: #36d6c2; flex-shrink: 0; margin-top: 2px; }
 .geoFeature > div:last-child { aspect-ratio: 9/16; max-width: 280px; width: calc(100% - 48px); margin: 0 auto 28px; border-radius: 24px; border: 0; box-shadow: none; }
-.aiFeature { display: flex; background: radial-gradient(ellipse at 80% 85%,#00b3a619,transparent),#0a2530; min-height: 390px; }
-.aiFeature .featureCopy { max-width: 68%; }
+.aiFeature { display: flex; flex-direction: column; background: radial-gradient(ellipse at 80% 85%,#00b3a619,transparent),#0a2530; min-height: 390px; }
+.aiFeature .featureCopy { max-width: 100%; }
 .aiFeature .featureCopy > img { border-radius: 12px; width: 44px; height: 44px; }
-.aiPhone { position: absolute; width: 42%; max-width: 215px; height: auto; bottom: -90px; right: -12px; transform: rotate(-7deg); filter: drop-shadow(0 12px 25px #0004); }
+.aiPhone { display: block; width: min(280px, calc(100% - 48px)); height: auto; object-fit: contain; margin: 0 auto 28px; }
 .caution { display: block; margin-top: 20px; font-size: 10px; line-height: 1.7; color: #85a8b6; max-width: 200px; }
 .clinicalFeature { grid-column: 1/-1; display: flex; gap: 20px; align-items: center; padding: 24px 30px; border-radius: 20px; background: #102936; border: 1px solid #ffffff0d; }
 .clinicalFeature > svg { color: var(--invest-teal); flex-shrink: 0; }
@@ -189,7 +189,7 @@
   .featureCopy { padding: 24px; }
   .featureCopy h3 { font-size: 23px; }
   .aiFeature { min-height: 300px; }
-  .aiPhone { bottom: -55px; width: 43%; }
+  .aiPhone { width: min(260px, calc(100% - 48px)); margin-bottom: 24px; }
   .clinicalFeature { flex-wrap: wrap; padding: 24px; gap: 14px; }
   .clinicalFeature > div:first-of-type { flex: 1; min-width: 200px; }
   .clinicalTags { max-width: none; width: 100%; margin: 8px 0 0; }
