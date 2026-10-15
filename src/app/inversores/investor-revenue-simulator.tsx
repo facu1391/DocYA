@@ -11,11 +11,12 @@ export default function InvestorRevenueSimulator({ locale }: { locale: InvestorL
   const t = (es: string, en: string) => locale === "en" ? en : es;
   const id = useId();
   const [daily, setDaily] = useState<number>(config.initialDaily);
-  const [modality, setModality] = useState<string>(config.modalities[0].id);
-  const selected = config.modalities.find(item => item.id === modality) ?? config.modalities[0];
+  const [modality, setModality] = useState<string>(config.initialModality);
+  const selected = config.modalities.find(item => item.id === modality) ?? config.modalities.find(item => item.id === config.initialModality)!;
+  const isAverage = selected.id === "ticket-promedio";
   const result = calculateInvestorScenario(daily, selected.rate);
   const number = (value: number) => value.toLocaleString(locale === "en" ? "en-US" : "es-AR");
-  const money = (value: number) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(value);
+  const money = (value: number, fractionDigits = 0) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits }).format(value);
   const points = Array.from({ length: (config.maxDaily - config.minDaily) / config.step + 1 }, (_, i) => {
     const volume = config.minDaily + i * config.step;
     return { x: 30 + (volume - config.minDaily) / (config.maxDaily - config.minDaily) * 540, y: 200 - volume / config.maxDaily * 170 };
@@ -31,12 +32,13 @@ export default function InvestorRevenueSimulator({ locale }: { locale: InvestorL
 
   return <section id="simulador-inversion" className={`${styles.section} ${styles.simulatorSection}`} aria-labelledby={`${id}-title`}>
     <div className={base.container}>
-      <div className={base.sectionIntro}><p className={base.eyebrow}>{t("ESCENARIOS, NO PROMESAS", "SCENARIOS, NOT PROMISES")}</p><h2 id={`${id}-title`}>{t("Explorá el potencial económico", "Explore the economic potential")} <span>{t("de DocYa.", "of DocYa.")}</span></h2><p className={styles.description}>{t("Elegí una modalidad y un volumen hipotético. El cálculo supone la misma tarifa para todas las consultas durante 30 días; no representa la mezcla real de servicios.", "Choose a modality and hypothetical volume. Calculations assume the same rate for all consultations over 30 days; they do not represent the actual service mix.")}</p></div>
+      <div className={base.sectionIntro}><p className={base.eyebrow}>{t("ESCENARIOS, NO PROMESAS", "SCENARIOS, NOT PROMISES")}</p><h2 id={`${id}-title`}>{t("Explorá el potencial económico", "Explore the economic potential")} <span>{t("de DocYa.", "of DocYa.")}</span></h2><p className={styles.description}>{t("Elegí un tipo de tarifa y un volumen hipotético. El cálculo aplica la tarifa seleccionada a todas las consultas durante 30 días; no representa la mezcla real de servicios.", "Choose a rate type and hypothetical volume. Calculations apply the selected rate to all consultations over 30 days; they do not represent the actual service mix.")}</p></div>
       <div className={styles.simulator}>
         <div className={styles.controls}>
-          <label htmlFor={`${id}-modality`}>{t("Modalidad", "Modality")}</label>
+          <label htmlFor={`${id}-modality`}>{t("Tipo de tarifa", "Rate type")}</label>
           <select id={`${id}-modality`} value={modality} onChange={e => setModality(e.target.value)}>{config.modalities.map(item => <option key={item.id} value={item.id}>{item[locale]}</option>)}</select>
-          <p className={styles.note}>{t("Tarifa de referencia por consulta:", "Reference rate per consultation:")} <strong>{money(selected.rate)}</strong> ARS</p>
+          <p className={styles.note}>{t("Tarifa de referencia por consulta:", "Reference rate per consultation:")} <strong>{money(selected.rate, isAverage ? 2 : 0)}</strong> ARS</p>
+          {isAverage && <p className={styles.note}>{t("Promedio aritmético ilustrativo: supone igual participación de las tres modalidades y no representa necesariamente el ticket promedio histórico real.", "Illustrative arithmetic average: assumes equal participation of all three modalities and does not necessarily represent the actual historical average consultation value.")}</p>}
           <div className={styles.rangeLabel}><label htmlFor={`${id}-volume`}>{t("Consultas diarias", "Daily consultations")}</label><output htmlFor={`${id}-volume`}>{number(daily)}</output></div>
           <input id={`${id}-volume`} type="range" min={config.minDaily} max={config.maxDaily} step={config.step} value={daily} onChange={e => setDaily(Number(e.target.value))} aria-describedby={`${id}-assumptions`} />
           <div className={styles.rangeEnds}><span>{number(config.minDaily)}</span><span>{number(config.maxDaily)}</span></div>

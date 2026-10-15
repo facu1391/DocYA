@@ -1,15 +1,24 @@
+const baseModalities = [
+  { id: "teleconsulta", es: "Teleconsulta", en: "Video consultation", rate: 21000 },
+  { id: "domicilio-dia", es: "Domicilio diurno", en: "Daytime home visit", rate: 42000 },
+  { id: "domicilio-noche", es: "Domicilio nocturno", en: "Nighttime home visit", rate: 58000 },
+] as const;
+
 export const investorSimulation = {
   minDaily: 50,
   maxDaily: 1000,
   step: 50,
   initialDaily: 300,
+  initialModality: "ticket-promedio",
   days: 30,
   commission: 0.2,
   professionalShare: 0.8,
   modalities: [
-    { id: "teleconsulta", es: "Teleconsulta", en: "Video consultation", rate: 21000 },
-    { id: "domicilio-dia", es: "Domicilio diurno", en: "Daytime home visit", rate: 42000 },
-    { id: "domicilio-noche", es: "Domicilio nocturno", en: "Nighttime home visit", rate: 58000 },
+    ...baseModalities,
+    {
+      id: "ticket-promedio", es: "Ticket promedio", en: "Average consultation value",
+      rate: baseModalities.reduce((sum, item) => sum + item.rate, 0) / baseModalities.length,
+    },
   ],
 } as const;
 
