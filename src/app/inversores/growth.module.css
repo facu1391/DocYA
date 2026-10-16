@@ -8,6 +8,10 @@
 .card>strong { display:block; color:#36d6c2; font-size:clamp(32px,3.4vw,46px); font-weight:500; line-height:1.2; letter-spacing:-.035em; }
 .card h3 { font-size:15px; line-height:1.6; margin:18px 0 10px; }
 .card>p:last-child { color:#a8becb; font-size:12px; line-height:1.8; margin:0; }
+.dailyLabel { color:#a8becb; font-size:12px; line-height:1.7; margin:4px 0 16px; }
+.monthlyVolume { display:flex; align-items:baseline; flex-wrap:wrap; gap:7px; border-top:1px solid #ffffff15; padding-top:14px; }
+.monthlyVolume strong { color:#f2f8fa; font-size:24px; line-height:1.2; font-weight:500; letter-spacing:-.025em; }
+.monthlyVolume span { color:#91b8c1; font-size:11px; }
 .reference { background:#0b232d; }.reference>strong { color:#e0ecef; }
 .note { color:#a8becb; font-size:12px; line-height:1.8; margin:20px 0 0; }
 .simulatorSection { background:#0a2530; border-block:1px solid #ffffff0d; }
