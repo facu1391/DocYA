@@ -1,3 +1,5 @@
+import { patientFetch } from "@/lib/pedir/session";
+
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 
 export type ReferralReward = {
@@ -32,20 +34,20 @@ function auth(token?: string) {
 }
 
 export async function getPatientReferrals(token?: string): Promise<PatientReferralSummary> {
-  const res = await fetch(`${API}/patient-referrals/me`, { headers: auth(token), cache: "no-store" });
+  const res = await patientFetch(`${API}/patient-referrals/me`, { headers: auth(token), cache: "no-store" });
   if (!res.ok) throw new Error("No pudimos consultar tus invitaciones.");
   return res.json();
 }
 
 export async function getSafeReferrals(token?: string): Promise<SafeReferral[]> {
-  const res = await fetch(`${API}/patient-referrals/me/referrals`, { headers: auth(token), cache: "no-store" });
+  const res = await patientFetch(`${API}/patient-referrals/me/referrals`, { headers: auth(token), cache: "no-store" });
   if (!res.ok) throw new Error("No pudimos consultar el estado de tus amigos.");
   const data = await res.json();
   return data.referrals ?? [];
 }
 
 export async function reserveReferralReward(token: string | undefined, consultationId: number, idempotencyKey: string) {
-  const res = await fetch(`${API}/patient-referrals/vouchers/reserve`, {
+  const res = await patientFetch(`${API}/patient-referrals/vouchers/reserve`, {
     method: "POST",
     headers: auth(token),
     body: JSON.stringify({ consultation_id: consultationId, idempotency_key: idempotencyKey }),

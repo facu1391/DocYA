@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./pedir.css";
+import PatientSessionGuard from "@/components/pedir/PatientSessionGuard";
 
 export const metadata: Metadata = {
   title: "Pedí atención médica | DocYa",
@@ -14,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function PedirLayout({ children }: { children: React.ReactNode }) {
-  return <div className="pedir-experience">{children}</div>;
+  return <div className="pedir-experience"><PatientSessionGuard>{children}</PatientSessionGuard></div>;
 }

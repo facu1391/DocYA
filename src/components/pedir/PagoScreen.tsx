@@ -1,5 +1,7 @@
 "use client";
 
+import { patientFetch } from "@/lib/pedir/session";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -118,7 +120,7 @@ export default function PagoScreen() {
     pollRef.current = setInterval(async () => {
       if (doneRef.current) return;
       try {
-        const res = await fetch(`${API}/consultas/${consultaId}/estado`);
+        const res = await patientFetch(`${API}/consultas/${consultaId}/estado`);
         if (!res.ok) return;
         const data = await res.json();
         if (data.mp_preautorizado === true || data.mp_status === "approved") {

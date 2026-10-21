@@ -1,3 +1,5 @@
+import { patientFetch } from "@/lib/pedir/session";
+
 // Recuperación de pagos pendientes para el flujo /pedir (paciente web).
 //
 // Antes solo el flujo de saldo_mp guardaba algo en localStorage (porque ahí
@@ -103,8 +105,8 @@ export async function reconstruirPagoDesdeConsulta(
   if (!consultaId || !user?.access_token) return null;
 
   const [consultaRes, estadoRes] = await Promise.all([
-    fetch(`${API}/consultas/${consultaId}`),
-    fetch(`${API}/consultas/${consultaId}/estado`),
+    patientFetch(`${API}/consultas/${consultaId}`),
+    patientFetch(`${API}/consultas/${consultaId}/estado`),
   ]);
   if (!consultaRes.ok) return null;
 
@@ -181,7 +183,7 @@ export async function solicitarConsulta(body: Record<string, unknown>) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API}${endpoint}`, {
+  const res = await patientFetch(`${API}${endpoint}`, {
     method: "POST",
     headers,
     body: JSON.stringify(payload),
@@ -214,7 +216,7 @@ export async function recuperarConsultaPendienteGlobal(
 ): Promise<ConsultaEnCursoInfo | null> {
   if (!user?.id) return null;
   try {
-    const res = await fetch(`${API}/pacientes/${user.id}/consulta_en_curso`);
+    const res = await patientFetch(`${API}/pacientes/${user.id}/consulta_en_curso`);
     if (!res.ok) return null;
     const data = await res.json();
     if (!data?.activa) {

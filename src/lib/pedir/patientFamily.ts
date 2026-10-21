@@ -1,3 +1,5 @@
+import { patientFetch } from "@/lib/pedir/session";
+
 export type PatientFamilyMember = {
   id: number;
   full_name: string;
@@ -37,13 +39,13 @@ async function parse<T>(response: Response): Promise<T> {
 }
 
 export async function getPatientFamily(token: string) {
-  const response = await fetch(`${API}/patient-family`, { cache: "no-store", headers: headers(token) });
+  const response = await patientFetch(`${API}/patient-family`, { cache: "no-store", headers: headers(token) });
   const data = await parse<{ members: PatientFamilyMember[] }>(response);
   return data.members;
 }
 
 export async function createPatientFamilyMember(token: string, input: PatientFamilyMemberInput) {
-  const response = await fetch(`${API}/patient-family`, {
+  const response = await patientFetch(`${API}/patient-family`, {
     method: "POST",
     headers: headers(token),
     body: JSON.stringify(input),

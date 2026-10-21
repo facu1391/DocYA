@@ -1,5 +1,8 @@
 "use client";
 
+import { patientFetch } from "@/lib/pedir/session";
+
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -257,7 +260,7 @@ export default function SolicitarScreen() {
     if (tipo === "teleconsulta") return;
     setVerificandoCobertura(true);
     try {
-      const response = await fetch(`${API}/zonas-cobertura/verificar`, {
+      const response = await patientFetch(`${API}/zonas-cobertura/verificar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lat: latitude, lng: longitude, direccion: addr, provincia: province, localidad: city, servicio: esPediatria ? "pediatria" : tipo, canal_origen: "web" }),
@@ -358,7 +361,7 @@ export default function SolicitarScreen() {
 
   useEffect(() => {
     let alive = true;
-    fetch(`${API}/pagos/qr/disponible`, { cache: "no-store" })
+    patientFetch(`${API}/pagos/qr/disponible`, { cache: "no-store" })
       .then(res => res.ok ? res.json() : { enabled: false })
       .then(data => {
         if (!alive) return;
@@ -376,7 +379,7 @@ export default function SolicitarScreen() {
     setTarifaError("");
     setTarifa(null);
 
-    fetch(`${API}/tarifas/${tarifaEndpoint(tipo)}`, { cache: "no-store" })
+    patientFetch(`${API}/tarifas/${tarifaEndpoint(tipo)}`, { cache: "no-store" })
       .then(async res => {
         if (!res.ok) throw new Error(t.solicitar.errorPrecio);
         const data = await res.json();
@@ -401,7 +404,7 @@ export default function SolicitarScreen() {
       return;
     }
     let alive = true;
-    fetch(`${API}/teleconsultations/translation/quote?client_kind=web`, {
+    patientFetch(`${API}/teleconsultations/translation/quote?client_kind=web`, {
       cache: "no-store",
       headers: { Authorization: `Bearer ${user.access_token}` },
     })
@@ -435,7 +438,7 @@ export default function SolicitarScreen() {
         setLat(pos.coords.latitude);
         setLng(pos.coords.longitude);
         try {
-          const res = await fetch(
+          const res = await patientFetch(
             `https://maps.googleapis.com/maps/api/geocode/json?latlng=${pos.coords.latitude},${pos.coords.longitude}&key=${PLACES_KEY}&language=es`
           );
           const data = await res.json();
@@ -505,7 +508,7 @@ export default function SolicitarScreen() {
 
       if (metodoPago === "qr_mp") {
         if (!qrEnabled || !user.access_token) throw new Error("Mercado Pago no está disponible en este momento.");
-        const previaRes = await fetch(`${API}/consultas/crear_previa`, {
+        const previaRes = await patientFetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
           body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: tipo === "teleconsulta" ? "teleconsulta" : "domicilio", metodo_pago: "qr_mp", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...datosAcceso, ...translationPayload, ...datosPediatricos }),
@@ -514,7 +517,7 @@ export default function SolicitarScreen() {
         const { consulta_id } = await previaRes.json();
         rememberRequest(consulta_id, "qr_mp");
         guardarPagoPendiente({ consulta_id, tipo, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, paciente_uuid: user.id, access_token: user.access_token, categoria_consulta: categoriaConsulta, provincia: provincia ?? undefined, localidad: localidad ?? undefined, metodo_pago: "qr_mp", ...datosPediatricos });
-        const orderRes = await fetch(`${API}/pagos/qr/orden`, {
+        const orderRes = await patientFetch(`${API}/pagos/qr/orden`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
           body: JSON.stringify({ consulta_id, paciente_uuid: user.id }),
@@ -537,7 +540,7 @@ export default function SolicitarScreen() {
         if (tipo !== "teleconsulta") throw new Error("Este beneficio sólo está disponible para teleconsultas.");
         const attemptKey = referralAttemptKey ?? newReferralAttemptKey();
         setReferralAttemptKey(attemptKey);
-        const previaRes = await fetch(`${API}/consultas/crear_previa`, {
+        const previaRes = await patientFetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
           body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: "teleconsulta", metodo_pago: "referral_voucher", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...datosAcceso, ...translationPayload, ...datosPediatricos }),
@@ -557,7 +560,7 @@ export default function SolicitarScreen() {
       }
 
       if (metodoPago === "transferencia") {
-        const previaRes = await fetch(`${API}/consultas/crear_previa`, {
+        const previaRes = await patientFetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
           body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, canal_atencion: tipo === "teleconsulta" ? "teleconsulta" : "domicilio", metodo_pago: "transferencia", categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...datosAcceso, ...translationPayload, ...datosPediatricos }),
@@ -577,7 +580,7 @@ export default function SolicitarScreen() {
 
       if (metodoPago === "tarjeta") {
         // Crear previa y abrir formulario MP en modal
-        const previaRes = await fetch(`${API}/consultas/crear_previa`, {
+        const previaRes = await patientFetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
           body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...datosAcceso, ...translationPayload, ...datosPediatricos }),
@@ -627,7 +630,7 @@ export default function SolicitarScreen() {
       }
 
       if (metodoPago === "saldo_mp") {
-        const previaRes = await fetch(`${API}/consultas/crear_previa`, {
+        const previaRes = await patientFetch(`${API}/consultas/crear_previa`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
           body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, tipo, categoria_consulta: categoriaConsulta, provincia, localidad, canal_origen: "web", ...datosAcceso, ...translationPayload, ...datosPediatricos }),
@@ -637,7 +640,7 @@ export default function SolicitarScreen() {
         rememberRequest(consulta_id, "saldo_mp");
 
         const return_base_url = window.location.origin;
-        const prefRes = await fetch(`${API}/pagos/saldo-mp/preferencia`, {
+        const prefRes = await patientFetch(`${API}/pagos/saldo-mp/preferencia`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
           body: JSON.stringify({ paciente_uuid: user.id, consulta_id, monto, motivo: motivo.trim(), return_base_url }),
@@ -669,7 +672,7 @@ export default function SolicitarScreen() {
       }
 
       // Efectivo: solicitar directo
-      const res = await fetch(`${API}/consultas/solicitar`, {
+      const res = await patientFetch(`${API}/consultas/solicitar`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
         body: JSON.stringify({ paciente_uuid: user.id, motivo: motivo.trim(), direccion: direccion.trim(), lat, lng, metodo_pago: "efectivo", tipo, categoria_consulta: categoriaConsulta, provincia, canal_origen: "web", ...datosAcceso, ...datosPediatricos }),

@@ -1,5 +1,7 @@
 "use client";
 
+import { patientFetch } from "@/lib/pedir/session";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Clock3, Copy, Landmark, Loader2, ShieldCheck, XCircle } from "lucide-react";
@@ -41,7 +43,7 @@ export default function TransferenciaScreen() {
   }, [router]);
 
   useEffect(() => {
-    fetch(`${API}/pagos/transferencia/datos`).then(r => r.ok ? r.json() : null).then(data => {
+    patientFetch(`${API}/pagos/transferencia/datos`).then(r => r.ok ? r.json() : null).then(data => {
       if (data?.alias) setAlias(data.alias);
       if (data?.cvu) setCvu(data.cvu);
     }).catch(() => {});
@@ -50,7 +52,7 @@ export default function TransferenciaScreen() {
   useEffect(() => {
     if (!user?.access_token || !monto) return;
     const uri = `${API}/pagos/transferencia/credito-disponible?paciente_uuid=${encodeURIComponent(user.id)}&monto=${monto}`;
-    fetch(uri, { headers: { Authorization: `Bearer ${user.access_token}` }, cache: "no-store" })
+    patientFetch(uri, { headers: { Authorization: `Bearer ${user.access_token}` }, cache: "no-store" })
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         setCreditoDisponible(data?.suficiente === true);
@@ -78,7 +80,7 @@ export default function TransferenciaScreen() {
 
   const consultarEstado = useCallback(async () => {
     if (!user?.access_token || !consultaId || estado === "sin_aviso") return;
-    const res = await fetch(`${API}/pagos/transferencia/${consultaId}/estado?paciente_uuid=${encodeURIComponent(user.id)}`, {
+    const res = await patientFetch(`${API}/pagos/transferencia/${consultaId}/estado?paciente_uuid=${encodeURIComponent(user.id)}`, {
       headers: { Authorization: `Bearer ${user.access_token}` }, cache: "no-store",
     });
     if (!res.ok) return;
@@ -90,8 +92,9 @@ export default function TransferenciaScreen() {
 
   useEffect(() => {
     if (estado !== "pendiente") return;
-    const id = window.setInterval(consultarEstado, 3000);
-    consultarEstado();
+    const poll = () => { void consultarEstado().catch(e => setError(e instanceof Error ? e.message : "No pudimos consultar el estado.")); };
+    const id = window.setInterval(poll, 3000);
+    poll();
     return () => window.clearInterval(id);
   }, [consultarEstado, estado]);
 
@@ -99,7 +102,7 @@ export default function TransferenciaScreen() {
     if (!user?.access_token) return;
     setLoading(true); setError("");
     try {
-      const res = await fetch(`${API}/pagos/transferencia/avisar`, {
+      const res = await patientFetch(`${API}/pagos/transferencia/avisar`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.access_token}` },
         body: JSON.stringify({ consulta_id: Number(consultaId), paciente_uuid: user.id, usar_credito: creditoDisponible }),

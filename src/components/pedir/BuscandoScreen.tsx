@@ -24,6 +24,8 @@ import {
   type RetryService,
 } from "@/lib/pedir/retryRequest";
 import styles from "./BuscandoScreen.module.css";
+import { patientFetch } from "@/lib/pedir/session";
+import { consultationPaymentState } from "@/lib/pedir/consultationPaymentState";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
 const PATIENT_APP_STORE_URL = "https://apps.apple.com/ar/app/docya/id6753604975";
@@ -49,6 +51,7 @@ type ConsultaData = {
   medico_lng?: number;
   mp_status?: string;
   mp_preautorizado?: boolean;
+  mp_capturado?: boolean;
   metodo_pago?: string;
   creado_en?: string;
   video_url?: string;
@@ -235,7 +238,7 @@ export default function BuscandoScreen() {
       const url = esTeleconsulta
         ? `${API}/teleconsultas/${consultaId}?paciente_uuid=${encodeURIComponent(user!.id)}`
         : `${API}/consultas/${consultaId}`;
-      const res = await fetch(url, {
+      const res = await patientFetch(url, {
         headers: esTeleconsulta
           ? { Authorization: `Bearer ${user!.access_token}` }
           : undefined,
@@ -256,6 +259,17 @@ export default function BuscandoScreen() {
       }
       if (!res.ok) return;
       const d = await res.json();
+      if (esTeleconsulta && ["preparando_pago", "pago_pendiente"].includes(d.estado)) {
+        const paymentResponse = await patientFetch(`${API}/consultas/${consultaId}/estado`, {
+          headers: { Authorization: `Bearer ${user!.access_token}` }, cache: "no-store",
+        }).catch(() => null);
+        if (paymentResponse?.ok) {
+          const payment = await paymentResponse.json();
+          d.mp_status = payment.mp_status;
+          d.mp_preautorizado = payment.mp_preautorizado;
+          d.mp_capturado = payment.mp_capturado;
+        }
+      }
       setData(d);
       const segundosServidor = Number(d.segundos_restantes);
       const vencimiento = d.expires_at ?? d.expira_en;
@@ -402,6 +416,7 @@ export default function BuscandoScreen() {
   }, [noSeEncontroMedico]);
   const tieneCreditoTransferencia = data?.mp_status === "transfer_credit_available";
   const esPendiente = estado === "pendiente" || estado === "buscando_medico";
+  const paymentState = consultationPaymentState(data);
   const esMedicoEnCamino = ["aceptada", "asignada", "en_camino"].includes(estado);
   const mostrarDescargaChat = tipo === "medico" && esMedicoEnCamino;
   const mostrarAyudaWhatsApp = !esTeleconsulta && (esPendiente || esMedicoEnCamino);
@@ -418,6 +433,7 @@ export default function BuscandoScreen() {
 
   // Titulo por estado
   const estadoTitulo = (() => {
+    if (paymentState) return paymentState.title;
     if (esPendiente)              return `${t.buscando.estadoTitulo.buscando}${dots}`;
     if (estado === "aceptada" || estado === "asignada") return t.buscando.estadoTitulo.asignado;
     if (estado === "en_camino")   return t.buscando.estadoTitulo.enCamino;
@@ -432,6 +448,7 @@ export default function BuscandoScreen() {
   })();
 
   const estadoSub = (() => {
+    if (paymentState) return paymentState.description;
     if (esPendiente)              return t.buscando.estadoSub.buscando;
     if (estado === "aceptada" || estado === "asignada") return t.buscando.estadoSub.asignado;
     if (estado === "en_camino")   return t.buscando.estadoSub.enCamino;
@@ -483,8 +500,14 @@ export default function BuscandoScreen() {
         </section>
         <section className={styles.panel} aria-label={estadoTitulo}>
 
+        {paymentState && <div role="status" style={{ display: "grid", gap: 16, padding: 20 }}>
+          <p style={{ color: muted, lineHeight: 1.6, margin: 0 }}>{paymentState.description}</p>
+          {paymentState.kind === "rejected" && <Link href={`/pedir/solicitar?tipo=${encodeURIComponent(tipo)}`} onClick={() => localStorage.removeItem("docya_consulta_activa")} style={{ padding: 16, borderRadius: 14, background: "#00b3a6", color: "#fff", textAlign: "center", textDecoration: "none", fontWeight: 700 }}>Volver a solicitar atención</Link>}
+          <a href={`https://wa.me/5491168700607?text=${encodeURIComponent(`Hola DocYa, necesito ayuda con el pago de mi consulta #${consultaId}.`)}`} target="_blank" rel="noreferrer" style={{ color: text, textAlign: "center", padding: 12 }}>Necesito ayuda con mi pago</a>
+        </div>}
+
         {/* ── STEPPER ── */}
-        {!esCancelado && (
+        {!esCancelado && !paymentState && (
           <div style={{ marginBottom: 36, overflowX: "auto" }}>
             <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", margin: "0 auto", padding: "0 4px" }}>
               {pasos.map((paso, i) => {

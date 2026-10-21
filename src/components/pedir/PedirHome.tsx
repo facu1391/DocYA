@@ -1,4 +1,6 @@
 "use client";
+
+import { PATIENT_LOGIN_RETURN_KEY, paymentLoginReturnPath } from "@/lib/pedir/session";
 import RecipientChoice from "./RecipientChoice";
 import TeleconsultaDeviceModal from "./TeleconsultaDeviceModal";
 
@@ -182,6 +184,7 @@ export default function PedirHome() {
   // (chequeo instantáneo, sin red — cubre el caso más común).
   useEffect(() => {
     try {
+      if (!localStorage.getItem("pedir_user")) return;
       const raw = localStorage.getItem("docya_consulta_activa");
       if (!raw) return;
       const { consulta_id, tipo } = JSON.parse(raw) as { consulta_id: string; tipo: string };
@@ -241,7 +244,17 @@ export default function PedirHome() {
 
   const saveUser = (u: PedirUser) => {
     localStorage.setItem("pedir_user", JSON.stringify(u));
+    try {
+      const raw = sessionStorage.getItem(PATIENT_LOGIN_RETURN_KEY);
+      sessionStorage.removeItem(PATIENT_LOGIN_RETURN_KEY);
+      const resume = raw ? JSON.parse(raw) : null;
+      if (u.perfil_completo && resume?.ownerId === String(u.id) && typeof resume.path === "string" && paymentLoginReturnPath(resume.path)) {
+        window.location.assign(resume.path);
+        return true;
+      }
+    } catch { /* El ingreso no depende del almacenamiento de recuperación. */ }
     setUser(u);
+    return false;
   };
 
   const logout = () => {
@@ -265,7 +278,7 @@ export default function PedirHome() {
         email: data.user?.email ?? "", perfil_completo: data.perfil_completo ?? data.user?.perfil_completo ?? false,
         access_token: data.access_token,
       };
-      saveUser(u);
+      if (saveUser(u)) return;
       notify(t.pedir.bienvenido);
       if (!u.perfil_completo) router.push("/pedir/perfil");
     } catch (e) {
@@ -308,7 +321,7 @@ export default function PedirHome() {
         email: data.user?.email ?? "", perfil_completo: data.perfil_completo ?? data.user?.perfil_completo ?? false,
         access_token: data.access_token,
       };
-      saveUser(u);
+      if (saveUser(u)) return;
       notify(t.pedir.bienvenido);
       if (!u.perfil_completo) router.push("/pedir/perfil");
     } catch (e: unknown) {
