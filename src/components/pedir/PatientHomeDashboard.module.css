@@ -6,9 +6,9 @@
 .sectionHeading h2 { margin: 0; font-size: 19px; font-weight: 700; }
 .sectionHeading > span { color: var(--home-muted); font-size: 12px; }
 .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-.service { min-width: 0; padding: 21px; border: 1px solid var(--home-line); background: var(--home-surface); border-radius: 21px; display: flex; flex-direction: column; align-items: stretch; }
-.serviceTop { display: flex; align-items: center; gap: 10px; justify-content: space-between; margin-bottom: 15px; }
-.serviceIcon { width: 54px; height: 54px; border-radius: 17px; display: grid; place-items: center; flex-shrink: 0; background: var(--service-tint); color: var(--service-color); }
+.service { min-width: 0; padding: 21px; border: 1px solid var(--home-line); background: linear-gradient(145deg, var(--service-tint), var(--home-surface)); border-radius: 21px; display: flex; flex-direction: column; align-items: stretch; box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 8px 24px rgba(0,0,0,.04); }
+.serviceTop { display: flex; align-items: center; gap: 10px; justify-content: space-between; margin-bottom: 22px; padding-top: 7px; }
+.serviceIcon { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; background: var(--service-icon-fill); color: var(--service-icon-ink); box-shadow: 0 0 0 8px color-mix(in srgb, var(--service-glow) 22%, transparent), 0 0 30px color-mix(in srgb, var(--service-glow) var(--home-glow-strength), transparent); }
 .serviceMode { color: var(--home-muted); font-size: 11px; line-height: 1.4; text-align: right; max-width: 74px; }
 .service h3 { font-size: 20px; margin: 0 0 6px; line-height: 1.25; color: var(--service-color); font-weight: 750; letter-spacing: -.4px; }
 .serviceDescription { font-size: 13px; color: var(--home-muted); line-height: 1.5; margin: 0 0 20px; flex: 1; }
@@ -44,8 +44,8 @@
   .sectionHeading > span { font-size: 11px; }
   .grid { gap: 12px; }
   .service { padding: 16px; border-radius: 19px; }
-  .serviceTop { align-items: flex-start; margin-bottom: 14px; gap: 5px; }
-  .serviceIcon { width: 45px; height: 45px; border-radius: 14px; }
+  .serviceTop { align-items: flex-start; margin-bottom: 21px; gap: 5px; }
+  .serviceIcon { width: 45px; height: 45px; }
   .serviceIcon svg { width: 25px; height: 25px; }
   .serviceMode { font-size: 10px; max-width: 59px; }
   .service h3 { font-size: 18px; }

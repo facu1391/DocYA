@@ -27,10 +27,10 @@ export default function PatientHomeDashboard({ name, dark, locale, prices, price
   const [pediatricsOpen, setPediatricsOpen] = useState(false);
   const money = (amount?: number) => amount ? `$${amount.toLocaleString("es-AR")}` : pricesLoading ? (es ? "Consultando…" : "Loading…") : (es ? "Ver tarifa al solicitar" : "Check price when requesting");
   const services = [
-    { id: "medico" as const, title: es ? "Médico" : "Doctor", description: es ? "Atención médica a domicilio" : "Medical care at home", icon: Stethoscope, color: dark ? "#36c5b5" : "#08796d", tint: dark ? "#102d31" : "#eff8f5" },
-    { id: "enfermero" as const, title: es ? "Enfermería" : "Nursing", description: es ? "Cuidados y atención en casa" : "Nursing care at home", icon: HeartPulse, color: dark ? "#b59af7" : "#6d42b4", tint: dark ? "#22283b" : "#f5f1fc" },
-    { id: "teleconsulta" as const, title: es ? "Teleconsulta" : "Online doctor", description: es ? "Consultá con un médico online" : "Speak to a doctor online", icon: Video, color: dark ? "#66c9f1" : "#0877a3", tint: dark ? "#112b3b" : "#eef7fc" },
-    { id: "pediatria" as const, title: es ? "Pediatría" : "Pediatrics", description: es ? "Para chicos y adolescentes" : "Care for children and teens", icon: Baby, color: dark ? "#f49cc6" : "#b73a78", tint: dark ? "#2e2637" : "#fdf0f6" },
+    { id: "medico" as const, title: es ? "Médico" : "Doctor", description: es ? "Atención médica a domicilio" : "Medical care at home", icon: Stethoscope, glow: "#13b8a6", color: dark ? "#36c5b5" : "#08796d", tint: dark ? "#102d31" : "#eff8f5" },
+    { id: "enfermero" as const, title: es ? "Enfermería" : "Nursing", description: es ? "Cuidados y atención en casa" : "Nursing care at home", icon: HeartPulse, glow: "#8b5cf6", color: dark ? "#b59af7" : "#6d42b4", tint: dark ? "#22283b" : "#f5f1fc" },
+    { id: "teleconsulta" as const, title: es ? "Teleconsulta" : "Online doctor", description: es ? "Consultá con un médico online" : "Speak to a doctor online", icon: Video, glow: "#0eafe5", color: dark ? "#66c9f1" : "#0877a3", tint: dark ? "#112b3b" : "#eef7fc" },
+    { id: "pediatria" as const, title: es ? "Pediatría" : "Pediatrics", description: es ? "Para chicos y adolescentes" : "Care for children and teens", icon: Baby, glow: "#ec4899", color: dark ? "#f49cc6" : "#b73a78", tint: dark ? "#2e2637" : "#fdf0f6" },
   ];
   const pediatricMinimum = prices.medico?.monto && prices.teleconsulta?.monto ? Math.min(prices.medico.monto, prices.teleconsulta.monto) : undefined;
   const vars = {
@@ -41,6 +41,7 @@ export default function PatientHomeDashboard({ name, dark, locale, prices, price
     "--home-accent": dark ? "#4fc8b8" : "#08796d",
     "--home-hover": dark ? "#14313a" : "#f4f9f8",
     "--home-nav": dark ? "#081b23" : "#ffffff",
+    "--home-glow-strength": dark ? "32%" : "15%",
   } as CSSProperties;
 
   return <div className={styles.dashboard} style={vars}>
@@ -56,7 +57,7 @@ export default function PatientHomeDashboard({ name, dark, locale, prices, price
           const pediatric = service.id === "pediatria";
           const amount = pediatric ? pediatricMinimum : prices[service.id as Service]?.monto;
           const Icon = service.icon;
-          return <article key={service.id} className={styles.service} style={{ "--service-color": service.color, "--service-tint": service.tint } as CSSProperties}>
+          return <article key={service.id} className={styles.service} style={{ "--service-color": service.color, "--service-tint": service.tint, "--service-glow": service.glow, "--service-icon-fill": dark ? service.glow : service.tint, "--service-icon-ink": dark ? "#ffffff" : service.color } as CSSProperties}>
             <div className={styles.serviceTop}><span className={styles.serviceIcon}><Icon size={29} strokeWidth={1.8} aria-hidden="true" /></span><span className={styles.serviceMode}>{pediatric ? (es ? "Online o en casa" : "Online or at home") : service.id === "teleconsulta" ? "Online" : (es ? "A domicilio" : "At home")}</span></div>
             <h3>{service.title}</h3>
             <p className={styles.serviceDescription}>{service.description}</p>
