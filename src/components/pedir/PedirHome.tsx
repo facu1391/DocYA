@@ -414,6 +414,14 @@ export default function PedirHome() {
                   </h1>
                   <p style={{ fontSize: 18, fontWeight: 700, color: "#00b3a6", marginBottom: 8 }}>{t.pedir.queNecesitas}</p>
                   <p style={{ color: muted, fontSize: 15 }}>{t.pedir.conectamos}</p>
+                  <Link href="/pedir/consultas" className="pedir-records-access" style={{ "--records-surface": cardBg, color: text } as React.CSSProperties}>
+                    <span className="pedir-records-icon"><FileText size={24} aria-hidden="true" /></span>
+                    <span className="pedir-records-copy">
+                      <span className="pedir-records-title">{locale === "es" ? "Mis consultas y documentos" : "My consultations and documents"}</span>
+                      <span className="pedir-records-description" style={{ color: muted }}>{locale === "es" ? "Tu historial de atención, recetas, certificados y órdenes médicas." : "Your care history, prescriptions, certificates, and medical orders."}</span>
+                    </span>
+                    <ChevronRight size={22} className="pedir-records-arrow" aria-hidden="true" />
+                  </Link>
                 </div>
                 <div className="pedir-help-options">
                 <PedirAsistente
@@ -763,6 +771,18 @@ export default function PedirHome() {
         router.push(`/pedir/filtro?tipo=teleconsulta${telePediatricaPendiente ? "&pediatria=1" : ""}${forOther ? "&recipient=other" : ""}`);
       }} />}
       <style>{`
+        @property --docya-records-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+        @keyframes docya-records-border { to { --docya-records-angle: 360deg; } }
+        .pedir-records-access { --docya-records-angle: 0deg; display: flex; align-items: center; gap: 14px; margin-top: 22px; padding: 18px; border: 1.5px solid transparent; border-radius: 20px; text-decoration: none; background: linear-gradient(var(--records-surface), var(--records-surface)) padding-box, conic-gradient(from var(--docya-records-angle), rgba(0,179,166,.35) 0deg, rgba(0,179,166,.35) 230deg, #00b3a6 280deg, #67e8f9 310deg, rgba(0,179,166,.35) 360deg) border-box; animation: docya-records-border 8s linear infinite; box-shadow: 0 5px 22px rgba(0,179,166,.08); transition: box-shadow .2s; }
+        .pedir-records-access:hover { box-shadow: 0 6px 26px rgba(0,179,166,.2); }
+        .pedir-records-access:focus-visible { outline: 3px solid #00b3a6; outline-offset: 4px; }
+        .pedir-records-icon { display: grid; place-items: center; width: 48px; height: 48px; flex: 0 0 auto; border-radius: 15px; color: #00b3a6; background: rgba(0,179,166,.12); }
+        .pedir-records-copy { display: grid; gap: 5px; min-width: 0; }
+        .pedir-records-title { font-size: 17px; font-weight: 800; line-height: 1.3; }
+        .pedir-records-description { font-size: 13px; line-height: 1.5; }
+        .pedir-records-arrow { flex: 0 0 auto; margin-left: auto; color: #00b3a6; }
+        @media (prefers-reduced-motion: reduce) { .pedir-records-access { animation: none; transition: none; } }
+        @media (max-width: 380px) { .pedir-records-access { gap: 10px; padding: 14px; } .pedir-records-title { font-size: 16px; } .pedir-records-icon { width: 40px; height: 40px; } }
         @keyframes spin { to { transform: rotate(360deg) } }
         .pedir-header { width: 100%; padding: 0 16px; }
         .pedir-header-inner { min-width: 0; height: 64px; display: flex; align-items: center; gap: 10px; }
