@@ -1,7 +1,6 @@
 "use client";
 
 import { PATIENT_LOGIN_RETURN_KEY, paymentLoginReturnPath } from "@/lib/pedir/session";
-import RecipientChoice from "./RecipientChoice";
 import TeleconsultaDeviceModal from "./TeleconsultaDeviceModal";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -13,7 +12,7 @@ import WhatsAppSupportButton from "@/components/fab/WhatsAppSupportButton";
 import { useRouter } from "next/navigation";
 import {
   Stethoscope, Video, HeartPulse, ShieldCheck, Clock, Baby,
-  Home, FileText, Star, CreditCard, ChevronRight,
+  Home, FileText, ClipboardPlus, Star, CreditCard, ChevronRight,
   Phone, LogOut, User, ChevronDown, Sun, Moon,
   AlertTriangle, Globe, Gift,
 } from "lucide-react";
@@ -72,7 +71,6 @@ const notify = (msg: string, ok = true) => {
 };
 
 export default function PedirHome() {
-  const [forOther, setForOther] = useState(false);
   const router = useRouter();
   const [deviceModalOpen, setDeviceModalOpen] = useState(false);
   const [telePediatricaPendiente, setTelePediatricaPendiente] = useState(false);
@@ -80,7 +78,7 @@ export default function PedirHome() {
   const markDevicesTested = () => { devicesTested.current = true; };
   const startTeleconsulta = (pediatrica = false) => {
     setTelePediatricaPendiente(pediatrica);
-    const destino = `/pedir/filtro?tipo=teleconsulta${pediatrica ? "&pediatria=1" : ""}${forOther ? "&recipient=other" : ""}`;
+    const destino = `/pedir/filtro?tipo=teleconsulta${pediatrica ? "&pediatria=1" : ""}`;
     if (devicesTested.current) router.push(destino);
     else setDeviceModalOpen(true);
   };
@@ -414,11 +412,11 @@ export default function PedirHome() {
                   </h1>
                   <p style={{ fontSize: 18, fontWeight: 700, color: "#00b3a6", marginBottom: 8 }}>{t.pedir.queNecesitas}</p>
                   <p style={{ color: muted, fontSize: 15 }}>{t.pedir.conectamos}</p>
-                  <Link href="/pedir/consultas" className="pedir-records-access" style={{ "--records-surface": cardBg, color: text } as React.CSSProperties}>
-                    <span className="pedir-records-icon"><FileText size={24} aria-hidden="true" /></span>
+                  <Link href="/pedir/consultas" className="pedir-records-access" style={{ background: dark ? "#0b2028" : "#ffffff", borderColor: dark ? "#29434a" : "#cfdddf", color: text }}>
+                    <span className="pedir-records-icon"><ClipboardPlus size={22} aria-hidden="true" /></span>
                     <span className="pedir-records-copy">
-                      <span className="pedir-records-title">{locale === "es" ? "Mis consultas y documentos" : "My consultations and documents"}</span>
-                      <span className="pedir-records-description" style={{ color: muted }}>{locale === "es" ? "Tu historial de atención, recetas, certificados y órdenes médicas." : "Your care history, prescriptions, certificates, and medical orders."}</span>
+                      <span className="pedir-records-title">{locale === "es" ? "Mi historial de atención" : "My care history"}</span>
+                      <span className="pedir-records-description" style={{ color: muted }}>{locale === "es" ? "Consultas, recetas, certificados y órdenes médicas." : "Consultations, prescriptions, certificates, and medical orders."}</span>
                     </span>
                     <ChevronRight size={22} className="pedir-records-arrow" aria-hidden="true" />
                   </Link>
@@ -435,7 +433,7 @@ export default function PedirHome() {
                     if (service === "teleconsulta") {
                       startTeleconsulta();
                     } else {
-                      router.push(`/pedir/filtro?tipo=medico${forOther ? "&recipient=other" : ""}`);
+                      router.push(`/pedir/filtro?tipo=medico`);
                     }
                   }}
                 />
@@ -450,7 +448,6 @@ export default function PedirHome() {
               )}
 
               {/* CARDS */}
-              <RecipientChoice other={forOther} onChange={setForOther} />
               <div className="pedir-cards">
                 {SERVICIOS.map(s => {
                   const precio = s.id === "pediatria" ? null : precios[s.id as ServicioId];
@@ -488,7 +485,7 @@ export default function PedirHome() {
                         </div>
                       ) : (
                         <button
-                          onClick={() => s.id === "teleconsulta" ? startTeleconsulta() : router.push(s.id === "enfermero" ? `/pedir/solicitar?tipo=enfermero${forOther ? "&recipient=other" : ""}` : `/pedir/filtro?tipo=${s.id}${forOther ? "&recipient=other" : ""}`)}
+                          onClick={() => s.id === "teleconsulta" ? startTeleconsulta() : router.push(s.id === "enfermero" ? `/pedir/solicitar?tipo=enfermero` : `/pedir/filtro?tipo=${s.id}`)}
                           style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: s.color, color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", boxShadow: `0 6px 20px ${s.color}40` }}
                         >
                           {s.btn} <ChevronRight size={18} />
@@ -768,21 +765,19 @@ export default function PedirHome() {
 
       {deviceModalOpen && <TeleconsultaDeviceModal onClose={() => setDeviceModalOpen(false)} onSuccess={markDevicesTested} onContinue={() => {
         setDeviceModalOpen(false);
-        router.push(`/pedir/filtro?tipo=teleconsulta${telePediatricaPendiente ? "&pediatria=1" : ""}${forOther ? "&recipient=other" : ""}`);
+        router.push(`/pedir/filtro?tipo=teleconsulta${telePediatricaPendiente ? "&pediatria=1" : ""}`);
       }} />}
       <style>{`
-        @property --docya-records-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
-        @keyframes docya-records-border { to { --docya-records-angle: 360deg; } }
-        .pedir-records-access { --docya-records-angle: 0deg; display: flex; align-items: center; gap: 14px; margin-top: 22px; padding: 18px; border: 1.5px solid transparent; border-radius: 20px; text-decoration: none; background: linear-gradient(var(--records-surface), var(--records-surface)) padding-box, conic-gradient(from var(--docya-records-angle), rgba(0,179,166,.35) 0deg, rgba(0,179,166,.35) 230deg, #00b3a6 280deg, #67e8f9 310deg, rgba(0,179,166,.35) 360deg) border-box; animation: docya-records-border 8s linear infinite; box-shadow: 0 5px 22px rgba(0,179,166,.08); transition: box-shadow .2s; }
-        .pedir-records-access:hover { box-shadow: 0 6px 26px rgba(0,179,166,.2); }
-        .pedir-records-access:focus-visible { outline: 3px solid #00b3a6; outline-offset: 4px; }
-        .pedir-records-icon { display: grid; place-items: center; width: 48px; height: 48px; flex: 0 0 auto; border-radius: 15px; color: #00b3a6; background: rgba(0,179,166,.12); }
-        .pedir-records-copy { display: grid; gap: 5px; min-width: 0; }
-        .pedir-records-title { font-size: 17px; font-weight: 800; line-height: 1.3; }
+        .pedir-records-access { display: flex; align-items: center; gap: 12px; margin-top: 22px; padding: 16px; border: 1px solid; border-left: 3px solid #28988c !important; border-radius: 14px; text-decoration: none; transition: border-color .15s; }
+        .pedir-records-access:hover { border-color: #28988c !important; }
+        .pedir-records-access:focus-visible { outline: 2px solid #28988c; outline-offset: 4px; }
+        .pedir-records-icon { display: grid; place-items: center; width: 40px; height: 44px; flex: 0 0 auto; border-radius: 10px; color: ${dark ? "#87c9c0" : "#21766d"}; background: ${dark ? "#143038" : "#eef6f4"}; }
+        .pedir-records-copy { display: grid; gap: 4px; min-width: 0; }
+        .pedir-records-title { font-size: 16px; font-weight: 700; line-height: 1.35; }
         .pedir-records-description { font-size: 13px; line-height: 1.5; }
-        .pedir-records-arrow { flex: 0 0 auto; margin-left: auto; color: #00b3a6; }
-        @media (prefers-reduced-motion: reduce) { .pedir-records-access { animation: none; transition: none; } }
-        @media (max-width: 380px) { .pedir-records-access { gap: 10px; padding: 14px; } .pedir-records-title { font-size: 16px; } .pedir-records-icon { width: 40px; height: 40px; } }
+        .pedir-records-arrow { flex: 0 0 auto; margin-left: auto; color: ${dark ? "#87b3b4" : "#5a7d80"}; }
+        @media (prefers-reduced-motion: reduce) { .pedir-records-access { transition: none; } }
+        @media (max-width: 380px) { .pedir-records-access { gap: 10px; padding: 14px 12px; } .pedir-records-title { font-size: 15px; } .pedir-records-description { font-size: 12px; } .pedir-records-icon { width: 34px; height: 40px; } }
         @keyframes spin { to { transform: rotate(360deg) } }
         .pedir-header { width: 100%; padding: 0 16px; }
         .pedir-header-inner { min-width: 0; height: 64px; display: flex; align-items: center; gap: 10px; }
