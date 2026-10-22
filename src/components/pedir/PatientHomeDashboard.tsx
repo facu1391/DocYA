@@ -6,6 +6,7 @@ import { Baby, ChevronRight, ClipboardPlus, Gift, HeartPulse, Home, Stethoscope,
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import type { PatientReferralSummary } from "@/lib/pedir/patientReferrals";
 import styles from "./PatientHomeDashboard.module.css";
+import shimmer from "./TextShimmer.module.css";
 
 type Service = "medico" | "enfermero" | "teleconsulta";
 type Props = {
@@ -69,7 +70,7 @@ export default function PatientHomeDashboard({ name, dark, locale, prices, price
 
     <Link href="/pedir/consultas" className={styles.history}>
       <span className={styles.historyIcon}><ClipboardPlus size={25} strokeWidth={1.7} aria-hidden="true" /></span>
-      <span><strong>{es ? "Mi historial de atención" : "My care history"}</strong><small>{es ? "Consultas, recetas, certificados y órdenes médicas" : "Consultations, prescriptions, certificates, and medical orders"}</small></span>
+      <span><strong className={`${shimmer.title}${dark ? ` ${shimmer.dark}` : ""}`}>{es ? "Mi historial de atención" : "My care history"}</strong><small>{es ? "Consultas, recetas, certificados y órdenes médicas" : "Consultations, prescriptions, certificates, and medical orders"}</small></span>
       <ChevronRight size={21} aria-hidden="true" />
     </Link>
 

@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import { chatTelemetry, chatAuthHeaders, chatAction, chatConversationId } from "@/lib/chat-analytics";
 import { ArrowLeft, Bot, Send, LoaderCircle, MessageCircle, Video, Stethoscope } from "lucide-react";
+import shimmer from "./TextShimmer.module.css";
 
 type Role = "user" | "assistant";
 type Message = { role: Role; content: string };
@@ -137,7 +138,7 @@ export default function PedirAsistente({ apiUrl, locale, dark, muted, text, bord
       >
         <span className="pedir-ai-launcher-icon"><Image src="/docya-ai-icon.png" alt="" width={46} height={46} /></span>
         <span className="pedir-ai-launcher-copy">
-          <strong>{isEnglish ? "Chat with DocYa AI" : "Chateá con DocYa IA"}</strong>
+          <strong className={`${shimmer.title}${dark ? ` ${shimmer.dark}` : ""}`}>{isEnglish ? "Chat with DocYa AI" : "Chateá con DocYa IA"}</strong>
           <small style={{ color: muted }}>{isEnglish ? "Ask a question or get help requesting care" : "Resolvé dudas o recibí ayuda para pedir atención"}</small>
         </span>
         <span className="pedir-ai-launcher-arrow" aria-hidden="true">›</span>
