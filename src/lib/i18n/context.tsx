@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
 import { es } from "./translations/es";
 import { en } from "./translations/en";
 
@@ -23,12 +23,12 @@ const I18nContext = createContext<I18nContextValue>({
 });
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem("docya-lang") as Locale) || "es";
-    }
-    return "es";
-  });
+  const [locale, setLocaleState] = useState<Locale>("es");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("docya-lang");
+    if (saved === "es" || saved === "en") setLocaleState(saved);
+  }, []);
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);

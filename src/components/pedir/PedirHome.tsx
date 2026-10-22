@@ -12,7 +12,7 @@ import WhatsAppSupportButton from "@/components/fab/WhatsAppSupportButton";
 import { useRouter } from "next/navigation";
 import {
   Stethoscope, Video, HeartPulse, ShieldCheck, Clock, Baby,
-  Home, FileText, ClipboardPlus, Star, CreditCard, ChevronRight,
+  Home, FileText, Star, CreditCard, ChevronRight,
   Phone, LogOut, User, ChevronDown, Sun, Moon,
   AlertTriangle, Globe, Gift,
 } from "lucide-react";
@@ -20,7 +20,7 @@ import { usePedirTheme } from "./theme";
 import { useI18n } from "@/lib/i18n/context";
 import { leerPagoPendienteLocal, recuperarConsultaPendienteGlobal } from "@/lib/pedir/pendingPayment";
 import { getPatientReferrals, type PatientReferralSummary } from "@/lib/pedir/patientReferrals";
-import ReferralProgressCard from "./ReferralProgressCard";
+import PatientHomeDashboard from "./PatientHomeDashboard";
 import PedirAsistente from "./PedirAsistente";
 import { PATIENT_REFERRALS_ENABLED } from "@/lib/pedir/referralFeature";
 
@@ -90,6 +90,7 @@ export default function PedirHome() {
   const [appleBusy, setAppleBusy]       = useState(false);
   const [user, setUser]                 = useState<PedirUser | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [pricesLoading, setPricesLoading] = useState(true);
   const [precios, setPrecios]           = useState<Partial<Record<ServicioId, PrecioServicio>>>({});
   const [referralSummary, setReferralSummary] = useState<PatientReferralSummary | null>(null);
   const { dark, setTheme, homeBg: bg, cardBg, border, text, muted, headerBg, logo } = usePedirTheme();
@@ -236,6 +237,7 @@ export default function PedirHome() {
     ).then(items => {
       if (!alive) return;
       setPrecios(Object.fromEntries(items.filter(Boolean) as [ServicioId, PrecioServicio][]));
+      setPricesLoading(false);
     });
     return () => { alive = false; };
   }, []);
@@ -350,12 +352,12 @@ export default function PedirHome() {
       <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onLoad={() => setGoogleLoaded(true)} />
       <Script src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js" strategy="afterInteractive" onLoad={() => setAppleLoaded(true)} />
 
-      <div style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+      <div className={user ? "pedir-app-page" : undefined} style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
         {/* HEADER */}
-        <header className="pedir-header" style={{ borderBottom: `1px solid ${border}`, background: headerBg, backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50 }}>
+        <header className="pedir-header pedir-app-shell" style={{ borderBottom: `1px solid ${border}`, background: headerBg, backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50 }}>
           <div className="pedir-header-inner" style={{ maxWidth: 1200, margin: "0 auto" }}>
-            <Link href="/" className="pedir-header-logo">
+            <Link href={user ? "/pedir" : "/"} className="pedir-header-logo">
               <Image src={logo} alt="DocYa" width={190} height={60} style={{ width: "clamp(150px, 22vw, 190px)", height: "auto", maxHeight: 60, objectFit: "contain", display: "block", flexShrink: 0 }} />
             </Link>
             <div className="pedir-header-controls">
@@ -368,6 +370,8 @@ export default function PedirHome() {
               <div className="pedir-header-user-menu" style={{ position: "relative" }}>
                 <button
                   onClick={() => setUserMenuOpen(o => !o)}
+                  aria-label={locale === "es" ? "Mi cuenta" : "My account"}
+                  aria-expanded={userMenuOpen}
                   className="pedir-header-user"
                   style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 999, border: `1px solid ${border}`, background: "transparent", color: text, cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}
                 >
@@ -378,8 +382,9 @@ export default function PedirHome() {
                 {userMenuOpen && (
                   <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", background: dark ? "#0f2a35" : "#fff", border: `1px solid ${border}`, borderRadius: 14, padding: "8px", minWidth: 180, boxShadow: "0 12px 40px rgba(0,0,0,0.25)", zIndex: 100 }}>
                     <p style={{ fontSize: 12, color: muted, padding: "4px 12px 8px" }}>{user.email}</p>
+                    <button onClick={() => router.push("/pedir/perfil")} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px", borderRadius: 10, background: "none", border: "none", color: text, cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}><User size={15} />{locale === "es" ? "Mi perfil" : "My profile"}</button>
                     {PATIENT_REFERRALS_ENABLED && <button onClick={() => router.push("/pedir/invitar")} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px", borderRadius: 10, background: "none", border: "none", color: text, cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>
-                      <Gift size={15} /> Invitá amigos
+                      <Gift size={15} /> {locale === "es" ? "Invitá amigos" : "Invite friends"}
                     </button>}
                     <button onClick={logout} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px", borderRadius: 10, background: "none", border: "none", color: "#f87171", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>
                       <LogOut size={15} /> {t.pedir.salir}
@@ -392,119 +397,37 @@ export default function PedirHome() {
               <Globe size={18} />
               <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase" }}>{locale === "es" ? "EN" : "ES"}</span>
             </button>
-            <button className="pedir-header-theme" onClick={() => setTheme(dark ? "light" : "dark")} aria-label={dark ? "Usar tema claro" : "Usar tema oscuro"} style={{ background: "none", cursor: "pointer", color: muted, padding: 8, borderRadius: 999, display: "flex", alignItems: "center", border: `1px solid ${border}` }}>
+            <button className="pedir-header-theme" onClick={() => setTheme(dark ? "light" : "dark")} aria-label={locale === "es" ? dark ? "Usar tema claro" : "Usar tema oscuro" : dark ? "Switch to light mode" : "Switch to dark mode"} style={{ background: "none", cursor: "pointer", color: muted, padding: 8, borderRadius: 999, display: "flex", alignItems: "center", border: `1px solid ${border}` }}>
               {dark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
             </div>
           </div>
         </header>
 
-        <WhatsAppSupportButton english={locale === "en"} />
-        <main style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px" }}>
+        {!user && <WhatsAppSupportButton english={locale === "en"} />}
+        <main className={user ? "pedir-app-main" : undefined} style={{ maxWidth: 1200, margin: "0 auto", padding: user ? "0 24px 48px" : "0 24px 80px" }}>
           {user ? (
             /* ── LOGUEADO ─────────────────────────────────────── */
             <>
-              {/* HERO */}
-              <div className="pedir-hero">
-                <div>
-                  <h1 style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 900, marginBottom: 6, letterSpacing: "-0.5px" }}>
-                    {t.pedir.holaUser.replace("{name}", user.full_name.split(" ")[0])}
-                  </h1>
-                  <p style={{ fontSize: 18, fontWeight: 700, color: "#00b3a6", marginBottom: 8 }}>{t.pedir.queNecesitas}</p>
-                  <p style={{ color: muted, fontSize: 15 }}>{t.pedir.conectamos}</p>
-                  <Link href="/pedir/consultas" className="pedir-records-access" style={{ background: dark ? "#0b2028" : "#ffffff", borderColor: dark ? "#29434a" : "#cfdddf", color: text }}>
-                    <span className="pedir-records-icon"><ClipboardPlus size={22} aria-hidden="true" /></span>
-                    <span className="pedir-records-copy">
-                      <span className="pedir-records-title">{locale === "es" ? "Mi historial de atención" : "My care history"}</span>
-                      <span className="pedir-records-description" style={{ color: muted }}>{locale === "es" ? "Consultas, recetas, certificados y órdenes médicas." : "Consultations, prescriptions, certificates, and medical orders."}</span>
-                    </span>
-                    <ChevronRight size={22} className="pedir-records-arrow" aria-hidden="true" />
-                  </Link>
-                </div>
-                <div className="pedir-help-options">
-                <PedirAsistente
-                  apiUrl={API}
-                  locale={locale}
-                  dark={dark}
-                  muted={muted}
-                  text={text}
-                  border={border}
-                  onRequest={(service) => {
-                    if (service === "teleconsulta") {
-                      startTeleconsulta();
-                    } else {
-                      router.push(`/pedir/filtro?tipo=medico`);
-                    }
-                  }}
-                />
-                {whatsappSupport}
-                </div>
-              </div>
-
-              {PATIENT_REFERRALS_ENABLED && referralSummary && (
-                <div style={{ marginBottom: 22 }}>
-                  <ReferralProgressCard summary={referralSummary} onOpen={() => referralSummary.available_rewards_count > 0 ? startTeleconsulta() : router.push("/pedir/invitar")} compact />
-                </div>
-              )}
-
-              {/* CARDS */}
-              <div className="pedir-cards">
-                {SERVICIOS.map(s => {
-                  const precio = s.id === "pediatria" ? null : precios[s.id as ServicioId];
-                  return (
-                    <div
-                      key={s.id}
-                      style={{ background: s.id === "pediatria" ? (dark ? "linear-gradient(145deg, rgba(244,114,182,0.12), rgba(244,114,182,0.03) 48%, #102730 100%)" : "linear-gradient(145deg, #fff1f7, #ffffff 58%)") : cardBg, border: `1px solid ${s.id === "pediatria" ? `${s.color}55` : border}`, borderRadius: 24, padding: "26px 24px", display: "flex", flexDirection: "column", gap: 0, transition: "transform 0.15s, box-shadow 0.15s" }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)"; (e.currentTarget as HTMLElement).style.boxShadow = dark ? "0 20px 50px rgba(0,0,0,0.4)" : "0 12px 40px rgba(0,0,0,0.12)"; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
-                    >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-                        <div style={{ width: 56, height: 56, borderRadius: 18, background: s.bgColor, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <s.icon size={28} color={s.color} />
-                        </div>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: s.badgeColor, background: s.badgeBg, padding: "5px 12px", borderRadius: 999 }}>{s.badge}</span>
-                      </div>
-                      <h3 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4, color: text }}>{s.title}</h3>
-                      <p style={{ fontSize: 14, color: muted, fontWeight: 500, marginBottom: 8 }}>{s.sub}</p>
-                      <div style={{ border: `1px solid ${s.color}30`, background: `${s.color}12`, borderRadius: 14, padding: "10px 12px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                        <span style={{ fontSize: 12, color: muted, fontWeight: 800 }}>{t.pedir.precio}</span>
-                        <strong style={{ fontSize: 18, color: s.color, lineHeight: 1 }}>{s.id === "pediatria" ? "Según modalidad" : formatPesos(precio?.monto, t.pedir.consultando)}</strong>
-                      </div>
-                      <p style={{ fontSize: 14, color: muted, lineHeight: 1.55, marginBottom: 20, flex: 1 }}>{s.desc}</p>
-                      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
-                        {s.trust.map(({ icon: TIcon, label }) => (
-                          <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: muted }}>
-                            <TIcon size={13} color={s.color} /> {label}
-                          </div>
-                        ))}
-                      </div>
-                      {s.id === "pediatria" ? (
-                        <div style={{ display: "grid", gap: 10 }}>
-                          <button onClick={() => startTeleconsulta(true)} style={{ width: "100%", padding: "12px 0", borderRadius: 14, border: "none", background: `linear-gradient(135deg, ${s.color}, #ec4899)`, color: "#fff", fontSize: 14, fontWeight: 750, cursor: "pointer", fontFamily: "inherit", boxShadow: `0 7px 22px ${s.color}45` }}>Consultar pediatra online</button>
-                          <button onClick={() => router.push("/pedir/filtro?tipo=medico&pediatria=1")} style={{ width: "100%", padding: "12px 0", borderRadius: 14, border: `1.5px solid ${s.color}`, background: "transparent", color: s.color, fontSize: 14, fontWeight: 750, cursor: "pointer", fontFamily: "inherit" }}>Pediatra en casa</button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => s.id === "teleconsulta" ? startTeleconsulta() : router.push(s.id === "enfermero" ? `/pedir/solicitar?tipo=enfermero` : `/pedir/filtro?tipo=${s.id}`)}
-                          style={{ width: "100%", padding: "14px 0", borderRadius: 14, border: "none", background: s.color, color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", boxShadow: `0 6px 20px ${s.color}40` }}
-                        >
-                          {s.btn} <ChevronRight size={18} />
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              <Link href="/pedir/consultas" className="pedir-documents-banner" style={{ background: cardBg, border: `1px solid ${border}`, color: text, textDecoration: "none" }}>
-                <div className="pedir-documents-icon"><FileText size={22} color="#00b3a6" /></div>
-                <div className="pedir-documents-copy">
-                  <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Tus documentos siempre disponibles</p>
-                  <p style={{ margin: "4px 0 0", fontSize: 13, color: muted, lineHeight: 1.5 }}>{locale === "es" ? <>Las recetas, certificados y órdenes que genere el profesional quedan guardados para consultar o descargar. En la app: <strong style={{ color: text }}>Perfil &gt; Documentos</strong>. En la web: <strong style={{ color: text }}>Mis consultas &gt; Documentos</strong>.</> : <>Prescriptions, certificates, and orders issued by the professional are saved to view or download. In the app: <strong style={{ color: text }}>Profile &gt; Documents</strong>. On the website: <strong style={{ color: text }}>My consultations &gt; Documents</strong>.</>}</p>
-                  <p className="pedir-documents-secondary" style={{ margin: "3px 0 0", fontSize: 12, color: muted }}>{locale === "es" ? "La emisión de cada documento depende de la evaluación del profesional." : "Whether a document is issued depends on the professional’s evaluation."}</p>
-                </div>
-                <ChevronRight className="pedir-documents-arrow" size={21} color="#00b3a6" aria-hidden="true" />
-              </Link>
+              <PatientHomeDashboard
+                name={user.full_name.split(" ")[0]}
+                dark={dark}
+                locale={locale}
+                prices={precios}
+                pricesLoading={pricesLoading}
+                referralsEnabled={PATIENT_REFERRALS_ENABLED}
+                referralSummary={referralSummary}
+                onService={(service, pediatrics = false) => {
+                  if (service === "teleconsulta") startTeleconsulta(pediatrics);
+                  else router.push(service === "enfermero" ? "/pedir/solicitar?tipo=enfermero" : `/pedir/filtro?tipo=medico${pediatrics ? "&pediatria=1" : ""}`);
+                }}
+                onReferral={() => referralSummary && referralSummary.available_rewards_count > 0 ? startTeleconsulta() : router.push("/pedir/invitar")}
+                help={<>
+                  <PedirAsistente apiUrl={API} locale={locale} dark={dark} muted={muted} text={text} border={border}
+                    onRequest={service => service === "teleconsulta" ? startTeleconsulta() : router.push("/pedir/filtro?tipo=medico")} />
+                  {whatsappSupport}
+                </>}
+              />
 
               {/* TRUST STRIP */}
               <div className="pedir-trust">
@@ -768,16 +691,6 @@ export default function PedirHome() {
         router.push(`/pedir/filtro?tipo=teleconsulta${telePediatricaPendiente ? "&pediatria=1" : ""}`);
       }} />}
       <style>{`
-        .pedir-records-access { display: flex; align-items: center; gap: 12px; margin-top: 22px; padding: 16px; border: 1px solid; border-left: 3px solid #28988c !important; border-radius: 14px; text-decoration: none; transition: border-color .15s; }
-        .pedir-records-access:hover { border-color: #28988c !important; }
-        .pedir-records-access:focus-visible { outline: 2px solid #28988c; outline-offset: 4px; }
-        .pedir-records-icon { display: grid; place-items: center; width: 40px; height: 44px; flex: 0 0 auto; border-radius: 10px; color: ${dark ? "#87c9c0" : "#21766d"}; background: ${dark ? "#143038" : "#eef6f4"}; }
-        .pedir-records-copy { display: grid; gap: 4px; min-width: 0; }
-        .pedir-records-title { font-size: 16px; font-weight: 700; line-height: 1.35; }
-        .pedir-records-description { font-size: 13px; line-height: 1.5; }
-        .pedir-records-arrow { flex: 0 0 auto; margin-left: auto; color: ${dark ? "#87b3b4" : "#5a7d80"}; }
-        @media (prefers-reduced-motion: reduce) { .pedir-records-access { transition: none; } }
-        @media (max-width: 380px) { .pedir-records-access { gap: 10px; padding: 14px 12px; } .pedir-records-title { font-size: 15px; } .pedir-records-description { font-size: 12px; } .pedir-records-icon { width: 34px; height: 40px; } }
         @keyframes spin { to { transform: rotate(360deg) } }
         .pedir-header { width: 100%; padding: 0 16px; }
         .pedir-header-inner { min-width: 0; height: 64px; display: flex; align-items: center; gap: 10px; }
@@ -854,6 +767,27 @@ export default function PedirHome() {
           .pedir-header-consultas { font-size: 11px !important; }
           .pedir-header-user { font-size: 13px !important; padding: 8px 6px !important; }
           .pedir-header-language { font-size: 0; }
+        }
+        .pedir-app-shell { padding: 0 20px; }
+        .pedir-app-shell .pedir-header-inner { position: relative; display: flex; align-items: center; height: 72px; min-height: 72px; }
+        .pedir-app-shell .pedir-header-logo { position: absolute; left: 50%; transform: translateX(-50%); height: auto; }
+        .pedir-app-shell .pedir-header-logo img { width: clamp(120px, 22vw, 158px) !important; max-height: 50px !important; }
+        .pedir-app-shell .pedir-header-controls { display: flex; width: auto; gap: 6px; margin-left: auto; }
+        .pedir-app-shell .pedir-header-consultas { display: none; }
+        .pedir-app-shell .pedir-header-language { position: absolute !important; left: 0; min-width: 54px; min-height: 40px; padding: 8px !important; }
+        .pedir-app-shell .pedir-header-user, .pedir-app-shell .pedir-header-theme { display: flex; justify-content: center; width: 38px; height: 40px; min-height: 40px; padding: 8px !important; }
+        .pedir-app-shell .pedir-header-user-name, .pedir-app-shell .pedir-header-user > svg:last-child { display: none; }
+        .pedir-app-main .pedir-trust { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        @media (max-width: 760px) { .pedir-app-main .pedir-trust { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 640px) {
+          .pedir-app-shell { padding: 0 16px; }
+          .pedir-app-shell .pedir-header-inner { height: 66px; min-height: 66px; }
+          .pedir-app-shell .pedir-header-logo img { width: 120px !important; }
+          .pedir-app-shell .pedir-header-user, .pedir-app-shell .pedir-header-theme { width: 34px; padding: 7px !important; }
+          .pedir-app-shell .pedir-header-controls { gap: 4px; }
+          .pedir-app-main { padding-left: 16px !important; padding-right: 16px !important; }
+          .pedir-app-page { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+          .pedir-app-main .pedir-whatsapp-support { min-height: 78px; border-radius: 17px; }
         }
       `}</style>
     </>
