@@ -10,6 +10,7 @@ import {
   Calendar,
   CheckCircle2,
   ClipboardList,
+  Clock3,
   Download,
   ExternalLink,
   FileText,
@@ -328,6 +329,15 @@ function DocumentosSection({ archivos, theme, t }: { archivos: ArchivoPaciente[]
           <DocTab active={tab === "ordenes"} onClick={() => setTab("ordenes")} label={`${t.consultas.ordenes} (${ordenes.length})`} theme={theme} />
         </div>
       </div>
+
+      <aside style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "16px", marginBottom: 18, borderRadius: 14, border: `1px solid ${theme.brandBorder}`, background: theme.dark ? "#0b2028" : "#f4f9f8" }}>
+        <Clock3 size={20} aria-hidden="true" style={{ flexShrink: 0, marginTop: 2, color: theme.dark ? "#87c9c0" : "#21766d" }} />
+        <div>
+          <h3 style={{ margin: "0 0 6px", color: theme.text, fontSize: 14, fontWeight: 700 }}>{t.consultas.documentosPreparacionTitulo}</h3>
+          <p style={{ margin: 0, color: theme.muted, fontSize: 13, lineHeight: 1.6 }}>{t.consultas.documentosPreparacionMensaje}</p>
+          <p style={{ margin: "8px 0 0", color: theme.muted, fontSize: 13, lineHeight: 1.6 }}>{t.consultas.documentosPreparacionSoporte} <a href="https://wa.me/5491168700607" target="_blank" rel="noreferrer" style={{ color: theme.dark ? "#87c9c0" : "#21766d", textDecoration: "underline", textUnderlineOffset: 3 }}>{t.consultas.documentosContactarSoporte}</a></p>
+        </div>
+      </aside>
 
       {visibles.length === 0 ? (
         <div style={{ borderRadius: 18, border: `1px dashed ${theme.border}`, background: theme.inputBg, padding: "22px 16px", textAlign: "center" }}>
