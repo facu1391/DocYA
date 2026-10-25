@@ -318,7 +318,7 @@ export const en = {
     loginMobileTitle: "Request care when you need it",
     loginMobileDescription: "No appointments or schedules: we search for available professionals in real time.",
     loginCardTitle: "Sign in to request care",
-    loginCardDescription: "It takes less than a minute.",
+    loginCardDescription: "Online consultations and home visits, no appointments.",
     continuarGoogle: "Continue with Google",
     verificando: "Verifying...",
     o: "or",

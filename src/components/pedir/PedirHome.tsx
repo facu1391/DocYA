@@ -11,8 +11,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import WhatsAppSupportButton from "@/components/fab/WhatsAppSupportButton";
 import { useRouter } from "next/navigation";
 import {
-  Stethoscope, Video, HeartPulse, ShieldCheck, Clock, Baby,
-  Home, FileText, Star, CreditCard, ChevronRight,
+  ShieldCheck, Clock, Star, CreditCard, ChevronRight,
   Phone, LogOut, User, ChevronDown, Sun, Moon,
   AlertTriangle, Globe, Gift,
 } from "lucide-react";
@@ -36,13 +35,6 @@ type GoogleWin = Window & { google?: { accounts?: { id?: { initialize: (c: objec
 type ServicioId = "medico" | "teleconsulta" | "enfermero";
 type PrecioServicio = { monto: number; descripcion?: string };
 
-const SERVICIOS_ICONS = [
-  { id: "medico" as const, translationIndex: 0, icon: Stethoscope, color: "#00b3a6", bgColor: "rgba(0,179,166,0.12)", badgeBg: "rgba(0,179,166,0.15)", badgeColor: "#00b3a6", trustIcons: [Clock, Home, ShieldCheck] },
-  { id: "teleconsulta" as const, translationIndex: 1, icon: Video, color: "#818cf8", bgColor: "rgba(129,140,248,0.12)", badgeBg: "rgba(129,140,248,0.15)", badgeColor: "#818cf8", trustIcons: [Clock, ShieldCheck, FileText] },
-  { id: "pediatria" as const, translationIndex: 3, icon: Baby, color: "#f472b6", bgColor: "rgba(244,114,182,0.16)", badgeBg: "rgba(244,114,182,0.18)", badgeColor: "#f472b6", trustIcons: [ShieldCheck, FileText, Star] },
-  { id: "enfermero" as const, translationIndex: 2, icon: HeartPulse, color: "#38bdf8", bgColor: "rgba(56,189,248,0.12)", badgeBg: "rgba(56,189,248,0.15)", badgeColor: "#38bdf8", trustIcons: [Clock, Home, Star] },
-];
-
 const TRUST_ICONS = [ShieldCheck, Clock, CreditCard, Star];
 
 const TARIFA_ENDPOINTS: Record<ServicioId, string> = {
@@ -54,11 +46,6 @@ const TARIFA_ENDPOINTS: Record<ServicioId, string> = {
 function parseMonto(value: unknown) {
   const n = Number(value);
   return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
-}
-
-function formatPesos(value?: number | null, fallback = "Consultando") {
-  if (!value) return fallback;
-  return `$${value.toLocaleString("es-AR")}`;
 }
 
 const notify = (msg: string, ok = true) => {
@@ -96,81 +83,11 @@ export default function PedirHome() {
   const { dark, setTheme, homeBg: bg, cardBg, border, text, muted, headerBg, logo } = usePedirTheme();
   const { t, locale, setLocale } = useI18n();
 
-  const SERVICIOS = SERVICIOS_ICONS.map((s) => ({
-    ...s,
-    badge: t.pedir.services[s.translationIndex].badge,
-    title: t.pedir.services[s.translationIndex].title,
-    sub: t.pedir.services[s.translationIndex].subtitle,
-    desc: t.pedir.services[s.translationIndex].description,
-    trust: s.trustIcons.map((TIcon, j) => ({ icon: TIcon, label: t.pedir.services[s.translationIndex].chips[j] })),
-    btn: t.pedir.services[s.translationIndex].cta,
-  }));
-
   const TRUST_STRIP = TRUST_ICONS.map((icon, i) => ({
     icon,
     label: t.pedir.trustStrip[i].title,
     sub: t.pedir.trustStrip[i].description,
   }));
-
-  const FAQS = locale === "es" ? [
-    {
-      question: "¿Puedo pedir para otra persona?",
-      answer: "Sí. Elegí “Otra persona” y seleccioná su perfil familiar. Revisá que sus datos estén correctos: la consulta y los documentos médicos se registran a su nombre. Para un adulto, necesitás su autorización.",
-    },
-    {
-      question: "¿Entregan recetas, órdenes y certificados?",
-      answer: "Después de la consulta, el profesional puede emitir recetas, órdenes o certificados si los considera necesarios. Los documentos que emita quedan guardados para consultar o descargar desde la app, en Perfil > Documentos, o desde la web, en Mis consultas > Documentos.",
-    },
-    {
-      question: "¿Los certificados son digitales?",
-      answer: "Sí. Si el médico considera que corresponde emitirlo, el certificado queda disponible en Mis consultas para verlo, descargarlo o presentarlo desde el celular.",
-    },
-    {
-      question: "¿El certificado tiene firma y código QR?",
-      answer: "Sí. Si el médico decide emitirlo, incluye sus datos y matrícula, su firma digital y un código QR para verificarlo en DocYa. Después queda guardado en la plataforma para consultarlo o descargarlo desde la app o la web.",
-    },
-    {
-      question: "¿Sirve para presentarlo en el trabajo?",
-      answer: "El certificado es emitido por un médico matriculado y puede presentarse ante el empleador. Cada empresa puede tener requisitos propios, por eso recomendamos consultar cómo debe enviarse o presentarse.",
-    },
-    {
-      question: "¿Me entregan un certificado automáticamente?",
-      answer: "No. Primero hay una consulta médica real. El profesional evalúa tu caso y decide si corresponde indicar tratamiento, reposo, emitir una receta o generar un certificado.",
-    },
-    {
-      question: "¿DocYa está registrada en el Ministerio de Salud?",
-      answer: "Sí. DocYa es una plataforma registrada ante el Ministerio de Salud de la Nación con el identificador 0259. Los profesionales que atienden también son matriculados y sus credenciales se verifican.",
-    },
-  ] : [
-    {
-      question: "Can I request care for someone else?",
-      answer: "Yes. Choose “Someone else” and select their family profile. Check that their details are correct: the consultation and medical documents will be in their name. For an adult, you must have their authorization.",
-    },
-    {
-      question: "Do you provide prescriptions, medical orders, and certificates?",
-      answer: "After the consultation, the professional may issue prescriptions, medical orders, or certificates if they consider them appropriate. Issued documents are saved to view or download in the app under Profile > Documents, or on the website under My consultations > Documents.",
-    },
-    {
-      question: "Are medical certificates digital?",
-      answer: "Yes. If the doctor determines that one should be issued, it will be available under My consultations to view, download, or present from your phone.",
-    },
-    {
-      question: "Does the certificate include a signature and QR code?",
-      answer: "Yes. If the doctor decides to issue one, it includes their details and license, their digital signature, and a QR code to verify it with DocYa. It is then saved on the platform to view or download from the app or website. The recipient may have its own requirements.",
-    },
-    {
-      question: "Can I submit it to my employer?",
-      answer: "The certificate is issued by a licensed doctor and can be submitted to an employer. Each company may have its own requirements, so check how it should be delivered.",
-    },
-    {
-      question: "Will I automatically receive a certificate?",
-      answer: "No. A real medical consultation takes place first. The professional evaluates your case and decides whether treatment, rest, a prescription, or a certificate is appropriate.",
-    },
-    {
-      question: "Is DocYa registered with Argentina's Ministry of Health?",
-      answer: "Yes. DocYa is registered with Argentina's Ministry of Health under identifier 0259. The professionals providing care are also licensed and their credentials are verified.",
-    },
-  ];
 
   useEffect(() => {
     try {
@@ -444,30 +361,6 @@ export default function PedirHome() {
                 ))}
               </div>
 
-              <section aria-labelledby="pedir-faq-title" style={{ margin: "34px 0 40px" }}>
-                <div style={{ marginBottom: 16 }}>
-                  <h2 id="pedir-faq-title" style={{ margin: 0, color: text, fontSize: "clamp(24px, 3vw, 30px)", fontWeight: 900 }}>
-                    {locale === "es" ? "Preguntas frecuentes" : "Frequently asked questions"}
-                  </h2>
-                  <p style={{ margin: "7px 0 0", color: muted, fontSize: 16, lineHeight: 1.5 }}>
-                    {locale === "es" ? "Respuestas claras antes de pedir tu consulta." : "Clear answers before requesting your consultation."}
-                  </p>
-                </div>
-                <div style={{ display: "grid", gap: 12 }}>
-                  {FAQS.map((item) => (
-                    <details key={item.question} style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: 16, padding: "2px 18px" }}>
-                      <summary style={{ cursor: "pointer", color: text, fontSize: 17, fontWeight: 800, lineHeight: 1.45, padding: "16px 4px" }}>
-                        {item.question}
-                      </summary>
-                      <p style={{ color: muted, fontSize: 16, lineHeight: 1.65, margin: "0 4px 18px" }}>{item.answer}</p>
-                    </details>
-                  ))}
-                </div>
-                <Link href="/centro-de-ayuda/certificados" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 16, color: "#2dd4bf", fontSize: 15, fontWeight: 800, textDecoration: "none" }}>
-                  {locale === "es" ? "Ver más información sobre certificados" : "Learn more about medical certificates"} <ChevronRight size={17} />
-                </Link>
-              </section>
-
               {/* EMERGENCY STRIP */}
               <div style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.18)", borderRadius: 18, padding: "18px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -485,69 +378,11 @@ export default function PedirHome() {
           ) : (
             /* ── LOGIN ────────────────────────────────────────── */
             <div className="pedir-login">
-              {/* Left */}
-              <div className="pedir-login-left">
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,179,166,0.12)", border: "1px solid rgba(0,179,166,0.25)", borderRadius: 999, padding: "6px 16px", fontSize: 13, fontWeight: 600, color: "#00b3a6", marginBottom: 24 }}>
-                  <ShieldCheck size={14} /> {t.pedir.loginBadge}
-                </div>
-                <h1 style={{ fontSize: "clamp(32px, 5vw, 52px)", fontWeight: 900, lineHeight: 1.1, marginBottom: 20, letterSpacing: "-1px" }}>
-                  {t.pedir.loginTitle}
-                </h1>
-                <p style={{ fontSize: 18, color: muted, lineHeight: 1.65, marginBottom: 36 }}>
-                  {t.pedir.loginDescription}
-                </p>
-                {SERVICIOS.map(s => (
-                  <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: s.bgColor, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <s.icon size={18} color={s.color} />
-                    </div>
-                    <p style={{ fontSize: 15, fontWeight: 500, color: text, flex: 1 }}>{s.title}</p>
-                    <span style={{ color: s.color, fontSize: 13, fontWeight: 850 }}>{formatPesos(precios[s.id as ServicioId]?.monto, t.pedir.consultando)}</span>
-                  </div>
-                ))}
-                <div style={{ marginTop: 28, padding: 20, borderRadius: 20, background: cardBg, border: `1px solid ${border}` }}>
-                  <h2 style={{ margin: "0 0 14px", color: text, fontSize: 18, fontWeight: 850 }}>
-                    {locale === "es" ? "Atención para el momento, sin turnos" : "Care when you need it, no appointments"}
-                  </h2>
-                  <p style={{ margin: "0 0 16px", color: muted, fontSize: 14, lineHeight: 1.55 }}>
-                    {locale === "es"
-                      ? "Pedís cuando necesitás atención. DocYa busca en tiempo real profesionales disponibles: un médico puede ir a tu domicilio en las zonas con cobertura, o podés pedir una teleconsulta desde cualquier lugar de Argentina. No necesitás sacar turno ni elegir una agenda."
-                      : "Request care when you need it. DocYa searches in real time for available professionals: a doctor can visit your home in covered areas, or you can request a teleconsultation from anywhere in Argentina. No appointment or schedule selection needed."}
-                  </p>
-                  <div style={{ display: "grid", gap: 13 }}>
-                    <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                      <ShieldCheck size={18} color="#00b3a6" style={{ flexShrink: 0, marginTop: 2 }} />
-                      <p style={{ margin: 0, color: muted, fontSize: 13, lineHeight: 1.55 }}>
-                        {locale === "es"
-                          ? "DocYa está registrada en el Ministerio de Salud de la Nación (ID 0259) y los profesionales se verifican en SISA."
-                          : "DocYa is registered with Argentina’s Ministry of Health (ID 0259), and professionals are verified in SISA."}
-                      </p>
-                    </div>
-                    <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                      <FileText size={18} color="#00b3a6" style={{ flexShrink: 0, marginTop: 2 }} />
-                      <p style={{ margin: 0, color: muted, fontSize: 13, lineHeight: 1.55 }}>
-                        {locale === "es"
-                          ? "Si el médico lo considera indicado y lo emite, incluye sus datos, matrícula, firma digital y un QR verificable en DocYa. Queda guardado para descargarlo desde la app o la web."
-                          : "If the doctor considers it appropriate and issues it, it includes their details, license, digital signature, and a QR code verifiable with DocYa. It is saved for download from the app or website."}
-                      </p>
-                    </div>
-                    <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                      <FileText size={18} color="#00b3a6" style={{ flexShrink: 0, marginTop: 2 }} />
-                      <p style={{ margin: 0, color: muted, fontSize: 13, lineHeight: 1.55 }}>
-                        {locale === "es"
-                          ? "Después de la teleconsulta, podés consultar y descargar las recetas, órdenes y certificados que genere el profesional. En la app: Perfil > Documentos. En la web: Mis consultas > Documentos."
-                          : "After a teleconsultation, you can view and download prescriptions, orders, and certificates issued by the professional. In the app: Profile > Documents. On the website: My consultations > Documents."}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Right — login card */}
               <div className="pedir-login-card" style={{
                 position: "relative",
                 borderRadius: 32,
-                padding: "40px 36px",
+                padding: "28px 24px",
                 background: dark
                   ? "linear-gradient(145deg, rgba(0,179,166,0.14) 0%, rgba(11,26,34,0.97) 60%)"
                   : "linear-gradient(145deg, rgba(0,179,166,0.08) 0%, #ffffff 60%)",
@@ -559,52 +394,18 @@ export default function PedirHome() {
                 {/* Glow top */}
                 <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "60%", height: 3, background: "linear-gradient(90deg, transparent, #00b3a6, #2dd4bf, transparent)", borderRadius: 999 }} />
 
-                {/* Mini hero visible solo en mobile */}
-                <div className="pedir-mobile-hero" style={{ marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid rgba(0,179,166,0.2)" }}>
-                  <Image src={logo} alt="DocYa" width={90} height={28} style={{ width: 90, height: "auto", maxHeight: 28, objectFit: "contain", marginBottom: 16, display: "block" }} />
-                  <p style={{ fontSize: 23, fontWeight: 900, marginBottom: 6, lineHeight: 1.15, color: "#2dd4bf" }}>{t.pedir.loginMobileTitle}</p>
-                  <p style={{ fontSize: 14, color: muted, lineHeight: 1.5, marginBottom: 10 }}>{t.pedir.loginMobileDescription}</p>
-                  <p className="pedir-mobile-registration" style={{ fontSize: 11, fontWeight: 700, color: muted, margin: "0 0 16px" }}>
-                    {locale === "es" ? "Registrada en el Ministerio de Salud · ID 0259 · Profesionales verificados en SISA" : "Registered with the Ministry of Health · ID 0259 · Professionals verified in SISA"}
-                  </p>
-                  <div className="pedir-mobile-faq">
-                    <details>
-                      <summary>{locale === "es" ? "¿Cómo funciona?" : "How does it work?"}</summary>
-                      <p>{locale === "es" ? "Pedís atención cuando la necesitás, sin turnos ni agenda. Buscamos profesionales disponibles en tiempo real. Domicilio en zonas con cobertura; teleconsulta desde cualquier lugar de Argentina." : "Request care when you need it, with no appointments. We search for available professionals in real time. Home visits in covered areas; teleconsultations anywhere in Argentina."}</p>
-                    </details>
-                    <details>
-                      <summary>{locale === "es" ? "¿Puedo pedir para otra persona?" : "Can I request care for someone else?"}</summary>
-                      <p>{locale === "es" ? "Elegí “Otra persona” y seleccioná su perfil familiar. Revisá que sus datos estén correctos: la consulta y los documentos médicos se registran a su nombre. Para un adulto, necesitás su autorización." : "Choose “Someone else” and select their family profile. Check that their details are correct: the consultation and medical documents will be in their name. For an adult, you must have their authorization."}</p>
-                    </details>
-                    <details>
-                      <summary>{locale === "es" ? "¿Entregan recetas, órdenes y certificados?" : "Do you provide prescriptions, orders, and certificates?"}</summary>
-                      <p>{locale === "es" ? "El profesional puede emitirlos después de la consulta si los considera necesarios. Quedan guardados para consultar o descargar. App: Perfil > Documentos. Web: Mis consultas > Documentos." : "The professional may issue them after the consultation if they consider them appropriate. Issued documents are saved to view or download. App: Profile > Documents. Website: My consultations > Documents."}</p>
-                    </details>
-                    <details>
-                      <summary>{locale === "es" ? "¿Dónde quedan mis documentos?" : "Where can I find my documents?"}</summary>
-                      <p>{locale === "es" ? "Las recetas, órdenes y certificados que emita el profesional quedan disponibles para consultar y descargar. App: Perfil > Documentos. Web: Mis consultas > Documentos." : "Prescriptions, orders, and certificates issued by the professional are available to view and download. App: Profile > Documents. Website: My consultations > Documents."}</p>
-                    </details>
-                    <details>
-                      <summary>{locale === "es" ? "¿Cómo verifico un certificado?" : "How do I verify a certificate?"}</summary>
-                      <p>{locale === "es" ? "Si el médico considera que corresponde emitirlo, incluye sus datos, matrícula, firma digital y un QR para verificarlo en DocYa. Queda guardado para descargarlo desde la app o la web." : "If the doctor decides to issue one, it includes their details, license, digital signature, and a QR code to verify it with DocYa. It is saved for download from the app or website."}</p>
-                    </details>
-                  </div>
-                </div>
-
                 {/* Título */}
                 <div style={{ textAlign: "center", marginBottom: 28 }}>
                   <div style={{ width: 52, height: 52, borderRadius: 18, background: "linear-gradient(135deg, #00b3a6, #2dd4bf)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 8px 24px rgba(0,179,166,0.4)" }}>
                     <ShieldCheck size={26} color="#fff" />
                   </div>
-                  <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 8, color: "#2dd4bf" }}>
+                  <h1 style={{ fontSize: 26, fontWeight: 800, marginBottom: 8, lineHeight: 1.2, color: dark ? "#2dd4bf" : "#08796d" }}>
                     {t.pedir.loginCardTitle}
-                  </h2>
+                  </h1>
                   <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>
                     {t.pedir.loginCardDescription}
                   </p>
                 </div>
-
-                <div style={{ marginBottom: 20 }}>{whatsappSupport}</div>
 
                 {/* Google */}
                 <div style={{ background: "rgba(0,179,166,0.06)", border: "1px solid rgba(0,179,166,0.18)", borderRadius: 18, padding: "16px", marginBottom: 12 }}>
@@ -706,18 +507,7 @@ export default function PedirHome() {
         .pedir-documents-copy { min-width: 0; flex: 1; }
         .pedir-documents-arrow { flex: 0 0 auto; }
         .pedir-trust { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-        .pedir-login { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding-top: 64px; align-items: center; min-height: calc(100vh - 64px); }
-        .pedir-mobile-hero { display: none; }
-        .pedir-mobile-faq { display: grid; gap: 8px; }
-        .pedir-mobile-faq details { border: 1px solid rgba(20,184,166,.2); border-radius: 14px; background: rgba(20,184,166,.045); padding: 0 14px; transition: background .18s ease, box-shadow .18s ease, border-color .18s ease; }
-        .pedir-mobile-faq summary { min-height: 50px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: ${text}; font-size: 14px; font-weight: 750; list-style: none; }
-        .pedir-mobile-faq summary::-webkit-details-marker { display: none; }
-        .pedir-mobile-faq summary::after { content: "+"; margin-left: auto; color: #0f9f95; font-size: 20px; font-weight: 500; line-height: 1; }
-        .pedir-mobile-faq details[open] { background: #fff; border-color: #dce9e8; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
-        .pedir-mobile-faq details[open] summary { color: #102a2d; }
-        .pedir-mobile-faq details[open] summary::after { content: "−"; color: #526568; }
-        .pedir-mobile-faq p { margin: 0 0 14px; color: ${muted}; font-size: 14px; line-height: 1.55; }
-        .pedir-mobile-faq details[open] p { border-top: 1px solid #e6eeee; padding-top: 11px; color: #34484a; font-size: 14px; line-height: 1.55; }
+        .pedir-login { display: grid; grid-template-columns: minmax(0, 460px); justify-content: center; padding: 32px 0 16px; }
         .wa-card { min-width: 220px; }
         .pedir-help-options { display: grid; gap: 12px; width: 340px; max-width: 100%; min-width: 0; }
         .pedir-whatsapp-support { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 78px; padding: 14px 16px; border: 1px solid #25a85c70; border-radius: 20px; text-decoration: none; transition: border-color .18s ease, background-color .18s ease; }
@@ -730,10 +520,9 @@ export default function PedirHome() {
           .pedir-cards { grid-template-columns: 1fr; }
           .pedir-documents-banner { margin-top: -22px; }
           .pedir-trust { grid-template-columns: repeat(2, 1fr); }
-          .pedir-login { grid-template-columns: 1fr; gap: 32px; min-height: auto; padding-top: 40px; padding-bottom: 40px; }
+
         }
         @media (max-width: 640px) {
-          .pedir-mobile-registration { line-height: 1.45; }
           .pedir-header { padding: 10px 12px 12px; }
           .pedir-header-inner { height: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
           .pedir-header-logo { height: 42px; justify-self: start; }
@@ -758,9 +547,7 @@ export default function PedirHome() {
           .pedir-documents-secondary { display: none; }
           .pedir-documents-arrow { margin-top: 10px; }
           .pedir-login { padding-top: 20px; padding-bottom: 40px; }
-          .pedir-login-left { display: none; }
           .pedir-login-card { width: 100%; }
-          .pedir-mobile-hero { display: block; }
         }
         @media (max-width: 340px) {
           .pedir-header-controls { grid-template-columns: minmax(70px, .85fr) minmax(76px, 1.15fr) 46px 42px; gap: 4px; }

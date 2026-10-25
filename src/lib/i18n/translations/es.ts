@@ -318,7 +318,7 @@ export const es = {
     loginMobileTitle: "Pedí atención para el momento",
     loginMobileDescription: "Sin turnos ni agenda: buscamos profesionales disponibles en tiempo real.",
     loginCardTitle: "Ingresá para pedir atención",
-    loginCardDescription: "Te lleva menos de un minuto.",
+    loginCardDescription: "Teleconsulta y atención a domicilio, sin turnos.",
     continuarGoogle: "Continuar con Google",
     verificando: "Verificando...",
     o: "o",
