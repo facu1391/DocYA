@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-import WhatsAppSupport from "./WhatsAppSupport";
 
 import { useI18n } from "@/lib/i18n/context";
 import styles from "./home-conversion.module.css";
@@ -11,7 +10,6 @@ export default function Hero() {
     <h1>{en ? "Need a doctor?" : "¿Necesitás un médico?"}<br /><span>{en ? "DocYa finds one for you." : "DocYa lo busca por vos."}</span></h1>
     <p className={styles.lead}>{en ? "Medical care at home in CABA or by video from anywhere in Argentina. No appointments, right from your phone." : "Atención médica a domicilio en CABA o por teleconsulta desde cualquier lugar de Argentina. Sin turnos y desde tu celular."}</p>
     <div className={styles.actions}><a className={styles.homeButton} href="/pedir">{en ? "Request a doctor at home" : "Pedir médico a domicilio"}</a><a className={styles.videoButton} href="/pedir?tipo=teleconsulta">{en ? "Request a teleconsultation" : "Pedir teleconsulta"}</a></div>
-    <WhatsAppSupport english={en} />
     <p className={styles.caption}>{en ? "Professionals with medical registration verified in SISA." : "Profesionales con matrícula verificada en SISA."}</p>
     <p className={styles.small}>{en ? "Subject to location and professional availability. Not an emergency service." : "Según zona y disponibilidad de profesionales. No es un servicio de emergencias."}</p>
   </div><div><figure className={styles.heroPhone}><Image className={styles.mainPhone} src="/how/solicitar-portrait.png" alt={en ? "Care options in the real DocYa patient app" : "Servicios de atención en la aplicación real DocYa Paciente"} width={1042} height={2048} sizes="(max-width: 760px) 160px, 245px" priority /><Image className={styles.trackingPhone} src="/how/busqueda-medico-portrait.png" alt={en ? "DocYa looking for an available doctor near you" : "DocYa buscando un médico disponible cerca de tu ubicación"} width={1042} height={2048} sizes="(max-width: 760px) 140px, 205px" /><figcaption>{en ? "Real screens from the DocYa app" : "La aplicación real. Del pedido a la atención."}</figcaption></figure><div className={styles.heroDownloads}><p>{en ? "You can also use DocYa from the app" : "También podés usar DocYa desde la app"}</p><div className={styles.downloads}><a href="https://apps.apple.com/ar/app/docya/id6753604975" target="_blank" rel="noopener noreferrer"><Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774467671/Download_on_the_App_Store_Badge_ES_RGB_blk_100217_p2sw34.svg" alt="Descargar DocYa en App Store" width={150} height={45} /></a><a href="https://play.google.com/store/apps/details?id=com.docya.paciente" target="_blank" rel="noopener noreferrer"><Image src="https://res.cloudinary.com/dqsacd9ez/image/upload/v1774467963/GetItOnGooglePlay_Badge_Web_color_Spanish-LATAM_cbr148.svg" alt="Descargar DocYa en Google Play" width={150} height={45} /></a></div></div></div></div></header>;
