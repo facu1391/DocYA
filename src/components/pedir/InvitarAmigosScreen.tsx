@@ -25,7 +25,7 @@ export default function InvitarAmigosScreen() {
   }, [router]);
 
   if (error) return <main style={{ padding: 32 }}><button onClick={() => router.back()}>Volver</button><p>{error}</p></main>;
-  if (!summary) return <main style={{ minHeight: "100vh", padding: 32, background: "#061a22", color: "white" }}>Cargando tus invitaciones…</main>;
+  if (!summary) return <main style={{ minHeight: "100vh", padding: 32, background: "var(--pedir-dark-page-background)", color: "white" }}>Cargando tus invitaciones…</main>;
   const remaining = summary.referrals_per_reward - summary.progress_in_cycle;
   const message = `Te invito a usar DocYa. Registrate desde mi enlace y accedé a atención médica: ${summary.link}`;
   const copyLink = async () => {
@@ -44,7 +44,7 @@ export default function InvitarAmigosScreen() {
       ? "Compartí tu enlace para empezar a sumar."
       : `Te faltan ${remaining} amigos para tu próxima teleconsulta gratis.`;
 
-  return <main className="min-h-screen bg-[#061a22] px-4 pb-20 pt-5 text-slate-50 sm:px-6 sm:pt-8">
+  return <main style={{ background: "var(--pedir-dark-page-background)" }} className="min-h-screen px-4 pb-20 pt-5 text-slate-50 sm:px-6 sm:pt-8">
     <div className="mx-auto max-w-3xl">
       <button onClick={() => router.back()} className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-white"><ArrowLeft size={18}/> Volver</button>
 

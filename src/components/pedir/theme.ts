@@ -17,8 +17,8 @@ export function usePedirTheme() {
     dark,
     setTheme,
     logo: DOCYA_LOGO_URL,
-    bg: dark ? "#04151c" : "#f5f7fa",
-    homeBg: dark ? "#04151c" : "#f0f4f8",
+    bg: "var(--pedir-page-background)",
+    homeBg: "var(--pedir-page-background)",
     cardBg: dark ? "rgba(255,255,255,0.055)" : "#ffffff",
     surface: dark
       ? "linear-gradient(135deg, rgba(0,179,166,0.08) 0%, rgba(4,21,28,0.97) 60%)"

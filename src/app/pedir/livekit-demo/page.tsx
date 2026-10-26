@@ -114,7 +114,7 @@ export default function PedirLiveKitDemoPage() {
   }
 
   return (
-    <main className="min-h-[100dvh] bg-[#06161d] p-3 text-white">
+    <main style={{ background: "var(--pedir-dark-page-background)" }} className="min-h-[100dvh] p-3 text-white">
       <div className="mx-auto flex min-h-[calc(100dvh-24px)] max-w-5xl flex-col gap-3">
         <header className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#0d1e25] px-4 py-3">
           <div><p className="text-xs font-black uppercase tracking-widest text-[#25d7c8]">DocYa local PoC</p><h1 className="font-black">{role === "doctor" ? "Médico" : "Paciente"}</h1></div>

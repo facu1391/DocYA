@@ -269,7 +269,7 @@ export default function PedirHome() {
       <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onLoad={() => setGoogleLoaded(true)} />
       <Script src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js" strategy="afterInteractive" onLoad={() => setAppleLoaded(true)} />
 
-      <div className={user ? "pedir-app-page" : undefined} style={{ minHeight: "100vh", background: bg, backgroundImage: user ? dark ? "radial-gradient(ellipse 80% 520px at 0% 580px, rgba(0,179,166,.18), transparent 75%), radial-gradient(ellipse 75% 620px at 100% 340px, rgba(22,105,175,.15), transparent 75%)" : "radial-gradient(ellipse 80% 520px at 0% 580px, rgba(0,179,166,.09), transparent 75%), radial-gradient(ellipse 75% 620px at 100% 340px, rgba(22,105,175,.07), transparent 75%)" : undefined, backgroundRepeat: "no-repeat", color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+      <div className={user ? "pedir-app-page" : undefined} style={{ minHeight: "100vh", background: bg, color: text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
         {/* HEADER */}
         <header className="pedir-header pedir-app-shell" style={{ borderBottom: `1px solid ${border}`, background: headerBg, backdropFilter: "blur(14px)", position: "sticky", top: 0, zIndex: 50 }}>

@@ -1,4 +1,14 @@
-.pedir-experience { --pedir-focus: #14b8a6; text-rendering: optimizeLegibility; }
+.pedir-experience {
+  --pedir-focus: #14b8a6;
+  --pedir-dark-page-background: radial-gradient(ellipse 80% 520px at 0% 580px, rgba(0,179,166,.18), transparent 75%), radial-gradient(ellipse 75% 620px at 100% 340px, rgba(22,105,175,.15), transparent 75%), #04151c;
+  --pedir-page-background: var(--pedir-dark-page-background);
+  min-height: 100svh;
+  background: var(--pedir-page-background);
+  text-rendering: optimizeLegibility;
+}
+.light .pedir-experience {
+  --pedir-page-background: radial-gradient(ellipse 80% 520px at 0% 580px, rgba(0,179,166,.09), transparent 75%), radial-gradient(ellipse 75% 620px at 100% 340px, rgba(22,105,175,.07), transparent 75%), #f5f7fa;
+}
 .pedir-experience main { animation: pedir-enter .3s ease-out; }
 .pedir-experience h1, .pedir-experience h2, .pedir-experience h3 { text-wrap: balance; letter-spacing: -.025em; }
 .pedir-experience p { text-wrap: pretty; }
