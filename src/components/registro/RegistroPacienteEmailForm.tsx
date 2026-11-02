@@ -1,19 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { getCountries, type CountryCode } from "libphonenumber-js";
 import InternationalPhoneInput, { normalizePhoneNumber } from "@/components/common/InternationalPhoneInput";
+import AddressInput from "@/components/pedir/AddressInput";
+import TermsPaciente from "@/components/registro/TermsPaciente";
 
 const API = process.env.NEXT_PUBLIC_API_BASE!;
-const PROVINCIAS = [
-  "Buenos Aires", "Ciudad Autónoma de Buenos Aires", "Catamarca", "Chaco", "Chubut",
-  "Córdoba", "Corrientes", "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja",
-  "Mendoza", "Misiones", "Neuquén", "Río Negro", "Salta", "San Juan", "San Luis",
-  "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán",
-];
-const COMUNAS_CABA = Array.from({ length: 15 }, (_, index) => `Comuna ${index + 1}`);
 
 export default function RegistroPacienteEmailForm() {
   const searchParams = useSearchParams();
@@ -21,17 +16,15 @@ export default function RegistroPacienteEmailForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [dni, setDni] = useState("");
+  const [tipoDocumento, setTipoDocumento] = useState("dni");
+  const [numeroDocumento, setNumeroDocumento] = useState("");
+  const [paisPasaporte, setPaisPasaporte] = useState("");
   const [telefono, setTelefono] = useState("");
   const [telefonoPais, setTelefonoPais] = useState<CountryCode>("AR");
-  const [pais, setPais] = useState("Argentina");
-  const [provincia, setProvincia] = useState("");
-  const [localidad, setLocalidad] = useState("");
-  const [localidades, setLocalidades] = useState<string[]>([]);
+  const [direccion, setDireccion] = useState("");
   const [fechaNacimiento, setFechaNacimiento] = useState("");
-  const [sexo, setSexo] = useState("");
+  const [sexo, setSexo] = useState("otro");
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
-  const [loadingLocalidades, setLoadingLocalidades] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [emailRegistrado, setEmailRegistrado] = useState("");
@@ -44,33 +37,6 @@ export default function RegistroPacienteEmailForm() {
       .sort((a, b) => a.name.localeCompare(b.name, "es"));
   }, []);
 
-  useEffect(() => {
-    if (!provincia) {
-      setLocalidades([]);
-      setLocalidad("");
-      return;
-    }
-    if (provincia === "Ciudad Autónoma de Buenos Aires") {
-      setLocalidades(COMUNAS_CABA);
-      setLocalidad("");
-      return;
-    }
-
-    let alive = true;
-    setLoadingLocalidades(true);
-    setLocalidades([]);
-    setLocalidad("");
-    fetch(`${API}/localidades/${encodeURIComponent(provincia)}`, { cache: "no-store" })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("No se pudieron cargar las localidades");
-        const data = await response.json();
-        if (alive) setLocalidades(Array.isArray(data.localidades) ? data.localidades : []);
-      })
-      .catch(() => { if (alive) setLocalidades([]); })
-      .finally(() => { if (alive) setLoadingLocalidades(false); });
-    return () => { alive = false; };
-  }, [provincia]);
-
   const inputClass = "h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--foreground)] outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20";
   const labelClass = "mb-1.5 block text-sm font-medium text-[var(--foreground)]";
 
@@ -80,10 +46,10 @@ export default function RegistroPacienteEmailForm() {
     if (nombre.trim().split(/\s+/).length < 2) return setError("Ingresá tu nombre y apellido.");
     if (password.length < 8) return setError("La contraseña debe tener al menos 8 caracteres.");
     if (password !== confirmPassword) return setError("Las contraseñas no coinciden.");
-    if (pais === "Argentina" && (!provincia || !localidad)) return setError("Seleccioná provincia y localidad.");
-    if (!dni.trim()) return setError("Ingresá tu DNI.");
+    if (!numeroDocumento.trim()) return setError("Ingresá tu número de documento.");
+    if (tipoDocumento === "pasaporte" && !paisPasaporte) return setError("Seleccioná el país que emitió tu pasaporte.");
     if (!fechaNacimiento) return setError("Seleccioná tu fecha de nacimiento.");
-    if (!sexo) return setError("Seleccioná tu sexo.");
+    if (!direccion.trim()) return setError("Ingresá tu dirección.");
     if (!aceptaTerminos) return setError("Aceptá los términos y condiciones para continuar.");
     const telefonoNormalizado = normalizePhoneNumber(telefono, telefonoPais);
     if (!telefonoNormalizado) return setError("Ingresá un teléfono válido.");
@@ -97,14 +63,16 @@ export default function RegistroPacienteEmailForm() {
           full_name: nombre.trim(),
           email: email.trim().toLowerCase(),
           password,
-          dni: dni.replace(/\D/g, ""),
+          tipo_documento: tipoDocumento,
+          numero_documento: numeroDocumento.trim(),
+          dni: tipoDocumento === "dni" ? numeroDocumento.replace(/\D/g, "") : null,
           telefono: telefonoNormalizado,
-          pais,
-          provincia: pais === "Argentina" ? provincia : null,
-          localidad: pais === "Argentina" ? localidad : null,
+          pais: tipoDocumento === "dni" ? "Argentina" : paisPasaporte,
+          direccion: direccion.trim(),
           fecha_nacimiento: fechaNacimiento || null,
           sexo: sexo || null,
           acepto_condiciones: true,
+          acepta_terminos: true,
           codigo_referido: codigoReferido || undefined,
         }),
       });
@@ -138,7 +106,7 @@ export default function RegistroPacienteEmailForm() {
     <form onSubmit={submit} className="space-y-4 rounded-3xl border border-teal-500/20 bg-card p-5 shadow-xl sm:p-7">
       <div>
         <h2 className="text-xl font-semibold text-foreground">Crear cuenta con email</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Completá tus datos como en la app. Te vamos a enviar un correo para activar la cuenta.</p>
+      <p className="mt-1 text-sm text-muted-foreground">Completá los mismos datos que te pide DocYa al crear tu perfil. Te enviaremos un correo para activar la cuenta.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -146,23 +114,22 @@ export default function RegistroPacienteEmailForm() {
         <label className="sm:col-span-2"><span className={labelClass}>Email</span><input className={inputClass} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
         <label><span className={labelClass}>Contraseña</span><input className={inputClass} type="password" autoComplete="new-password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
         <label><span className={labelClass}>Repetir contraseña</span><input className={inputClass} type="password" autoComplete="new-password" minLength={8} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required /></label>
-        <label><span className={labelClass}>DNI</span><input className={inputClass} inputMode="numeric" autoComplete="off" value={dni} onChange={(e) => setDni(e.target.value)} required /></label>
-        <div><span className={labelClass}>Teléfono</span><InternationalPhoneInput country={telefonoPais} onCountryChange={setTelefonoPais} value={telefono} onChange={setTelefono} background="var(--background)" menuBackground="var(--popover)" border="var(--border)" color="var(--foreground)" muted="var(--muted-foreground)" /></div>
-        <label className="sm:col-span-2"><span className={labelClass}>País</span><select className={inputClass} value={pais} onChange={(e) => { setPais(e.target.value); setProvincia(""); setLocalidad(""); }}>{paises.map(({ code, name }) => <option key={code} value={name}>{name}</option>)}</select></label>
-        {pais === "Argentina" && <>
-          <label><span className={labelClass}>Provincia</span><select className={inputClass} value={provincia} onChange={(e) => setProvincia(e.target.value)} required><option value="">Seleccioná provincia</option>{PROVINCIAS.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
-          <label><span className={labelClass}>Localidad / comuna</span><select className={inputClass} value={localidad} onChange={(e) => setLocalidad(e.target.value)} disabled={!provincia || loadingLocalidades} required><option value="">{loadingLocalidades ? "Cargando localidades…" : "Seleccioná localidad"}</option>{localidades.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
-        </>}
+        <label><span className={labelClass}>Tipo de documento</span><select className={inputClass} value={tipoDocumento} onChange={(e) => { setTipoDocumento(e.target.value); setPaisPasaporte(""); }}><option value="dni">DNI</option><option value="pasaporte">Pasaporte</option><option value="otro">Otro</option></select></label>
+        <label><span className={labelClass}>Número de documento</span><input className={inputClass} autoComplete="off" value={numeroDocumento} onChange={(e) => setNumeroDocumento(e.target.value)} required /></label>
+        {tipoDocumento === "pasaporte" && <label className="sm:col-span-2"><span className={labelClass}>País que emitió el pasaporte</span><select className={inputClass} value={paisPasaporte} onChange={(e) => setPaisPasaporte(e.target.value)} required><option value="">Seleccioná un país</option>{paises.map(({ code, name }) => <option key={code} value={name}>{name}</option>)}</select></label>}
+        <div className="sm:col-span-2"><span className={labelClass}>Teléfono internacional</span><InternationalPhoneInput country={telefonoPais} onCountryChange={setTelefonoPais} value={telefono} onChange={setTelefono} background="var(--background)" menuBackground="var(--popover)" border="var(--border)" color="var(--foreground)" muted="var(--muted-foreground)" /></div>
+        <label className="sm:col-span-2"><span className={labelClass}>Dirección</span><AddressInput value={direccion} onChange={setDireccion} placeholder="Empezá a escribir tu dirección" /></label>
         <label><span className={labelClass}>Fecha de nacimiento</span><input className={inputClass} type="date" autoComplete="bday" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} required /></label>
-        <label><span className={labelClass}>Sexo</span><select className={inputClass} value={sexo} onChange={(e) => setSexo(e.target.value)} required><option value="">Seleccioná</option><option value="femenino">Femenino</option><option value="masculino">Masculino</option><option value="otro">Otro</option></select></label>
+        <label><span className={labelClass}>Sexo</span><select className={inputClass} value={sexo} onChange={(e) => setSexo(e.target.value)} required><option value="masculino">Masculino</option><option value="femenino">Femenino</option><option value="otro">Otro</option></select></label>
       </div>
 
       <label className="flex items-start gap-3 text-sm leading-5 text-muted-foreground">
         <input className="mt-1 h-4 w-4 accent-teal-600" type="checkbox" checked={aceptaTerminos} onChange={(e) => setAceptaTerminos(e.target.checked)} />
         <span>Acepto los <Link className="text-teal-600 underline" href="/legal/pacientes/terminos">Términos y Condiciones</Link> y la <Link className="text-teal-600 underline" href="/legal/pacientes/privacidad">Política de Privacidad</Link>.</span>
       </label>
+      <div className="max-h-72 overflow-auto rounded-xl border border-[var(--border)] p-4"><TermsPaciente /></div>
       {error && <p role="alert" className="rounded-xl border border-red-500/20 bg-red-500/5 px-3 py-2 text-sm text-red-600">{error}</p>}
-      <button type="submit" disabled={submitting || loadingLocalidades} className="flex min-h-12 w-full items-center justify-center rounded-xl bg-teal-600 px-5 font-semibold text-white transition hover:bg-teal-700 disabled:cursor-wait disabled:opacity-60">
+      <button type="submit" disabled={submitting} className="flex min-h-12 w-full items-center justify-center rounded-xl bg-teal-600 px-5 font-semibold text-white transition hover:bg-teal-700 disabled:cursor-wait disabled:opacity-60">
         {submitting ? "Creando cuenta…" : "Crear cuenta"}
       </button>
       <p className="text-center text-sm text-muted-foreground">¿Ya tenés cuenta? <Link href="/pedir" className="font-semibold text-teal-600 hover:underline">Iniciá sesión</Link></p>
