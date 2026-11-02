@@ -75,6 +75,10 @@ export default function PedirHome() {
   const [appleLoaded, setAppleLoaded]   = useState(false);
   const [googleBusy, setGoogleBusy]     = useState(false);
   const [appleBusy, setAppleBusy]       = useState(false);
+  const [emailBusy, setEmailBusy]       = useState(false);
+  const [emailLogin, setEmailLogin]     = useState("");
+  const [passwordLogin, setPasswordLogin] = useState("");
+  const [emailLoginError, setEmailLoginError] = useState("");
   const [user, setUser]                 = useState<PedirUser | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [pricesLoading, setPricesLoading] = useState(true);
@@ -202,6 +206,38 @@ export default function PedirHome() {
       notify(e instanceof Error ? e.message : t.pedir.errorLogin, false);
     } finally { setGoogleBusy(false); }
   }, [router, t]);
+
+  const handleEmailLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setEmailLoginError("");
+    setEmailBusy(true);
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailLogin.trim(), password: passwordLogin }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.detail || (locale === "es" ? "No se pudo iniciar sesión." : "Could not sign in."));
+
+      const u: PedirUser = {
+        id: String(data.user?.id ?? data.user_id ?? ""),
+        full_name: data.user?.full_name ?? data.full_name ?? "Usuario",
+        email: data.user?.email ?? emailLogin.trim(),
+        perfil_completo: data.perfil_completo ?? data.user?.perfil_completo ?? false,
+        access_token: data.access_token,
+      };
+      if (!u.id || !u.access_token) throw new Error(locale === "es" ? "La respuesta de acceso no fue válida." : "The sign-in response was invalid.");
+      setPasswordLogin("");
+      if (saveUser(u)) return;
+      notify(locale === "es" ? "¡Bienvenido/a a DocYa!" : "Welcome to DocYa!");
+      if (!u.perfil_completo) router.push("/pedir/perfil");
+    } catch (cause) {
+      setEmailLoginError(cause instanceof Error ? cause.message : (locale === "es" ? "Error de conexión." : "Connection error."));
+    } finally {
+      setEmailBusy(false);
+    }
+  };
 
   useEffect(() => {
     if (!googleLoaded || googleRendered.current || !googleRef.current || user) return;
@@ -441,6 +477,53 @@ export default function PedirHome() {
                   </svg>
                   {appleBusy ? t.pedir.verificando : t.pedir.continuarApple}
                 </button>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "22px 0 16px" }}>
+                  <div style={{ flex: 1, height: 1, background: "rgba(0,179,166,0.15)" }} />
+                  <span style={{ fontSize: 12, color: muted, fontWeight: 600 }}>{locale === "es" ? "o ingresá con tu email" : "or sign in with email"}</span>
+                  <div style={{ flex: 1, height: 1, background: "rgba(0,179,166,0.15)" }} />
+                </div>
+
+                <form onSubmit={handleEmailLogin} style={{ display: "grid", gap: 12 }}>
+                  <label style={{ display: "grid", gap: 6, fontSize: 13, fontWeight: 600, color: text }}>
+                    {locale === "es" ? "Email" : "Email"}
+                    <input
+                      type="email"
+                      autoComplete="username"
+                      required
+                      value={emailLogin}
+                      onChange={(event) => setEmailLogin(event.target.value)}
+                      placeholder="tu@email.com"
+                      style={{ width: "100%", minHeight: 46, boxSizing: "border-box", borderRadius: 12, border: `1px solid ${border}`, background: dark ? "rgba(5,20,26,0.7)" : "#fff", color: text, padding: "11px 13px", font: "inherit", fontSize: 14, outlineColor: "#00b3a6" }}
+                    />
+                  </label>
+                  <label style={{ display: "grid", gap: 6, fontSize: 13, fontWeight: 600, color: text }}>
+                    {locale === "es" ? "Contraseña" : "Password"}
+                    <input
+                      type="password"
+                      autoComplete="current-password"
+                      required
+                      value={passwordLogin}
+                      onChange={(event) => setPasswordLogin(event.target.value)}
+                      style={{ width: "100%", minHeight: 46, boxSizing: "border-box", borderRadius: 12, border: `1px solid ${border}`, background: dark ? "rgba(5,20,26,0.7)" : "#fff", color: text, padding: "11px 13px", font: "inherit", fontSize: 14, outlineColor: "#00b3a6" }}
+                    />
+                  </label>
+                  {emailLoginError && <p role="alert" style={{ margin: 0, padding: "9px 11px", borderRadius: 10, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", fontSize: 12, lineHeight: 1.45 }}>{emailLoginError}</p>}
+                  <button
+                    type="submit"
+                    disabled={emailBusy}
+                    style={{ width: "100%", minHeight: 48, border: 0, borderRadius: 14, background: "linear-gradient(135deg, #00b3a6, #18c4bb)", color: "#fff", fontSize: 15, fontWeight: 800, cursor: emailBusy ? "wait" : "pointer", opacity: emailBusy ? 0.7 : 1, fontFamily: "inherit" }}
+                  >
+                    {emailBusy ? (locale === "es" ? "Ingresando…" : "Signing in…") : (locale === "es" ? "Iniciar sesión" : "Sign in")}
+                  </button>
+                </form>
+
+                <p style={{ margin: "14px 0 0", textAlign: "center", color: muted, fontSize: 13 }}>
+                  {locale === "es" ? "¿No tenés cuenta?" : "Don't have an account?"} {" "}
+                  <Link href="/registro/paciente/email" style={{ color: "#0e9f93", fontWeight: 700, textDecoration: "none" }}>
+                    {locale === "es" ? "Registrate con email" : "Sign up with email"}
+                  </Link>
+                </p>
 
                 <p style={{ fontSize: 11, color: muted, textAlign: "center", marginTop: 16, lineHeight: 1.5 }}>
                   {t.pedir.terminosInicio}
