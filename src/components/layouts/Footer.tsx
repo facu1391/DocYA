@@ -5,6 +5,7 @@ import { translateInvestor, type InvestorLocale } from "@/lib/i18n/investors";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Instagram, Facebook, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import AdvertisingPreferencesButton from "@/components/marketing/AdvertisingPreferencesButton";
 
 const DOCYA_LOGO_URL = "https://res.cloudinary.com/dqsacd9ez/image/upload/v1788908618/docyanuevo_f1ukcy.png";
 
@@ -337,6 +338,7 @@ export default function Footer({ audience, locale = "es" }: { audience?: "public
               <Link href={`${legalBase}/terminos`} className="transition hover:text-[#0AE6C7]">
                 {t("Terminos")}
               </Link>
+              <AdvertisingPreferencesButton className="cursor-pointer underline-offset-4 transition hover:text-[#0AE6C7] hover:underline focus-visible:outline-2 focus-visible:outline-offset-4" />
             </div>
           </div>
         </div>

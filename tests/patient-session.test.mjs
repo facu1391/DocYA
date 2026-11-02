@@ -41,6 +41,23 @@ test("patient session handling", async t => {
     assert.equal(calls, 1);
   });
 
+  await t.test("disabled measurement does not inspect or clone a consultation response", async () => {
+    const old = process.env.NEXT_PUBLIC_MARKETING_ENABLED;
+    process.env.NEXT_PUBLIC_MARKETING_ENABLED = "false";
+    try {
+      const response = new Response('{"consulta_id":123}', { status: 201 });
+      response.clone = () => { throw new Error("Original response must remain untouched"); };
+      let calls = 0;
+      globalThis.fetch = async () => { calls++; return response; };
+      const result = await patientFetch("https://api.example/consultas/crear_previa", {
+        method: "POST", headers: { Authorization: `Bearer ${jwt(Math.floor(Date.now() / 1000) + 3600)}` }, body: "{}",
+      });
+      assert.equal(result, response);
+      assert.deepEqual(await result.json(), { consulta_id: 123 });
+      assert.equal(calls, 1);
+    } finally { if (old === undefined) delete process.env.NEXT_PUBLIC_MARKETING_ENABLED; else process.env.NEXT_PUBLIC_MARKETING_ENABLED = old; }
+  });
+
   await t.test("public 401 and authenticated 403/500 do not invalidate the session", async () => {
     const count = events.length;
     for (const status of [401, 403, 500]) {

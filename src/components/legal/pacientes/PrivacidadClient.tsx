@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ShieldCheck, Lock, MapPin, Database, Cookie, X, Smartphone, Sparkles } from "lucide-react";
 import LegalLayout from "@/components/legal/LegalLayout";
+import AdvertisingPreferencesButton from "@/components/marketing/AdvertisingPreferencesButton";
 
 const PLAY_URL = "https://play.google.com/store/apps/details?id=com.docya.paciente";
 const APPSTORE_URL = "https://apps.apple.com/ar/app/docya/id6753604975";
@@ -131,10 +132,14 @@ export default function PrivacidadClient() {
         <h2 id="cookies" className="scroll-mt-24">7. Cookies</h2>
         <div className="glass border rounded-2xl p-4 not-prose flex items-start gap-3 my-4">
           <Cookie className="h-5 w-5 text-[var(--brand)] mt-0.5" />
-          <p className="text-sm text-muted-foreground">
-            Usamos cookies técnicas y de medición. Cuando usemos cookies opcionales te pediremos
-            consentimiento. Podés gestionarlas en tu navegador.
-          </p>
+          <div className="text-sm text-muted-foreground"><p>
+            Usamos almacenamiento técnico para que DocYa funcione. La medición publicitaria es
+            opcional: podés aceptarla, rechazarla o cambiar tu decisión en “Preferencias de privacidad”.
+            Si aceptás, conservamos identificadores de campaña y podemos compartir con Google Ads
+            un evento de pago confirmado, su importe, moneda e identificador de transacción.
+            No enviamos datos de tu perfil, motivos de consulta, diagnósticos ni documentos médicos.
+            No usamos esta medición para remarketing ni conversiones mejoradas.
+          </p><AdvertisingPreferencesButton className="mt-3 cursor-pointer underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4" /></div>
         </div>
 
         <h2 id="menores" className="scroll-mt-24">8. Menores de edad</h2>
