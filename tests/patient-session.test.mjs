@@ -42,8 +42,8 @@ test("patient session handling", async t => {
   });
 
   await t.test("disabled measurement does not inspect or clone a consultation response", async () => {
-    const old = process.env.NEXT_PUBLIC_MARKETING_ENABLED;
-    process.env.NEXT_PUBLIC_MARKETING_ENABLED = "false";
+    const old = process.env.NEXT_PUBLIC_PATIENT_CONVERSION_ENABLED;
+    process.env.NEXT_PUBLIC_PATIENT_CONVERSION_ENABLED = "false";
     try {
       const response = new Response('{"consulta_id":123}', { status: 201 });
       response.clone = () => { throw new Error("Original response must remain untouched"); };
@@ -55,7 +55,7 @@ test("patient session handling", async t => {
       assert.equal(result, response);
       assert.deepEqual(await result.json(), { consulta_id: 123 });
       assert.equal(calls, 1);
-    } finally { if (old === undefined) delete process.env.NEXT_PUBLIC_MARKETING_ENABLED; else process.env.NEXT_PUBLIC_MARKETING_ENABLED = old; }
+    } finally { if (old === undefined) delete process.env.NEXT_PUBLIC_PATIENT_CONVERSION_ENABLED; else process.env.NEXT_PUBLIC_PATIENT_CONVERSION_ENABLED = old; }
   });
 
   await t.test("public 401 and authenticated 403/500 do not invalidate the session", async () => {

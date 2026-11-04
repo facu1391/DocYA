@@ -7,7 +7,6 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { I18nProvider } from "@/lib/i18n/context";
 import AppShell from "@/components/layouts/AppShell";
 import { Toaster } from "react-hot-toast";
-import AdvertisingMeasurement from "@/components/marketing/AdvertisingMeasurement";
 
 const SITE_URL = "https://www.docya.com.ar";
 const OG_IMAGE = `${SITE_URL}/og/og-docya.jpg.png`;
@@ -146,7 +145,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${poppins.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <I18nProvider>
-            <AppShell notice={<AdvertisingMeasurement key="advertising-measurement" />}>{children}</AppShell>
+            <AppShell>{children}</AppShell>
             <Toaster position="top-right" />
           </I18nProvider>
         </ThemeProvider>

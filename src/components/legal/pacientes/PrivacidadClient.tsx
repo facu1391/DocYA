@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ShieldCheck, Lock, MapPin, Database, Cookie, X, Smartphone, Sparkles } from "lucide-react";
 import LegalLayout from "@/components/legal/LegalLayout";
-import AdvertisingPreferencesButton from "@/components/marketing/AdvertisingPreferencesButton";
 
 const PLAY_URL = "https://play.google.com/store/apps/details?id=com.docya.paciente";
 const APPSTORE_URL = "https://apps.apple.com/ar/app/docya/id6753604975";
@@ -133,13 +132,13 @@ export default function PrivacidadClient() {
         <div className="glass border rounded-2xl p-4 not-prose flex items-start gap-3 my-4">
           <Cookie className="h-5 w-5 text-[var(--brand)] mt-0.5" />
           <div className="text-sm text-muted-foreground"><p>
-            Usamos almacenamiento técnico para que DocYa funcione. La medición publicitaria es
-            opcional: podés aceptarla, rechazarla o cambiar tu decisión en “Preferencias de privacidad”.
-            Si aceptás, conservamos identificadores de campaña y podemos compartir con Google Ads
-            un evento de pago confirmado, su importe, moneda e identificador de transacción.
-            No enviamos datos de tu perfil, motivos de consulta, diagnósticos ni documentos médicos.
-            No usamos esta medición para remarketing ni conversiones mejoradas.
-          </p><AdvertisingPreferencesButton className="mt-3 cursor-pointer underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4" /></div>
+            Usamos almacenamiento técnico para que DocYa funcione y registramos pasos mínimos
+            del proceso de solicitud para analizar su funcionamiento y detectar abandonos.
+            Esta medición interna utiliza la cuenta y la solicitud, sin guardar síntomas,
+            motivos de consulta ni documentos médicos en los eventos analíticos.
+            No enviamos estos eventos a Google Ads ni utilizamos herramientas publicitarias
+            en las pantallas de atención.
+          </p></div>
         </div>
 
         <h2 id="menores" className="scroll-mt-24">8. Menores de edad</h2>

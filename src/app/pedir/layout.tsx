@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./pedir.css";
 import PatientSessionGuard from "@/components/pedir/PatientSessionGuard";
+import { Suspense } from "react";
+import ConversionObserver from "@/components/pedir/ConversionObserver";
 
 export const metadata: Metadata = {
   title: "Pedí atención médica | DocYa",
@@ -15,5 +17,5 @@ export const metadata: Metadata = {
 };
 
 export default function PedirLayout({ children }: { children: React.ReactNode }) {
-  return <div className="pedir-experience"><PatientSessionGuard>{children}</PatientSessionGuard></div>;
+  return <div className="pedir-experience"><PatientSessionGuard><Suspense fallback={null}><ConversionObserver /></Suspense>{children}</PatientSessionGuard></div>;
 }
