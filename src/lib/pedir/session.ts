@@ -41,14 +41,18 @@ export async function patientFetch(input: RequestInfo | URL, init?: RequestInit)
     }
   }
   const response = await fetch(input, init);
-  // Internal observation never retries or waits for the original operation.
-  if (process.env.NEXT_PUBLIC_PATIENT_CONVERSION_ENABLED !== 'false' && response.ok && token && init?.method?.toUpperCase()==='POST') {
+  const observeFunnel = process.env.NEXT_PUBLIC_PATIENT_CONVERSION_ENABLED !== "false";
+  const observeCampaign = process.env.NEXT_PUBLIC_MARKETING_ENABLED === "true";
+  // Detached observation never retries or delays the original operation.
+  if ((observeFunnel || observeCampaign) && response.ok && token && init?.method?.toUpperCase()==='POST') {
     const url=typeof input==='string'?input:input instanceof URL?input.href:input.url;
     if (/\/(consultas\/crear_previa|consultas\/solicitar|teleconsultas)(\?|$)/.test(url)) {
       try {
-        void response.clone().json().then(async data=>{
-          const {requestCreated}=await import('./conversion');
-          requestCreated(data.consulta_id??data.id,token);
+        void response.clone().json().then(data=>{
+          const id = data.consulta_id ?? data.id;
+          if (observeFunnel) void import('./conversion').then(({requestCreated})=>requestCreated(id,token)).catch(()=>undefined);
+          if (observeCampaign) void import('../marketing/measurement')
+            .then(({attachConsultation})=>attachConsultation(id,token)).catch(()=>undefined);
         }).catch(()=>undefined);
       } catch { /* Observability cannot fail an already successful request. */ }
     }

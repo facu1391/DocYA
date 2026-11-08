@@ -1,5 +1,5 @@
 // Optional browser QA with an already installed puppeteer-core and local preview.
-// All marketing/provider requests are intercepted. Never sends a Google conversion.
+// First-party attribution with fictitious data. External requests are intercepted.
 const assert=require('node:assert/strict');
 const puppeteer=require('puppeteer-core');
 const target=process.env.MARKETING_UI_TEST_URL || 'http://localhost:3131';
@@ -7,7 +7,7 @@ if(new URL(target).hostname!=='localhost')throw new Error('Only a local preview 
 let browser;
 (async()=>{
  browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
- const page=await browser.newPage();let tags=0,visits=0,configured=false;const errors=[];
+ const page=await browser.newPage();let tags=0,visits=0,linked=0,withdrawals=0;const errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.evaluateOnNewDocument(()=>{try{localStorage.setItem('pedir_user',JSON.stringify({id:'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa',access_token:'preview-only'}));}catch{/* Deliberately inaccessible in the sandboxed child. */}});
  await page.setRequestInterception(true);
@@ -16,22 +16,26 @@ let browser;
   if(url.hostname==='www.googletagmanager.com'){
    tags++;return req.respond({status:200,contentType:'application/javascript',body:'window.providerStub=true;'});
   }
-  if(url.hostname!=='marketing-preview.invalid')return req.continue();
+  if(url.hostname==='localhost')return req.continue();
+  if(url.hostname!=='marketing-preview.invalid')return req.respond({status:204});
   const headers={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'GET,POST,OPTIONS'};
   if(req.method()==='OPTIONS')return req.respond({status:204,headers});
   let data={ok:true};
   if(url.pathname==='/marketing/visits'){
    visits++;
    const body=JSON.parse(req.postData());assert.equal(body.advertising,true);assert.equal(body.gclid,'TEST_CLICK_ID_12345');
+   assert.equal(body.utm_campaign,'123456');
    assert.ok(!('diagnostico' in body));assert.ok(!('utm_term' in body));
    data={visit_id:'bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb',visit_token:'x'.repeat(43),expires_at:'2099-01-01T00:00:00Z',gclid:body.gclid};
   }
-  if(url.pathname==='/marketing/me/conversions') data={configured,events:configured?[{transaction_id:'cccccccc-cccc-4ccc-cccc-cccccccccccc',value:21000,currency:'ARS'}]:[],send_to:'AW-18548149251/8vk7COvc2bAdEIOYuYxF'};
+  if(url.pathname==='/marketing/me/attribution') {linked++;assert.equal(req.headers().authorization,'Bearer preview-only');}
+  if(url.pathname==='/marketing/visits/revoke') withdrawals++;
   return req.respond({status:200,headers,contentType:'application/json',body:JSON.stringify(data)});
  };
  page.on('request',requestHandler);
  await page.setViewport({width:1440,height:1000});
- await page.goto(target+'/?gclid=TEST_CLICK_ID_12345&utm_source=google&utm_medium=cpc&utm_term=not-exported',{waitUntil:'networkidle2',timeout:120000});
+ const clickUrl=target+'/?gclid=TEST_CLICK_ID_12345&utm_source=google&utm_medium=cpc&utm_campaign=123456&utm_term=not-exported';
+ await page.goto(clickUrl,{waitUntil:'networkidle2',timeout:120000});
  await page.waitForSelector('[aria-label="Preferencias publicitarias"]');
  assert.equal(tags,0);assert.equal(visits,0);
  assert.equal(await page.$eval('[aria-label="Preferencias publicitarias"]',el=>['fixed','absolute'].includes(getComputedStyle(el).position)),false);
@@ -47,25 +51,11 @@ let browser;
  await page.reload({waitUntil:'networkidle2'});
  assert.equal(await page.$('[aria-label="Preferencias publicitarias"]'),null);
  await click('Preferencias de privacidad');await click('Aceptar');
- await page.waitForFunction(()=>!!document.querySelector('iframe[title="Medición publicitaria consentida"]'));
- await page.waitForFunction(()=>performance.getEntriesByType('resource').some(r=>r.name.includes('/marketing/me/conversions')));
- assert.equal(tags,1);assert.equal(visits,1);
- const frame=page.frames().find(f=>f.url().includes('/ads-measurement?'));
- assert.ok(frame);assert.equal(await frame.evaluate(()=>{try{return !!parent.document.body;}catch{return false;}}),false);
- let events=await frame.evaluate(()=>dataLayer.map(x=>Array.from(x)));
- assert.equal(events.filter(x=>x[0]==='event').length,0); // No label/configuration, no conversion.
- configured=true;
- await page.$eval('iframe[title="Medición publicitaria consentida"]',el=>el.contentWindow.postMessage({type:'poll',nonce:new URL(el.src).searchParams.get('nonce')},'*'));
- await frame.waitForFunction(()=>dataLayer.some(x=>x[0]==='event'));
- await page.$eval('iframe[title="Medición publicitaria consentida"]',el=>el.contentWindow.postMessage({type:'poll',nonce:new URL(el.src).searchParams.get('nonce')},'*'));
- events=await frame.evaluate(()=>dataLayer.map(x=>Array.from(x)));
- assert.equal(events.filter(x=>x[0]==='event').length,1);
- const payload=events.find(x=>x[0]==='event')[2];
- assert.equal(payload.send_to,'AW-18548149251/8vk7COvc2bAdEIOYuYxF');
- assert.equal(payload.value,21000);assert.equal(payload.transaction_id,'cccccccc-cccc-4ccc-cccc-cccccccccccc');
- assert.deepEqual(Object.keys(payload).sort(),['currency','event_callback','page_referrer','page_title','send_to','transaction_id','value'].sort());
- assert.ok(!JSON.stringify(events).includes('not-exported'));
+ await page.waitForFunction(()=>performance.getEntriesByType('resource').some(r=>r.name.endsWith('/marketing/me/attribution')));
+ assert.equal(tags,0);assert.equal(visits,1);assert.equal(linked,1);
+ const revoked=page.waitForResponse(response=>response.url().endsWith('/marketing/visits/revoke') && response.request().method()==='POST');
  await click('Preferencias de privacidad');await click('Rechazar');
+ await revoked;assert.equal(withdrawals,1);
  assert.equal(await page.$('iframe[title="Medición publicitaria consentida"]'),null);
  assert.equal(await page.evaluate(()=>localStorage.getItem('docya_marketing_visit_v1')),null);
  await page.setViewport({width:390,height:844});await click('Preferencias de privacidad');
@@ -85,11 +75,15 @@ let browser;
  await englishPage.evaluateOnNewDocument(()=>{try{localStorage.setItem('docya-lang','en');}catch{}});
  await englishPage.setRequestInterception(true);englishPage.on('request',requestHandler);
  await englishPage.goto(target,{waitUntil:'networkidle2',timeout:120000});
+ assert.equal(await englishPage.$('[aria-label="Advertising preferences"]'),null);
+ await englishPage.goto(clickUrl,{waitUntil:'networkidle2',timeout:120000});
  await englishPage.waitForSelector('[aria-label="Advertising preferences"]');
  assert.ok((await englishPage.$eval('[aria-label="Advertising preferences"]',el=>el.textContent)).includes('Your privacy, your choice'));
  assert.equal(tags,initialTags);assert.equal(visits,initialVisits);
  await englishContext.close();
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({noTrackingBeforeConsent:true,dismissWithoutAccepting:true,rememberedRejection:true,inlineNotice:true,denialWorks:true,oneTag:true,sandboxBlocksClinicalDOM:true,noConversionUntilConfigured:true,officialLabel:true,realAmount:true,transactionDeduplication:true,revocationWorks:true,mobileNoOverflow:true,noAutomaticRequestFlowNotice:true,englishNotice:true}));
+ console.log(JSON.stringify({noTrackingBeforeConsent:true,dismissWithoutAccepting:true,rememberedRejection:true,inlineNotice:true,
+   campaignIdCaptured:true,firstPartyLink:true,noGoogleTag:true,revocationWorks:true,mobileNoOverflow:true,
+   noAutomaticRequestFlowNotice:true,noOrganicNotice:true,englishNotice:true}));
  await browser.close();
 })().catch(async e=>{console.error(e);await browser?.close();process.exit(1);});

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ShieldCheck, Lock, MapPin, Database, Cookie, X, Smartphone, Sparkles } from "lucide-react";
 import LegalLayout from "@/components/legal/LegalLayout";
+import AdvertisingPreferencesButton from "@/components/marketing/AdvertisingPreferencesButton";
+import { MARKETING_ENABLED } from "@/lib/marketing/measurement";
 
 const PLAY_URL = "https://play.google.com/store/apps/details?id=com.docya.paciente";
 const APPSTORE_URL = "https://apps.apple.com/ar/app/docya/id6753604975";
@@ -138,7 +140,12 @@ export default function PrivacidadClient() {
             motivos de consulta ni documentos médicos en los eventos analíticos.
             No enviamos estos eventos a Google Ads ni utilizamos herramientas publicitarias
             en las pantallas de atención.
-          </p></div>
+          </p>{MARKETING_ENABLED && <>
+            <p className="mt-2">Si llegás desde un anuncio y aceptás la medición opcional, DocYa registra el identificador
+              del clic y la campaña para medir internamente las primeras consultas pagadas. Podés cambiar tu elección
+              en cualquier momento desde las preferencias de privacidad.</p>
+            <AdvertisingPreferencesButton className="mt-3 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4"/>
+          </>}</div>
         </div>
 
         <h2 id="menores" className="scroll-mt-24">8. Menores de edad</h2>

@@ -28,6 +28,10 @@ const noIndexHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_MARKETING_ENABLED: process.env.NEXT_PUBLIC_MARKETING_ENABLED
+      ?? (process.env.VERCEL_ENV === "production" ? "true" : "false"),
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
