@@ -1,5 +1,7 @@
 "use client";
 
+import { countLandingRequest } from "@/lib/marketing/adsLanding";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -254,6 +256,9 @@ export default function BuscandoScreen() {
       }
       if (!res.ok) return;
       const d = await res.json();
+      if (esTeleconsulta && user?.access_token && ["buscando_medico", "asignada", "en_videollamada", "finalizada"].includes(d.estado)) {
+        void countLandingRequest(consultaId, user.access_token);
+      }
       if (esTeleconsulta && ["preparando_pago", "pago_pendiente"].includes(d.estado)) {
         const paymentResponse = await patientFetch(`${API}/consultas/${consultaId}/estado`, {
           headers: { Authorization: `Bearer ${user!.access_token}` }, cache: "no-store",

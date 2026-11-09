@@ -27,6 +27,7 @@ module.exports = {
     "/admin",
     "/login",
     "/gracias",
+    "/teleconsulta-ads",
     "/pedir/filtro",
     "/pedir/pago",
     "/pedir/consultas",
