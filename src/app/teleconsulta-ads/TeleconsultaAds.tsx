@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Video } from "lucide-react";
+import WhatsAppSupportButton from "@/components/fab/WhatsAppSupportButton";
 import { saveLandingJourney, sendLandingEvent } from "@/lib/marketing/adsLanding";
 
 export default function TeleconsultaAds() {
@@ -46,8 +47,16 @@ export default function TeleconsultaAds() {
       <Link href="/pedir" onClick={recordClick} className="btn-primary inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl px-6 font-semibold sm:w-auto">
         Pedir teleconsulta <ArrowRight size={18} aria-hidden="true" />
       </Link>
+      <section className="mt-6 max-w-lg rounded-2xl border border-current/10 px-4 py-4 sm:px-5" aria-labelledby="ads-certificado">
+        <h2 id="ads-certificado" className="mb-1 text-base font-semibold">¿Necesitás un certificado médico?</h2>
+        <p className="text-sm leading-relaxed text-text-muted">Contale al médico qué necesitás durante la videollamada. Si corresponde, puede emitir un certificado digital después de evaluarte.</p>
+        <Link href="/certificado-medico-online" className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold underline underline-offset-4">
+          Cómo funciona el certificado médico online <ArrowRight size={15} aria-hidden="true" />
+        </Link>
+      </section>
       <p className="mt-4 text-sm text-text-muted">Si es una emergencia, llamá al 107 o al 911, o acudí a una guardia.</p>
     </div>
     <Image src="/how/teleconsulta.webp" alt="Videollamada médica en DocYa" width={580} height={580} className="mx-auto h-auto max-h-[480px] w-full object-contain" />
+    <WhatsAppSupportButton adsLanding />
   </main>;
 }
