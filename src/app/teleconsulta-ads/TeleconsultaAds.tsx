@@ -16,16 +16,16 @@ const benefits = [
 
 const steps = [
   {
-    title: "Pedís atención",
+    title: "Solicitás la consulta",
     description: "Contás qué necesitás y elegís cómo pagar.",
   },
   {
-    title: "Hablás con un médico",
-    description: "DocYa busca un profesional disponible. Cuando acepta, entrás a la videollamada.",
+    title: "Te atiende un médico disponible",
+    description: "Entrás a la videollamada cuando el profesional acepta tu solicitud.",
   },
   {
     title: "Accedés a tus documentos",
-    description: "Si el médico emite documentos, podés verlos y descargarlos desde tu cuenta.",
+    description: "Si el médico emite documentos, quedan guardados en DocYa para que puedas verlos y descargarlos.",
   },
 ];
 
@@ -90,8 +90,8 @@ export default function TeleconsultaAds() {
     <div className="order-1">
       <p className="badge-trusted mb-6 w-fit"><Video size={17} aria-hidden="true" /> Teleconsulta DocYa</p>
       <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight md:text-5xl">Hablá con un médico online, <span className="highlight-text">sin turnos.</span></h1>
-      <p className="mb-4 text-lg leading-relaxed text-text-muted">Atención médica por videollamada en tiempo real, desde cualquier lugar de Argentina. DocYa busca un profesional disponible cuando pedís atención.</p>
-      <p className="mb-5 text-sm leading-relaxed text-text-muted">El médico evalúa tus síntomas y puede emitir certificados, recetas digitales u órdenes de estudios cuando corresponda.</p>
+      <p className="mb-3 text-lg font-semibold leading-relaxed">¿Necesitás atención médica, un certificado, una receta o una orden de estudios?</p>
+      <p className="mb-5 leading-relaxed text-text-muted">Consultá por videollamada con un médico matriculado en tiempo real. Si corresponde, recibí tus documentos digitales y accedé a ellos desde DocYa cuando los necesites.</p>
       <p className="mb-4 min-h-7 text-lg font-semibold" aria-live="polite">{formattedPrice ? `${formattedPrice} por teleconsulta` : "Consultá la tarifa vigente al solicitar"}</p>
       {requestButton}
       <p className="mt-3 text-sm text-text-muted">Médicos matriculados · Sin obra social ni prepaga</p>
