@@ -19,6 +19,7 @@ const DOCYA_LOGO_URL = "https://res.cloudinary.com/dqsacd9ez/image/upload/v17889
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname() ?? "";
+  const useCompactNav = pathname === "/" || pathname === "/teleconsulta-ads";
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -119,7 +120,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav */}
-          <div className={`${pathname === "/" ? "hidden lg:flex" : "hidden md:flex"} items-center gap-6 text-sm font-medium`}>
+          <div className={`${useCompactNav ? "hidden lg:flex" : "hidden md:flex"} items-center gap-6 text-sm font-medium`}>
             {isPublicAudience ? (
               <>
                 <a href="#inicio" className={publicSectionCls}>
@@ -150,7 +151,7 @@ export default function Navbar() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setLocale(locale === "es" ? "en" : "es")}
-                  className={`text-white hover:bg-white/10 cursor-pointer ${pathname === "/" ? "relative" : ""}`}
+                  className={`text-white hover:bg-white/10 cursor-pointer ${useCompactNav ? "relative" : ""}`}
                   aria-label={locale === "es" ? "Switch to English" : "Cambiar a Español"}
                   title={locale === "es" ? "English" : "Español"}
                 >
@@ -218,7 +219,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile toggles */}
-          <div className={`${pathname === "/" ? "lg:hidden" : "md:hidden"} flex items-center gap-2`}>
+          <div className={`${useCompactNav ? "lg:hidden" : "md:hidden"} flex items-center gap-2`}>
             <Button
               variant="ghost"
               size="icon"
@@ -260,7 +261,7 @@ export default function Navbar() {
         {!isPublicAudience && (
           <div
             className={[
-              `${pathname === "/" ? "lg:hidden" : "md:hidden"} overflow-hidden transition-[max-height] duration-300`,
+              `${useCompactNav ? "lg:hidden" : "md:hidden"} overflow-hidden transition-[max-height] duration-300`,
               open ? "max-h-96" : "max-h-0",
             ].join(" ")}
           >
@@ -303,7 +304,7 @@ export default function Navbar() {
         {isPublicAudience && (
           <div
             className={[
-              `${pathname === "/" ? "lg:hidden" : "md:hidden"} overflow-hidden transition-[max-height] duration-300`,
+              `${useCompactNav ? "lg:hidden" : "md:hidden"} overflow-hidden transition-[max-height] duration-300`,
               open ? "max-h-[420px]" : "max-h-0",
             ].join(" ")}
           >

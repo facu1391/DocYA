@@ -3,21 +3,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ClipboardList, FileCheck, Pill, Video } from "lucide-react";
+import { ArrowRight, BadgeCheck, ClipboardList, FileCheck, FolderOpen, Pill, Video, Wallet } from "lucide-react";
 import WhatsAppSupportButton from "@/components/fab/WhatsAppSupportButton";
 import { saveLandingJourney, sendLandingEvent } from "@/lib/marketing/adsLanding";
 
 const benefits = [
-  { icon: Video, title: "Consulta médica", description: "Conversá en tiempo real con un médico matriculado para que evalúe tus síntomas." },
-  { icon: FileCheck, title: "Certificados médicos", description: "El profesional puede emitir un certificado digital si corresponde.", href: "/certificado-medico-online" },
+  { icon: FileCheck, title: "Certificados médicos", description: "El profesional puede emitir un certificado digital, incluso con indicación de reposo, si corresponde.", href: "/certificado-medico-online" },
   { icon: Pill, title: "Recetas digitales", description: "Si el profesional indica medicación, puede emitir una receta digital." },
   { icon: ClipboardList, title: "Órdenes de estudios", description: "Si la evaluación lo requiere, el médico puede indicar estudios y emitir la orden." },
+  { icon: Video, title: "Consulta médica", description: "Conversá en tiempo real con un médico matriculado para que evalúe tus síntomas." },
 ];
 
 const steps = [
   {
     title: "Solicitás la consulta",
-    description: "Contás qué necesitás y elegís cómo pagar.",
+    description: "Ingresás a DocYa, contás qué necesitás y elegís cómo pagar dentro de la plataforma.",
   },
   {
     title: "Te atiende un médico disponible",
@@ -41,6 +41,8 @@ const questions = [
 export default function TeleconsultaAds() {
   const visit = useRef<{ id: string; sent: Promise<boolean> } | null>(null);
   const clickRecorded = useRef(false);
+  const heroAction = useRef<HTMLDivElement>(null);
+  const [showDock, setShowDock] = useState(false);
   const [price, setPrice] = useState<number | null>(null);
 
   function getVisit() {
@@ -61,6 +63,15 @@ export default function TeleconsultaAds() {
       .then(data => { const amount = Number(data?.monto); if (Number.isFinite(amount) && amount > 0) setPrice(amount); })
       .catch(() => {});
     return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (!heroAction.current || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setShowDock(!entry.isIntersecting && entry.boundingClientRect.bottom <= 0);
+    });
+    observer.observe(heroAction.current);
+    return () => observer.disconnect();
   }, []);
 
   function recordClick() {
@@ -86,15 +97,21 @@ export default function TeleconsultaAds() {
     </Link>
   );
 
-  return <div className="mx-auto grid w-full max-w-[1200px] items-center gap-8 px-6 py-10 md:grid-cols-2 md:gap-12 md:py-16">
+  return <div className="mx-auto grid w-full max-w-[1200px] items-center gap-8 px-5 pb-32 pt-8 sm:px-6 md:grid-cols-2 md:gap-12 md:py-16">
     <div className="order-1">
       <p className="badge-trusted mb-6 w-fit"><Video size={17} aria-hidden="true" /> Teleconsulta DocYa</p>
-      <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight md:text-5xl">Hablá con un médico online, <span className="highlight-text">sin turnos.</span></h1>
-      <p className="mb-3 text-lg font-semibold leading-relaxed">¿Necesitás atención médica, un certificado, una receta o una orden de estudios?</p>
-      <p className="mb-5 leading-relaxed text-text-muted">Consultá por videollamada con un médico matriculado en tiempo real. Si corresponde, recibí tus documentos digitales y accedé a ellos desde DocYa cuando los necesites.</p>
+      <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight md:text-5xl">Un médico online <span className="highlight-text">cuando lo necesitás.</span></h1>
+      <p className="mb-3 text-lg font-semibold leading-relaxed">Atención médica por videollamada, sin turnos ni traslados, desde cualquier lugar de Argentina.</p>
+      <p className="mb-5 leading-relaxed text-text-muted">¿Necesitás un certificado, una receta o una orden de estudios? El médico evalúa tu caso y puede emitir los documentos que correspondan.</p>
       <p className="mb-4 min-h-7 text-lg font-semibold" aria-live="polite">{formattedPrice ? `${formattedPrice} por teleconsulta` : "Consultá la tarifa vigente al solicitar"}</p>
-      {requestButton}
-      <p className="mt-3 text-sm text-text-muted">Médicos matriculados · Sin obra social ni prepaga</p>
+      <div ref={heroAction}>{requestButton}</div>
+      <ul className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+        {([[Video, "En tiempo real"], [BadgeCheck, "Médicos matriculados"], [Wallet, "Sin obra social"]] as const).map(([BadgeIcon, label]) => {
+          return <li key={label} className="inline-flex items-center gap-1.5 rounded-full border border-current/15 px-2.5 py-1.5">
+            <BadgeIcon size={15} aria-hidden="true" />{label}
+          </li>;
+        })}
+      </ul>
       <p className="mt-4 text-sm text-text-muted">Si es una emergencia, llamá al 107 o al 911, o acudí a una guardia.</p>
     </div>
     <Image src="/how/teleconsulta.webp" alt="Videollamada médica en DocYa" width={580} height={580} sizes="(min-width: 1200px) 550px, (min-width: 768px) 50vw, 85vw" className="order-4 mx-auto h-auto max-h-[440px] w-full object-contain md:order-2" />
@@ -110,6 +127,7 @@ export default function TeleconsultaAds() {
           </li>
         ))}
       </ul>
+      <div className="mt-5">{requestButton}</div>
     </section>
     <section className="order-3 md:order-4 md:col-span-2" aria-labelledby="ads-como-funciona">
       <h2 id="ads-como-funciona" className="mb-4 text-2xl font-semibold">Cómo funciona</h2>
@@ -124,15 +142,22 @@ export default function TeleconsultaAds() {
           </li>
         ))}
       </ol>
-      <p className="mt-4 text-sm leading-relaxed text-text-muted">En Mis consultas queda disponible el historial con la información clínica registrada y los documentos emitidos. Podés consultarlos cuando los necesites.</p>
       <div className="mt-5">{requestButton}</div>
     </section>
-    <section className="order-5 md:col-span-2" aria-labelledby="ads-preguntas">
+    <section className="order-5 rounded-2xl border border-current/10 bg-current/5 p-5 sm:p-8 md:col-span-2" aria-labelledby="ads-documentos">
+      <FolderOpen size={28} className="highlight-text mb-3" aria-hidden="true" />
+      <h2 id="ads-documentos" className="mb-2 text-2xl font-semibold">Tus documentos médicos, siempre a mano</h2>
+      <p className="max-w-2xl leading-relaxed text-text-muted">En Mis consultas queda disponible el historial con la información clínica registrada. Desde tu cuenta podés consultar y descargar los certificados, recetas y órdenes que el profesional haya emitido.</p>
+    </section>
+    <section className="order-6 md:col-span-2" aria-labelledby="ads-preguntas">
       <h2 id="ads-preguntas" className="mb-4 text-2xl font-semibold">Preguntas frecuentes</h2>
       <div className="divide-y divide-current/10 rounded-xl border border-current/10 px-4 sm:px-6">
         {[
           { question: "¿Cuánto cuesta la teleconsulta?", answer: formattedPrice ? `La tarifa vigente es de ${formattedPrice}. Podés revisar el importe antes de pagar.` : "Vas a ver la tarifa vigente en el flujo de solicitud antes de pagar." },
           ...questions,
+          { question: "¿Necesito obra social o prepaga?", answer: "No. Podés solicitar una teleconsulta particular sin obra social ni prepaga." },
+          { question: "¿Puedo consultar desde cualquier provincia?", answer: "Sí, podés solicitar atención por videollamada desde cualquier lugar de Argentina, según disponibilidad." },
+          { question: "¿Qué pasa si no hay un médico disponible?", answer: "DocYa te muestra el estado de la búsqueda. Si nadie acepta, podés volver a intentar o contactar a soporte si tenés dudas sobre tu solicitud." },
         ].map(({ question, answer }) => (
           <details key={question} className="py-3">
             <summary className="cursor-pointer py-1 font-semibold">{question}</summary>
@@ -141,6 +166,18 @@ export default function TeleconsultaAds() {
         ))}
       </div>
     </section>
-    <WhatsAppSupportButton adsLanding />
+    <section className="order-7 rounded-2xl border border-current/10 p-5 sm:p-8 md:col-span-2" aria-labelledby="ads-solicitar">
+      <h2 id="ads-solicitar" className="mb-2 text-2xl font-semibold">Solicitá atención cuando la necesites</h2>
+      <p className="mb-5 text-text-muted">DocYa busca un médico disponible en el momento. La atención es por videollamada.</p>
+      {requestButton}
+    </section>
+    {showDock && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-current/15 bg-background px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden">
+      <Link href="/pedir" onClick={recordClick} className="btn-primary flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-3 font-semibold">
+        Solicitar teleconsulta <ArrowRight size={17} aria-hidden="true" />
+      </Link>
+    </div>}
+    <div className={showDock ? "max-md:[&>a]:bottom-[calc(4.5rem+env(safe-area-inset-bottom))]!" : undefined}>
+      <WhatsAppSupportButton adsLanding />
+    </div>
   </div>;
 }
