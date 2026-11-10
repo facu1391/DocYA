@@ -32,7 +32,7 @@ export function readProof(): Proof | null {
 }
 export function publicMarketingPath(path: string) {
   // An allowlist, not a blacklist of clinical pages.
-  return ["/", "/medico-online", "/teleconsulta-particular", "/medico-a-domicilio-particular",
+  return ["/", "/teleconsulta-ads", "/medico-online", "/teleconsulta-particular", "/medico-a-domicilio-particular",
     "/medico-a-domicilio", "/medico-a-domicilio-caba", "/teleconsulta", "/telemedicina",
     "/teleconsulta-argentina", "/teleconsulta-24-horas", "/teleconsulta-turistas", "/teleconsulta-aeropuerto",
     "/doctor-in-buenos-aires", "/medical-care-tourists-argentina"].includes(path);

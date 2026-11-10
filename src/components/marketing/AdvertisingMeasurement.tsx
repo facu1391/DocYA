@@ -19,11 +19,13 @@ export default function AdvertisingMeasurement() {
   const returnFocus=useRef<HTMLElement | null>(null);
   const dismissed=useRef(false);
   const linked=useRef<string | null>(null);
+  const adsLandingEntry=useRef(false);
   const canMeasure=publicMarketingPath(path) || path.startsWith("/pedir");
-  const visible=open && (manual || publicMarketingPath(path));
+  const visible=open && (manual || (path !== "/teleconsulta-ads" && publicMarketingPath(path)));
 
   useEffect(()=>{
     if (!MARKETING_ENABLED) return;
+    adsLandingEntry.current=location.pathname === "/teleconsulta-ads";
     evidence.current=landingEvidence(location.href,document.referrer);
     try {dismissed.current=sessionStorage.getItem(NOTICE_SESSION_KEY)==="1";} catch { /* Memory-only dismissal still works. */ }
     const update=()=>{
@@ -66,7 +68,9 @@ export default function AdvertisingMeasurement() {
       busy=true;
       try {
         const entry=evidence.current;
-        const proof=readProof() || (entry?.gclid ? await ensureVisit(entry) : null);
+        const hasAdsUtm=adsLandingEntry.current && entry?.utm_source === "google"
+          && entry.utm_medium === "cpc" && Boolean(entry.utm_campaign);
+        const proof=readProof() || (entry && (entry.gclid || hasAdsUtm) ? await ensureVisit(entry) : null);
         if (!proof || closed || !permitted()) return;
         const patient=patientSession();
         if (!patient) return;
