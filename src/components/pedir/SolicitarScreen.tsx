@@ -108,6 +108,7 @@ export default function SolicitarScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const tipo = (params.get("tipo") ?? "medico") as keyof typeof TIPO_ICONS;
+  const repetirConsultaId = process.env.NEXT_PUBLIC_REPEAT_TELECONSULTATION_ENABLED !== "false" ? params.get("repetir") : null;
   const retrySourceId = params.get("retry") ?? "";
   const esPediatria = params.get("pediatria") === "1" && tipo !== "enfermero";
   const [otraPersona, setOtraPersona] = useState(esPediatria || params.get("recipient") === "other");
@@ -491,7 +492,7 @@ export default function SolicitarScreen() {
     setSubmitting(true);
     try {
       const monto = tarifa.monto;
-      const datosAcceso = tipo === "teleconsulta" ? {} : { indicaciones_domicilio: indicacionesDomicilio.trim() || undefined };
+      const datosAcceso = tipo === "teleconsulta" ? { repetir_consulta_id: repetirConsultaId ?? undefined } : { indicaciones_domicilio: indicacionesDomicilio.trim() || undefined };
       const rememberRequest = (sourceConsultationId: number | string, method: string) => {
         const draft: RetryRequestDraft = {
           ownerId: user.id, sourceConsultationId: String(sourceConsultationId),
@@ -537,6 +538,7 @@ export default function SolicitarScreen() {
       }
 
       if (metodoPago === "referral_voucher") {
+        if (repetirConsultaId) throw new Error("Elegi un medio de pago para esta solicitud.");
         if (tipo !== "teleconsulta") throw new Error("Este beneficio sólo está disponible para teleconsultas.");
         const attemptKey = referralAttemptKey ?? newReferralAttemptKey();
         setReferralAttemptKey(attemptKey);
@@ -690,7 +692,7 @@ export default function SolicitarScreen() {
       submittingRef.current = false;
       setSubmitting(false);
     }
-  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, indicacionesDomicilio, lat, lng, categoriaConsulta, provincia, localidad, datosPediatricos, translationPayload, router, t, referralAttemptKey, qrEnabled, paraOtraPersona, familiarSeleccionadoId, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo, recipientAuthorized, retrySourceId]);
+  }, [validarSolicitud, user, tarifa, metodoPago, tipo, motivo, direccion, indicacionesDomicilio, lat, lng, categoriaConsulta, provincia, localidad, datosPediatricos, translationPayload, router, t, referralAttemptKey, qrEnabled, paraOtraPersona, familiarSeleccionadoId, pacienteMenorNombre, pacienteMenorDni, pacienteMenorFechaNacimiento, pacienteMenorSexo, responsableVinculo, recipientAuthorized, retrySourceId, repetirConsultaId]);
 
   if (!user || (retrySourceId && !retryReady)) return null;
   if (retryError) return <main style={{ maxWidth: 560, margin: "12vh auto", padding: 24, color: text, background: inputBg, border: `1px solid ${border}`, borderRadius: 22 }}><h1 style={{ fontSize: 22 }}>No pudimos recuperar tu solicitud</h1><p>{retryError}</p><Link href="/pedir" style={{ color: "#2dd4bf", fontWeight: 800 }}>Volver al inicio</Link></main>;
@@ -999,7 +1001,7 @@ export default function SolicitarScreen() {
 
             {/* MÉTODO DE PAGO */}
             <div style={{ background: "rgba(0,179,166,0.05)", border: "1.5px solid rgba(0,179,166,0.18)", borderRadius: 20, padding: "22px 20px" }}>
-              {PATIENT_REFERRALS_ENABLED && tipo === "teleconsulta" && availableRewards > 0 && (
+              {PATIENT_REFERRALS_ENABLED && tipo === "teleconsulta" && !repetirConsultaId && availableRewards > 0 && (
                 <div style={{ padding: 16, marginBottom: 16, borderRadius: 16, border: "1px solid rgba(129,140,248,.45)", background: "rgba(129,140,248,.13)" }}>
                   <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 900 }}><Gift size={19} style={{ verticalAlign: "middle", marginRight: 7 }} />Tenés {availableRewards === 1 ? "una teleconsulta gratis" : `${availableRewards} teleconsultas gratis`}</p>
                   <label style={{ display: "flex", gap: 10, alignItems: "center", cursor: "pointer", fontWeight: 750 }}><input type="radio" checked={metodoPago === "referral_voucher"} onChange={() => setMetodoPago("referral_voucher")} />Usar mi teleconsulta gratis</label>

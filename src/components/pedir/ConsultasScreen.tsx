@@ -520,6 +520,12 @@ function ConsultaCard({ consulta, theme, t }: { consulta: HistoriaConsulta; them
           )}
         </div>
       </div>
+      {process.env.NEXT_PUBLIC_REPEAT_TELECONSULTATION_ENABLED !== "false" &&
+        consulta.estado?.toLowerCase() === "finalizada" && (consulta.medico || consulta.medico_nombre) && (
+          <Link href={`/pedir/solicitar?tipo=teleconsulta&repetir=${consulta.id}`} style={{ display: "inline-block", margin: 16, color: theme.text }}>
+            Volver a consultar con este médico
+          </Link>
+        )}
     </article>
   );
 }

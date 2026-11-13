@@ -50,6 +50,7 @@ type ConsultaData = {
   distancia_km?: number;
   medico_lat?: number;
   medico_lng?: number;
+  espera_profesional_elegido?: boolean;
   mp_status?: string;
   mp_preautorizado?: boolean;
   mp_capturado?: boolean;
@@ -311,6 +312,25 @@ export default function BuscandoScreen() {
       if (countRef.current) clearInterval(countRef.current);
     };
   }, [fetchEstado]);
+
+  const [releaseBusy, setReleaseBusy] = useState(false);
+  const [releaseError, setReleaseError] = useState(false);
+  async function buscarOtroProfesional() {
+    if (!user || releaseBusy) return;
+    setReleaseBusy(true);
+    setReleaseError(false);
+    try {
+      const response = await patientFetch(`${API}/teleconsultas/${consultaId}/buscar-otro-profesional`, {
+        method: "POST", headers: { Authorization: `Bearer ${user.access_token}` },
+      });
+      if (!response.ok) throw new Error("No se pudo ampliar la búsqueda");
+      await fetchEstado();
+    } catch {
+      setReleaseError(true);
+    } finally {
+      setReleaseBusy(false);
+    }
+  }
 
   const cancelar = useCallback(async () => {
     if (!consultaId) return;
@@ -853,6 +873,15 @@ export default function BuscandoScreen() {
 
         {/* ── BOTONES DE ACCIÓN ── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {esPendiente && data?.espera_profesional_elegido && (
+              <div>
+                <p>Esperando al profesional que elegiste.</p>
+                <button type="button" disabled={releaseBusy} onClick={buscarOtroProfesional}>
+                  Buscar otro profesional
+                </button>
+                {releaseError && <p role="alert">No pudimos ampliar la búsqueda. Revisá el estado y volvé a intentar.</p>}
+              </div>
+          )}
           {esPendiente && (
             <button
               onClick={cancelar}
