@@ -5,6 +5,8 @@ import { ShieldCheck, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
 import { CONSENT_EVENT, OPEN_CONSENT_EVENT, NOTICE_SESSION_KEY, MARKETING_ENABLED, attachConsultation, consent, ensureVisit, landingEvidence,
   marketingFetch, patientSession, permitted, readProof, retryWithdrawals, saveConsent, publicMarketingPath } from "@/lib/marketing/measurement";
+import GoogleAnalytics from "./GoogleAnalytics";
+import { analyticsConsent, saveAnalyticsConsent } from "@/lib/marketing/analyticsConsent";
 import styles from "./advertising-measurement.module.css";
 
 export default function AdvertisingMeasurement() {
@@ -12,6 +14,7 @@ export default function AdvertisingMeasurement() {
   const {locale}=useI18n();
   const en=locale==="en";
   const [choice,setChoice]=useState<boolean | null>(null);
+  const [analytics,setAnalytics]=useState(false);
   const [open,setOpen]=useState(false);
   const [manual,setManual]=useState(false);
   const evidence=useRef<ReturnType<typeof landingEvidence> | null>(null);
@@ -24,14 +27,15 @@ export default function AdvertisingMeasurement() {
   const visible=open && (manual || (path !== "/teleconsulta-ads" && publicMarketingPath(path)));
 
   useEffect(()=>{
-    if (!MARKETING_ENABLED) return;
+
     adsLandingEntry.current=location.pathname === "/teleconsulta-ads";
     evidence.current=landingEvidence(location.href,document.referrer);
     try {dismissed.current=sessionStorage.getItem(NOTICE_SESSION_KEY)==="1";} catch { /* Memory-only dismissal still works. */ }
     const update=()=>{
       const c=consent();
       setChoice(c?.advertising ?? null);
-      setOpen(!c && !dismissed.current && Boolean(evidence.current?.gclid));
+      setAnalytics(analyticsConsent() === true);
+      setOpen((!c && Boolean(evidence.current?.gclid) || analyticsConsent() === null) && !dismissed.current);
       setManual(false);
       if (!c?.advertising) linked.current=null;
     };
@@ -88,7 +92,7 @@ export default function AdvertisingMeasurement() {
     return ()=>{closed=true;clearInterval(timer);};
   },[choice,path,canMeasure]);
 
-  if (!MARKETING_ENABLED) return null;
+
   function restoreFocus() {returnFocus.current?.focus();returnFocus.current=null;}
   function dismiss() {
     dismissed.current=true;
@@ -96,19 +100,27 @@ export default function AdvertisingMeasurement() {
     setOpen(false);setManual(false);restoreFocus();
   }
   function choose(value:boolean) {
-    try {saveConsent(value);setOpen(false);setManual(false);} catch {setChoice(false);setOpen(false);}
+    try {if (MARKETING_ENABLED) saveConsent(value);setOpen(false);setManual(false);} catch {setChoice(false);setOpen(false);}
     restoreFocus();
   }
+  function saveAnalytics() {
+    try { saveAnalyticsConsent(analytics); } catch { setAnalytics(false); }
+    setOpen(false);setManual(false);restoreFocus();
+  }
   return <>
+    <GoogleAnalytics />
     {visible && <section ref={notice} tabIndex={-1} role="region" aria-label={en ? "Advertising preferences" : "Preferencias publicitarias"}
       className={styles.banner} onKeyDown={event=>{if (event.key==="Escape") {event.stopPropagation();dismiss();}}}>
       <ShieldCheck size={21} className={styles.icon} aria-hidden="true"/>
       <div className={styles.copy}><h2>{en ? "Your privacy, your choice" : "Tu privacidad, tu elección"}</h2>
-        <p>{en ? "With your permission, DocYa records where this visit came from to measure its advertising campaigns." : "Con tu permiso, DocYa registra de dónde llegó esta visita para medir sus campañas publicitarias."}</p>
+        <p>{en ? "Choose whether to allow advertising measurement and, separately, Google Analytics on public pages." : "Elegí si querés permitir la medición publicitaria o Google Analytics en páginas públicas. Las preferencias se guardan por separado."}</p>
+        <label><input type="checkbox" checked={analytics} onChange={event=>setAnalytics(event.target.checked)} />{" "}
+          {en ? "Allow Google Analytics on public pages" : "Permitir Google Analytics en páginas públicas"}</label>
+        <button type="button" onClick={saveAnalytics}>{en ? "Save Analytics preference" : "Guardar preferencia de Analytics"}</button>
         <a href="/legal/pacientes/privacidad#cookies">{en ? "Privacy details" : "Ver privacidad"}</a>
-        {manual && choice!==null && <span className={styles.current}>{en ? `Current choice: ${choice ? "accepted" : "rejected"}` : `Tu elección actual: ${choice ? "aceptada" : "rechazada"}`}</span>}
+        {MARKETING_ENABLED && manual && choice!==null && <span className={styles.current}>{en ? `Current choice: ${choice ? "accepted" : "rejected"}` : `Tu elección actual: ${choice ? "aceptada" : "rechazada"}`}</span>}
       </div>
-      <div className={styles.actions}><button type="button" onClick={()=>choose(false)}>{en ? "Reject" : "Rechazar"}</button><button type="button" onClick={()=>choose(true)}>{en ? "Accept" : "Aceptar"}</button></div>
+      {MARKETING_ENABLED && <div className={styles.actions}><button type="button" onClick={()=>choose(false)}>{en ? "Reject" : "Rechazar"}</button><button type="button" onClick={()=>choose(true)}>{en ? "Accept" : "Aceptar"}</button></div>}
       <button type="button" className={styles.close} onClick={dismiss} aria-label={en ? "Close without changing your choice" : "Cerrar sin cambiar tu elección"}><X size={17}/></button>
     </section>}
   </>;
