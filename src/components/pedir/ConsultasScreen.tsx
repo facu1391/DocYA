@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import {
   Activity,
   ArrowLeft,
+  ArrowRight,
   Calendar,
   CheckCircle2,
   ClipboardList,
@@ -522,8 +523,16 @@ function ConsultaCard({ consulta, theme, t }: { consulta: HistoriaConsulta; them
       </div>
       {process.env.NEXT_PUBLIC_REPEAT_TELECONSULTATION_ENABLED !== "false" &&
         consulta.estado?.toLowerCase() === "finalizada" && (consulta.medico || consulta.medico_nombre) && (
-          <Link href={`/pedir/solicitar?tipo=teleconsulta&repetir=${consulta.id}`} style={{ display: "inline-block", margin: 16, color: theme.text }}>
-            Volver a consultar con este médico
+          <Link
+            href={`/pedir/solicitar?tipo=teleconsulta&repetir=${consulta.id}`}
+            className="mx-4 mb-4 mt-4 flex items-center gap-3 rounded-2xl bg-[#2dd4bf] px-4 py-3 text-[#062823] no-underline transition-colors hover:bg-[#5eead4] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2dd4bf] active:bg-[#20c4af]"
+          >
+            <Video size={22} className="shrink-0" aria-hidden="true" />
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-extrabold sm:text-base">Volver a consultar con este médico</span>
+              <span className="block text-xs font-medium">Solicitá una nueva teleconsulta</span>
+            </span>
+            <ArrowRight size={19} className="shrink-0" aria-hidden="true" />
           </Link>
         )}
     </article>
