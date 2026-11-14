@@ -92,7 +92,7 @@ export default function TeleconsultaAds() {
     minimumFractionDigits: 0,
   }).format(price);
   const requestButton = (
-    <Link href="/pedir" onClick={recordClick} className="btn-primary inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl px-6 font-semibold sm:w-auto">
+    <Link href="/pedir?intencion=teleconsulta" onClick={recordClick} className="btn-primary inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl px-6 font-semibold sm:w-auto">
       Solicitar teleconsulta ahora <ArrowRight size={18} aria-hidden="true" />
     </Link>
   );
@@ -100,11 +100,15 @@ export default function TeleconsultaAds() {
   return <div className="mx-auto grid w-full max-w-[1200px] items-center gap-8 px-5 pb-32 pt-8 sm:px-6 md:grid-cols-2 md:gap-12 md:py-16">
     <div className="order-1">
       <p className="badge-trusted mb-6 w-fit"><Video size={17} aria-hidden="true" /> Teleconsulta DocYa</p>
-      <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight md:text-5xl">Un médico online <span className="highlight-text">cuando lo necesitás.</span></h1>
-      <p className="mb-3 text-lg font-semibold leading-relaxed">Atención médica por videollamada, sin turnos ni traslados, desde cualquier lugar de Argentina.</p>
+      <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight md:text-5xl">Hablá con un médico online, <span className="highlight-text">sin turno.</span></h1>
+      <p className="mb-3 text-lg font-semibold leading-relaxed">Solicitá una videollamada desde tu celular. DocYa busca un médico matriculado disponible en ese momento.</p>
       <p className="mb-5 leading-relaxed text-text-muted">¿Necesitás un certificado, una receta o una orden de estudios? El médico evalúa tu caso y puede emitir los documentos que correspondan.</p>
       <p className="mb-4 min-h-7 text-lg font-semibold" aria-live="polite">{formattedPrice ? `${formattedPrice} por teleconsulta` : "Consultá la tarifa vigente al solicitar"}</p>
       <div ref={heroAction}>{requestButton}</div>
+      <p className="mt-3 text-sm text-text-muted">
+        ¿Tenés dudas antes de pagar?{" "}
+        <a className="font-semibold underline underline-offset-4" href="https://wa.me/5491168700607?text=Hola%2C%20tengo%20una%20duda%20sobre%20la%20teleconsulta%20que%20vi%20en%20Google." target="_blank" rel="noopener noreferrer">Hablá con nuestro equipo por WhatsApp</a>.
+      </p>
       <ul className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
         {([[Video, "En tiempo real"], [BadgeCheck, "Médicos matriculados"], [Wallet, "Sin obra social"]] as const).map(([BadgeIcon, label]) => {
           return <li key={label} className="inline-flex items-center gap-1.5 rounded-full border border-current/15 px-2.5 py-1.5">
@@ -172,7 +176,7 @@ export default function TeleconsultaAds() {
       {requestButton}
     </section>
     {showDock && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-current/15 bg-background px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden">
-      <Link href="/pedir" onClick={recordClick} className="btn-primary flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-3 font-semibold">
+      <Link href="/pedir?intencion=teleconsulta" onClick={recordClick} className="btn-primary flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-3 font-semibold">
         Solicitar teleconsulta <ArrowRight size={17} aria-hidden="true" />
       </Link>
     </div>}

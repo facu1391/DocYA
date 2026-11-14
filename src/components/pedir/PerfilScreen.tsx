@@ -102,7 +102,8 @@ export default function PerfilScreen() {
       const updated: PedirUser = { ...user, full_name: data.user?.full_name ?? nombreCompleto.trim(), perfil_completo: true };
       localStorage.setItem("pedir_user", JSON.stringify(updated));
       notify(t.perfil.exito);
-      router.push("/pedir");
+      const wantsTeleconsulta = new URLSearchParams(window.location.search).get("intencion") === "teleconsulta";
+      router.push(wantsTeleconsulta ? "/pedir?intencion=teleconsulta" : "/pedir");
     } catch (e) {
       notify(e instanceof Error ? e.message : t.perfil.errorGeneral, false);
     } finally {

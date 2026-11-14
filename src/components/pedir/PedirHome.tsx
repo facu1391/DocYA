@@ -9,7 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa";
 import WhatsAppSupportButton from "@/components/fab/WhatsAppSupportButton";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ShieldCheck, Clock, Star, CreditCard, ChevronRight,
   Phone, LogOut, User, ChevronDown, Sun, Moon,
@@ -59,6 +59,8 @@ const notify = (msg: string, ok = true) => {
 
 export default function PedirHome() {
   const router = useRouter();
+  const wantsTeleconsulta = useSearchParams().get("intencion") === "teleconsulta";
+  const profileRoute = wantsTeleconsulta ? "/pedir/perfil?intencion=teleconsulta" : "/pedir/perfil";
   const [deviceModalOpen, setDeviceModalOpen] = useState(false);
   const [telePediatricaPendiente, setTelePediatricaPendiente] = useState(false);
   const devicesTested = useRef(false);
@@ -129,11 +131,15 @@ export default function PedirHome() {
     }
     let cancelado = false;
     recuperarConsultaPendienteGlobal(user).then(info => {
-      if (cancelado || !info) return;
-      router.replace(`/pedir/buscando?consulta_id=${info.consultaId}&tipo=${info.tipo}`);
+      if (cancelado) return;
+      if (info) {
+        router.replace(`/pedir/buscando?consulta_id=${info.consultaId}&tipo=${info.tipo}`);
+      } else if (wantsTeleconsulta && user.perfil_completo && !localStorage.getItem("docya_consulta_activa")) {
+        setDeviceModalOpen(true);
+      }
     });
     return () => { cancelado = true; };
-  }, [user, router]);
+  }, [user, router, wantsTeleconsulta]);
 
   useEffect(() => {
     if (!PATIENT_REFERRALS_ENABLED || !user?.access_token) { setReferralSummary(null); return; }
@@ -201,7 +207,7 @@ export default function PedirHome() {
       };
       if (saveUser(u)) return;
       notify(t.pedir.bienvenido);
-      if (!u.perfil_completo) router.push("/pedir/perfil");
+      if (!u.perfil_completo) router.push(profileRoute);
     } catch (e) {
       notify(e instanceof Error ? e.message : t.pedir.errorLogin, false);
     } finally { setGoogleBusy(false); }
@@ -231,7 +237,7 @@ export default function PedirHome() {
       setPasswordLogin("");
       if (saveUser(u)) return;
       notify(locale === "es" ? "¡Bienvenido/a a DocYa!" : "Welcome to DocYa!");
-      if (!u.perfil_completo) router.push("/pedir/perfil");
+      if (!u.perfil_completo) router.push(profileRoute);
     } catch (cause) {
       setEmailLoginError(cause instanceof Error ? cause.message : (locale === "es" ? "Error de conexión." : "Connection error."));
     } finally {
@@ -276,7 +282,7 @@ export default function PedirHome() {
       };
       if (saveUser(u)) return;
       notify(t.pedir.bienvenido);
-      if (!u.perfil_completo) router.push("/pedir/perfil");
+      if (!u.perfil_completo) router.push(profileRoute);
     } catch (e: unknown) {
       if (e && typeof e === "object" && "error" in e && (e as { error: string }).error === "popup_closed_by_user") return;
       notify(e instanceof Error ? e.message : t.pedir.errorApple, false);
