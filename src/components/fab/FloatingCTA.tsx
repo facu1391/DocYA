@@ -27,7 +27,7 @@ export default function FloatingCTA() {
 
   // Reglas de visibilidad
   const HIDDEN_ROUTES = ["/registro", "/gracias"];
-  const shouldHide = pathname === "/teleconsulta-ads" || HIDDEN_ROUTES.some((p) => pathname.startsWith(p));
+  const shouldHide = ["/teleconsulta-ads", "/certificados"].includes(pathname) || HIDDEN_ROUTES.some((p) => pathname.startsWith(p));
   const isPublicAudience = pathname === "/" || pathname.startsWith("/legal/pacientes");
 
   // Si debe ocultarse, no se renderiza NADA (pero los hooks ya corrieron)

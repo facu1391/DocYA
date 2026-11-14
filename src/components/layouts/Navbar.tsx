@@ -19,7 +19,7 @@ const DOCYA_LOGO_URL = "https://res.cloudinary.com/dqsacd9ez/image/upload/v17889
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname() ?? "";
-  const useCompactNav = pathname === "/" || pathname === "/teleconsulta-ads";
+  const useCompactNav = ["/", "/teleconsulta-ads", "/certificados"].includes(pathname);
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -39,6 +39,7 @@ export default function Navbar() {
     "/teleconsulta",
     "/receta-medica-online",
     "/certificado-medico-online",
+    "/certificados",
     "/centro-de-ayuda",
     "/como-funciona",
   ];

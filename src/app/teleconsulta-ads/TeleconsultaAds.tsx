@@ -38,7 +38,7 @@ const questions = [
   { question: "¿Dónde quedan mis documentos?", answer: "Ingresá en Mis consultas. Ahí podés consultar el historial y abrir o descargar los documentos que te hayan emitido." },
 ];
 
-export default function TeleconsultaAds() {
+export default function TeleconsultaAds({ certificados = false }: { certificados?: boolean }) {
   const visit = useRef<{ id: string; sent: Promise<boolean> } | null>(null);
   const clickRecorded = useRef(false);
   const heroAction = useRef<HTMLDivElement>(null);
@@ -100,10 +100,17 @@ export default function TeleconsultaAds() {
   return <div className="mx-auto grid w-full max-w-[1200px] items-center gap-8 px-5 pb-32 pt-8 sm:px-6 md:grid-cols-2 md:gap-12 md:py-16">
     <div className="order-1">
       <p className="badge-trusted mb-6 w-fit"><Video size={17} aria-hidden="true" /> Teleconsulta DocYa</p>
-      <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight md:text-5xl">Hablá con un médico online, <span className="highlight-text">sin turno.</span></h1>
-      <p className="mb-3 text-lg font-semibold leading-relaxed">Solicitá una videollamada desde tu celular. DocYa busca un médico matriculado disponible en ese momento.</p>
-      <p className="mb-5 leading-relaxed text-text-muted">¿Necesitás un certificado, una receta o una orden de estudios? El médico evalúa tu caso y puede emitir los documentos que correspondan.</p>
+      <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight md:text-5xl">
+        {certificados ? <>¿Necesitás un <span className="highlight-text">certificado médico?</span></> : <>Hablá con un médico online, <span className="highlight-text">sin turno.</span></>}
+      </h1>
+      <p className="mb-3 text-lg font-semibold leading-relaxed">
+        {certificados ? "Consultá por videollamada con un médico matriculado, sin turno ni traslados." : "Solicitá una videollamada desde tu celular. DocYa busca un médico matriculado disponible en ese momento."}
+      </p>
+      <p className="mb-5 leading-relaxed text-text-muted">
+        {certificados ? "Contale para qué necesitás el certificado. Si corresponde según su evaluación, el médico puede emitir un certificado digital con QR. Podés descargarlo desde Mis consultas." : "¿Necesitás un certificado, una receta o una orden de estudios? El médico evalúa tu caso y puede emitir los documentos que correspondan."}
+      </p>
       <p className="mb-4 min-h-7 text-lg font-semibold" aria-live="polite">{formattedPrice ? `${formattedPrice} por teleconsulta` : "Consultá la tarifa vigente al solicitar"}</p>
+      {certificados && <p className="mb-4 text-sm text-text-muted">El precio corresponde a la evaluación médica por videollamada. La emisión del certificado depende del profesional.</p>}
       <div ref={heroAction}>{requestButton}</div>
       <p className="mt-3 text-sm text-text-muted">
         ¿Tenés dudas antes de pagar?{" "}
@@ -119,6 +126,13 @@ export default function TeleconsultaAds() {
       <p className="mt-4 text-sm text-text-muted">Si es una emergencia, llamá al 107 o al 911, o acudí a una guardia.</p>
     </div>
     <Image src="/how/teleconsulta.webp" alt="Videollamada médica en DocYa" width={580} height={580} sizes="(min-width: 1200px) 550px, (min-width: 768px) 50vw, 85vw" className="order-4 mx-auto h-auto max-h-[440px] w-full object-contain md:order-2" />
+    {certificados && <section className="order-2 rounded-2xl border border-current/15 bg-current/5 p-5 md:col-span-2" aria-labelledby="cert-confianza">
+      <h2 id="cert-confianza" className="mb-4 text-2xl font-semibold">Quién te atiende y cómo verificarlo</h2>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div><h3 className="font-semibold">Médicos con matrícula verificada en SISA</h3><p className="mt-1 text-sm text-text-muted">DocYa verifica la matrícula de los médicos que te atienden.</p></div>
+        <div><h3 className="font-semibold">Registro de DocYa</h3><p className="mt-1 text-sm text-text-muted">DocYa informa su inscripción ante el Ministerio de Salud de la Nación con el ID 0259.</p><Link className="mt-2 inline-block text-sm underline underline-offset-4" href="/como-funciona">Conocé cómo funciona DocYa</Link></div>
+      </div>
+    </section>}
     <section className="order-2 md:order-3 md:col-span-2" aria-labelledby="ads-beneficios">
       <h2 id="ads-beneficios" className="mb-4 text-2xl font-semibold">Qué podés resolver en una teleconsulta</h2>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -158,6 +172,10 @@ export default function TeleconsultaAds() {
       <div className="divide-y divide-current/10 rounded-xl border border-current/10 px-4 sm:px-6">
         {[
           { question: "¿Cuánto cuesta la teleconsulta?", answer: formattedPrice ? `La tarifa vigente es de ${formattedPrice}. Podés revisar el importe antes de pagar.` : "Vas a ver la tarifa vigente en el flujo de solicitud antes de pagar." },
+          ...(certificados ? [
+            { question: "¿El certificado está garantizado?", answer: "La teleconsulta es una evaluación médica. El profesional decide si corresponde emitir un certificado y qué debe indicar." },
+            { question: "¿Lo puedo presentar en el trabajo o en una institución?", answer: "Consultá qué requisitos pide quien lo recibe. Durante la videollamada contale al médico para qué necesitás el documento." },
+          ] : []),
           ...questions,
           { question: "¿Necesito obra social o prepaga?", answer: "No. Podés solicitar una teleconsulta particular sin obra social ni prepaga." },
           { question: "¿Puedo consultar desde cualquier provincia?", answer: "Sí, podés solicitar atención por videollamada desde cualquier lugar de Argentina, según disponibilidad." },

@@ -28,6 +28,7 @@ module.exports = {
     "/login",
     "/gracias",
     "/teleconsulta-ads",
+    "/certificados",
     "/pedir/filtro",
     "/pedir/pago",
     "/pedir/consultas",

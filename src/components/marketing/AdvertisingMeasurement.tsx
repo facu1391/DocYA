@@ -28,7 +28,7 @@ export default function AdvertisingMeasurement() {
 
   useEffect(()=>{
 
-    adsLandingEntry.current=location.pathname === "/teleconsulta-ads";
+    adsLandingEntry.current=["/teleconsulta-ads", "/certificados"].includes(location.pathname);
     evidence.current=landingEvidence(location.href,document.referrer);
     try {dismissed.current=sessionStorage.getItem(NOTICE_SESSION_KEY)==="1";} catch { /* Memory-only dismissal still works. */ }
     const update=()=>{
