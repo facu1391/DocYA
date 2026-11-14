@@ -16,6 +16,7 @@ export default function Footer({ audience, locale = "es" }: { audience?: "public
 
   const isPublicAudience = audience ? audience === "public" :
     pathname === "/" ||
+    pathname === "/certificados" ||
     pathname.startsWith("/legal/pacientes") ||
     pathname.startsWith("/registro/paciente") ||
     pathname.startsWith("/gracias") ||
