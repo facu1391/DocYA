@@ -98,7 +98,7 @@ export default function TeleconsultaAds({ certificados = false }: { certificados
   );
 
   return <div className="mx-auto grid w-full max-w-[1200px] items-center gap-8 px-5 pb-32 pt-8 sm:px-6 md:grid-cols-2 md:gap-12 md:py-16">
-    <div className="order-1">
+    <div className="order-1 md:col-start-1 md:row-start-1">
       <p className="badge-trusted mb-6 w-fit"><Video size={17} aria-hidden="true" /> Teleconsulta DocYa</p>
       <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight md:text-5xl">
         {certificados ? <>¿Necesitás un <span className="highlight-text">certificado médico?</span></> : <>Hablá con un médico online, <span className="highlight-text">sin turno.</span></>}
@@ -125,7 +125,7 @@ export default function TeleconsultaAds({ certificados = false }: { certificados
       </ul>
       <p className="mt-4 text-sm text-text-muted">Si es una emergencia, llamá al 107 o al 911, o acudí a una guardia.</p>
     </div>
-    <Image src="/how/teleconsulta.webp" alt="Videollamada médica en DocYa" width={580} height={580} sizes="(min-width: 1200px) 550px, (min-width: 768px) 50vw, 85vw" className="order-4 mx-auto h-auto max-h-[440px] w-full object-contain md:order-2" />
+    <Image src="/how/teleconsulta.webp" alt="Videollamada médica en DocYa" width={580} height={580} sizes="(min-width: 1200px) 550px, (min-width: 768px) 50vw, 85vw" className="order-4 mx-auto h-auto max-h-[440px] w-full object-contain md:order-2 md:col-start-2 md:row-start-1" />
     {certificados && <section className="order-2 rounded-2xl border border-current/15 bg-current/5 p-5 md:col-span-2" aria-labelledby="cert-confianza">
       <h2 id="cert-confianza" className="mb-4 text-2xl font-semibold">Quién te atiende y cómo verificarlo</h2>
       <div className="grid gap-4 sm:grid-cols-2">
