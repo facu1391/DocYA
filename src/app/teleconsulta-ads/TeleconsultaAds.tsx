@@ -133,7 +133,7 @@ export default function TeleconsultaAds({ certificados = false }: { certificados
         <figcaption className="col-span-2 text-center text-xs text-text-muted">La app real. De la videollamada a tus documentos.</figcaption>
       </figure>
     ) : <Image src="/how/teleconsulta.webp" alt="Videollamada médica en DocYa" width={580} height={580} sizes="(min-width: 1200px) 550px, (min-width: 768px) 50vw, 85vw" className="order-4 mx-auto h-auto max-h-[440px] w-full object-contain md:order-2 md:col-start-2 md:row-start-1" />}
-    {certificados && <section className="order-2 rounded-2xl border border-current/15 bg-current/5 p-5 md:col-span-2" aria-labelledby="cert-confianza">
+    <section className="order-2 rounded-2xl border border-current/15 bg-current/5 p-5 md:col-span-2" aria-labelledby="cert-confianza">
       <h2 id="cert-confianza" className="mb-4 text-2xl font-semibold">Atención con médicos verificados</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <div><h3 className="font-semibold">Médicos con matrícula verificada en SISA</h3><p className="mt-1 text-sm text-text-muted">DocYa verifica la matrícula de los médicos que te atienden.</p></div>
@@ -144,7 +144,7 @@ export default function TeleconsultaAds({ certificados = false }: { certificados
         <p className="mt-2 text-text-muted">El artículo 210 de la Ley de Contrato de Trabajo, modificado por la Ley 27.802 y reglamentado por el Decreto 407/2026, prevé la emisión electrónica por plataformas registradas en ReNaPDiS y la firma de profesionales habilitados en REFEPS para las prescripciones que indican reposo laboral.</p>
         <a className="mt-2 inline-block underline underline-offset-4" href="https://www.argentina.gob.ar/normativa/nacional/decreto-407-2026-426270/texto" target="_blank" rel="noopener noreferrer">Consultar la normativa oficial</a>
       </details>
-    </section>}
+    </section>
     <section className="order-2 md:order-3 md:col-span-2" aria-labelledby="ads-beneficios">
       <h2 id="ads-beneficios" className="mb-4 text-2xl font-semibold">Qué podés resolver en una teleconsulta</h2>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
