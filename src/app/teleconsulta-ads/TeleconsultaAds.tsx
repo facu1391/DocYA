@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import homeStyles from "@/components/landing-public/nueva-landing/home-conversion.module.css";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, BadgeCheck, ClipboardList, FileCheck, FolderOpen, Pill, Video, Wallet } from "lucide-react";
@@ -92,7 +93,7 @@ export default function TeleconsultaAds({ certificados = false }: { certificados
     minimumFractionDigits: 0,
   }).format(price);
   const requestButton = (
-    <Link href="/pedir?intencion=teleconsulta" onClick={recordClick} className="btn-primary inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl px-6 font-semibold sm:w-auto">
+    <Link href="/pedir?intencion=teleconsulta" onClick={recordClick} className={certificados ? homeStyles.homeButton + " w-full sm:w-auto" : "btn-primary inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl px-6 font-semibold sm:w-auto"}>
       Solicitar teleconsulta ahora <ArrowRight size={18} aria-hidden="true" />
     </Link>
   );
@@ -100,8 +101,8 @@ export default function TeleconsultaAds({ certificados = false }: { certificados
   return <div className="mx-auto grid w-full max-w-[1200px] items-center gap-8 px-5 pb-32 pt-8 sm:px-6 md:grid-cols-2 md:gap-12 md:py-16">
     <div className="order-1 md:col-start-1 md:row-start-1">
       <p className="badge-trusted mb-6 w-fit"><Video size={17} aria-hidden="true" /> Teleconsulta DocYa</p>
-      <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight md:text-5xl">
-        {certificados ? <>¿Necesitás un <span className="highlight-text">certificado médico?</span></> : <>Hablá con un médico online, <span className="highlight-text">sin turno.</span></>}
+      <h1 className={certificados ? "mb-5 text-[clamp(2.35rem,4.15vw,3.625rem)] font-semibold leading-[1.1] tracking-[-0.045em]" : "mb-4 text-4xl font-bold leading-tight tracking-tight md:text-5xl"}>
+        {certificados ? <>¿Necesitás un certificado médico?<br /><span className="text-[#36d6c2]">Consultá desde tu celular.</span></> : <>Hablá con un médico online, <span className="highlight-text">sin turno.</span></>}
       </h1>
       <p className="mb-3 text-lg font-semibold leading-relaxed">
         {certificados ? "Consultá por videollamada con un médico matriculado, sin turno ni traslados." : "Solicitá una videollamada desde tu celular. DocYa busca un médico matriculado disponible en ese momento."}
@@ -125,13 +126,24 @@ export default function TeleconsultaAds({ certificados = false }: { certificados
       </ul>
       <p className="mt-4 text-sm text-text-muted">Si es una emergencia, llamá al 107 o al 911, o acudí a una guardia.</p>
     </div>
-    <Image src="/how/teleconsulta.webp" alt="Videollamada médica en DocYa" width={580} height={580} sizes="(min-width: 1200px) 550px, (min-width: 768px) 50vw, 85vw" className="order-4 mx-auto h-auto max-h-[440px] w-full object-contain md:order-2 md:col-start-2 md:row-start-1" />
+    {certificados ? (
+      <figure className="order-4 mx-auto grid w-full max-w-[480px] grid-cols-2 items-center gap-3 md:col-start-2 md:row-start-1">
+        <Image src="/how/teleconsulta.webp" alt="Videollamada médica en DocYa" width={580} height={580} sizes="(min-width: 768px) 240px, 45vw" className="h-auto w-full object-contain" />
+        <Image src="/how/documentos-medicos.webp" alt="Pantalla de documentos médicos en DocYa" width={520} height={1024} sizes="(min-width: 768px) 240px, 45vw" className="h-auto max-h-[420px] w-full object-contain" />
+        <figcaption className="col-span-2 text-center text-xs text-text-muted">La app real. De la videollamada a tus documentos.</figcaption>
+      </figure>
+    ) : <Image src="/how/teleconsulta.webp" alt="Videollamada médica en DocYa" width={580} height={580} sizes="(min-width: 1200px) 550px, (min-width: 768px) 50vw, 85vw" className="order-4 mx-auto h-auto max-h-[440px] w-full object-contain md:order-2 md:col-start-2 md:row-start-1" />}
     {certificados && <section className="order-2 rounded-2xl border border-current/15 bg-current/5 p-5 md:col-span-2" aria-labelledby="cert-confianza">
-      <h2 id="cert-confianza" className="mb-4 text-2xl font-semibold">Quién te atiende y cómo verificarlo</h2>
+      <h2 id="cert-confianza" className="mb-4 text-2xl font-semibold">Atención con médicos verificados</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <div><h3 className="font-semibold">Médicos con matrícula verificada en SISA</h3><p className="mt-1 text-sm text-text-muted">DocYa verifica la matrícula de los médicos que te atienden.</p></div>
         <div><h3 className="font-semibold">Registro de DocYa</h3><p className="mt-1 text-sm text-text-muted">DocYa informa su inscripción ante el Ministerio de Salud de la Nación con el ID 0259.</p><Link className="mt-2 inline-block text-sm underline underline-offset-4" href="/como-funciona">Conocé cómo funciona DocYa</Link></div>
       </div>
+      <details className="mt-5 border-t border-current/15 pt-4 text-sm">
+        <summary className="cursor-pointer font-semibold">¿Qué exige la normativa para el reposo laboral?</summary>
+        <p className="mt-2 text-text-muted">El artículo 210 de la Ley de Contrato de Trabajo, modificado por la Ley 27.802 y reglamentado por el Decreto 407/2026, prevé la emisión electrónica por plataformas registradas en ReNaPDiS y la firma de profesionales habilitados en REFEPS para las prescripciones que indican reposo laboral.</p>
+        <a className="mt-2 inline-block underline underline-offset-4" href="https://www.argentina.gob.ar/normativa/nacional/decreto-407-2026-426270/texto" target="_blank" rel="noopener noreferrer">Consultar la normativa oficial</a>
+      </details>
     </section>}
     <section className="order-2 md:order-3 md:col-span-2" aria-labelledby="ads-beneficios">
       <h2 id="ads-beneficios" className="mb-4 text-2xl font-semibold">Qué podés resolver en una teleconsulta</h2>
