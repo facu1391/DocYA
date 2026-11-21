@@ -59,8 +59,10 @@ const notify = (msg: string, ok = true) => {
 
 export default function PedirHome() {
   const router = useRouter();
-  const wantsTeleconsulta = useSearchParams().get("intencion") === "teleconsulta";
-  const profileRoute = wantsTeleconsulta ? "/pedir/perfil?intencion=teleconsulta" : "/pedir/perfil";
+  const intent = useSearchParams().get("intencion");
+  const wantsCertificate = intent === "certificado";
+  const wantsTeleconsulta = intent === "teleconsulta" || wantsCertificate;
+  const profileRoute = wantsTeleconsulta ? `/pedir/perfil?intencion=${intent}` : "/pedir/perfil";
   const [deviceModalOpen, setDeviceModalOpen] = useState(false);
   const [telePediatricaPendiente, setTelePediatricaPendiente] = useState(false);
   const devicesTested = useRef(false);
@@ -442,10 +444,18 @@ export default function PedirHome() {
                     <ShieldCheck size={26} color="#fff" />
                   </div>
                   <h1 style={{ fontSize: 26, fontWeight: 800, marginBottom: 8, lineHeight: 1.2, color: dark ? "#2dd4bf" : "#08796d" }}>
-                    {t.pedir.loginCardTitle}
+                    {wantsCertificate
+                      ? (locale === "es" ? "Consulta por certificado médico" : "Medical certificate consultation")
+                      : wantsTeleconsulta
+                        ? (locale === "es" ? "Solicitá tu teleconsulta" : "Request a video consultation")
+                        : t.pedir.loginCardTitle}
                   </h1>
                   <p style={{ fontSize: 14, color: muted, lineHeight: 1.5 }}>
-                    {t.pedir.loginCardDescription}
+                    {wantsTeleconsulta
+                      ? (locale === "es"
+                        ? "Ingresá o creá tu cuenta para continuar. Vas a poder revisar el importe antes de pagar."
+                        : "Sign in or create an account to continue. You can review the price before paying.")
+                      : t.pedir.loginCardDescription}
                   </p>
                 </div>
 

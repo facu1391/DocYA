@@ -31,7 +31,7 @@ const steps = [
 ];
 
 const questions = [
-  { question: "¿Cómo hago la teleconsulta?", answer: "Entrá en Solicitar teleconsulta ahora y seguí los pasos. Cuando un médico acepte, vas a poder abrir la videollamada desde DocYa." },
+  { question: "¿Cómo hago la teleconsulta?", answer: "Iniciá la solicitud y seguí los pasos. Cuando un médico acepte, vas a poder abrir la videollamada desde DocYa." },
   { question: "¿Necesito turno? ¿Cuánto tengo que esperar?", answer: "Podés solicitar atención sin reservar turno. DocYa busca un médico en ese momento y la espera depende de la disponibilidad." },
   { question: "¿Puedo pedir un certificado médico?", answer: "Sí. Explicale al profesional para qué lo necesitás. La emisión depende de su evaluación." },
   { question: "¿Pueden emitir recetas digitales?", answer: "Sí, el médico puede emitir una receta digital si considera que la medicación está indicada para tu caso." },
@@ -92,9 +92,11 @@ export default function TeleconsultaAds({ certificados = false }: { certificados
     currencyDisplay: "code",
     minimumFractionDigits: 0,
   }).format(price);
+  const requestHref = certificados ? "/pedir?intencion=certificado" : "/pedir?intencion=teleconsulta";
+  const requestLabel = certificados ? "Iniciar consulta por certificado" : "Solicitar teleconsulta";
   const requestButton = (
-    <Link href="/pedir?intencion=teleconsulta" onClick={recordClick} className={certificados ? homeStyles.homeButton + " w-full sm:w-auto" : "btn-primary inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl px-6 font-semibold sm:w-auto"}>
-      Solicitar teleconsulta ahora <ArrowRight size={18} aria-hidden="true" />
+    <Link href={requestHref} onClick={recordClick} className={certificados ? homeStyles.homeButton + " w-full sm:w-auto" : "btn-primary inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl px-6 font-semibold sm:w-auto"}>
+      {requestLabel} <ArrowRight size={18} aria-hidden="true" />
     </Link>
   );
 
@@ -102,17 +104,14 @@ export default function TeleconsultaAds({ certificados = false }: { certificados
     <div className="order-1 md:col-start-1 md:row-start-1">
       <p className="badge-trusted mb-6 w-fit"><Video size={17} aria-hidden="true" /> Teleconsulta DocYa</p>
       <h1 className={certificados ? "mb-5 text-[clamp(2.35rem,4.15vw,3.625rem)] font-semibold leading-[1.1] tracking-[-0.045em]" : "mb-4 text-4xl font-bold leading-tight tracking-tight md:text-5xl"}>
-        {certificados ? <>¿Necesitás un certificado médico?<br /><span className="text-[#36d6c2]">Consultá desde tu celular.</span></> : <>Hablá con un médico online, <span className="highlight-text">sin turno.</span></>}
+        {certificados ? <>¿Necesitás un certificado médico?<br /><span className="text-[#36d6c2]">Consultá online sin turno.</span></> : <>Hablá con un médico online, <span className="highlight-text">sin turno.</span></>}
       </h1>
       <p className="mb-3 text-lg font-semibold leading-relaxed">
-        {certificados ? "Consultá por videollamada con un médico matriculado, sin turno ni traslados." : "Solicitá una videollamada desde tu celular. DocYa busca un médico matriculado disponible en ese momento."}
-      </p>
-      <p className="mb-5 leading-relaxed text-text-muted">
-        {certificados ? "Contale para qué necesitás el certificado. Si corresponde según su evaluación, el médico puede emitir un certificado digital con QR. Podés descargarlo desde Mis consultas." : "¿Necesitás un certificado, una receta o una orden de estudios? El médico evalúa tu caso y puede emitir los documentos que correspondan."}
+        {certificados ? "Hablá por videollamada con un médico matriculado. Si corresponde, puede emitir un certificado digital con QR." : "Solicitá una videollamada desde tu celular. DocYa busca un médico matriculado disponible en ese momento."}
       </p>
       <p className="mb-4 min-h-7 text-lg font-semibold" aria-live="polite">{formattedPrice ? `${formattedPrice} por teleconsulta` : "Consultá la tarifa vigente al solicitar"}</p>
-      {certificados && <p className="mb-4 text-sm text-text-muted">El precio corresponde a la evaluación médica por videollamada. La emisión del certificado depende del profesional.</p>}
       <div ref={heroAction}>{requestButton}</div>
+      <p className="mt-3 text-sm text-text-muted">Ingresá o creá tu cuenta para continuar. Vas a poder revisar el importe antes de pagar.</p>
       <p className="mt-3 text-sm text-text-muted">
         ¿Tenés dudas antes de pagar?{" "}
         <a className="font-semibold underline underline-offset-4" href="https://wa.me/5491168700607?text=Hola%2C%20tengo%20una%20duda%20sobre%20la%20teleconsulta%20que%20vi%20en%20Google." target="_blank" rel="noopener noreferrer">Hablá con nuestro equipo por WhatsApp</a>.
@@ -206,8 +205,8 @@ export default function TeleconsultaAds({ certificados = false }: { certificados
       {requestButton}
     </section>
     {showDock && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-current/15 bg-background px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden">
-      <Link href="/pedir?intencion=teleconsulta" onClick={recordClick} className="btn-primary flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-3 font-semibold">
-        Solicitar teleconsulta <ArrowRight size={17} aria-hidden="true" />
+      <Link href={requestHref} onClick={recordClick} className="btn-primary flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-3 font-semibold">
+        {requestLabel} <ArrowRight size={17} aria-hidden="true" />
       </Link>
     </div>}
     <div className={showDock ? "max-md:[&>a]:bottom-[calc(4.5rem+env(safe-area-inset-bottom))]!" : undefined}>
